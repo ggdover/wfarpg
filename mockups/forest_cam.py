@@ -50,7 +50,9 @@ P = {k: lin(v) for k, v in {
     "belt": "#2A2018", "skin": "#D9A07A", "hair": "#6A4A2A", "beard": "#8A6A3A", "bracer": "#4A3828",
     "steel": "#C8CCD0", "steeldark": "#7E848A", "shieldpaint": "#B89A5A", "gold": "#C9A24A",
     "stone": "#80807A", "stone2": "#6E6E68",
+    "peb1": "#C39755", "peb2": "#CDA76A", "peb3": "#B98946", "peb4": "#D5B681",
 }.items()}
+PEBBLE = ("peb1", "peb2", "peb3", "peb4")  # path stones, in the path's own tan
 
 
 # ---------------------------------------------------------------- scene reset
@@ -145,8 +147,8 @@ MAT = mat_lowpoly()
 
 
 def mat_ground():
-    """Smooth ground with procedural 'painted' layers: forest floor with grass patches,
-    needle litter under pines, bog mud, shore grass and a gravel dirt path."""
+    """Smooth ground with procedural 'painted' layers: forest floor with grass patches, bog mud, shore grass,
+    a worn gravel path and scattered fallen leaves."""
     m = bpy.data.materials.new("Ground")
     m.use_nodes = True
     nt = m.node_tree
@@ -241,13 +243,6 @@ def mat_ground():
     clump = noise(1.3, 2.0, 0.5, 0, (29, 13, 0))
     L.new(math("MULTIPLY", sstep(grain, 0.3, 0.7, 0.84, 1.12), sstep(clump, 0.35, 0.65, 0.9, 1.08)), hs.inputs["Value"])
     col = hs.outputs["Color"]
-    # needle litter under the pines
-    litter = ramp(noise(8.0, 3.0, 0.6, 1.5, (9, 9, 0)), [(0.35, "#6B4C2F"), (0.6, "#87633E"), (0.82, "#A27B4C")])
-    # soft, ragged edge: a narrow threshold here showed the terrain triangles as a zigzag line
-    lit_n = math("ADD", math("MULTIPLY", math("SUBTRACT", noise(0.9, 2.0, 0.5, 0, (31, 0, 0)), 0.5), 0.6),
-                 math("MULTIPLY", math("SUBTRACT", noise(4.0, 2.0, 0.6, 0, (37, 11, 0)), 0.5), 0.35))
-    lit_eff = sstep(math("ADD", attr("litter"), lit_n), 0.3, 0.75)
-    col = mix(math("MULTIPLY", lit_eff, 0.9), col, litter)
     # bog mud
     bog = ramp(noise(0.5, 3.0, 0.5, 0, (7, 3, 0)), [(0.35, "#30301E"), (0.55, "#45452B"), (0.72, "#585233")])
     col = mix(broken(attr("bog"), 0.6, 0.4, 0.4, 0.6, (13, 1, 0)), col, bog)
@@ -268,11 +263,11 @@ def mat_ground():
     fine = math("SUBTRACT", noise(7.0, 2.0, 0.6, 0, (13, 3, 0)), 0.5)
     tufts = math("SUBTRACT", noise(1.5, 3.0, 0.6, 0, (7, 43, 0)), 0.5)
     bare = sstep(math("ADD", wear, math("ADD", math("MULTIPLY", tufts, 2.0), math("MULTIPLY", fine, 0.5))), 0.35, 0.7)
-    worn = math("MULTIPLY", sstep(e, 0.7, 2.1, 1.0, 0.0), math("SUBTRACT", 1.0, math("MULTIPLY", lit_eff, 0.8)))
-    worn_grass = ramp(noise(3.0, 2.0, 0.6, 0, (23, 7, 0)), [(0.3, "#83824A"), (0.7, "#9C9657")])
+    worn = sstep(e, 0.7, 2.1, 1.0, 0.0)
+    worn_grass = ramp(noise(3.0, 2.0, 0.6, 0, (23, 7, 0)), [(0.3, "#93904F"), (0.7, "#ABA462")])
     col = mix(math("MULTIPLY", worn, 0.5), col, worn_grass)
-    dirt = ramp(noise(0.9, 3.0, 0.5, 0, (3, 29, 0)), [(0.3, "#5F4630"), (0.5, "#735840"), (0.72, "#86684B")])
-    dirt = mix(sstep(wear, 0.35, 0.85, 0.45, 0.0), dirt, "#5B5A33")
+    dirt = ramp(noise(0.9, 3.0, 0.5, 0, (3, 29, 0)), [(0.3, "#D6A151"), (0.5, "#DDAF64"), (0.72, "#E0BB7B")])
+    dirt = mix(sstep(wear, 0.35, 0.85, 0.4, 0.0), dirt, "#B3A456")
     col = mix(bare, col, dirt)
     warp_n = N.new("ShaderNodeTexNoise")
     warp_n.inputs["Scale"].default_value = 9.0
@@ -313,21 +308,47 @@ def mat_ground():
     spread = math("ADD", wear, math("MULTIPLY", fine, 0.3))
     small_d = math("ADD", sstep(spread, 0.15, 0.75, 0.0, 0.6), math("MULTIPLY", worn, 0.08))
     big_d = math("ADD", sstep(spread, 0.25, 0.85, 0.0, 0.45), math("MULTIPLY", worn, 0.05))
-    s_stone, s_col, s_shadow, s_hgt = gravel(13.0, 0.12, 0.24, small_d, [(0.0, "#62584A"), (0.5, "#837864"), (1.0, "#A0937C")], (0, 0, 0))
-    b_stone, b_col, b_shadow, b_hgt = gravel(5.5, 0.14, 0.26, big_d, [(0.0, "#6E6559"), (0.3, "#877C6B"), (0.6, "#9E9380"),
-                                                                      (0.85, "#B0A48E"), (1.0, "#BDAF96")], (3.7, 1.3, 0))
-    f_stone, f_col, f_shadow, f_hgt = gravel(1.7, 0.16, 0.3, sstep(spread, 0.5, 0.9, 0.0, 0.06), [(0.0, "#7D786E"), (1.0, "#9E988C")], (5.1, 2.3, 0))
+    s_stone, s_col, s_shadow, s_hgt = gravel(13.0, 0.12, 0.24, small_d, [(0.0, "#C69853"), (0.5, "#D0AA6C"), (1.0, "#D9BD8C")], (0, 0, 0))
+    b_stone, b_col, b_shadow, b_hgt = gravel(5.5, 0.14, 0.26, big_d, [(0.0, "#BC8E4E"), (0.3, "#C79E60"), (0.6, "#D1AE75"),
+                                                                      (0.85, "#D9BD8C"), (1.0, "#DEC7A1")], (3.7, 1.3, 0))
+    f_stone, f_col, f_shadow, f_hgt = gravel(1.7, 0.16, 0.3, sstep(spread, 0.5, 0.9, 0.0, 0.06), [(0.0, "#BF9E69"), (1.0, "#D0B78B")], (5.1, 2.3, 0))
     grit = N.new("ShaderNodeTexVoronoi")
     grit.inputs["Scale"].default_value = 30.0
     L.new(warped.outputs[0], grit.inputs["Vector"])
     grit_bw = N.new("ShaderNodeRGBToBW")
     L.new(grit.outputs["Color"], grit_bw.inputs[0])
-    col = mix(math("MULTIPLY", bare, 0.35), col, ramp(grit_bw.outputs[0], [(0.2, "#5C5346"), (0.8, "#8E8572")]))
+    col = mix(math("MULTIPLY", bare, 0.35), col, ramp(grit_bw.outputs[0], [(0.2, "#C79A57"), (0.8, "#DAB981")]))
     shade = math("ADD", math("MULTIPLY", s_shadow, 0.3), math("ADD", math("MULTIPLY", b_shadow, 0.5), math("MULTIPLY", f_shadow, 0.5)))
-    col = mix(math("MINIMUM", shade, 0.6), col, "#3F3122")
+    col = mix(math("MINIMUM", shade, 0.5), col, "#9B723B")
     col = mix(s_stone, col, s_col)
     col = mix(b_stone, col, b_col)
     col = mix(f_stone, col, f_col)
+    # fallen leaves: small ellipses, each turned its own way, scattered over the grass and the path in loose drifts
+    lv_in = offs((2.3, 7.7, 0))
+    lv = N.new("ShaderNodeTexVoronoi")
+    lv.inputs["Scale"].default_value = 4.5
+    lv.inputs["Randomness"].default_value = 0.75
+    L.new(lv_in, lv.inputs["Vector"])
+    lrnd = N.new("ShaderNodeSeparateColor")
+    L.new(lv.outputs["Color"], lrnd.inputs["Color"])
+    rel = N.new("ShaderNodeVectorMath")
+    rel.operation = "SUBTRACT"
+    L.new(lv_in, rel.inputs[0])
+    L.new(lv.outputs["Position"], rel.inputs[1])
+    turn = N.new("ShaderNodeVectorRotate")
+    turn.rotation_type = "Z_AXIS"
+    L.new(rel.outputs[0], turn.inputs["Vector"])
+    L.new(math("MULTIPLY", lrnd.outputs["Green"], 6.2832), turn.inputs["Angle"])
+    lxy = N.new("ShaderNodeSeparateXYZ")
+    L.new(turn.outputs["Vector"], lxy.inputs["Vector"])
+    size = math("ADD", math("MULTIPLY", math("FRACT", math("MULTIPLY", lrnd.outputs["Blue"], 5.7)), 0.5), 0.75)
+    q = math("ADD", math("POWER", math("DIVIDE", lxy.outputs["X"], math("MULTIPLY", size, 0.05)), 2.0),
+             math("POWER", math("DIVIDE", lxy.outputs["Y"], math("MULTIPLY", size, 0.025)), 2.0))
+    drift = math("ADD", 0.12, sstep(noise(0.22, 2.0, 0.5, 0, (17, 29, 0)), 0.5, 0.75, 0.0, 0.2))
+    leaf = math("MULTIPLY", sstep(q, 0.75, 1.0, 1.0, 0.0), sstep(math("SUBTRACT", drift, lrnd.outputs["Red"]), -0.01, 0.01))
+    leaf_col = ramp(lrnd.outputs["Blue"], [(0.0, "#8B5A2E"), (0.2, "#B5762F"), (0.45, "#D39A38"), (0.7, "#E0B850"),
+                                           (0.85, "#BFA640"), (1.0, "#A3402A")])
+    col = mix(leaf, col, leaf_col)
     # Act 1 paints its layers that sit on top of paths (fields, yards, cobbles, ash) after this
     path_out = N.new("ShaderNodeHueSaturation")
     path_out.name = "PathOut"
@@ -336,8 +357,9 @@ def mat_ground():
     grade.name = "Grade"
     L.new(path_out.outputs["Color"], grade.inputs["Color"])
     L.new(grade.outputs["Color"], bsdf.inputs["Base Color"])
-    # relief: bevelled gravel, the larger flat stones and the grass grain
+    # relief: bevelled gravel, the larger flat stones, the grass grain and the leaves
     hgt = math("ADD", math("ADD", math("MULTIPLY", s_hgt, 0.5), b_hgt), math("ADD", math("MULTIPLY", f_hgt, 1.3), math("MULTIPLY", grain, 0.12)))
+    hgt = math("ADD", hgt, math("MULTIPLY", leaf, 0.3))
     bump = N.new("ShaderNodeBump")
     bump.inputs["Strength"].default_value = 0.5
     bump.inputs["Distance"].default_value = 0.03
@@ -686,11 +708,10 @@ def build_terrain():
     me = bpy.data.meshes.new("Terrain")
     bm.to_mesh(me)
     bm.free()
-    masks = {"pathw": [], "litter": [], "bog": [], "shore": []}
+    masks = {"pathw": [], "bog": [], "shore": []}
     for v in me.vertices:
         x, y = v.co.x, v.co.y
         masks["pathw"].append(max(0.0, 1.0 - path_dist(x, y) / 0.875 / 4.0))  # path_dist is 0.875 at the edge
-        masks["litter"].append(1.0 - smooth(0.5, 2.4, tree_dist(x, y)))
         masks["bog"].append(1.0 - smooth(0.8, 1.15, (Vector((x, y)) - BOG_C).length / BOG_R))
         tf = tarn_frac(x, y)
         masks["shore"].append(1.0 - smooth(1.12, 1.45, tf))
@@ -762,7 +783,7 @@ def spruce_mesh(seed):
     return b.mesh("Spruce%d" % seed)
 
 
-def boulder_mesh(seed, big=False):
+def boulder_mesh(seed, big=False, tones=None):
     r = random.Random(seed)
     b = Builder()
     rs = Vector((r.uniform(1.0, 1.6), r.uniform(0.9, 1.4), r.uniform(0.8, 1.2)))
@@ -787,6 +808,8 @@ def boulder_mesh(seed, big=False):
     b.bm.normal_update()
 
     def col(f):
+        if tones:  # plain stone in the given colours, no moss or lichen
+            return jitter(P[r.choice(tones)], 0.04)
         if f.normal.z > 0.8 and r.random() < 0.5:
             return jitter(P[r.choice(["rmoss1", "rmoss3"])])
         if f.calc_area() < 0.35 * rs.x * rs.y and r.random() < 0.15:
@@ -1339,7 +1362,7 @@ def populate(mode):
         else:
             place(rng.choice(boulders + bigs), (x, y, height(x, y) - 0.4), rng.uniform(0, math.tau), rng.uniform(0.6, 1.4))
     # small stones on the path
-    stones = [boulder_mesh(950 + s) for s in range(3)]
+    stones = [boulder_mesh(950 + s, tones=PEBBLE) for s in range(3)]
     for pts, w in PATHS:
         for i in range(0, len(pts) - 1, 3):
             if rng.random() < 0.35:

@@ -165,7 +165,7 @@ def grid_mesh(name, cx, cy, half, step, hole=None, drop=0.0, attrs=True):
         G = A.ground_masks(X, Y, masks)
         G["bog"] = G["bog"] * 0.9
         G["pathw"] = np.clip(1 - A.path_dist(X, Y) / 4.0, 0, 1)  # see the path layer in forest_cam.mat_ground
-        for k in ("pathw", "litter", "bog", "shore", "meadow", "field", "fieldbase", "yard", "paving", "ash", "darkfloor"):
+        for k in ("pathw", "bog", "shore", "meadow", "field", "fieldbase", "yard", "paving", "ash", "darkfloor"):
             at = me.attributes.new(k, "FLOAT", "POINT")
             at.data.foreach_set("value", G[k].ravel().astype(np.float32))
     me.materials.append(MAT_GROUND)
@@ -1218,7 +1218,7 @@ def populate_act(cx, cy, shot, mode, low, clear):
     eg = A.ground_masks(EX, EY)
     elk, etn, ebw = A.water(EX, EY)
     er_r, er_rot, er_s, er_k = (er.uniform(0, 1, len(EX)) for _ in range(4))
-    pebbles = boulders[:3]
+    pebbles = [boulder_mesh(950 + s, tones=PEBBLE) for s in range(3)]
     edge = 0
     for i, (x, y, d) in enumerate(zip(EX, EY, ed)):
         if elk[i] or etn[i] or ebw[i] or eg["yard"][i] > 0.5 or eg["paving"][i] > 0.5 or eg["fieldbase"][i] > 0.3 or blocked(x, y, 0.4):

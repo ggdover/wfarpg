@@ -89,7 +89,7 @@ The final images shown on the board, by board section:
 | `renders/act1` | Act 1: the whole act (`*_first.jpg` are the blueprints as first published) |
 | `renders/diagrams` | Game mechanics |
 | `renders/reference_copies` | Smaller copies of `ref_imgs/` used on the board |
-| `renders/worn_paths` | Worn paths (before/after pairs; the "before" images are the earlier renders) |
+| `renders/worn_paths`, `renders/worn_paths_v2` | Worn paths, versions 1 and 2 (before/after pairs; each "before" is the previous render) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History
