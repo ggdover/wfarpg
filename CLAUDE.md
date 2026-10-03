@@ -21,6 +21,8 @@ General knowledge, public documentation, and third-party libraries and engines a
 - Engine: Godot. 3D models: made in Blender. Art style: low-poly 3D.
 - Ground is a smooth, flat surface with painted textures (moss, grass patches, needle litter, gravel on dirt paths).
   Props such as trees, bushes and rocks are faceted low-poly shapes.
+- Paths are worn into the grass by feet, so they never end in a hard line: the grass thins out and turns trampled toward
+  them, and gravel and pebbles show in the dirt. Avoid hard edges between ground textures in general.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
   (not yet confirmed by the user).

@@ -89,6 +89,7 @@ The final images shown on the board, by board section:
 | `renders/act1` | Act 1: the whole act (`*_first.jpg` are the blueprints as first published) |
 | `renders/diagrams` | Game mechanics |
 | `renders/reference_copies` | Smaller copies of `ref_imgs/` used on the board |
+| `renders/worn_paths` | Worn paths (before/after pairs; the "before" images are the earlier renders) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History
@@ -103,6 +104,9 @@ Earlier versions of the scripts, kept for reference. Each produced an earlier se
 | `history/hud.py`, `history/hud_cam.py` | The first placeholder HUD |
 | `history/hud_fantasy.py` | HUD style, version 1 |
 | `history/hud_sharp.py` | HUD style, version 2, before `hud_act.py` generalised it for Act 1 |
+
+The camera, HUD and Act 1 renders were made before the worn paths changed the ground shader. To reproduce them
+exactly, run `forest_cam.py` and `act1_shots.py` from commit `ce42951`.
 
 ## Fonts
 

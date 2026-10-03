@@ -50,5 +50,16 @@
  "527ee629d14a52dc23879c654d8e83d0": "renders/reference_copies/ref_fog_1.jpg",
  "e25b5855351aac0b749f3dc42fa80bb8": "renders/reference_copies/ref_fog_2.jpg",
  "4ee84ee850b0b3e1e8069957755735f5": "renders/reference_copies/ref_fog_3.jpg",
- "fb7067b47367e74df0da1a90f5e5afd1": "renders/reference_copies/ref_fog_4.jpg"
+ "fb7067b47367e74df0da1a90f5e5afd1": "renders/reference_copies/ref_fog_4.jpg",
+ "bf770ba83b5e82c1a58aeb77b4f022d4": "renders/worn_paths/cam_behind.png",
+ "5077ffd98396c0eb9267536b44d14705": "renders/worn_paths/cam_side.png",
+ "320bc0d98fc20d5ebd3e6ba4e2a2cf48": "renders/worn_paths/closeup_day_path_after.png",
+ "60a50e4fa2238a9c8c258b87f228cfa8": "renders/worn_paths/closeup_day_path_before.png",
+ "c4b1b92d094cfd338289c5dcd4ce564e": "renders/worn_paths/closeup_tatskogen_after.png",
+ "3ea451dc7851d2859d5a41d4b76609f6": "renders/worn_paths/closeup_tatskogen_before.png",
+ "d859ab17368d30ac789297945eab59af": "renders/worn_paths/day_path.png",
+ "c93fa01aa2d88cdaa2f4dc636139717d": "renders/worn_paths/fog_path.png",
+ "89bb9202b0743c0984911f9d353fb45c": "renders/worn_paths/tallmo.png",
+ "cab0a206da9268dc42fe94c989ad0388": "renders/worn_paths/tatskogen.png",
+ "8fe43a499428e4c8c16e7b19ec683c5b": "renders/worn_paths/trollgrytan.png"
 }

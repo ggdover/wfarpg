@@ -31,8 +31,7 @@ P.update({k: lin(v) for k, v in {
 def extend_ground():
     nt = MAT_GROUND.node_tree
     N, L = nt.nodes, nt.links
-    grade = N["Grade"]
-    col = grade.inputs["Color"].links[0].from_socket
+    path_in, path_out, grade = N["PathIn"], N["PathOut"], N["Grade"]
     pos = N.new("ShaderNodeNewGeometry").outputs["Position"]
 
     def link(v, sock):
@@ -100,13 +99,16 @@ def extend_ground():
     def broken(mask, scale, amt, off):
         return sstep(math_("ADD", mask, math_("MULTIPLY", math_("SUBTRACT", noise(scale, 2.0, 0.5, off), 0.5), amt)), 0.42, 0.58)
 
-    # dark, damp floor in the misty and forsaken forests
-    dark = ramp(noise(0.6, 3.0, 0.55, (3, 3, 0)), [(0.3, "#2c3a22"), (0.55, "#3a4a2a"), (0.75, "#4a4a32")])
-    col = mix(math_("MULTIPLY", attr("darkfloor"), 0.75), col, dark)
-    # meadow grass
+    # meadow grass, under the path so roads and trails show as worn tracks through it
+    col = path_in.inputs["Color"].links[0].from_socket
     mead = ramp(noise(0.3, 3.0, 0.55, (11, 5, 0)), [(0.3, "#7f9a44"), (0.5, "#96a650"), (0.68, "#adb062"), (0.82, "#bdb46c")])
     mead = mix(math_("MULTIPLY", sstep(noise(1.6, 2.0, 0.6, (5, 1, 0)), 0.45, 0.75), 0.35), mead, "#c6bd76")
     col = mix(broken(attr("meadow"), 0.5, 0.5, (2, 9, 0)), col, mead)
+    L.new(col, path_in.inputs["Color"])
+    # the rest sits on top of the path: dark, damp floor in the misty and forsaken forests
+    col = path_out.outputs["Color"]
+    dark = ramp(noise(0.6, 3.0, 0.55, (3, 3, 0)), [(0.3, "#2c3a22"), (0.55, "#3a4a2a"), (0.75, "#4a4a32")])
+    col = mix(math_("MULTIPLY", attr("darkfloor"), 0.75), col, dark)
     # fields: soil with crop rows
     soil = ramp(noise(2.0, 2.0, 0.6, (7, 7, 0)), [(0.3, "#5e4b30"), (0.7, "#7a6340")])
     col = mix(attr("fieldbase"), col, soil)
@@ -162,8 +164,8 @@ def grid_mesh(name, cx, cy, half, step, hole=None, drop=0.0, attrs=True):
     if attrs:
         G = A.ground_masks(X, Y, masks)
         G["bog"] = G["bog"] * 0.9
-        G["path"] = 1 - A.smoothstep(0.15, 1.85, A.path_dist(X, Y))
-        for k in ("path", "litter", "bog", "shore", "meadow", "field", "fieldbase", "yard", "paving", "ash", "darkfloor"):
+        G["pathw"] = np.clip(1 - A.path_dist(X, Y) / 4.0, 0, 1)  # see the path layer in forest_cam.mat_ground
+        for k in ("pathw", "litter", "bog", "shore", "meadow", "field", "fieldbase", "yard", "paving", "ash", "darkfloor"):
             at = me.attributes.new(k, "FLOAT", "POINT")
             at.data.foreach_set("value", G[k].ravel().astype(np.float32))
     me.materials.append(MAT_GROUND)
@@ -1205,7 +1207,31 @@ def populate_act(cx, cy, shot, mode, low, clear):
             continue
         place(me, (x, y, gz(x, y) - 0.03), random.uniform(0, math.tau), random.uniform(0.9, 1.3))
         cover += 1
-    print("populate near", near, "far", far, "cover", cover)
+    # low grass tufts in the worn edges of roads and trails, and pebbles on and beside them. Own random numbers,
+    # so everything above keeps its layout.
+    er = np.random.default_rng(4242)
+    n = int((2 * GR) ** 2 * 3.0)
+    EX, EY = cx + er.uniform(-GR, GR, n), cy + er.uniform(-GR, GR, n)
+    ed = A.path_dist(EX, EY)  # half-widths from the centre line, 1 at the nominal edge
+    keep = ed < 1.8
+    EX, EY, ed = EX[keep], EY[keep], ed[keep]
+    eg = A.ground_masks(EX, EY)
+    elk, etn, ebw = A.water(EX, EY)
+    er_r, er_rot, er_s, er_k = (er.uniform(0, 1, len(EX)) for _ in range(4))
+    pebbles = boulders[:3]
+    edge = 0
+    for i, (x, y, d) in enumerate(zip(EX, EY, ed)):
+        if elk[i] or etn[i] or ebw[i] or eg["yard"][i] > 0.5 or eg["paving"][i] > 0.5 or eg["fieldbase"][i] > 0.3 or blocked(x, y, 0.4):
+            continue
+        r_ = er_r[i]
+        if 0.75 < d < 1.7 and r_ < A.smoothstep(0.75, 1.3, d) * 0.65:
+            place(grasses[int(er_k[i] * len(grasses))], (x, y, gz(x, y) - 0.03), er_rot[i] * math.tau, 0.45 + 0.4 * er_s[i])
+        elif d < 1.35 and r_ > 0.85:
+            place(pebbles[int(er_k[i] * len(pebbles))], (x, y, gz(x, y) - 0.02), er_rot[i] * math.tau, 0.04 + 0.05 * er_s[i])
+        else:
+            continue
+        edge += 1
+    print("populate near", near, "far", far, "cover", cover, "path edges", edge)
 
 
 def cull_act(cam, subjects, wide=True):

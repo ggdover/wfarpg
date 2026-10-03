@@ -6,7 +6,8 @@
                                                     added or changed since the last step (from board/items.json)
 
 The history lives in board/history.json. Each step holds what was asked, what changed, the board items it added or
-changed (notes word for word, as they read at the end of that step) and any in-between renders kept in renders/wip/.
+changed (notes word for word, as they read at the end of that step), any in-between renders kept in renders/wip/,
+and optionally a "cover" image for the newest-screenshot spot at the top of the page.
 """
 import datetime
 import html
@@ -24,21 +25,27 @@ CONTENT = ("type", "text", "title", "caption", "url", "hex", "name", "assetId", 
 COMPARE = [
     ("Daylight path", [("renders/forest_v1/day_path.png", "Version 1"), ("renders/forest_v2/day_path.png", "Version 2"),
                        ("renders/forest_v3/day_path.png", "Version 3, paths redrawn"),
-                       ("renders/hud_v1/day_path.png", "HUD version 1"), ("renders/hud_v2/day_path.png", "HUD version 2")]),
+                       ("renders/hud_v1/day_path.png", "HUD version 1"), ("renders/hud_v2/day_path.png", "HUD version 2"),
+                       ("renders/worn_paths/day_path.png", "Worn paths")]),
     ("Fog path", [("renders/forest_v1/fog_path.png", "Version 1"), ("renders/forest_v2/fog_path.png", "Version 2"),
                   ("renders/forest_v3/fog_path.png", "Version 3, paths redrawn"),
-                  ("renders/hud_v1/fog_path.png", "HUD version 1"), ("renders/hud_v2/fog_path.png", "HUD version 2")]),
+                  ("renders/hud_v1/fog_path.png", "HUD version 1"), ("renders/hud_v2/fog_path.png", "HUD version 2"),
+                  ("renders/worn_paths/fog_path.png", "Worn paths")]),
     ("Daylight pond", [("renders/forest_v1/day_tarn.png", "Version 1"), ("renders/forest_v2/day_tarn.png", "Version 2"),
                        ("renders/forest_v3/day_tarn.png", "Version 3")]),
     ("Fog bog", [("renders/forest_v1/fog_bog.png", "Version 1"), ("renders/forest_v2/fog_bog.png", "Version 2"),
                  ("renders/forest_v3/fog_bog.png", "Version 3")]),
     ("Low behind the hero", [("renders/camera/cam_behind.png", "Camera shots"), ("renders/hud_v1/cam_behind.png", "HUD version 1"),
-                             ("renders/hud_v2/cam_behind.png", "HUD version 2")]),
+                             ("renders/hud_v2/cam_behind.png", "HUD version 2"), ("renders/worn_paths/cam_behind.png", "Worn paths")]),
     ("Low toward the pond", [("renders/camera/cam_tarn.png", "Camera shots"), ("renders/hud_v1/cam_tarn.png", "HUD version 1"),
                              ("renders/hud_v2/cam_tarn.png", "HUD version 2")]),
     ("Low behind the hero in the fog", [("renders/camera/cam_fogbehind.png", "Camera shots"),
                                         ("renders/hud_v1/cam_fogbehind.png", "HUD version 1"),
                                         ("renders/hud_v2/cam_fogbehind.png", "HUD version 2")]),
+    ("The fork from the side", [("renders/camera/cam_side.png", "Camera shots"), ("renders/worn_paths/cam_side.png", "Worn paths")]),
+    ("Act 1 · Tallmo", [("renders/act1/tallmo.png", "Act 1"), ("renders/worn_paths/tallmo.png", "Worn paths")]),
+    ("Act 1 · Tätskogen", [("renders/act1/tatskogen.png", "Act 1"), ("renders/worn_paths/tatskogen.png", "Worn paths")]),
+    ("Act 1 · Trollgrytan", [("renders/act1/trollgrytan.png", "Act 1"), ("renders/worn_paths/trollgrytan.png", "Worn paths")]),
     ("Ability icons", [("renders/hud_v1/icons.png", "HUD version 1"), ("renders/hud_v2/icons.png", "HUD version 2")]),
     ("Movement diagram", [("renders/diagrams/move-aim.svg", "First"), ("renders/diagrams/facing-states.svg", "With the facing rule")]),
     ("Act 1 blueprint", [("renders/act1/blueprint_act1_first.jpg", "First published"), ("renders/act1/blueprint_act1.png", "Updated")]),
@@ -72,7 +79,8 @@ def record(step_id):
     with open(os.path.join(HERE, "board", "assets.json"), encoding="utf-8") as fh:
         assets = json.load(fh)
     items = []
-    for did, d in sorted(board.items(), key=lambda kv: (kv[1].get("createdAt") or 0, kv[0])):
+    # oldest first; items made together follow their places on the board, in reading order
+    for did, d in sorted(board.items(), key=lambda kv: (kv[1].get("createdAt") or 0, kv[1].get("y", 0), kv[1].get("x", 0), kv[0])):
         before = state.get(did)
         changed = [k for k in CONTENT if (before or {}).get(k) != d.get(k)]
         if not changed:
@@ -296,6 +304,7 @@ h1 { font-size: clamp(36px, 6.4vw, 64px); font-weight: 900; letter-spacing: .04e
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 20px 18px; }
 .grid.refs { grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); }
+.grid.pairs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .shot { margin: 0; display: grid; gap: 8px; align-content: start; min-width: 0; }
 .shot.wide { grid-column: 1 / -1; }
 .frame { display: block; width: 100%; padding: 1px; border: 0; background: var(--rule); cursor: zoom-in;
@@ -353,6 +362,7 @@ footer.end { padding-top: 36px; color: var(--muted); font-size: 14px; display: g
   .diptych .arrow { transform: rotate(90deg); justify-self: center; }
   .lightbox .bar { flex-direction: column; align-items: stretch; }
 }
+@media (max-width: 480px) { .grid.pairs { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: no-preference) { .frame { transition: background .15s ease; } }
 """
 
@@ -421,6 +431,9 @@ def build(web_dir=None):
     rasters = [(s, it) for s in steps for it in step_images(s)
                if not is_ref(it["file"]) and not is_wide(it["file"]) and not it["file"].endswith(".svg")]
     (s0, first), (s1, newest) = rasters[0], rasters[-1]
+    covered = [s for s in steps if s.get("cover")]  # a step can name the image that best shows it
+    if covered and steps.index(covered[-1]) >= steps.index(s1):
+        s1, newest = covered[-1], {"file": covered[-1]["cover"]}
     span = f'{nice_date(steps[0]["date"])}, {steps[0]["posted_at"]} to {steps[-1]["posted_at"]}' \
         if steps[0]["date"] == steps[-1]["date"] else f'{nice_date(steps[0]["date"])} to {nice_date(steps[-1]["date"])}'
 
@@ -480,7 +493,8 @@ def build(web_dir=None):
             parts.append('<div><p class="label">Your reference images</p><div class="grid refs">'
                          + "".join(figure(img, it["file"], it.get("caption", ""), g + "-refs") for it in refs) + "</div></div>")
         if shots:
-            parts.append('<div><p class="label">Images on the board, with their captions</p><div class="grid">'
+            pairs = " pairs" if any((it.get("caption") or "").startswith("Before") for it in shots) else ""  # before/after side by side
+            parts.append(f'<div><p class="label">Images on the board, with their captions</p><div class="grid{pairs}">'
                          + "".join(figure(img, it["file"], it.get("caption", ""), g,
                                           "Replaced the earlier image" if it["status"] == "replaced" else "") for it in shots)
                          + "</div></div>")

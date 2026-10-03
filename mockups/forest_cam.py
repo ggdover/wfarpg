@@ -243,7 +243,10 @@ def mat_ground():
     col = hs.outputs["Color"]
     # needle litter under the pines
     litter = ramp(noise(8.0, 3.0, 0.6, 1.5, (9, 9, 0)), [(0.35, "#6B4C2F"), (0.6, "#87633E"), (0.82, "#A27B4C")])
-    lit_eff = broken(attr("litter"), 0.9, 0.6, 0.45, 0.6, (31, 0, 0))
+    # soft, ragged edge: a narrow threshold here showed the terrain triangles as a zigzag line
+    lit_n = math("ADD", math("MULTIPLY", math("SUBTRACT", noise(0.9, 2.0, 0.5, 0, (31, 0, 0)), 0.5), 0.6),
+                 math("MULTIPLY", math("SUBTRACT", noise(4.0, 2.0, 0.6, 0, (37, 11, 0)), 0.5), 0.35))
+    lit_eff = sstep(math("ADD", attr("litter"), lit_n), 0.3, 0.75)
     col = mix(math("MULTIPLY", lit_eff, 0.9), col, litter)
     # bog mud
     bog = ramp(noise(0.5, 3.0, 0.5, 0, (7, 3, 0)), [(0.35, "#30301E"), (0.55, "#45452B"), (0.72, "#585233")])
@@ -251,10 +254,26 @@ def mat_ground():
     # shore grass
     shore = ramp(noise(1.8, 2.0, 0.5, 0, (1, 17, 0)), [(0.4, "#8B9A44"), (0.65, "#A8AE57")])
     col = mix(broken(attr("shore"), 1.2, 0.4, 0.4, 0.6, (17, 3, 0)), col, shore)
-    # dirt path with gravel and the odd larger stone
-    path_eff = broken(attr("path"), 0.45, 0.75, 0.42, 0.58, (41, 5, 0))
-    path_eff = broken(path_eff, 1.6, 0.35, 0.42, 0.58, (7, 43, 0))
-    dirt = ramp(noise(0.9, 3.0, 0.5, 0, (3, 29, 0)), [(0.35, "#694D33"), (0.55, "#7D5F43"), (0.72, "#8E6E4C")])
+    # Act 1 paints its area layers (meadow grass) onto the colour here, under the path; see act1_shots.extend_ground
+    path_in = N.new("ShaderNodeHueSaturation")
+    path_in.name = "PathIn"
+    L.new(col, path_in.inputs["Color"])
+    col = path_in.outputs["Color"]
+    # worn path: feet wear the grass down, so the middle is packed dirt and gravel, and toward the edges the grass
+    # thins out in clumps, dry and trampled, with stray pebbles kicked into it. The "pathw" attribute is 1 - d / 4,
+    # where d is the distance from the path's centre line in half-widths (1 at its nominal edge); 0 means no path.
+    pd = math("MULTIPLY", math("SUBTRACT", 1.0, attr("pathw")), 4.0)
+    e = math("ADD", pd, math("MULTIPLY", math("SUBTRACT", noise(0.35, 2.0, 0.5, 0, (41, 5, 0)), 0.5), 0.7))
+    wear = sstep(e, 0.45, 1.9, 1.0, 0.0)
+    fine = math("SUBTRACT", noise(7.0, 2.0, 0.6, 0, (13, 3, 0)), 0.5)
+    tufts = math("SUBTRACT", noise(1.5, 3.0, 0.6, 0, (7, 43, 0)), 0.5)
+    bare = sstep(math("ADD", wear, math("ADD", math("MULTIPLY", tufts, 2.0), math("MULTIPLY", fine, 0.5))), 0.35, 0.7)
+    worn = math("MULTIPLY", sstep(e, 0.7, 2.1, 1.0, 0.0), math("SUBTRACT", 1.0, math("MULTIPLY", lit_eff, 0.8)))
+    worn_grass = ramp(noise(3.0, 2.0, 0.6, 0, (23, 7, 0)), [(0.3, "#83824A"), (0.7, "#9C9657")])
+    col = mix(math("MULTIPLY", worn, 0.5), col, worn_grass)
+    dirt = ramp(noise(0.9, 3.0, 0.5, 0, (3, 29, 0)), [(0.3, "#5F4630"), (0.5, "#735840"), (0.72, "#86684B")])
+    dirt = mix(sstep(wear, 0.35, 0.85, 0.45, 0.0), dirt, "#5B5A33")
+    col = mix(bare, col, dirt)
     warp_n = N.new("ShaderNodeTexNoise")
     warp_n.inputs["Scale"].default_value = 9.0
     L.new(pos, warp_n.inputs["Vector"])
@@ -266,39 +285,61 @@ def mat_ground():
     warped.operation = "ADD"
     L.new(pos, warped.inputs[0])
     L.new(warp_s.outputs[0], warped.inputs[1])
-    vor = N.new("ShaderNodeTexVoronoi")
-    vor.inputs["Scale"].default_value = 10.0
-    L.new(warped.outputs[0], vor.inputs["Vector"])
-    peb = sstep(vor.outputs["Distance"], 0.12, 0.34, 1.0, 0.0)
-    peb = math("MULTIPLY", peb, sstep(noise(0.7, 2.0, 0.5, 0, (19, 23, 0)), 0.3, 0.62))
-    peb = math("MULTIPLY", peb, sstep(attr("path"), 0.2, 0.75))
-    bw = N.new("ShaderNodeRGBToBW")
-    L.new(vor.outputs["Color"], bw.inputs[0])
-    peb_col = ramp(bw.outputs[0], [(0.1, "#5A5144"), (0.4, "#756B5B"), (0.7, "#8C8270"), (0.95, "#9C927F")])
-    dirt = mix(math("MULTIPLY", peb, 0.9), dirt, peb_col)
-    vor3 = N.new("ShaderNodeTexVoronoi")
-    vor3.inputs["Scale"].default_value = 22.0
-    L.new(warped.outputs[0], vor3.inputs["Vector"])
-    grit = math("MULTIPLY", sstep(vor3.outputs["Distance"], 0.1, 0.3, 1.0, 0.0), math("MULTIPLY", sstep(attr("path"), 0.2, 0.75), 0.55))
-    bw3 = N.new("ShaderNodeRGBToBW")
-    L.new(vor3.outputs["Color"], bw3.inputs[0])
-    dirt = mix(grit, dirt, ramp(bw3.outputs[0], [(0.2, "#5C5346"), (0.8, "#8E8572")]))
-    vor2 = N.new("ShaderNodeTexVoronoi")
-    vor2.inputs["Scale"].default_value = 1.4
-    L.new(offs((5.1, 2.3, 0)), vor2.inputs["Vector"])
-    stone = math("MULTIPLY", sstep(vor2.outputs["Distance"], 0.07, 0.13, 1.0, 0.0), sstep(noise(0.5, 2.0, 0.5, 0, (2, 37, 0)), 0.6, 0.7))
-    dirt = mix(stone, dirt, "#8E897F")
-    col = mix(path_eff, col, dirt)
-    edge = math("MULTIPLY", math("MULTIPLY", path_eff, math("SUBTRACT", 1.0, path_eff)), 2.4)
-    col = mix(edge, col, litter)
+
+    def gravel(scale, gap0, gap1, density, stops, off):
+        """Stones as Voronoi cells shrunk away from their edges: small flat polygons, in keeping with the faceted
+        props. A cell holds a stone when its random value is under the local density. Returns the stone mask,
+        its colour, a contact shadow just outside it and a bevelled height."""
+        vec = N.new("ShaderNodeVectorMath")
+        vec.operation = "ADD"
+        L.new(warped.outputs[0], vec.inputs[0])
+        vec.inputs[1].default_value = off
+        cells = N.new("ShaderNodeTexVoronoi")
+        cells.inputs["Scale"].default_value = scale
+        L.new(vec.outputs[0], cells.inputs["Vector"])
+        edges = N.new("ShaderNodeTexVoronoi")
+        edges.feature = "DISTANCE_TO_EDGE"
+        edges.inputs["Scale"].default_value = scale
+        L.new(vec.outputs[0], edges.inputs["Vector"])
+        rnd = N.new("ShaderNodeSeparateColor")
+        L.new(cells.outputs["Color"], rnd.inputs["Color"])
+        inset = math("SUBTRACT", edges.outputs["Distance"], math("ADD", math("MULTIPLY", rnd.outputs["Green"], gap1 - gap0), gap0))
+        here = sstep(math("SUBTRACT", density, rnd.outputs["Red"]), -0.01, 0.01)
+        stone = math("MULTIPLY", sstep(inset, 0.0, 0.04), here)
+        shadow = math("MULTIPLY", math("SUBTRACT", sstep(inset, -0.07, 0.0), sstep(inset, 0.0, 0.04)), here)
+        return stone, ramp(rnd.outputs["Blue"], stops), shadow, math("MULTIPLY", sstep(inset, 0.0, 0.16), here)
+
+    # gravel is densest in the middle and thins out into the grass, with a few strays out in the trampled verge
+    spread = math("ADD", wear, math("MULTIPLY", fine, 0.3))
+    small_d = math("ADD", sstep(spread, 0.15, 0.75, 0.0, 0.6), math("MULTIPLY", worn, 0.08))
+    big_d = math("ADD", sstep(spread, 0.25, 0.85, 0.0, 0.45), math("MULTIPLY", worn, 0.05))
+    s_stone, s_col, s_shadow, s_hgt = gravel(13.0, 0.12, 0.24, small_d, [(0.0, "#62584A"), (0.5, "#837864"), (1.0, "#A0937C")], (0, 0, 0))
+    b_stone, b_col, b_shadow, b_hgt = gravel(5.5, 0.14, 0.26, big_d, [(0.0, "#6E6559"), (0.3, "#877C6B"), (0.6, "#9E9380"),
+                                                                      (0.85, "#B0A48E"), (1.0, "#BDAF96")], (3.7, 1.3, 0))
+    f_stone, f_col, f_shadow, f_hgt = gravel(1.7, 0.16, 0.3, sstep(spread, 0.5, 0.9, 0.0, 0.06), [(0.0, "#7D786E"), (1.0, "#9E988C")], (5.1, 2.3, 0))
+    grit = N.new("ShaderNodeTexVoronoi")
+    grit.inputs["Scale"].default_value = 30.0
+    L.new(warped.outputs[0], grit.inputs["Vector"])
+    grit_bw = N.new("ShaderNodeRGBToBW")
+    L.new(grit.outputs["Color"], grit_bw.inputs[0])
+    col = mix(math("MULTIPLY", bare, 0.35), col, ramp(grit_bw.outputs[0], [(0.2, "#5C5346"), (0.8, "#8E8572")]))
+    shade = math("ADD", math("MULTIPLY", s_shadow, 0.3), math("ADD", math("MULTIPLY", b_shadow, 0.5), math("MULTIPLY", f_shadow, 0.5)))
+    col = mix(math("MINIMUM", shade, 0.6), col, "#3F3122")
+    col = mix(s_stone, col, s_col)
+    col = mix(b_stone, col, b_col)
+    col = mix(f_stone, col, f_col)
+    # Act 1 paints its layers that sit on top of paths (fields, yards, cobbles, ash) after this
+    path_out = N.new("ShaderNodeHueSaturation")
+    path_out.name = "PathOut"
+    L.new(col, path_out.inputs["Color"])
     grade = N.new("ShaderNodeHueSaturation")
     grade.name = "Grade"
-    L.new(col, grade.inputs["Color"])
+    L.new(path_out.outputs["Color"], grade.inputs["Color"])
     L.new(grade.outputs["Color"], bsdf.inputs["Base Color"])
-    # a little relief from the gravel, stones and grass grain
-    hgt = math("ADD", math("MULTIPLY", math("ADD", peb, math("MULTIPLY", stone, 1.6)), path_eff), math("MULTIPLY", grain, 0.12))
+    # relief: bevelled gravel, the larger flat stones and the grass grain
+    hgt = math("ADD", math("ADD", math("MULTIPLY", s_hgt, 0.5), b_hgt), math("ADD", math("MULTIPLY", f_hgt, 1.3), math("MULTIPLY", grain, 0.12)))
     bump = N.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.35
+    bump.inputs["Strength"].default_value = 0.5
     bump.inputs["Distance"].default_value = 0.03
     L.new(hgt, bump.inputs["Height"])
     L.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
@@ -645,10 +686,10 @@ def build_terrain():
     me = bpy.data.meshes.new("Terrain")
     bm.to_mesh(me)
     bm.free()
-    masks = {"path": [], "litter": [], "bog": [], "shore": []}
+    masks = {"pathw": [], "litter": [], "bog": [], "shore": []}
     for v in me.vertices:
         x, y = v.co.x, v.co.y
-        masks["path"].append(1.0 - smooth(0.55, 1.2, path_dist(x, y)))
+        masks["pathw"].append(max(0.0, 1.0 - path_dist(x, y) / 0.875 / 4.0))  # path_dist is 0.875 at the edge
         masks["litter"].append(1.0 - smooth(0.5, 2.4, tree_dist(x, y)))
         masks["bog"].append(1.0 - smooth(0.8, 1.15, (Vector((x, y)) - BOG_C).length / BOG_R))
         tf = tarn_frac(x, y)
@@ -1340,6 +1381,24 @@ def populate(mode):
     cairn((-10.2, 12.8), height(-10.2, 12.8), candle=fog)
     cairn((4.8, -2.2), height(4.8, -2.2), candle=fog)
     totem((-18.0, 10.8), height(-18.0, 10.8), math.radians(40))
+    dress_path_edges(grasses, stones)
+
+
+def dress_path_edges(grasses, stones):
+    """Low grass tufts in the worn edges of the paths, and pebbles kicked about on and beside them. Uses its own
+    random numbers, so the rest of the scene keeps its layout."""
+    er = random.Random(4242)
+    x0, x1, y0, y1 = REGION
+    for _ in range(26000):
+        x, y = er.uniform(x0, x1), er.uniform(y0, y1)
+        d = path_dist(x, y) / 0.875  # half-widths from the centre line, 1 at the path's nominal edge
+        if d > 1.8 or near_clear(x, y, -0.6) or tarn_frac(x, y) < 1.05 or in_puddle(x, y, 0.2):
+            continue
+        r = er.random()
+        if 0.75 < d < 1.7 and r < smooth(0.75, 1.3, d) * 0.65:
+            place(er.choice(grasses), (x, y, height(x, y) - 0.03), er.uniform(0, math.tau), er.uniform(0.45, 0.85))
+        elif d < 1.35 and r > 0.85:
+            place(er.choice(stones), (x, y, height(x, y) - 0.02), er.uniform(0, math.tau), er.uniform(0.04, 0.09))
 
 
 # ---------------------------------------------------------------- lighting & render setup

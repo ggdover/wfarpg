@@ -1443,6 +1443,216 @@
     }
    ],
    "wip": []
+  },
+  {
+   "id": "worn-paths",
+   "date": "2026-10-03",
+   "asked_at": "17:17",
+   "posted_at": "17:52",
+   "title": "Worn paths",
+   "section": "Worn paths",
+   "cover": "renders/worn_paths/day_path.png",
+   "asked": "Where the gravel path meets the grass there is a hard line between the brown path and the green grass. Make the transition faded and smooth, and give the path more texture so it shows it's actually gravel and pebbles. The paths come from feet wearing down the grass that grew there, so a hard line makes no sense.",
+   "changed": [
+    "The path edge fades out: the grass thins in ragged clumps toward the path, and the grass along it turns dry and trampled",
+    "Visible gravel: small flat stones of mixed sizes on packed dirt, densest in the middle, with a few kicked out into the grass",
+    "Low grass tufts and pebbles placed along the edges, without moving anything else in the scenes",
+    "The needle litter under trees fades out instead of ending in a zigzag",
+    "Act 1 roads now show where they cross meadows and the town; the meadow grass used to be painted over them",
+    "Before/after pairs from the forest and Act 1, with close-ups at full resolution"
+   ],
+   "found": [
+    "With the gravel showing, the paths read a little greyer than the old brown band; the mix of dirt and gravel is easy to tune",
+    "In Dimskogen the dark floor and the fog hide the path, so that shot barely changes"
+   ],
+   "items": [
+    {
+     "id": "art-details",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Props and details\n- **Rocks:** chunky, with uneven faces of mixed shapes and sizes, not lots of small triangles\n- **Tree trunks:** one piece, straight or gently leaning\n- **Paths:** winding, uneven width, curved forks, and worn into the grass: no hard edge, the grass thins out toward them, and gravel and pebbles show in the dirt\n- **Berries:** grouped in patches, sitting on the bushes\n- **Avoid:** blocky purple flower clumps",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "s-paths",
+     "type": "frame",
+     "status": "new",
+     "title": "Worn paths",
+     "author": "claude"
+    },
+    {
+     "id": "wp-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Worn paths\nPaths are worn into the grass by feet, so they no longer end in a hard line:\n- **Edges:** the grass thins out in ragged clumps toward the path, and the grass along it is drier and trampled\n- **Gravel:** small flat stones of mixed sizes on packed dirt, densest in the middle, with a few kicked out into the grass\n- **Props:** low grass tufts and pebbles along the edges break up the outline\n- **Also:** roads now show through meadows and the town, where the meadow grass used to cover them, and the needle litter under trees fades out instead of ending in a zigzag\n\nWith the gravel showing, the paths read a little greyer. The mix of dirt and gravel is easy to tune.",
+     "author": "claude"
+    },
+    {
+     "id": "wp-daypath-b",
+     "type": "image",
+     "status": "new",
+     "caption": "Before: the daylight path (HUD version 2). The dirt ends in a clean line against the grass.",
+     "assetId": "4864a587c19f8ed6a14ffed0ac59ed7d",
+     "file": "renders/hud_v2/day_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-daypath-a",
+     "type": "image",
+     "status": "new",
+     "caption": "After: the grass thins out toward the path, and gravel shows in the dirt.",
+     "assetId": "d859ab17368d30ac789297945eab59af",
+     "file": "renders/worn_paths/day_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-daypath-cb",
+     "type": "image",
+     "status": "new",
+     "caption": "Before, close up at full resolution.",
+     "assetId": "60a50e4fa2238a9c8c258b87f228cfa8",
+     "file": "renders/worn_paths/closeup_day_path_before.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-daypath-ca",
+     "type": "image",
+     "status": "new",
+     "caption": "After, close up at full resolution: small flat stones of mixed sizes, thinning out toward the grass.",
+     "assetId": "320bc0d98fc20d5ebd3e6ba4e2a2cf48",
+     "file": "renders/worn_paths/closeup_day_path_after.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-tat-b",
+     "type": "image",
+     "status": "new",
+     "caption": "Before: C · Tätskogen. A flat brown road with hard edges; the needle litter under the trees ends in a zigzag.",
+     "assetId": "2825ef7b7eaf640c110b598e2b929f82",
+     "file": "renders/act1/tatskogen.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-tat-a",
+     "type": "image",
+     "status": "new",
+     "caption": "After: a gravel road with a dry, trampled verge, and the litter fading out under the trees.",
+     "assetId": "cab0a206da9268dc42fe94c989ad0388",
+     "file": "renders/worn_paths/tatskogen.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-tat-cb",
+     "type": "image",
+     "status": "new",
+     "caption": "Before, close up at full resolution.",
+     "assetId": "3ea451dc7851d2859d5a41d4b76609f6",
+     "file": "renders/worn_paths/closeup_tatskogen_before.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-tat-ca",
+     "type": "image",
+     "status": "new",
+     "caption": "After, close up: gravel across the road, with bare patches and low tufts in the verge.",
+     "assetId": "c4b1b92d094cfd338289c5dcd4ce564e",
+     "file": "renders/worn_paths/closeup_tatskogen_after.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-game",
+     "type": "note",
+     "status": "new",
+     "text": "# In the game\n- The terrain shader needs each spot's distance to the nearest path, from a path mask painted or generated over the terrain\n- Gravel can be a tiling texture with a normal map, blended in by that distance\n- Tufts and pebbles along the edges can be scattered from the same mask",
+     "author": "claude"
+    },
+    {
+     "id": "wp-troll-b",
+     "type": "image",
+     "status": "new",
+     "caption": "Before: E · Trollgrytan. The trail into the kettle hole is a flat brown band.",
+     "assetId": "0e88e61a771e18c5981bbd5e67b678f2",
+     "file": "renders/act1/trollgrytan.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-troll-a",
+     "type": "image",
+     "status": "new",
+     "caption": "After: the trail is worn into the grass, with gravel down the middle.",
+     "assetId": "8fe43a499428e4c8c16e7b19ec683c5b",
+     "file": "renders/worn_paths/trollgrytan.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-fog-a",
+     "type": "image",
+     "status": "new",
+     "caption": "After, in the fog: the same path as the daylight shot.",
+     "assetId": "c93fa01aa2d88cdaa2f4dc636139717d",
+     "file": "renders/worn_paths/fog_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-side-a",
+     "type": "image",
+     "status": "new",
+     "caption": "After: the fork and the signpost from the side.",
+     "assetId": "5077ffd98396c0eb9267536b44d14705",
+     "file": "renders/worn_paths/cam_side.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-behind-b",
+     "type": "image",
+     "status": "new",
+     "caption": "Before: low behind the hero (HUD version 2).",
+     "assetId": "ae3b460f0152e225c46542f4f04ea45e",
+     "file": "renders/hud_v2/cam_behind.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-behind-a",
+     "type": "image",
+     "status": "new",
+     "caption": "After: gravel and pebbles in the path, and a softer edge into the grass.",
+     "assetId": "bf770ba83b5e82c1a58aeb77b4f022d4",
+     "file": "renders/worn_paths/cam_behind.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-tallmo-b",
+     "type": "image",
+     "status": "new",
+     "caption": "Before: A · Tallmo. The meadow grass covered the roads leaving the square.",
+     "assetId": "475f2ff387ec49325733d8784b6b8041",
+     "file": "renders/act1/tallmo.png",
+     "author": "claude"
+    },
+    {
+     "id": "wp-tallmo-a",
+     "type": "image",
+     "status": "new",
+     "caption": "After: the roads show as worn gravel where they leave the square.",
+     "assetId": "89bb9202b0743c0984911f9d353fb45c",
+     "file": "renders/worn_paths/tallmo.png",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/14_paths_first_try.jpg",
+     "caption": "First try: the gravel shows, but the edge is still a fairly clean line"
+    },
+    {
+     "file": "renders/wip/15_paths_second_try.jpg",
+     "caption": "Second try, with a wider worn zone; the needle litter beside the Tätskogen road still ends in a zigzag"
+    }
+   ]
   }
  ]
 }
