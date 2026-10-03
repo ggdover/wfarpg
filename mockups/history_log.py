@@ -180,7 +180,7 @@ def link_html(it):
 
 
 def is_wide(path):
-    return "blueprint" in os.path.basename(path)
+    return any(k in os.path.basename(path) for k in ("blueprint", "row_a", "row_b", "portfolio"))
 
 
 class Images:
@@ -194,7 +194,7 @@ class Images:
         if not self.web_dir:
             return path
         os.makedirs(os.path.join(self.web_dir, "img"), exist_ok=True)
-        base = path.replace("renders/", "").replace("/", "_").rsplit(".", 1)[0]
+        base = path.replace("../", "").replace("renders/", "").replace("/", "_").rsplit(".", 1)[0]
         if path.endswith(".svg"):
             dst = f"img/{base}.svg"
             if dst not in self.done:

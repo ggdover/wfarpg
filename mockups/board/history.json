@@ -1938,6 +1938,97 @@
     }
    ],
    "wip": []
+  },
+  {
+   "id": "tree-portfolio",
+   "date": "2026-10-03",
+   "asked_at": "19:21",
+   "posted_at": "19:41",
+   "title": "Tree portfolio",
+   "section": "Tree portfolio",
+   "cover": "../assets/trees/previews/grove_game_view.png",
+   "asked": "Start a portfolio of assets, beginning with trees to replace the current ones: the trees of a Swedish forest from your new reference sheet, as low-poly 3D models made in Blender with Python and viewable in Blender. Trunks and branches low-poly; leaf clumps made with crossed planes, several copies of a leaf card intersecting at different angles around the same centre.",
+   "changed": [
+    "Scots pine, silver birch, Norway spruce, aspen, rowan, alder and juniper, two variants of each, in assets/trees/tree_portfolio.blend",
+    "Faceted low-poly trunks and branches, coloured per face: grey-to-orange pine, white birch with black marks, dark multi-stemmed alder",
+    "Leaf clumps of three crossed cards (one lying flat for the view from above), with normals pointing out from the crown so it shades as one volume",
+    "A leaf card per species, drawn by script with transparent backgrounds, including rowan with red berries and juniper with blue berries",
+    "In the file: two rows with name signs and a person for scale beside each tree, and a mixed grove with a camera at the game's angle"
+   ],
+   "found": [
+    "The first crowns were far too thin, and the spruce looked like a bare skeleton: the cards had to be much fuller and the clumps bigger",
+    "The first pine came out as a lollipop; a wider, flatter crown of separate pads on spreading branches made it read as a Scots pine",
+    "Heights are about 70% of real trees, to suit the high game camera; the spruce is heavy at about 1,800 leaf cards"
+   ],
+   "items": [
+    {
+     "id": "s-trees",
+     "type": "frame",
+     "status": "new",
+     "title": "Tree portfolio",
+     "author": "claude"
+    },
+    {
+     "id": "tp-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Tree portfolio\nThe seven trees from your reference sheet, two variants of each, as low-poly models built in Blender by Python scripts:\n- **Trunk and branches:** faceted low-poly tubes, coloured per face\n- **Leaf clumps:** crossed planes, three copies of a leaf card crossing at their centre, one lying flat for the view from above\n- **Shading:** the cards' normals point out from the crown, so it shades as one rounded volume\n\nOpen `assets/trees/tree_portfolio.blend` in Blender to look around; it opens on the first row with materials shown.",
+     "author": "claude"
+    },
+    {
+     "id": "tp-sheet",
+     "type": "image",
+     "status": "new",
+     "caption": "The seven species, variant A, each with a 1.8 m person for scale, and the leaf cards.",
+     "assetId": "6ea40ea4cd679a99615416161a6deac7",
+     "file": "../assets/trees/previews/portfolio.png",
+     "author": "claude"
+    },
+    {
+     "id": "tp-grove",
+     "type": "image",
+     "status": "new",
+     "caption": "A mixed grove from the game camera: pines, spruces, birches, aspens, rowans, alders and junipers.",
+     "assetId": "773efaa1c61edf04ae2e960d84053d5f",
+     "file": "../assets/trees/previews/grove_game_view.png",
+     "author": "claude"
+    },
+    {
+     "id": "tp-notes",
+     "type": "note",
+     "status": "new",
+     "text": "# Notes and open questions\n- Heights are about 70% of real trees, so the high camera still sees the ground\n- The spruce is the heaviest, about 1,800 leaf cards; a big forest would need lighter versions far from the camera\n- Next: swap these into the Act 1 mockups in place of the current trees?",
+     "author": "claude"
+    },
+    {
+     "id": "tp-cards",
+     "type": "image",
+     "status": "new",
+     "caption": "The leaf cards: one 512 × 512 texture per species, crossed three times per clump.",
+     "assetId": "9e27503dcad107a7b4850111a57f58f5",
+     "file": "../assets/trees/previews/leaf_cards.png",
+     "author": "claude"
+    },
+    {
+     "id": "tp-row-a",
+     "type": "image",
+     "status": "new",
+     "caption": "Row A in the .blend, with name signs.",
+     "assetId": "793ca9ad4f65e21cd69b34c621f2e30b",
+     "file": "../assets/trees/previews/row_a.png",
+     "author": "claude"
+    },
+    {
+     "id": "tp-row-b",
+     "type": "image",
+     "status": "new",
+     "caption": "Row B: a second variant of each species, from a different seed.",
+     "assetId": "069be6d16e76a4e758d51bec718e5730",
+     "file": "../assets/trees/previews/row_b.png",
+     "author": "claude"
+    }
+   ],
+   "wip": []
   }
  ]
 }

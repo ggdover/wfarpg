@@ -25,6 +25,9 @@ General knowledge, public documentation, and third-party libraries and engines a
 - Paths are worn into the grass by feet, so they never end in a hard line: the grass thins out and turns trampled toward
   them. The dirt is a light tan (between wheat and desert sand), and the gravel and pebbles in it are the same tones, so
   they read as texture rather than contrasting spots. Avoid hard edges between ground textures in general.
+- Trees: Scots pine, silver birch, Norway spruce, aspen, rowan, alder and juniper (`ref_imgs/Trees of the Swedish
+  Forest.png`). Low-poly trunks and branches; leaf clumps are crossed planes (three copies of a leaf card with alpha,
+  crossing at the clump's centre). The user isn't happy with the mockups' current trees and wants to swap them for these.
 - Open trodden ground, like Tallmo's square, is worn the same way as the paths: an uneven, asymmetric outline (no clean
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
@@ -61,7 +64,9 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
 
 ## Repository layout
 
-- `ref_imgs/`: the user's reference images and the Act 1 layout sketch.
+- `ref_imgs/`: the user's reference images, the Act 1 layout sketch and the tree reference sheet.
+- `assets/`: game assets. `assets/trees/` is the tree portfolio: low-poly Swedish forest trees built in Blender by
+  Python scripts, saved in `tree_portfolio.blend`. See its README.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building
   scenes in Blender in background mode. `mockups/act1_world.py` holds the Act 1 layout as data. See `mockups/README.md`
   for how to rerun them. Generated output goes to `mockups/build/` (ignored by git); curated final images live in
