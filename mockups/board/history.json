@@ -2122,6 +2122,93 @@
      "caption": "Fuller pads; the middle one, tuft clusters crossed five times, became the default"
     }
    ]
+  },
+  {
+   "id": "trees-round-2",
+   "date": "2026-10-03",
+   "asked_at": "23:16",
+   "posted_at": "23:27",
+   "title": "Trees, round 2",
+   "section": "Trees, round 2",
+   "cover": "../assets/trees/previews/v3/grove_game_view.png",
+   "asked": "After tuning the trees in the editor: the Scots pine, silver birch and rowan look good. The Norway spruce needs a specific pattern: short spray and flat comb are the right kind of card, but the sprays can't overlap at random angles; one end should face the branch so they line up in a pinnate pattern. Skip the juniper. Aspen and alder need more leaf options: clumps of round leaves in many shades of green look too cartoonish.",
+   "changed": [
+    "Your settings, saved in the .blend, moved into tree_settings.json so every build starts from them",
+    "A pinnate layout for the spruce: spray cards along each branch on alternate sides, their twigs' bases on the branch, with sliders for spacing, spray angle, droop and cards per spray",
+    "Five new leaf cards each for aspen and alder, with real outlines, stalks, veins and one green, darker behind: leafy twig, toothed or veined cluster, painted mass, sunlit or twig with cones, trembling or shade leaves",
+    "The juniper is gone from the portfolio, the editor and the grove"
+   ],
+   "found": [
+    "The old round-leaf cards drew every leaf almost twice as wide as meant, which is much of why they looked like circles",
+    "The flat comb with longer, wider-spaced sprays filled the spruce best, and with fewer cards than the short spray"
+   ],
+   "items": [
+    {
+     "id": "s-trees2",
+     "type": "frame",
+     "status": "new",
+     "title": "Trees, round 2",
+     "author": "claude"
+    },
+    {
+     "id": "t2-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Trees, round 2\nYour settings from the saved .blend are kept: the pine, the birch and the rowan as you left them.\n- **Norway spruce:** a new pinnate layout. Spray cards sit along each branch on alternate sides, their twigs' bases on the branch, like a feather; flat comb card with longer sprays\n- **Aspen and alder:** five new leaf cards each, with real leaf outlines, veins and stalks in one green, darker behind; set to leafy twig (aspen) and painted mass (alder)\n- **Juniper:** dropped\n\nTry other cards or tune the sprays in the editor, then press **Save settings** to keep them.",
+     "author": "claude"
+    },
+    {
+     "id": "t2-spruce",
+     "type": "image",
+     "status": "new",
+     "caption": "Norway spruce: crossed clumps with your settings (left) and pinnate sprays (right), whole tree and close up.",
+     "assetId": "faaaacccc8175a289019cdd6996a5015",
+     "file": "../assets/trees/previews/v3/spruce_before_after.png",
+     "author": "claude"
+    },
+    {
+     "id": "t2-aspen",
+     "type": "image",
+     "status": "new",
+     "caption": "The five new aspen cards (6 to 10) on the tree, whole and close up.",
+     "assetId": "aab9c095a046962230e66e231d447f53",
+     "file": "../assets/trees/previews/v3/aspen_options.png",
+     "author": "claude"
+    },
+    {
+     "id": "t2-alder",
+     "type": "image",
+     "status": "new",
+     "caption": "The five new alder cards (6 to 10) on the tree, whole and close up.",
+     "assetId": "1caecbfdffc516d8d451a0e7c8cb180c",
+     "file": "../assets/trees/previews/v3/alder_options.png",
+     "author": "claude"
+    },
+    {
+     "id": "t2-sheet",
+     "type": "image",
+     "status": "new",
+     "caption": "The portfolio now: your pine, birch and rowan, the spruce with sprays, aspen and alder with new cards.",
+     "assetId": "161e16ac19d282104d74942552d68aa9",
+     "file": "../assets/trees/previews/v3/portfolio.png",
+     "author": "claude"
+    },
+    {
+     "id": "t2-grove",
+     "type": "image",
+     "status": "new",
+     "caption": "The grove from the game camera.",
+     "assetId": "35a56d16f9b3ff8eba4e283f761278e5",
+     "file": "../assets/trees/previews/v3/grove_game_view.png",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/21_spruce_spray_trials.jpg",
+     "caption": "Spruce trials: your crossed clumps (left), then pinnate sprays with the short spray, the flat comb, denser sprays and longer combs"
+    }
+   ]
   }
  ]
 }

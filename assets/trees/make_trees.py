@@ -153,13 +153,13 @@ def build():
     # a small mixed grove, as it might stand in Act 1, off to the side of the rows
     grove = collection("Grove")
     gr = random.Random(7)
-    mix = (["ScotsPine"] * 9 + ["NorwaySpruce"] * 7 + ["SilverBirch"] * 4 + ["Aspen"] * 2 + ["Rowan"] * 2 + ["Alder"] * 2 + ["Juniper"] * 4)
+    mix = ["ScotsPine"] * 9 + ["NorwaySpruce"] * 8 + ["SilverBirch"] * 5 + ["Aspen"] * 3 + ["Rowan"] * 3 + ["Alder"] * 2
     gx0 = -150.0
     placed = []
     for key in mix:
         for _ in range(60):
             p = Vector((gx0 + gr.uniform(-22, 22), gr.uniform(-16, 16), 0))
-            if all((p - q).length > (2.5 if key == "Juniper" else 4.2) for q in placed):
+            if all((p - q).length > 4.2 for q in placed):
                 break
         placed.append(p)
         src = trees[(key, gr.choice("AB"))]

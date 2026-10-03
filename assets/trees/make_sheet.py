@@ -28,7 +28,7 @@ def main():
     sheet = Image.new("RGB", (cols * (tw + pad) + pad, 150 + rows * (th + cap + pad)), BG)
     d = ImageDraw.Draw(sheet)
     d.text((pad, 40), "Trees of the Swedish forest", fill=INK, font=font(52))
-    d.text((pad, 104), "Low-poly trunks and branches, leaf clumps of three crossed cards", fill=SOFT, font=font(26))
+    d.text((pad, 104), "Low-poly trunks and branches; leaves as crossed cards, or sprays set along the branches", fill=SOFT, font=font(26))
     slots = [(k, os.path.join(TILES, k + ".png")) for k in keys] + [("cards", os.path.join(HERE, "previews", "leaf_cards.png"))]
     for i, (key, path) in enumerate(slots):
         x = pad + (i % cols) * (tw + pad)
@@ -38,7 +38,7 @@ def main():
             img.thumbnail((tw, th))
             sheet.paste(img, (x, y + (th - img.height) // 2))
             d.text((x, y + th + 14), "Leaf cards", fill=INK, font=font(34))
-            d.text((x, y + th + 60), "one per species, 512 x 512 with alpha", fill=SOFT, font=font(22))
+            d.text((x, y + th + 60), "five to ten designs per tree, 512 x 512 with alpha", fill=SOFT, font=font(22))
             continue
         sheet.paste(img.resize((tw, th), Image.LANCZOS), (x, y))
         t = info[key]

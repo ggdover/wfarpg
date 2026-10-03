@@ -157,7 +157,6 @@ BIRCH_GREEN = ["#7DA03A", "#8BAE43", "#99BA4C", "#A9C659", "#B8CF66"]
 ASPEN_GREEN = ["#7C9C43", "#8AAA4C", "#98B656", "#A7C062", "#BCC66C"]
 ROWAN_GREEN = ["#4C7A2C", "#588634", "#64923C", "#71A045", "#7FAA4E"]
 ALDER_GREEN = ["#33592A", "#3C6530", "#467238", "#517E40", "#5C884A"]
-JUNIPER_GREEN = ["#3E5C4C", "#4A6A58", "#577664", "#668470", "#78927E"]
 
 
 # ------------------------------------------------------------------ Scots pine
@@ -370,67 +369,232 @@ def alder(v):
     return c
 
 
-# ------------------------------------------------------------------ juniper
-def juniper(v):
-    pal = {4: ["#5E7A80", "#6E8A90", "#7E9AA0", "#8FAAAE", "#9EB6B8"]}.get(v, JUNIPER_GREEN + ["#8AA090"])
-    c = Card(pal, 18 + 10 * v)
+# ------------------------------------------------------------------ truer aspen and alder leaves (designs 6-10)
+def aspen_outline(t):
+    """Nearly round with a short point, the edge gently wavy."""
+    w = math.sin(math.pi * t) ** 0.62 * (1 - 0.3 * max(0.0, t - 0.78) / 0.22)
+    return w * (1 + 0.045 * math.sin(t * 27)) if 0.08 < t < 0.95 else w
+
+
+def alder_outline(t):
+    """Broadest near the tip, which is notched; the teeth come in from the edge index in real_leaf."""
+    return t ** 0.7 * (1 - min(t, 0.985)) ** 0.38
+
+
+def inside(poly, p):
+    """Whether point p lies inside the polygon (even-odd rule)."""
+    x, y = p
+    hit = False
+    for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+            hit = not hit
+    return hit
+
+
+def real_leaf(c, base, ang, length, width, kind, col, veins=True, stalk=0.0, samples=26):
+    """A leaf with a true outline (kind "aspen" or "alder"), a stalk, light and dark halves split by the midrib, and
+    veins. width is the half-width at the widest point. col is the leaf's colour at its depth: draw back leaves
+    first, darker."""
+    dx, dy = math.cos(ang), math.sin(ang)
+    if stalk:
+        tip = (base[0] + dx * stalk, base[1] + dy * stalk)
+        c.twig([base, tip], 0.0032, shade(col, 0.7))
+        base = tip
+    px_, py_ = -dy, dx
+    outline = aspen_outline if kind == "aspen" else alder_outline
+    prof = [outline(i / samples) for i in range(samples + 1)]
+    peak = max(prof)
+    left, right, mid = [], [], []
+    for i in range(samples + 1):
+        t = i / samples
+        mx, my = base[0] + dx * length * t, base[1] + dy * length * t
+        w = width * prof[i] / peak
+        if kind == "alder" and 0 < i < samples:  # double teeth: big and small ones in turn
+            w *= 1 + 0.05 * (1 if i % 2 else -1) + 0.025 * (1 if (i // 2) % 2 else -1)
+        if kind == "alder" and i == samples:
+            mx, my = mx - dx * length * 0.07, my - dy * length * 0.07
+        mid.append((mx, my))
+        left.append((mx + px_ * w, my + py_ * w))
+        right.append((mx - px_ * w, my - py_ * w))
+    flip = c.rng.random() < 0.5
+    c.d.polygon([c.px(p) for p in left + mid[::-1]], fill=shade(col, 1.06 if flip else 0.9) + (255,))
+    c.d.polygon([c.px(p) for p in right + mid[::-1]], fill=shade(col, 0.9 if flip else 1.06) + (255,))
+    if not veins:
+        return
+    vein = shade(col, 0.74)
+    c.twig([mid[0], mid[int(samples * 0.93)]], 0.0026, vein)
+    pairs, angle = (4, 0.95) if kind == "aspen" else (7, 0.78)
+    for j in range(pairs):
+        t = 0.16 + 0.7 * j / (pairs - 1)
+        i = int(t * samples)
+        for side, half in ((1, left + mid[::-1]), (-1, right + mid[::-1])):
+            a = ang + side * angle
+            step = length / 60
+            n = 1
+            while n < 60 and inside(half, (mid[i][0] + math.cos(a) * step * n, mid[i][1] + math.sin(a) * step * n)):
+                n += 1
+            reach = step * n * 0.82  # stop short of the edge
+            c.twig([mid[i], (mid[i][0] + math.cos(a) * reach, mid[i][1] + math.sin(a) * reach)], 0.0017, vein)
+
+
+def leafy_twig(c, kind, base_col, sizes, stalks, spacing=0.085, start=(0.08, 0.3), heading_=0.42, length=0.84, depth=(0.8, 1.08)):
+    """One twig across the card with leaves on alternate sides, drawn back to front."""
     r = c.rng
-    if v == 2:  # a prickly ball
-        twigs = [curve_pts((0.5, 0.5), k * TAU / 11 + r.uniform(-0.15, 0.15), r.uniform(0.3, 0.4), r.uniform(-0.3, 0.3), 8) for k in range(11)]
-    elif v == 3:  # upright spikes
-        twigs = [curve_pts((0.22 + 0.56 * k / 6, 0.08), math.radians(90) + r.uniform(-0.12, 0.12), r.uniform(0.6, 0.84), r.uniform(-0.15, 0.15), 10) for k in range(7)]
+    tw = curve_pts(start, heading_, length, r.uniform(-0.25, 0.25), 10)
+    c.twig(tw, 0.007, "#5A4A3A")
+    leaves = []
+    n = int(length / spacing)
+    for j in range(n):
+        f = 0.08 + 0.9 * j / max(1, n - 1)
+        side = 1 if j % 2 else -1
+        leaves.append((r.uniform(*depth), at(tw, f), heading(tw, f) + side * r.uniform(0.7, 1.15)))
+    for k in range(3):  # short side shoots with a couple of leaves each
+        f = r.uniform(0.25, 0.8)
+        sh = curve_pts(at(tw, f), heading(tw, f) + r.choice((-1, 1)) * 0.7, r.uniform(0.12, 0.18), 0.2, 4)
+        c.twig(sh, 0.005, "#5A4A3A")
+        for g in (0.6, 1.0):
+            leaves.append((r.uniform(*depth), at(sh, g), heading(sh, g) + r.uniform(-0.8, 0.8)))
+    for d, p, a in sorted(leaves):
+        L = r.uniform(*sizes)
+        real_leaf(c, p, a, L, L * (0.48 if kind == "aspen" else 0.4), kind, shade(base_col, d * r.uniform(0.97, 1.03)), stalk=r.uniform(*stalks))
+
+
+def fan_cluster(c, kind, base_col, sizes, stalks, twigs=6, per=(3, 4)):
+    r = c.rng
+    leaves = []
+    for k in range(twigs):
+        tw = curve_pts((0.5, 0.26), math.radians(28 + 124 * k / (twigs - 1)) + r.uniform(-0.1, 0.1), r.uniform(0.22, 0.3), r.uniform(-0.3, 0.3), 6)
+        c.twig(tw, 0.006, "#5A4A3A")
+        n = r.randint(*per)
+        for j in range(n):
+            f = 0.35 + 0.65 * j / max(1, n - 1)
+            leaves.append((r.uniform(0.78, 1.1), at(tw, f), heading(tw, f) + (1 if j % 2 else -1) * r.uniform(0.4, 0.9)))
+    for d, p, a in sorted(leaves):
+        L = r.uniform(*sizes)
+        real_leaf(c, p, a, L, L * (0.48 if kind == "aspen" else 0.4), kind, shade(base_col, d), stalk=r.uniform(*stalks))
+
+
+def painted_mass(c, kind, dark, mid, light):
+    """A solid mass of foliage: a silhouette of leaves in the shadow colour, lit leaves over its upper side, and a few
+    highlights along the top. Reads as one clump rather than as separate leaves."""
+    r = c.rng
+    pts = []
+    while len(pts) < 46:
+        p = (r.uniform(0.14, 0.86), r.uniform(0.16, 0.84))
+        if ((p[0] - 0.5) / 0.34) ** 2 + ((p[1] - 0.5) / 0.3) ** 2 < 1:
+            pts.append(p)
+    ratio = 0.48 if kind == "aspen" else 0.4
+    for p in pts:
+        L = r.uniform(0.11, 0.14)
+        real_leaf(c, p, r.uniform(0, TAU), L, L * ratio, kind, rgb(dark), veins=False)
+    for p in sorted(pts, key=lambda p: p[1])[len(pts) // 3:]:  # the upper two-thirds catch the light
+        L = r.uniform(0.09, 0.12)
+        real_leaf(c, (p[0] + r.uniform(-0.01, 0.01), p[1] + 0.01), r.uniform(0, TAU), L, L * ratio, kind,
+                  shade(rgb(mid), r.uniform(0.95, 1.08)))
+    for p in sorted(pts, key=lambda p: -p[1])[:6]:
+        L = r.uniform(0.08, 0.1)
+        real_leaf(c, p, r.uniform(0.6, 2.5), L, L * ratio, kind, rgb(light))
+
+
+def hanging_leaves(c, base_col, under):
+    """Aspen leaves trembling on long, flat stalks below a twig; some turn their pale undersides out."""
+    r = c.rng
+    tw = curve_pts((0.06, 0.82), -0.1, 0.88, r.uniform(-0.2, 0.2), 10)
+    c.twig(tw, 0.007, "#5A4A3A")
+    leaves = []
+    for j in range(14):
+        f = 0.05 + 0.9 * j / 13
+        p = at(tw, f)
+        a = -math.pi / 2 + r.uniform(-0.7, 0.7)
+        leaves.append((r.uniform(0.8, 1.08), p, a, r.uniform(0.05, 0.11)))
+    for d, p, a, stalk in sorted(leaves):
+        L = r.uniform(0.14, 0.18)
+        col = shade(rgb(under), d) if r.random() < 0.25 else shade(base_col, d)
+        real_leaf(c, p, a + r.uniform(-0.5, 0.5), L, L * 0.48, "aspen", col, stalk=stalk)
+
+
+def aspen_more(v):
+    c = Card(ASPEN_GREEN, 100 + v)
+    green = rgb("#7FA046")
+    if v == 6:
+        leafy_twig(c, "aspen", green, (0.13, 0.17), (0.04, 0.06))
+    elif v == 7:
+        fan_cluster(c, "aspen", green, (0.13, 0.16), (0.03, 0.05))
+    elif v == 8:
+        painted_mass(c, "aspen", "#4E6E32", "#7FA046", "#A9C266")
+    elif v == 9:  # lit from behind: yellow-green, with the veins showing dark
+        leafy_twig(c, "aspen", rgb("#A3BE5C"), (0.13, 0.17), (0.04, 0.06), depth=(0.88, 1.1))
     else:
-        twigs = [curve_pts((0.5, 0.06), math.radians(52 + 76 * k / 8) + r.uniform(-0.08, 0.08), r.uniform(0.55, 0.82), r.uniform(-0.25, 0.25), 10) for k in range(9)]
-    for tw in twigs:
-        c.twig(tw, 0.006, "#6A4A3A")
-    for tw in twigs:
-        for j in range(70):
-            f = 0.1 + 0.9 * j / 70
-            p, h = at(tw, f), heading(tw, f)
-            for side in (-1, 0, 1):  # whorls of three short, sharp needles
-                c.needle(p, h + side * r.uniform(0.45, 0.75) + (0 if side else r.uniform(-0.2, 0.2)), r.uniform(0.03, 0.048), 0.005)
-    for _ in range(20 if v == 5 else 7):
-        tw = r.choice(twigs)
-        c.berry(at(tw, r.uniform(0.35, 0.9)), 0.016, r.choice(["#2E3A5E", "#3A4A72"]), "#7D8DB8")
+        hanging_leaves(c, green, "#B9C2A4")
     return c
 
 
-SPECIES = {"pine": pine, "spruce": spruce, "birch": birch, "aspen": aspen, "rowan": rowan, "alder": alder, "juniper": juniper}
+def alder_more(v):
+    c = Card(ALDER_GREEN, 200 + v)
+    green = rgb("#41702F")
+    if v == 6:
+        leafy_twig(c, "alder", green, (0.15, 0.19), (0.015, 0.03))
+    elif v == 7:
+        fan_cluster(c, "alder", green, (0.15, 0.18), (0.015, 0.025))
+    elif v == 8:
+        painted_mass(c, "alder", "#264520", "#3E6B2E", "#5E8A44")
+    elif v == 9:  # a leafy twig with cones and catkins
+        leafy_twig(c, "alder", green, (0.14, 0.17), (0.015, 0.03), spacing=0.1)
+        r = c.rng
+        for cx, cy in ((0.62, 0.3), (0.32, 0.68)):
+            for k in range(3):
+                q = (cx + r.uniform(-0.03, 0.03), cy + r.uniform(-0.03, 0.03))
+                x, y = c.px(q)
+                c.d.ellipse([x - 0.014 * N, y - 0.02 * N, x + 0.014 * N, y + 0.02 * N], fill=rgb(r.choice(["#3E2C20", "#4E3828"])) + (255,))
+            c.twig([(cx, cy), (cx + r.uniform(-0.03, 0.03), cy - 0.12)], 0.014, "#7A5A3A")
+    else:  # big, dark leaves in the shade of the crown
+        leafy_twig(c, "alder", rgb("#355F28"), (0.19, 0.23), (0.015, 0.03), spacing=0.12, depth=(0.75, 1.0))
+    return c
+
+
+SPECIES = {"pine": pine, "spruce": spruce, "birch": birch, "aspen": aspen, "rowan": rowan, "alder": alder}
+MORE = {"aspen": aspen_more, "alder": alder_more}  # designs 6 to 10
 NAMES = {  # what each design is called in the editor
     "pine": ["Tuft cluster", "Single tuft", "Twig with tufts", "Long, sparse needles", "Packed pad"],
     "spruce": ["Hanging curtain", "Flat comb", "Upturned tip", "Dense mass", "Short spray"],
     "birch": ["Hanging twigs", "Sparse strands", "Round cluster", "With catkins", "Late summer"],
-    "aspen": ["Twig fan", "Round cluster", "Small leaves", "Autumn", "Pale undersides"],
+    "aspen": ["Twig fan", "Round cluster", "Small leaves", "Autumn", "Pale undersides",
+              "Leafy twig", "Toothed cluster", "Painted mass", "Sunlit", "Trembling"],
     "rowan": ["Radial", "Few, large leaves", "Dense", "Autumn", "Young, light"],
-    "alder": ["Twig fan", "Round cluster", "Cones and catkins", "Small leaves", "Deep green"],
-    "juniper": ["Twig fan", "Prickly ball", "Upright spikes", "Silver blue", "Many berries"],
+    "alder": ["Twig fan", "Round cluster", "Cones and catkins", "Small leaves", "Deep green",
+              "Leafy twig", "Veined cluster", "Painted mass", "Twig with cones", "Shade leaves"],
 }
+# where each spray card's twig starts on the card, and which way it runs (degrees), for sprays set along a branch
+ANCHORS = {"spruce_1": [0.06, 0.76, -2], "spruce_2": [0.06, 0.5, 0], "spruce_3": [0.06, 0.3, 9], "spruce_4": [0.5, 0.5, 0],
+           "spruce_5": [0.2, 0.42, 14]}
 
 if __name__ == "__main__":
     made = {}
-    for sp, fn in SPECIES.items():
-        for v in range(1, 6):
+    for sp, names in NAMES.items():
+        for v in range(1, len(names) + 1):
+            fn = SPECIES[sp] if v <= 5 else MORE[sp]
             made[(sp, v)] = fn(v).save(f"{sp}_{v}")
             if sp == "rowan":
                 rowan(v, berries=True).save(f"rowan_{v}_berries")
     # a contact sheet: one row per species
-    tile, pad, label_w = 200, 16, 190
-    sheet = Image.new("RGB", (label_w + 5 * (tile + pad) + pad, len(SPECIES) * (tile + pad + 26) + pad), (236, 232, 222))
+    tile, pad, label_w = 170, 14, 150
+    cols = max(len(n) for n in NAMES.values())
+    sheet = Image.new("RGB", (label_w + cols * (tile + pad) + pad, len(NAMES) * (tile + pad + 26) + pad), (236, 232, 222))
     dr = ImageDraw.Draw(sheet)
     try:
-        big, small = (ImageFont.truetype(os.path.join(HERE, "..", "..", "mockups", "fonts", "Cinzel.ttf"), s) for s in (26, 15))
+        big, small = (ImageFont.truetype(os.path.join(HERE, "..", "..", "mockups", "fonts", "Cinzel.ttf"), s) for s in (24, 13))
     except OSError:
         big = small = ImageFont.load_default()
-    for row, sp in enumerate(SPECIES):
+    for row, sp in enumerate(NAMES):
         y = pad + row * (tile + pad + 26)
         dr.text((pad, y + tile / 2), sp.capitalize(), fill=(60, 52, 40), font=big, anchor="lm")
-        for v in range(1, 6):
+        for v in range(1, len(NAMES[sp]) + 1):
             x = label_w + pad + (v - 1) * (tile + pad)
             img = made[(sp, v)].resize((tile, tile), Image.LANCZOS)
             sheet.paste(img, (x, y), img)
             dr.text((x + tile / 2, y + tile + 4), f"{v}  {NAMES[sp][v - 1]}", fill=(90, 80, 64), font=small, anchor="mt")
     os.makedirs(os.path.join(HERE, "previews"), exist_ok=True)
     sheet.save(os.path.join(HERE, "previews", "leaf_cards.png"))
-    with open(os.path.join(OUT, "cards.json"), "w") as fh:  # the design names, for the tree editor
-        json.dump(NAMES, fh, indent=1)
+    with open(os.path.join(OUT, "cards.json"), "w") as fh:  # the design names and spray anchors, for the tree editor
+        json.dump({"names": NAMES, "anchors": ANCHORS}, fh, indent=1)
     print("wrote", len(made), "cards (and 5 rowan berry versions) to", OUT)

@@ -1,51 +1,83 @@
 {
- "pine": [
-  "Tuft cluster",
-  "Single tuft",
-  "Twig with tufts",
-  "Long, sparse needles",
-  "Packed pad"
- ],
- "spruce": [
-  "Hanging curtain",
-  "Flat comb",
-  "Upturned tip",
-  "Dense mass",
-  "Short spray"
- ],
- "birch": [
-  "Hanging twigs",
-  "Sparse strands",
-  "Round cluster",
-  "With catkins",
-  "Late summer"
- ],
- "aspen": [
-  "Twig fan",
-  "Round cluster",
-  "Small leaves",
-  "Autumn",
-  "Pale undersides"
- ],
- "rowan": [
-  "Radial",
-  "Few, large leaves",
-  "Dense",
-  "Autumn",
-  "Young, light"
- ],
- "alder": [
-  "Twig fan",
-  "Round cluster",
-  "Cones and catkins",
-  "Small leaves",
-  "Deep green"
- ],
- "juniper": [
-  "Twig fan",
-  "Prickly ball",
-  "Upright spikes",
-  "Silver blue",
-  "Many berries"
- ]
+ "names": {
+  "pine": [
+   "Tuft cluster",
+   "Single tuft",
+   "Twig with tufts",
+   "Long, sparse needles",
+   "Packed pad"
+  ],
+  "spruce": [
+   "Hanging curtain",
+   "Flat comb",
+   "Upturned tip",
+   "Dense mass",
+   "Short spray"
+  ],
+  "birch": [
+   "Hanging twigs",
+   "Sparse strands",
+   "Round cluster",
+   "With catkins",
+   "Late summer"
+  ],
+  "aspen": [
+   "Twig fan",
+   "Round cluster",
+   "Small leaves",
+   "Autumn",
+   "Pale undersides",
+   "Leafy twig",
+   "Toothed cluster",
+   "Painted mass",
+   "Sunlit",
+   "Trembling"
+  ],
+  "rowan": [
+   "Radial",
+   "Few, large leaves",
+   "Dense",
+   "Autumn",
+   "Young, light"
+  ],
+  "alder": [
+   "Twig fan",
+   "Round cluster",
+   "Cones and catkins",
+   "Small leaves",
+   "Deep green",
+   "Leafy twig",
+   "Veined cluster",
+   "Painted mass",
+   "Twig with cones",
+   "Shade leaves"
+  ]
+ },
+ "anchors": {
+  "spruce_1": [
+   0.06,
+   0.76,
+   -2
+  ],
+  "spruce_2": [
+   0.06,
+   0.5,
+   0
+  ],
+  "spruce_3": [
+   0.06,
+   0.3,
+   9
+  ],
+  "spruce_4": [
+   0.5,
+   0.5,
+   0
+  ],
+  "spruce_5": [
+   0.2,
+   0.42,
+   14
+  ]
+ }
 }

@@ -25,9 +25,11 @@ General knowledge, public documentation, and third-party libraries and engines a
 - Paths are worn into the grass by feet, so they never end in a hard line: the grass thins out and turns trampled toward
   them. The dirt is a light tan (between wheat and desert sand), and the gravel and pebbles in it are the same tones, so
   they read as texture rather than contrasting spots. Avoid hard edges between ground textures in general.
-- Trees: Scots pine, silver birch, Norway spruce, aspen, rowan, alder and juniper (`ref_imgs/Trees of the Swedish
-  Forest.png`). Low-poly trunks and branches; leaf clumps are crossed planes (three copies of a leaf card with alpha,
-  crossing at the clump's centre). The user isn't happy with the mockups' current trees and wants to swap them for these.
+- Trees: Scots pine, silver birch, Norway spruce, aspen, rowan and alder (`ref_imgs/Trees of the Swedish Forest.png`;
+  the user dropped the juniper). Low-poly trunks and branches; leaf clumps are crossed planes (copies of a leaf card
+  with alpha, crossing at the clump's centre). The spruce instead has pinnate sprays: spray cards along each branch
+  on alternate sides, their twigs' bases on the branch. The user isn't happy with the mockups' current trees and
+  wants to swap them for these.
 - Open trodden ground, like Tallmo's square, is worn the same way as the paths: an uneven, asymmetric outline (no clean
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),

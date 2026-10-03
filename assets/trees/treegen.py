@@ -25,15 +25,15 @@ UP = Vector((0, 0, 1))
 
 # what each setting does is described in tree_editor.py, next to its slider
 BASE = dict(card=1, size=1.0, planes=3, density=1.0, spread=1.0, upright=1.0, flat=True, tilt=1.0,
-            brightness=1.0, hue=0.5, saturation=1.0, height=1.0, width=1.0, seed=0, berries=0.3)
+            brightness=1.0, hue=0.5, saturation=1.0, height=1.0, width=1.0, seed=0, berries=0.3,
+            layout="crossed", spacing=0.28, spray_angle=55.0, droop=0.25)
 DEFAULTS = {
     "ScotsPine": dict(BASE, card=1, size=0.55, planes=5, density=4.5, spread=0.9),  # small tufts packed into pads
     "SilverBirch": dict(BASE),
-    "NorwaySpruce": dict(BASE),
+    "NorwaySpruce": dict(BASE, card=5, layout="pinnate", planes=2),  # sprays set along the branches, like a feather
     "Aspen": dict(BASE),
     "Rowan": dict(BASE),
     "Alder": dict(BASE),
-    "Juniper": dict(BASE),
 }
 
 
@@ -79,6 +79,7 @@ class Tree:
         self.r = random.Random(seed)
         self.v, self.f, self.mat, self.col, self.uv, self.nrm = [], [], [], [], [], []
         self.clumps = []
+        self.branches = []  # branch lines that can carry pinnate sprays
         self.slots = ["bark"]
 
     def slot(self, name):
@@ -126,20 +127,29 @@ class Tree:
         if len(rings[-1]) > 1:
             self.face(rings[-1], col=colour(n - 2, 0))
 
-    def clump(self, c, size, card="leaves", squash=1.0, flat=1.0, hang=False):
+    def clump(self, c, size, card="leaves", squash=1.0, flat=1.0, hang=False, always=False):
         """Queue a leaf clump at c. squash scales the upright cards' height and flat the lying card; hang keeps the
-        texture's top up on the upright cards (for twigs that hang, like birch)."""
-        self.clumps.append((Vector(c), size, self.slot(card), squash, flat, hang))
+        texture's top up on the upright cards (for twigs that hang, like birch); always keeps the clump in the
+        pinnate layout too (for a tree's top, where a branch has no sides)."""
+        self.clumps.append((Vector(c), size, self.slot(card), squash, flat, hang, always))
 
-    def emit_leaves(self, crown, cfg):
-        """Turn the queued clumps into crossed cards, by the settings. Uses its own random numbers, so the leaf
-        settings never change the trunk and branches."""
-        if not self.clumps:
+    def branch(self, pts, card="leaves"):
+        """Remember a branch line, for the pinnate layout."""
+        self.branches.append(([Vector(p) for p in pts], self.slot(card)))
+
+    def emit_leaves(self, crown, cfg, key=None):
+        """Turn the queued clumps into crossed cards, or the branches into pinnate sprays, by the settings. Uses its
+        own random numbers, so the leaf settings never change the trunk and branches."""
+        clumps = self.clumps
+        if cfg.get("layout") == "pinnate" and self.branches:
+            self._emit_sprays(crown, cfg, key)
+            clumps = [c for c in self.clumps if c[6]]
+        if not clumps:
             return
         r = random.Random(self.seed * 7 + 3)
-        cen = sum((c[0] for c in self.clumps), Vector()) / len(self.clumps)
+        cen = sum((c[0] for c in clumps), Vector()) / len(clumps)
         density, spread, tilt = cfg["density"], cfg["spread"], cfg["tilt"]
-        for c, size, mat, squash, flat, hang in self.clumps:
+        for c, size, mat, squash, flat, hang, _always in clumps:
             # a patch: the extra clumps fill the flattened volume the full-size clump would take up, scaled by spread
             n = int(density) + (1 if r.random() < density - int(density) else 0)
             rx, rz = size * flat * 0.5 * spread, size * squash * 0.5 * spread
@@ -152,6 +162,67 @@ class Tree:
                     p = c + Vector((u.x * rx, u.y * rx, u.z * rz))
                 s = size * cfg["size"] * (1.0 if k == 0 else r.uniform(0.8, 1.0))
                 self._clump_cards(r, p, s, mat, squash * cfg["upright"], flat, hang, cfg["planes"], cfg["flat"], tilt, cen, crown)
+
+    def _emit_sprays(self, crown, cfg, key):
+        """Pinnate sprays: along every branch, cards set on alternate sides, each with its twig's base on the branch
+        and pointing out and forward at the spray angle, shorter toward the tip; extra copies roll around the
+        spray's own axis for volume, so the pattern stays."""
+        r = random.Random(self.seed * 7 + 5)
+        cen = sum((p for pts, _ in self.branches for p in pts), Vector()) / sum(len(pts) for pts, _ in self.branches)
+        anchor = card_anchor(BY_KEY[key][6], int(cfg["card"])) if key else (0.5, 0.5, 0.0)
+        ua, va, deg = anchor
+        tw = math.radians(deg)
+        rolls = [0.0, 70.0, -70.0, 35.0, -35.0, 105.0, -105.0, 140.0, -140.0, 180.0][:max(1, int(cfg["planes"]))]
+        angle = math.radians(cfg["spray_angle"])
+        for pts, mat in self.branches:
+            lengths = [0.0]
+            for a, b in zip(pts, pts[1:]):
+                lengths.append(lengths[-1] + (b - a).length)
+            total = lengths[-1]
+            if total < 0.2:
+                continue
+            k = 0
+            d = cfg["spacing"] * r.uniform(0.6, 1.0)
+            while d < total + 1e-6:
+                f = d / total
+                p = along(pts, f)
+                t = (along(pts, min(1.0, f + 0.02)) - along(pts, max(0.0, f - 0.02))).normalized()
+                side = t.cross(UP)
+                side = side.normalized() if side.length > 1e-4 else Vector((1, 0, 0))
+                last = d + cfg["spacing"] > total
+                sgn = 0.0 if last else (1.0 if k % 2 else -1.0)  # the last spray carries the branch on at its tip
+                aim = (t * math.cos(angle * abs(sgn)) + side * sgn * math.sin(angle)).normalized()
+                aim = (aim - UP * cfg["droop"]).normalized()
+                length = cfg["size"] * 1.1 * (0.55 + 0.45 * (1 - f)) * r.uniform(0.85, 1.1)
+                lie = (UP - aim * UP.dot(aim)).normalized()  # the spray's face looks up
+                for roll in rolls:
+                    q = Quaternion(aim, math.radians(roll + r.uniform(-12, 12) * cfg["tilt"]))
+                    self._spray_card(p, aim, (q @ lie).cross(aim).normalized(), length, ua, va, tw, mat, cen, crown, r.random() < 0.5)
+                k += 1
+                d += cfg["spacing"] * r.uniform(0.85, 1.15)
+
+    def _spray_card(self, base, aim, across, length, ua, va, tw, mat, cen, crown, mirror):
+        """A card placed so that its twig's base (ua, va) sits at base and its twig, which runs at tw on the card, points
+        along aim; across is the card's other direction in the world."""
+        size = length / 0.8  # the spray twig covers about 0.8 of the card
+        cos_t, sin_t = math.cos(tw), math.sin(tw)
+        uvs = [(0, 0), (1, 0), (1, 1), (0, 1)]
+        corners = []
+        for u, v in uvs:
+            du, dv = (u - ua), (v - va)
+            if mirror:  # mirror across the twig line, so the spray flips sides
+                a_ = du * cos_t + dv * sin_t
+                b_ = -(-du * sin_t + dv * cos_t)
+            else:
+                a_ = du * cos_t + dv * sin_t
+                b_ = -du * sin_t + dv * cos_t
+            corners.append(base + aim * (a_ * size) + across * (b_ * size))
+        nrm = []
+        for p in corners:
+            out = Vector((p.x - cen.x, p.y - cen.y, 0)) if crown == "axis" else p - cen
+            out = (out.normalized() if out.length > 1e-4 else UP) + (Vector((0, 0, 0.5)) if crown == "axis" else Vector())
+            nrm.append((out.normalized() * 0.65 + UP * 0.35).normalized())
+        self.face([self.vert(p) for p in corners], mat, uv=uvs, nrm=nrm)
 
     def _clump_cards(self, r, c, size, mat, squash, flat, hang, planes, with_flat, tilt, cen, crown):
         az = r.uniform(0, TAU)
@@ -347,6 +418,7 @@ def norway_spruce(seed, cfg):
             az = az0 + j * TAU / nbr + r.uniform(-0.25, 0.25)
             b = limb(r, p, direction(az, -0.12 - 0.25 * (1 - t) + r.uniform(-0.08, 0.08)), L * r.uniform(0.85, 1.1), 4, droop=0.12, upturn=0.35)
             T.tube(b, taper(0.05 * (1 - t) + 0.015, 0.006, 5), 4, lambda i, k: pick(r, "#4A3F36", "#3F362F"))
+            T.branch(b)
             n = max(2, int(L / 0.55))
             for s in range(n):
                 f = 1.0 - s * 0.8 / n
@@ -355,8 +427,8 @@ def norway_spruce(seed, cfg):
                 T.clump(along(b, 0.15), 1.0, squash=0.8)
         z += gap * (1 - 0.35 * t)
     top = pts[-1]
-    T.clump(top - Vector((0, 0, 0.35)), 0.9, squash=1.2)
-    T.clump(top - Vector((0, 0, 0.9)), 1.1, squash=1.0)
+    T.clump(top - Vector((0, 0, 0.35)), 0.9, squash=1.2, always=True)
+    T.clump(top - Vector((0, 0, 0.9)), 1.1, squash=1.0, always=True)
     for _ in range(r.randint(6, 10)):  # cones hanging near the top
         p = along(pts, r.uniform(0.8, 0.95)) + direction(r.uniform(0, TAU), 0) * r.uniform(0.3, 0.9)
         T.tube([p, p - Vector((0, 0, 0.08)), p - Vector((0, 0, 0.2)), p - Vector((0, 0, 0.26))], [0.025, 0.045, 0.035, 0.0], 5,
@@ -462,32 +534,6 @@ def alder(seed, cfg):
     return T, "sphere"
 
 
-def juniper(seed, cfg):
-    """A small, narrow column of prickly grey-green with blue berries, on a few reddish stems."""
-    T = Tree(seed)
-    r = T.r
-    H = r.uniform(3.0, 4.5) * cfg["height"]
-    R0 = r.uniform(0.85, 1.1) * cfg["width"]
-    for s in range(r.randint(3, 4)):
-        a = r.uniform(0, TAU)
-        h = H * (1.0 if s == 0 else r.uniform(0.55, 0.85))
-        base = Vector((math.cos(a), math.sin(a), 0)) * (0.0 if s == 0 else r.uniform(0.08, 0.2))
-        pts = trunk_line(r, h, 8, 0.15 if s == 0 else 0.35, 0.06, base)
-        T.tube(pts, [(0.09 if s == 0 else 0.06) * (1 - i / 8) + 0.012 for i in range(9)], 5, lambda i, k: pick(r, "#6A4A3A", "#7A5644", "#5A3E30"))
-        for j in range(r.randint(13, 16)):
-            t = 0.08 + 0.87 * j / 15
-            p = along(pts, t)
-            b = limb(r, p, direction(r.uniform(0, TAU), r.uniform(1.0, 1.3)), r.uniform(0.3, 0.7) * (1 - t * 0.6) * cfg["width"], 2)
-            T.tube(b, [0.02, 0.01, 0.0], 3, lambda i, k: pick(r, "#6A4A3A"))
-            for q in (along(b, 0.5), b[-1]):
-                rad = R0 * (1 - q.z / H) ** 0.7 + 0.15
-                horiz = Vector((q.x, q.y, 0))
-                if horiz.length > rad:  # keep the crown a narrow column
-                    q = Vector((q.x * rad / horiz.length, q.y * rad / horiz.length, q.z))
-                T.clump(q, r.uniform(0.55, 0.85), squash=1.3, flat=0.8)
-    return T, "axis"
-
-
 SPECIES = [  # key, builder, English name, Swedish name, Latin name, width in the lineup (m), leaf-card name
     ("ScotsPine", scots_pine, "Scots pine", "Tall", "Pinus sylvestris", 10, "pine"),
     ("SilverBirch", silver_birch, "Silver birch", "Björk", "Betula pendula", 9, "birch"),
@@ -495,9 +541,9 @@ SPECIES = [  # key, builder, English name, Swedish name, Latin name, width in th
     ("Aspen", aspen, "Aspen", "Asp", "Populus tremula", 8, "aspen"),
     ("Rowan", rowan, "Rowan", "Rönn", "Sorbus aucuparia", 7, "rowan"),
     ("Alder", alder, "Alder", "Klibbal", "Alnus glutinosa", 9, "alder"),
-    ("Juniper", juniper, "Juniper", "En", "Juniperus communis", 5, "juniper"),
 ]
 BY_KEY = {s[0]: s for s in SPECIES}
+PINNATE = {"NorwaySpruce"}  # trees whose branches can carry pinnate sprays
 
 
 def load_settings():
@@ -509,9 +555,19 @@ def load_settings():
     return {k: dict(DEFAULTS[k], **{n: v for n, v in saved.get(k, {}).items() if n in BASE}) for k in DEFAULTS}
 
 
-def card_names():
+def _cards():
     path = os.path.join(TEXTURES, "cards.json")
     return json.load(open(path)) if os.path.exists(path) else {}
+
+
+def card_names():
+    """card -> the names of its designs, in order (written by make_leaf_cards.py)."""
+    return _cards().get("names", {})
+
+
+def card_anchor(card, n):
+    """Where a spray card's twig starts (u, v) and which way it runs (degrees); the card's centre if not a spray."""
+    return tuple(_cards().get("anchors", {}).get(f"{card}_{n}", (0.5, 0.5, 0.0)))
 
 
 # ------------------------------------------------------------------ materials
@@ -597,6 +653,6 @@ def build_into(key, variant, cfg, me):
     """(Re)build one tree into the mesh me. Returns (leaf cards, faces)."""
     builder = BY_KEY[key][1]
     tree, crown = builder(seed_for(key, variant, cfg), cfg)
-    tree.emit_leaves(crown, cfg)
+    tree.emit_leaves(crown, cfg, key)
     tree.to_mesh(me, materials_for(key, cfg))
     return sum(1 for m in tree.mat if m > 0), len(tree.f)

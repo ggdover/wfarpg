@@ -1,6 +1,6 @@
 """The tree editor: a "Trees" tab in the 3D viewport's sidebar (press N) for tuning the portfolio trees live.
 
-Pick a tree, pick one of its five leaf cards, and move the sliders; both variants of the tree (and their copies in the
+Pick a tree, pick one of its leaf cards, and move the sliders; both variants of the tree (and their copies in the
 grove) are rebuilt as you go. "Save settings" writes tree_settings.json next to this file, which make_trees.py uses
 for the next full build and renders. The trees are generated, so edits made by hand to their meshes are lost when the
 tree is rebuilt.
@@ -62,7 +62,10 @@ def _card_items(self, context):
 class TreeSettings(bpy.types.PropertyGroup):
     # name holds the species key, e.g. "ScotsPine"
     card: EnumProperty(name="Leaf card", items=_card_items, update=_on_look,
-                       description="Which of the five leaf cards the clumps use")
+                       description="Which leaf card the clumps or sprays use")
+    layout: EnumProperty(name="Layout", update=_on_shape, items=[
+        ("crossed", "Crossed clumps", "Clumps of cards crossing at their centre"),
+        ("pinnate", "Pinnate sprays", "Spray cards set along each branch on alternate sides, their twigs' bases on the branch")])
     size: FloatProperty(name="Card size", default=1.0, min=0.2, max=3.0, update=_on_shape,
                         description="How big each leaf card is")
     planes: IntProperty(name="Cards per clump", default=3, min=1, max=10, update=_on_shape,
@@ -91,6 +94,12 @@ class TreeSettings(bpy.types.PropertyGroup):
                       description="Another seed grows a different tree of the same kind")
     berries: FloatProperty(name="Berry clumps", default=0.3, min=0.0, max=1.0, update=_on_shape,
                            description="Share of the rowan's clumps that carry berries")
+    spacing: FloatProperty(name="Spacing", default=0.28, min=0.08, max=1.0, unit="LENGTH", update=_on_shape,
+                           description="Distance between sprays along a branch")
+    spray_angle: FloatProperty(name="Spray angle", default=55.0, min=10.0, max=90.0, update=_on_shape,
+                               description="How far the sprays turn out from the branch, in degrees")
+    droop: FloatProperty(name="Droop", default=0.25, min=-0.5, max=1.5, update=_on_shape,
+                         description="How much the sprays hang down (below 0 they lift)")
 
 
 class TreeEditor(bpy.types.PropertyGroup):
@@ -204,16 +213,29 @@ class VIEW3D_PT_tree_editor(bpy.types.Panel):
         n = int(s.card)
         lay.label(text=f"Card {n}: {names[n - 1]}" if n <= len(names) else f"Card {n}")
 
+        sprays = ed.species in treegen.PINNATE and s.layout == "pinnate"
+        if ed.species in treegen.PINNATE:
+            lay.prop(s, "layout", expand=True)
         box = lay.box()
-        box.label(text="Leaf clumps", icon="OUTLINER_OB_POINTCLOUD")
-        col = box.column(align=True)
-        col.prop(s, "size", slider=True)
-        col.prop(s, "planes", slider=True)
-        col.prop(s, "density", slider=True)
-        col.prop(s, "spread", slider=True)
-        col.prop(s, "upright", slider=True)
-        col.prop(s, "tilt", slider=True)
-        box.prop(s, "flat")
+        if sprays:
+            box.label(text="Sprays along the branches", icon="OUTLINER_OB_POINTCLOUD")
+            col = box.column(align=True)
+            col.prop(s, "size", text="Spray length", slider=True)
+            col.prop(s, "planes", text="Cards per spray", slider=True)
+            col.prop(s, "spacing", slider=True)
+            col.prop(s, "spray_angle", slider=True)
+            col.prop(s, "droop", slider=True)
+            col.prop(s, "tilt", slider=True)
+        else:
+            box.label(text="Leaf clumps", icon="OUTLINER_OB_POINTCLOUD")
+            col = box.column(align=True)
+            col.prop(s, "size", slider=True)
+            col.prop(s, "planes", slider=True)
+            col.prop(s, "density", slider=True)
+            col.prop(s, "spread", slider=True)
+            col.prop(s, "upright", slider=True)
+            col.prop(s, "tilt", slider=True)
+            box.prop(s, "flat")
 
         box = lay.box()
         box.label(text="Leaf colour", icon="COLOR")
@@ -266,11 +288,11 @@ def register():
     for key, *_rest in treegen.SPECIES:
         card = treegen.BY_KEY[key][6]
         items = []
-        for n in range(1, 6):
+        labels = names.get(card) or [str(n) for n in range(1, 6)]
+        for n, label in enumerate(labels, 1):
             path = os.path.join(treegen.TEXTURES, f"{card}_{n}.png")
             show = os.path.exists(path) and not bpy.app.background  # no thumbnails needed without a window
             icon = PREVIEWS.load(f"{card}_{n}", path, "IMAGE").icon_id if show else 0
-            label = names.get(card, [str(n)] * 5)[n - 1]
             items.append((str(n), f"{n}  {label}", label, icon, n))
         CARD_ITEMS[key] = items
     for c in CLASSES:
