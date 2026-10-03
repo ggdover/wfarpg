@@ -25,6 +25,8 @@ General knowledge, public documentation, and third-party libraries and engines a
 - Paths are worn into the grass by feet, so they never end in a hard line: the grass thins out and turns trampled toward
   them. The dirt is a light tan (between wheat and desert sand), and the gravel and pebbles in it are the same tones, so
   they read as texture rather than contrasting spots. Avoid hard edges between ground textures in general.
+- Open trodden ground, like Tallmo's square, is worn the same way as the paths: an uneven, asymmetric outline (no clean
+  ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
   (not yet confirmed by the user).

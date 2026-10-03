@@ -1867,6 +1867,77 @@
      "caption": "Warmer tan, but the leaves (zoomed in below) were too small to see, so they were made bigger and more frequent"
     }
    ]
+  },
+  {
+   "id": "town-square",
+   "date": "2026-10-03",
+   "asked_at": "18:53",
+   "posted_at": "19:00",
+   "title": "Tallmo's square",
+   "section": "Tallmo's square",
+   "cover": "renders/town_square/tallmo.png",
+   "asked": "The oval brown shape in the middle of Tallmo is too symmetrical and uniform. Make it less symmetrical, with the same colour and texture as the paths in the forest.",
+   "changed": [
+    "The square is trodden ground with an uneven outline: overlapping lobes of different sizes and a ragged edge, reaching toward the well and the houses",
+    "It is part of the path network now, so it has the paths' light tan dirt, gravel, leaves and worn grassy edge, and the roads run into it without a seam",
+    "Every stall, the well sweep and the campfire still stand on it"
+   ],
+   "found": [
+    "The Act 1 blueprint still shows the old oval until the blueprints are made again; the map bake now paints the new square, in the roads' colour"
+   ],
+   "items": [
+    {
+     "id": "s-square",
+     "type": "frame",
+     "status": "new",
+     "title": "Tallmo's square",
+     "author": "claude"
+    },
+    {
+     "id": "sq-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Tallmo's square\n- **No more oval:** the square is trodden ground with an uneven outline, reaching out toward the well and the houses\n- **Same as the paths:** light tan dirt, gravel in the same tones, fallen leaves, and a worn edge where the grass thins out\n- The roads run into it without a seam, because the square is now part of the path network",
+     "author": "claude"
+    },
+    {
+     "id": "sq-b",
+     "type": "image",
+     "status": "new",
+     "caption": "Before: A · Tallmo, with the square as a uniform brown oval.",
+     "assetId": "c15f1f47ffa8cacc2b01889ff9272ca7",
+     "file": "renders/worn_paths_v2/tallmo.png",
+     "author": "claude"
+    },
+    {
+     "id": "sq-a",
+     "type": "image",
+     "status": "new",
+     "caption": "After: the square is worn ground in the paths' light tan, with an uneven edge where the grass takes over.",
+     "assetId": "ae077f32568bb08481f88a49ccaa179c",
+     "file": "renders/town_square/tallmo.png",
+     "author": "claude"
+    },
+    {
+     "id": "sq-cb",
+     "type": "image",
+     "status": "new",
+     "caption": "Before, close up at full resolution.",
+     "assetId": "4c8149a028bde380ccf46955a83852eb",
+     "file": "renders/town_square/closeup_before.png",
+     "author": "claude"
+    },
+    {
+     "id": "sq-ca",
+     "type": "image",
+     "status": "new",
+     "caption": "After, close up: the same gravel and dry, trampled edge as the forest paths.",
+     "assetId": "1c606ead5f21cc0e550851851bbf1654",
+     "file": "renders/town_square/closeup_after.png",
+     "author": "claude"
+    }
+   ],
+   "wip": []
   }
  ]
 }

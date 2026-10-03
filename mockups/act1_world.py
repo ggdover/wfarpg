@@ -160,6 +160,11 @@ SHOTS = [
 ]
 
 TOWN_SQUARE = dict(c=(26, -57), rx=12, ry=8)
+# the square's trodden ground: lobes of different sizes pointing different ways, with a ragged edge, so it reads
+# as earth worn bare by feet and carts rather than a laid-out oval. Centre, half-axes (m), rotation (deg).
+SQUARE_LOBES = [((27, -57.5), 10.5, 6.5, 12), ((18.5, -53), 6.0, 4.2, -30), ((33.5, -63.5), 7.0, 4.0, 18),
+                ((39, -58.5), 4.2, 3.6, 0), ((32.5, -50.5), 5.0, 3.2, -12), ((15.5, -61), 3.8, 2.8, 35)]
+SQUARE_EDGE = 2.0  # metres per path half-width, so the square's worn edge is as wide as a road's
 TOWN_LAYOUT = [  # x, y, rot (deg), kind
     (26, -42, 0, "longhouse"), (8, -48, 25, "cottage"), (6, -62, 90, "cottage"), (14, -72, 160, "cottage"),
     (34, -73, 180, "barn"), (48, -68, -135, "cottage"), (47, -55, -90, "cottage"), (44, -44, -25, "cottage"), (-16, -74, 160, "cottage")]
@@ -246,7 +251,24 @@ def path_dist(X, Y, kinds=None):
         if kinds and kind not in kinds:
             continue
         best = np.minimum(best, seg_dist(X, Y, pts) / (w / 2))
+    if not kinds or "road" in kinds:  # Tallmo's square is worn ground like the roads that meet in it
+        best = np.minimum(best, square_dist(X, Y))
     return best
+
+
+def square_dist(X, Y):
+    """Distance from Tallmo's square in path half-widths, like path_dist: under 1 inside, 1 at the edge."""
+    X = np.asarray(X, dtype=float)
+    Y = np.asarray(Y, dtype=float)
+    s = np.full(np.shape(X), 1e9)
+    for (cx, cy), rx, ry, rot in SQUARE_LOBES:
+        a = math.radians(rot)
+        lx = (X - cx) * math.cos(a) + (Y - cy) * math.sin(a)
+        ly = -(X - cx) * math.sin(a) + (Y - cy) * math.cos(a)
+        dist = np.hypot(lx, ly)
+        s = np.minimum(s, dist - dist / np.maximum(np.hypot(lx / rx, ly / ry), 1e-6))  # signed distance to the edge, radially
+    s = s + 1.2 * fbm(X / 7.0, Y / 7.0, 2, 77)
+    return np.clip(1.0 + s / SQUARE_EDGE, 0.0, 8.0)
 
 
 # ------------------------------------------------------------------ height, density, masks
@@ -371,9 +393,9 @@ def ground_masks(X, Y, masks=None):
     bog = 1 - smoothstep(0.8, 1.05, ell(X, Y, BOG["c"], BOG["rx"], BOG["ry"]))
     cx, cy = COURTYARD["c"]
     paving = (1 - smoothstep(-2, 2, np.maximum(np.abs(X - cx + 4) - 15, np.abs(Y - cy + 2) - 10))) * smoothstep(-0.5, -0.1, fbm(X / 6.0, Y / 6.0, 2, 51))
-    sq = 1 - smoothstep(0.85, 1.15, ell(X, Y, TOWN_SQUARE["c"], TOWN_SQUARE["rx"], TOWN_SQUARE["ry"]))
-    yard = np.maximum(sq, 1 - smoothstep(FARMSTEAD["r"] - 8, FARMSTEAD["r"] + 4, np.hypot(X - FARMSTEAD["c"][0], Y - FARMSTEAD["c"][1])))
-    meadow = np.maximum(meadow, masks["town"].astype(float) * (1 - sq))
+    # Tallmo's square is part of the path network (see path_dist); the packed yard is the farmstead's
+    yard = 1 - smoothstep(FARMSTEAD["r"] - 8, FARMSTEAD["r"] + 4, np.hypot(X - FARMSTEAD["c"][0], Y - FARMSTEAD["c"][1]))
+    meadow = np.maximum(meadow, masks["town"].astype(float))
     ash = 1 - smoothstep(6, 18, np.hypot(X - FARMSTEAD["c"][0] - 6, Y - FARMSTEAD["c"][1] + 4))
     lake, tarn, bogw = water(X, Y)
     shore = np.maximum(1 - smoothstep(0.95, 1.35, ell(X, Y, LAKE["c"], LAKE["rx"], LAKE["ry"])),

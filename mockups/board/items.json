@@ -1309,6 +1309,19 @@
   "y": 1560,
   "z": 9
  },
+ "s-square": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791046780709,
+  "h": 520,
+  "title": "Tallmo's square",
+  "type": "frame",
+  "updatedAt": 1791046780709,
+  "w": 3172,
+  "x": 5040,
+  "y": 7060,
+  "z": 17
+ },
  "s-ui": {
   "author": "claude",
   "color": "frost",
@@ -1347,6 +1360,71 @@
   "x": 1920,
   "y": 780,
   "z": 6
+ },
+ "sq-a": {
+  "ar": 1.778,
+  "assetId": "ae077f32568bb08481f88a49ccaa179c",
+  "author": "claude",
+  "caption": "After: the square is worn ground in the paths' light tan, with an uneven edge where the grass takes over.",
+  "createdAt": 1791046780709,
+  "type": "image",
+  "updatedAt": 1791046780709,
+  "w": 640,
+  "x": 6216,
+  "y": 7088,
+  "z": 127
+ },
+ "sq-about": {
+  "author": "claude",
+  "color": "gold",
+  "createdAt": 1791046780709,
+  "h": 330,
+  "text": "# Tallmo's square\n- **No more oval:** the square is trodden ground with an uneven outline, reaching out toward the well and the houses\n- **Same as the paths:** light tan dirt, gravel in the same tones, fallen leaves, and a worn edge where the grass thins out\n- The roads run into it without a seam, because the square is now part of the path network",
+  "type": "note",
+  "updatedAt": 1791046780709,
+  "w": 460,
+  "x": 5068,
+  "y": 7088,
+  "z": 125
+ },
+ "sq-b": {
+  "ar": 1.778,
+  "assetId": "c15f1f47ffa8cacc2b01889ff9272ca7",
+  "author": "claude",
+  "caption": "Before: A · Tallmo, with the square as a uniform brown oval.",
+  "createdAt": 1791046780709,
+  "type": "image",
+  "updatedAt": 1791046780709,
+  "w": 640,
+  "x": 5552,
+  "y": 7088,
+  "z": 126
+ },
+ "sq-ca": {
+  "ar": 1.778,
+  "assetId": "1c606ead5f21cc0e550851851bbf1654",
+  "author": "claude",
+  "caption": "After, close up: the same gravel and dry, trampled edge as the forest paths.",
+  "createdAt": 1791046780709,
+  "type": "image",
+  "updatedAt": 1791046780709,
+  "w": 640,
+  "x": 7544,
+  "y": 7088,
+  "z": 129
+ },
+ "sq-cb": {
+  "ar": 1.778,
+  "assetId": "4c8149a028bde380ccf46955a83852eb",
+  "author": "claude",
+  "caption": "Before, close up at full resolution.",
+  "createdAt": 1791046780709,
+  "type": "image",
+  "updatedAt": 1791046780709,
+  "w": 640,
+  "x": 6880,
+  "y": 7088,
+  "z": 128
  },
  "tools": {
   "author": "claude",

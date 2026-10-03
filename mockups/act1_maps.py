@@ -19,7 +19,7 @@ def hexc(h):
 C = {k: hexc(v) for k, v in dict(
     outside="#1f211d", outside2="#2a2c26", floor="#5d7838", floor2="#6c8740", meadow="#a7ae62", meadow2="#b9b46a",
     field1="#c0aa5c", field2="#8f8f48", yard="#8a7452", paving="#8e8b82", bog="#4c5233", ash="#3b3631",
-    water="#3d6c86", water_deep="#2b546c", shore="#9aa356", litter="#7a6544", dark="#40523a").items()}
+    water="#3d6c86", water_deep="#2b546c", shore="#9aa356", dark="#40523a", square="#ba9664").items()}
 
 
 def save_png(rgb, path):
@@ -51,12 +51,13 @@ def bake(x0, x1, y0, y1, res, name, contours=True):
     dens = A.density(X, Y, masks)
     n = A.fbm(X / 9.0, Y / 9.0, 2, 3)
     col = mix(np.broadcast_to(C["floor"], X.shape + (3,)), np.broadcast_to(C["floor2"], X.shape + (3,)), (n * 0.5 + 0.5))
-    col = mix(col, np.broadcast_to(C["litter"], col.shape), G["litter"] * 0.35)
     col = mix(col, np.broadcast_to(C["dark"], col.shape), G["darkfloor"] * 0.6)
     col = mix(col, mix(np.broadcast_to(C["meadow"], col.shape), np.broadcast_to(C["meadow2"], col.shape), (n * 0.5 + 0.5)), G["meadow"])
     col = mix(col, np.broadcast_to(C["field2"], col.shape), G["fieldbase"])
     col = mix(col, np.broadcast_to(C["field1"], col.shape), G["field"])
     col = mix(col, np.broadcast_to(C["yard"], col.shape), G["yard"])
+    # Tallmo's square is worn ground like the roads, in the colour act1_blueprint draws them
+    col = mix(col, np.broadcast_to(C["square"], col.shape), 1 - A.smoothstep(0.85, 1.15, A.square_dist(X, Y)))
     col = mix(col, np.broadcast_to(C["paving"], col.shape), G["paving"])
     col = mix(col, np.broadcast_to(C["bog"], col.shape), G["bog"])
     col = mix(col, np.broadcast_to(C["ash"], col.shape), G["ash"] * 0.85)
