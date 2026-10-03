@@ -260,15 +260,19 @@ def mat_ground():
     pd = math("MULTIPLY", math("SUBTRACT", 1.0, attr("pathw")), 4.0)
     e = math("ADD", pd, math("MULTIPLY", math("SUBTRACT", noise(0.35, 2.0, 0.5, 0, (41, 5, 0)), 0.5), 0.7))
     wear = sstep(e, 0.45, 1.9, 1.0, 0.0)
+    wear.node.name = "Wear"  # named nodes are where the play demo's ground bake taps in (game/tools/build_demo.py)
     fine = math("SUBTRACT", noise(7.0, 2.0, 0.6, 0, (13, 3, 0)), 0.5)
     tufts = math("SUBTRACT", noise(1.5, 3.0, 0.6, 0, (7, 43, 0)), 0.5)
+    tufts.node.name = "Tufts"
     bare = sstep(math("ADD", wear, math("ADD", math("MULTIPLY", tufts, 2.0), math("MULTIPLY", fine, 0.5))), 0.35, 0.7)
     worn = sstep(e, 0.7, 2.1, 1.0, 0.0)
+    worn.node.name = "Worn"
     worn_grass = ramp(noise(3.0, 2.0, 0.6, 0, (23, 7, 0)), [(0.3, "#93904F"), (0.7, "#ABA462")])
     col = mix(math("MULTIPLY", worn, 0.5), col, worn_grass)
     dirt = ramp(noise(0.9, 3.0, 0.5, 0, (3, 29, 0)), [(0.3, "#D6A151"), (0.5, "#DDAF64"), (0.72, "#E0BB7B")])
     dirt = mix(sstep(wear, 0.35, 0.85, 0.4, 0.0), dirt, "#B3A456")
     col = mix(bare, col, dirt)
+    col.node.name = "PathDirt"  # A: the grass beside the path, B: the path's dirt, Factor: where the dirt shows
     warp_n = N.new("ShaderNodeTexNoise")
     warp_n.inputs["Scale"].default_value = 9.0
     L.new(pos, warp_n.inputs["Vector"])

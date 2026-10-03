@@ -1,0 +1,914 @@
+{
+ "Alder_A": {
+  "cards": 243,
+  "faces": 671,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 4.296,
+  "height": 11.721,
+  "materials": [
+   "Bark",
+   "Leaves Alder"
+  ],
+  "max": [
+   3.238,
+   11.721,
+   4.149
+  ],
+  "min": [
+   -3.378,
+   -0.307,
+   -4.444
+  ],
+  "species": "Alder",
+  "textures": {
+   "leaves": "res://assets/trees/textures/alder_10.png"
+  }
+ },
+ "Alder_A_1": {
+  "cards": 222,
+  "faces": 650,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 4.6,
+  "height": 11.938,
+  "materials": [
+   "Bark",
+   "Leaves Alder"
+  ],
+  "max": [
+   3.51,
+   11.938,
+   4.483
+  ],
+  "min": [
+   -3.636,
+   -0.307,
+   -4.718
+  ],
+  "species": "Alder",
+  "textures": {
+   "leaves": "res://assets/trees/textures/alder_10.png"
+  }
+ },
+ "Alder_A_2": {
+  "cards": 148,
+  "faces": 209,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 5.2,
+  "height": 12.195,
+  "materials": [
+   "Bark",
+   "Leaves Alder"
+  ],
+  "max": [
+   4.176,
+   12.195,
+   5.024
+  ],
+  "min": [
+   -4.205,
+   -0.307,
+   -5.376
+  ],
+  "species": "Alder",
+  "textures": {
+   "leaves": "res://assets/trees/textures/alder_10.png"
+  }
+ },
+ "Alder_B": {
+  "cards": 255,
+  "faces": 700,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 3.562,
+  "height": 11.52,
+  "materials": [
+   "Bark",
+   "Leaves Alder"
+  ],
+  "max": [
+   3.853,
+   11.52,
+   3.569
+  ],
+  "min": [
+   -2.851,
+   -0.306,
+   -3.554
+  ],
+  "species": "Alder",
+  "textures": {
+   "leaves": "res://assets/trees/textures/alder_10.png"
+  }
+ },
+ "Alder_B_1": {
+  "cards": 234,
+  "faces": 679,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 3.775,
+  "height": 11.648,
+  "materials": [
+   "Bark",
+   "Leaves Alder"
+  ],
+  "max": [
+   4.188,
+   11.648,
+   3.798
+  ],
+  "min": [
+   -3.354,
+   -0.306,
+   -3.751
+  ],
+  "species": "Alder",
+  "textures": {
+   "leaves": "res://assets/trees/textures/alder_10.png"
+  }
+ },
+ "Alder_B_2": {
+  "cards": 156,
+  "faces": 217,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 4.337,
+  "height": 12.25,
+  "materials": [
+   "Bark",
+   "Leaves Alder"
+  ],
+  "max": [
+   4.71,
+   12.25,
+   4.484
+  ],
+  "min": [
+   -3.537,
+   -0.306,
+   -4.189
+  ],
+  "species": "Alder",
+  "textures": {
+   "leaves": "res://assets/trees/textures/alder_10.png"
+  }
+ },
+ "Aspen_A": {
+  "cards": 309,
+  "faces": 767,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 3.213,
+  "height": 15.079,
+  "materials": [
+   "Bark",
+   "Leaves Aspen"
+  ],
+  "max": [
+   3.432,
+   15.079,
+   3.033
+  ],
+  "min": [
+   -2.994,
+   -0.302,
+   -2.969
+  ],
+  "species": "Aspen",
+  "textures": {
+   "leaves": "res://assets/trees/textures/aspen_9.png"
+  }
+ },
+ "Aspen_A_1": {
+  "cards": 225,
+  "faces": 683,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 3.555,
+  "height": 15.493,
+  "materials": [
+   "Bark",
+   "Leaves Aspen"
+  ],
+  "max": [
+   4.005,
+   15.493,
+   3.332
+  ],
+  "min": [
+   -3.105,
+   -0.302,
+   -3.2
+  ],
+  "species": "Aspen",
+  "textures": {
+   "leaves": "res://assets/trees/textures/aspen_9.png"
+  }
+ },
+ "Aspen_A_2": {
+  "cards": 150,
+  "faces": 223,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 4.132,
+  "height": 16.017,
+  "materials": [
+   "Bark",
+   "Leaves Aspen"
+  ],
+  "max": [
+   4.492,
+   16.017,
+   3.729
+  ],
+  "min": [
+   -3.772,
+   -0.302,
+   -3.54
+  ],
+  "species": "Aspen",
+  "textures": {
+   "leaves": "res://assets/trees/textures/aspen_9.png"
+  }
+ },
+ "Aspen_B": {
+  "cards": 234,
+  "faces": 558,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 3.242,
+  "height": 14.95,
+  "materials": [
+   "Bark",
+   "Leaves Aspen"
+  ],
+  "max": [
+   3.238,
+   14.95,
+   3.249
+  ],
+  "min": [
+   -3.246,
+   -0.301,
+   -2.737
+  ],
+  "species": "Aspen",
+  "textures": {
+   "leaves": "res://assets/trees/textures/aspen_9.png"
+  }
+ },
+ "Aspen_B_1": {
+  "cards": 171,
+  "faces": 495,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 3.626,
+  "height": 15.376,
+  "materials": [
+   "Bark",
+   "Leaves Aspen"
+  ],
+  "max": [
+   3.611,
+   15.376,
+   3.424
+  ],
+  "min": [
+   -3.641,
+   -0.301,
+   -3.077
+  ],
+  "species": "Aspen",
+  "textures": {
+   "leaves": "res://assets/trees/textures/aspen_9.png"
+  }
+ },
+ "Aspen_B_2": {
+  "cards": 114,
+  "faces": 187,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 4.25,
+  "height": 15.844,
+  "materials": [
+   "Bark",
+   "Leaves Aspen"
+  ],
+  "max": [
+   4.447,
+   15.844,
+   3.928
+  ],
+  "min": [
+   -4.052,
+   -0.301,
+   -3.26
+  ],
+  "species": "Aspen",
+  "textures": {
+   "leaves": "res://assets/trees/textures/aspen_9.png"
+  }
+ },
+ "NorwaySpruce_A": {
+  "cards": 2184,
+  "faces": 4973,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 3.551,
+  "height": 16.338,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.634,
+   16.338,
+   4.339
+  ],
+  "min": [
+   -4.034,
+   -1.062,
+   -4.062
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  }
+ },
+ "NorwaySpruce_A_1": {
+  "cards": 1092,
+  "faces": 1190,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.4,
+  "height": 16.541,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.796,
+   16.541,
+   4.674
+  ],
+  "min": [
+   -4.228,
+   -1.409,
+   -4.163
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  }
+ },
+ "NorwaySpruce_A_2": {
+  "cards": 476,
+  "faces": 574,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.4,
+  "height": 16.948,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   5.456,
+   16.948,
+   5.271
+  ],
+  "min": [
+   -4.971,
+   -2.426,
+   -5.179
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  }
+ },
+ "NorwaySpruce_B": {
+  "cards": 2392,
+  "faces": 5396,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 3.418,
+  "height": 16.575,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.481,
+   16.575,
+   4.466
+  ],
+  "min": [
+   -4.503,
+   -1.138,
+   -4.058
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  }
+ },
+ "NorwaySpruce_B_1": {
+  "cards": 1194,
+  "faces": 1292,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.4,
+  "height": 16.693,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.588,
+   16.693,
+   4.708
+  ],
+  "min": [
+   -4.753,
+   -1.549,
+   -4.473
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  }
+ },
+ "NorwaySpruce_B_2": {
+  "cards": 516,
+  "faces": 614,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.4,
+  "height": 17.091,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   5.209,
+   17.091,
+   5.327
+  ],
+  "min": [
+   -5.419,
+   -2.367,
+   -5.094
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  }
+ },
+ "Rowan_A": {
+  "cards": 159,
+  "faces": 487,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.18,
+  "height": 9.194,
+  "materials": [
+   "Bark",
+   "Berries Rowan",
+   "Leaves Rowan"
+  ],
+  "max": [
+   3.14,
+   9.194,
+   2.802
+  ],
+  "min": [
+   -2.452,
+   -0.307,
+   -3.378
+  ],
+  "species": "Rowan",
+  "textures": {
+   "berries": "res://assets/trees/textures/rowan_1_berries.png",
+   "leaves": "res://assets/trees/textures/rowan_1.png"
+  }
+ },
+ "Rowan_A_1": {
+  "cards": 159,
+  "faces": 487,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.18,
+  "height": 9.441,
+  "materials": [
+   "Bark",
+   "Berries Rowan",
+   "Leaves Rowan"
+  ],
+  "max": [
+   3.395,
+   9.441,
+   3.018
+  ],
+  "min": [
+   -2.64,
+   -0.307,
+   -3.625
+  ],
+  "species": "Rowan",
+  "textures": {
+   "berries": "res://assets/trees/textures/rowan_1_berries.png",
+   "leaves": "res://assets/trees/textures/rowan_1.png"
+  }
+ },
+ "Rowan_A_2": {
+  "cards": 106,
+  "faces": 167,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.18,
+  "height": 9.874,
+  "materials": [
+   "Bark",
+   "Berries Rowan",
+   "Leaves Rowan"
+  ],
+  "max": [
+   3.837,
+   9.874,
+   3.297
+  ],
+  "min": [
+   -3.08,
+   -0.307,
+   -3.988
+  ],
+  "species": "Rowan",
+  "textures": {
+   "berries": "res://assets/trees/textures/rowan_1_berries.png",
+   "leaves": "res://assets/trees/textures/rowan_1.png"
+  }
+ },
+ "Rowan_B": {
+  "cards": 165,
+  "faces": 490,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.174,
+  "height": 8.983,
+  "materials": [
+   "Bark",
+   "Berries Rowan",
+   "Leaves Rowan"
+  ],
+  "max": [
+   2.891,
+   8.983,
+   2.97
+  ],
+  "min": [
+   -2.596,
+   -0.305,
+   -2.711
+  ],
+  "species": "Rowan",
+  "textures": {
+   "berries": "res://assets/trees/textures/rowan_1_berries.png",
+   "leaves": "res://assets/trees/textures/rowan_1.png"
+  }
+ },
+ "Rowan_B_1": {
+  "cards": 165,
+  "faces": 490,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.174,
+  "height": 9.232,
+  "materials": [
+   "Bark",
+   "Berries Rowan",
+   "Leaves Rowan"
+  ],
+  "max": [
+   3.14,
+   9.232,
+   3.169
+  ],
+  "min": [
+   -2.837,
+   -0.305,
+   -2.944
+  ],
+  "species": "Rowan",
+  "textures": {
+   "berries": "res://assets/trees/textures/rowan_1_berries.png",
+   "leaves": "res://assets/trees/textures/rowan_1.png"
+  }
+ },
+ "Rowan_B_2": {
+  "cards": 110,
+  "faces": 171,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.174,
+  "height": 9.755,
+  "materials": [
+   "Bark",
+   "Berries Rowan",
+   "Leaves Rowan"
+  ],
+  "max": [
+   3.305,
+   9.755,
+   3.536
+  ],
+  "min": [
+   -3.318,
+   -0.305,
+   -3.265
+  ],
+  "species": "Rowan",
+  "textures": {
+   "berries": "res://assets/trees/textures/rowan_1_berries.png",
+   "leaves": "res://assets/trees/textures/rowan_1.png"
+  }
+ },
+ "ScotsPine_A": {
+  "cards": 658,
+  "faces": 1299,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 6.067,
+  "height": 12.352,
+  "materials": [
+   "Bark",
+   "Leaves ScotsPine"
+  ],
+  "max": [
+   5.295,
+   12.352,
+   5.837
+  ],
+  "min": [
+   -5.743,
+   -0.308,
+   -6.298
+  ],
+  "species": "ScotsPine",
+  "textures": {
+   "leaves": "res://assets/trees/textures/pine_1.png"
+  }
+ },
+ "ScotsPine_A_1": {
+  "cards": 220,
+  "faces": 861,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 5.961,
+  "height": 12.7,
+  "materials": [
+   "Bark",
+   "Leaves ScotsPine"
+  ],
+  "max": [
+   5.68,
+   12.7,
+   5.557
+  ],
+  "min": [
+   -6.242,
+   -0.308,
+   -6.159
+  ],
+  "species": "ScotsPine",
+  "textures": {
+   "leaves": "res://assets/trees/textures/pine_1.png"
+  }
+ },
+ "ScotsPine_A_2": {
+  "cards": 117,
+  "faces": 202,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 6.655,
+  "height": 13.168,
+  "materials": [
+   "Bark",
+   "Leaves ScotsPine"
+  ],
+  "max": [
+   6.288,
+   13.168,
+   6.617
+  ],
+  "min": [
+   -6.274,
+   -0.308,
+   -6.693
+  ],
+  "species": "ScotsPine",
+  "textures": {
+   "leaves": "res://assets/trees/textures/pine_1.png"
+  }
+ },
+ "ScotsPine_B": {
+  "cards": 637,
+  "faces": 1198,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 5.181,
+  "height": 12.701,
+  "materials": [
+   "Bark",
+   "Leaves ScotsPine"
+  ],
+  "max": [
+   3.891,
+   12.701,
+   6.256
+  ],
+  "min": [
+   -5.743,
+   -0.315,
+   -4.107
+  ],
+  "species": "ScotsPine",
+  "textures": {
+   "leaves": "res://assets/trees/textures/pine_1.png"
+  }
+ },
+ "ScotsPine_B_1": {
+  "cards": 225,
+  "faces": 786,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 5.499,
+  "height": 12.952,
+  "materials": [
+   "Bark",
+   "Leaves ScotsPine"
+  ],
+  "max": [
+   4.373,
+   12.952,
+   6.67
+  ],
+  "min": [
+   -5.393,
+   -0.315,
+   -4.327
+  ],
+  "species": "ScotsPine",
+  "textures": {
+   "leaves": "res://assets/trees/textures/pine_1.png"
+  }
+ },
+ "ScotsPine_B_2": {
+  "cards": 111,
+  "faces": 196,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 6.113,
+  "height": 13.41,
+  "materials": [
+   "Bark",
+   "Leaves ScotsPine"
+  ],
+  "max": [
+   4.851,
+   13.41,
+   7.222
+  ],
+  "min": [
+   -5.852,
+   -0.315,
+   -5.003
+  ],
+  "species": "ScotsPine",
+  "textures": {
+   "leaves": "res://assets/trees/textures/pine_1.png"
+  }
+ },
+ "SilverBirch_A": {
+  "cards": 210,
+  "faces": 946,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.224,
+  "height": 10.435,
+  "materials": [
+   "Bark",
+   "Leaves SilverBirch"
+  ],
+  "max": [
+   2.535,
+   10.435,
+   2.269
+  ],
+  "min": [
+   -2.462,
+   -0.305,
+   -2.972
+  ],
+  "species": "SilverBirch",
+  "textures": {
+   "leaves": "res://assets/trees/textures/birch_4.png"
+  }
+ },
+ "SilverBirch_A_1": {
+  "cards": 210,
+  "faces": 946,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.224,
+  "height": 10.613,
+  "materials": [
+   "Bark",
+   "Leaves SilverBirch"
+  ],
+  "max": [
+   2.687,
+   10.613,
+   2.426
+  ],
+  "min": [
+   -2.625,
+   -0.305,
+   -3.124
+  ],
+  "species": "SilverBirch",
+  "textures": {
+   "leaves": "res://assets/trees/textures/birch_4.png"
+  }
+ },
+ "SilverBirch_A_2": {
+  "cards": 140,
+  "faces": 213,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.224,
+  "height": 10.904,
+  "materials": [
+   "Bark",
+   "Leaves SilverBirch"
+  ],
+  "max": [
+   2.875,
+   10.904,
+   2.621
+  ],
+  "min": [
+   -2.919,
+   -0.305,
+   -3.111
+  ],
+  "species": "SilverBirch",
+  "textures": {
+   "leaves": "res://assets/trees/textures/birch_4.png"
+  }
+ },
+ "SilverBirch_B": {
+  "cards": 246,
+  "faces": 1099,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.23,
+  "height": 10.275,
+  "materials": [
+   "Bark",
+   "Leaves SilverBirch"
+  ],
+  "max": [
+   2.531,
+   10.275,
+   3.207
+  ],
+  "min": [
+   -2.291,
+   -0.307,
+   -2.855
+  ],
+  "species": "SilverBirch",
+  "textures": {
+   "leaves": "res://assets/trees/textures/birch_4.png"
+  }
+ },
+ "SilverBirch_B_1": {
+  "cards": 246,
+  "faces": 1099,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.23,
+  "height": 10.441,
+  "materials": [
+   "Bark",
+   "Leaves SilverBirch"
+  ],
+  "max": [
+   2.708,
+   10.441,
+   3.384
+  ],
+  "min": [
+   -2.454,
+   -0.307,
+   -3.009
+  ],
+  "species": "SilverBirch",
+  "textures": {
+   "leaves": "res://assets/trees/textures/birch_4.png"
+  }
+ },
+ "SilverBirch_B_2": {
+  "cards": 164,
+  "faces": 237,
+  "file": "res://assets/trees/trees.glb",
+  "foot": 0.23,
+  "height": 10.881,
+  "materials": [
+   "Bark",
+   "Leaves SilverBirch"
+  ],
+  "max": [
+   2.961,
+   10.881,
+   3.654
+  ],
+  "min": [
+   -2.753,
+   -0.307,
+   -3.136
+  ],
+  "species": "SilverBirch",
+  "textures": {
+   "leaves": "res://assets/trees/textures/birch_4.png"
+  }
+ }
+}

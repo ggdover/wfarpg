@@ -66,6 +66,13 @@ rebuild.
 - **Shading:** the cards' normals point out from the crown (custom normals), so a crown shades as one rounded volume
   instead of as many flat cards.
 
+## In the game
+
+The play demo (`game/`) exports these trees with your settings, plus two lighter versions of each for distance
+(`game/tools/build_demo.py`). Known issue: the leaf cards' fully transparent pixels are black rather than the leaf
+colour (Pillow's resize premultiplies alpha), so filtered leaf edges come out a little dark, most of all from a
+distance. The trees were tuned with that, so the game keeps it; fixing it would make the crowns a little lighter.
+
 ## Files
 
 | File | What it is |

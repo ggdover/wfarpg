@@ -2209,6 +2209,131 @@
      "caption": "Spruce trials: your crossed clumps (left), then pinnate sprays with the short spray, the flat comb, denser sprays and longer combs"
     }
    ]
+  },
+  {
+   "id": "play-demo",
+   "date": "2026-10-04",
+   "asked_at": "23:50 (3 Oct)",
+   "posted_at": "01:19",
+   "title": "Play demo in Godot",
+   "section": "Play demo (Godot)",
+   "asked": "With the trees tuned and the screenshots showing the feel of the game, make a first, small play demo in Godot, not all of Act 1: a smaller area that gives the feel of a dense forest and of one of the more open areas like Stora ängen or Utsiktsberget. One version with the old trees from the screenshots and one with the new trees from Blender. No animation: the character can be a grey box, and the rocks, bushes and other props can be the low-poly ones from the screenshots",
+   "changed": [
+    "A Godot 4.7 project in game/: a start screen to pick the trees, then the demo",
+    "The area: about 155 × 110 m of Storskogen, with a dense pine and spruce thicket, a winding trail with a fork, and an open meadow with lone trees, boulders and a low rise; forest beyond the edges, and a distant forest for low camera angles",
+    "Both tree sets stand on the same spots, and T swaps them in the game",
+    "The mockups' models, ground shader and light carried over from Blender, and checked against Blender renders of the same place",
+    "A grey-box hero: WASD relative to the camera, right-mouse orbit, wheel zoom, and the left button standing in for attacking (face the cursor, walk slower)",
+    "Trees near a high camera fade out, as in the mockups, and a hole opens round the hero when trees are in the way",
+    "Lighter versions of the new trees for distance and for shadows, so they run at 45–60 fps on the laptop"
+   ],
+   "items": [
+    {
+     "id": "s-demo",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo (Godot)",
+     "author": "claude"
+    },
+    {
+     "id": "pd-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Play demo (Godot)\nA small part of Storskogen to walk in Godot 4.7, about 155 × 110 m:\n- **Thicket:** dense pine and spruce like Tätskogen, with a winding trail and a fork\n- **Meadow:** open grass like Stora ängen, with lone trees, boulders and a low rise to walk up\n- **Same place, two versions:** the mockups' trees or your new portfolio trees, on the same spots. Pick on the start screen; **T** swaps them in the game\n- **Hero:** a grey box. WASD walks relative to the camera, right mouse orbits, the wheel zooms\n- **The rest is the mockups' own:** rocks, bushes, grass and ground, exported from Blender; the ground shader is ported to Godot\n\nRun it with `godot --path game` (see `game/README.md`).",
+     "author": "claude"
+    },
+    {
+     "id": "pd-start",
+     "type": "image",
+     "status": "new",
+     "caption": "Where the demo starts: the hero on the trail in the thicket, with the new trees. The trees near the high camera fade out, as the mockups hide them.",
+     "assetId": "8b4be87a32e61fa31e4c151812a6f655",
+     "file": "renders/play_demo/start_view_new.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pd-thicket",
+     "type": "image",
+     "status": "new",
+     "caption": "Tätskogen from the default camera: the same place with the old trees and the new.",
+     "assetId": "f1ec90e62280a4b90a63376cc4cc1a33",
+     "file": "renders/play_demo/thicket_old_new.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pd-edge",
+     "type": "image",
+     "status": "new",
+     "caption": "Where the trail leaves the forest, by the rune stone. The new trees' wider crowns shade more of the ground.",
+     "assetId": "f6415ea41ffe44e1e16434f0ce61a412",
+     "file": "renders/play_demo/edge_old_new.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pd-choices",
+     "type": "note",
+     "status": "new",
+     "text": "# Choices to try out\nPicked for the demo; all easy to change:\n- Walking speed 5.5 m/s\n- **Left mouse held:** stands in for attacking. The hero faces the cursor and walks at 55% speed\n- **Camera:** the wheel zooms from 7 to 34 m; the angle goes from 8° to straight down. It stays where you leave it, and the cursor hides while you orbit\n- **Trees:** near a high camera they fade out, as in the mockups, and their shadows stay. A hole opens round the hero when trees are in the way\n- **Frame rate on this laptop:** old trees 60 fps; new trees 45–60 fps (F4 lowers the render scale)",
+     "author": "claude"
+    },
+    {
+     "id": "pd-meadow",
+     "type": "image",
+     "status": "new",
+     "caption": "Stora ängen from a low camera, with the rise and the forest beyond.",
+     "assetId": "9be3743e046f657cae5a2c9bc4cc8af5",
+     "file": "renders/play_demo/meadow_old_new.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pd-rise",
+     "type": "image",
+     "status": "new",
+     "caption": "From the rise, looking west over the meadow to the forest's edge, where the birch, aspen and rowan grow.",
+     "assetId": "f5b1f7f8d5fa46b35bf4ecfa8a592526",
+     "file": "renders/play_demo/rise_old_new.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pd-behind",
+     "type": "image",
+     "status": "new",
+     "caption": "Low behind the hero on the trail through the thicket.",
+     "assetId": "219e9d3ca015b5bcde9c7773b337b912",
+     "file": "renders/play_demo/behind_old_new.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pd-screen",
+     "type": "image",
+     "status": "new",
+     "caption": "The start screen: pick the trees.",
+     "assetId": "982330f7fdd189ed4c70a2c5078b0f79",
+     "file": "renders/play_demo/start_screen.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/22_godot_first_run.jpg",
+     "caption": "The first run in Godot: 10 fps, and the fade meant to show the hero cutting holes all over the canopy"
+    },
+    {
+     "file": "renders/wip/23_godot_vs_blender_trees.jpg",
+     "caption": "Matching the light: the trees in Blender (top) and in Godot (bottom)"
+    },
+    {
+     "file": "renders/wip/24_blender_reference_and_godot.jpg",
+     "caption": "The same place rendered the mockups' way in Blender (left), in Godot (middle), and in Godot with the trees near the camera faded (right)"
+    }
+   ],
+   "cover": "renders/play_demo/start_view_new.jpg",
+   "found": [
+    "Godot's light and tone mapping match Blender's closely, once the colours are made a little more saturated",
+    "The leaf cards' transparent pixels are black, which darkens the crowns' edges in Blender; the game keeps that, so the trees look as you tuned them",
+    "Blender's glTF exporter writes real vertex colours for a mesh's first material only, so the trees' baked shading travels in a second UV map instead",
+    "The new trees cost three to four times as much to draw as the old ones, mostly in overlapping leaf cards"
+   ]
   }
  ]
 }

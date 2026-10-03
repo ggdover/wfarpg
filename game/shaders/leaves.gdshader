@@ -1,0 +1,37 @@
+// The tree portfolio's leaf cards: the card's colour, cut out at alpha 0.5 like the leaf materials in
+// assets/trees/treegen.py, drawn on both sides. They fade out between the camera and the hero.
+shader_type spatial;
+render_mode cull_disabled, diffuse_lambert, specular_schlick_ggx;
+
+#include "res://shaders/common.gdshaderinc"
+
+uniform sampler2D card : source_color, filter_linear_mipmap, repeat_disable;
+uniform float roughness = 0.75;
+uniform float specular_level = 0.25;
+// ambient occlusion baked in Blender, in UV2.x (see tools/build_demo.py, bake_ao)
+uniform float ao_light_affect = 0.2;
+// The cards' normals point out from the crown, so a crown shades as one volume. Like Blender, Godot turns the normal
+// round on a card's back face, which darkens the cards that face into the crown; true keeps the crown's normal on both
+// faces instead, for brighter, flatter crowns than in the mockups.
+uniform bool crown_normals = false;
+global uniform vec2 mood_grade;
+
+void fragment() {
+	float fade = max(hero_fade(VERTEX, VIEW_MATRIX, PROJECTION_MATRIX, CAMERA_POSITION_WORLD, VIEWPORT_SIZE),
+			tree_fade(NODE_POSITION_WORLD, CAMERA_POSITION_WORLD));
+	if (fade > bayer4(FRAGCOORD.xy)) {
+		discard;
+	}
+	vec4 c = texture(card, UV);
+	float grey = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
+	ALBEDO = mix(vec3(grey), c.rgb, mood_grade.x) * mood_grade.y;
+	ALPHA = c.a;
+	ALPHA_SCISSOR_THRESHOLD = 0.5;
+	ROUGHNESS = roughness;
+	SPECULAR = specular_level;
+	AO = UV2.x;
+	AO_LIGHT_AFFECT = ao_light_affect;
+	if (crown_normals && !FRONT_FACING) {
+		NORMAL = -NORMAL;
+	}
+}

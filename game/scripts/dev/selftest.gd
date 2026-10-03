@@ -1,0 +1,110 @@
+extends Node
+## Dev: drives the demo's controls through Godot's input and checks what they do, then quits.
+## godot --path game res://scenes/demo.tscn -- --selftest
+
+var demo: Node
+var results := []
+
+
+func run(d: Node) -> void:
+	demo = d
+	var hero: Hero = demo.hero
+	var rig: CameraRig = demo.rig
+	await _frames(30)
+	# W walks away from the camera
+	var start := hero.global_position
+	Input.action_press("move_forward")
+	await _seconds(1.0)
+	Input.action_release("move_forward")
+	await _frames(5)
+	var moved := hero.global_position - start
+	var fwd := rig.ground_forward()
+	_check("W walks away from the camera", Vector2(moved.x, moved.z).dot(Vector2(fwd.x, fwd.z)) > 4.0, "moved %.2f m" % Vector2(moved.x, moved.z).length())
+	_check("the hero faces the way it walks", absf(angle_difference(hero.facing, atan2(-fwd.x, -fwd.z))) < 0.2, "facing off by %.2f rad" % angle_difference(hero.facing, atan2(-fwd.x, -fwd.z)))
+	# D walks right
+	start = hero.global_position
+	Input.action_press("move_right")
+	await _seconds(0.5)
+	Input.action_release("move_right")
+	await _frames(5)
+	moved = hero.global_position - start
+	var right := fwd.cross(Vector3.UP)
+	_check("D walks to the right", Vector2(moved.x, moved.z).dot(Vector2(right.x, right.z)) > 1.5, "moved %.2f m" % moved.length())
+	# right mouse button + drag orbits
+	var yaw0 := rig.yaw
+	var pitch0 := rig.pitch
+	_mouse_button(MOUSE_BUTTON_RIGHT, true)
+	var motion := InputEventMouseMotion.new()
+	motion.relative = Vector2(80, -40)
+	Input.parse_input_event(motion)
+	await _frames(3)
+	_mouse_button(MOUSE_BUTTON_RIGHT, false)
+	await _frames(3)
+	_check("dragging right with the right button turns the camera", absf(angle_difference(deg_to_rad(rig.yaw), deg_to_rad(yaw0 - 20.0))) < 0.01, "yaw %.1f -> %.1f" % [yaw0, rig.yaw])
+	_check("dragging up lowers the camera", absf(rig.pitch - (pitch0 - 10.0)) < 0.01, "pitch %.1f -> %.1f" % [pitch0, rig.pitch])
+	# the wheel zooms
+	var d0 := rig.distance
+	_mouse_button(MOUSE_BUTTON_WHEEL_UP, true)
+	_mouse_button(MOUSE_BUTTON_WHEEL_UP, false)
+	await _frames(2)
+	_check("the wheel zooms in", rig.distance < d0, "distance %.1f -> %.1f" % [d0, rig.distance])
+	# holding the left button: face the cursor and walk slower
+	_mouse_button(MOUSE_BUTTON_LEFT, true)
+	start = hero.global_position
+	Input.action_press("move_back")
+	await _seconds(0.5)
+	Input.action_release("move_back")
+	await _frames(3)
+	var aim := rig.cursor_on_ground() - hero.global_position
+	_check("attacking turns the hero to the cursor", absf(angle_difference(hero.facing, atan2(-aim.x, -aim.z))) < 0.25, "off by %.2f rad" % angle_difference(hero.facing, atan2(-aim.x, -aim.z)))
+	_check("attacking walks slower", (hero.global_position - start).length() < 0.5 * hero.speed * 0.5 * 1.15, "%.2f m in 0.5 s" % (hero.global_position - start).length())
+	_mouse_button(MOUSE_BUTTON_LEFT, false)
+	# T swaps the trees
+	var set0: String = Game.tree_set
+	_key(KEY_T)
+	await _frames(3)
+	_check("T swaps the trees", Game.tree_set != set0, "%s -> %s" % [set0, Game.tree_set])
+	# the walls hold: walk west for a long time from near the west edge
+	hero.global_position = Vector3(-74.0, demo.world.height_at(-74.0, 0.0) + 0.2, 0.0)
+	rig.yaw = 0.0  # camera east of the hero: W walks west
+	await _frames(3)
+	Input.action_press("move_forward")
+	await _seconds(2.0)
+	Input.action_release("move_forward")
+	_check("the walls keep the hero in", hero.global_position.x > -83.0, "x = %.1f" % hero.global_position.x)
+	_check("the hero stays on the ground", absf(hero.global_position.y - demo.world.height_at(hero.global_position.x, hero.global_position.z)) < 0.3, "y = %.2f" % hero.global_position.y)
+	var failed := results.filter(func(r: String) -> bool: return r.begins_with("FAIL"))
+	for r: String in results:
+		print(r)
+	print("selftest: %d passed, %d failed" % [results.size() - failed.size(), failed.size()])
+	demo.get_tree().quit(1 if failed.size() else 0)
+
+
+func _check(what: String, ok: bool, detail: String) -> void:
+	results.append(("PASS  " if ok else "FAIL  ") + what + "  (" + detail + ")")
+
+
+func _mouse_button(button: MouseButton, pressed: bool) -> void:
+	var ev := InputEventMouseButton.new()
+	ev.button_index = button
+	ev.pressed = pressed
+	ev.position = demo.get_viewport().get_visible_rect().size * Vector2(0.7, 0.3)
+	ev.global_position = ev.position
+	Input.parse_input_event(ev)
+
+
+func _key(key: Key) -> void:
+	for pressed in [true, false]:
+		var ev := InputEventKey.new()
+		ev.physical_keycode = key
+		ev.pressed = pressed
+		Input.parse_input_event(ev)
+
+
+func _frames(n: int) -> void:
+	for i in n:
+		await demo.get_tree().process_frame
+
+
+func _seconds(t: float) -> void:
+	await demo.get_tree().create_timer(t).timeout

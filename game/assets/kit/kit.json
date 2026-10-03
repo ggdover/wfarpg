@@ -1,0 +1,962 @@
+{
+ "BigBoulder0": {
+  "faces": 21,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.86,
+  "height": 0.888,
+  "max": [
+   1.729,
+   0.888,
+   1.587
+  ],
+  "min": [
+   -1.664,
+   -0.485,
+   -1.367
+  ]
+ },
+ "BigBoulder1": {
+  "faces": 21,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.961,
+  "height": 1.069,
+  "max": [
+   1.936,
+   1.069,
+   1.482
+  ],
+  "min": [
+   -1.792,
+   -0.534,
+   -1.341
+  ]
+ },
+ "BigBoulder2": {
+  "faces": 25,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.973,
+  "height": 0.803,
+  "max": [
+   1.9,
+   0.803,
+   1.315
+  ],
+  "min": [
+   -1.972,
+   -0.408,
+   -1.128
+  ]
+ },
+ "BigBoulder3": {
+  "faces": 23,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 2.485,
+  "height": 0.854,
+  "max": [
+   2.404,
+   0.854,
+   1.908
+  ],
+  "min": [
+   -2.196,
+   -0.452,
+   -1.959
+  ]
+ },
+ "Birch0": {
+  "faces": 108,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 2.196,
+  "height": 9.55,
+  "max": [
+   2.274,
+   9.55,
+   1.519
+  ],
+  "min": [
+   -2.118,
+   -0.208,
+   -1.844
+  ]
+ },
+ "Birch1": {
+  "faces": 88,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 1.868,
+  "height": 10.307,
+  "max": [
+   1.758,
+   10.307,
+   1.467
+  ],
+  "min": [
+   -1.312,
+   -0.209,
+   -2.269
+  ]
+ },
+ "Birch2": {
+  "faces": 108,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 1.979,
+  "height": 7.989,
+  "max": [
+   1.511,
+   7.989,
+   2.056
+  ],
+  "min": [
+   -2.246,
+   -0.21,
+   -1.901
+  ]
+ },
+ "Birch3": {
+  "faces": 128,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 2.054,
+  "height": 7.352,
+  "max": [
+   1.952,
+   7.352,
+   1.522
+  ],
+  "min": [
+   -2.155,
+   -0.207,
+   -2.221
+  ]
+ },
+ "Blueberry0": {
+  "faces": 120,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.4,
+  "height": 0.377,
+  "max": [
+   0.305,
+   0.377,
+   0.341
+  ],
+  "min": [
+   -0.344,
+   -0.027,
+   -0.344
+  ]
+ },
+ "Blueberry1": {
+  "faces": 100,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.625,
+  "height": 0.5,
+  "max": [
+   0.507,
+   0.5,
+   0.451
+  ],
+  "min": [
+   -0.587,
+   -0.041,
+   -0.59
+  ]
+ },
+ "Blueberry2": {
+  "faces": 140,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.522,
+  "height": 0.523,
+  "max": [
+   0.424,
+   0.523,
+   0.466
+  ],
+  "min": [
+   -0.405,
+   -0.031,
+   -0.377
+  ]
+ },
+ "Boulder0": {
+  "faces": 20,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.032,
+  "height": 0.753,
+  "max": [
+   0.927,
+   0.753,
+   0.892
+  ],
+  "min": [
+   -0.972,
+   -0.542,
+   -0.82
+  ]
+ },
+ "Boulder1": {
+  "faces": 16,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.143,
+  "height": 0.822,
+  "max": [
+   0.857,
+   0.822,
+   1.022
+  ],
+  "min": [
+   -1.064,
+   -0.401,
+   -0.968
+  ]
+ },
+ "Boulder2": {
+  "faces": 16,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.22,
+  "height": 0.902,
+  "max": [
+   1.235,
+   0.902,
+   1.069
+  ],
+  "min": [
+   -1.444,
+   -0.482,
+   -1.214
+  ]
+ },
+ "Boulder3": {
+  "faces": 23,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.276,
+  "height": 1.045,
+  "max": [
+   1.145,
+   1.045,
+   1.076
+  ],
+  "min": [
+   -0.928,
+   -0.52,
+   -1.125
+  ]
+ },
+ "Boulder4": {
+  "faces": 21,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.274,
+  "height": 1.031,
+  "max": [
+   1.248,
+   1.031,
+   0.851
+  ],
+  "min": [
+   -1.244,
+   -0.517,
+   -0.806
+  ]
+ },
+ "Boulder5": {
+  "faces": 20,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.41,
+  "height": 0.995,
+  "max": [
+   1.397,
+   0.995,
+   1.341
+  ],
+  "min": [
+   -1.119,
+   -0.507,
+   -1.232
+  ]
+ },
+ "Boulder6": {
+  "faces": 19,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.019,
+  "height": 0.833,
+  "max": [
+   0.989,
+   0.833,
+   0.948
+  ],
+  "min": [
+   -1.003,
+   -0.547,
+   -0.95
+  ]
+ },
+ "Boulder7": {
+  "faces": 18,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.346,
+  "height": 0.949,
+  "max": [
+   1.183,
+   0.949,
+   1.024
+  ],
+  "min": [
+   -1.162,
+   -0.571,
+   -0.981
+  ]
+ },
+ "Cairn": {
+  "faces": 100,
+  "file": "res://assets/kit/props.glb",
+  "foot": 0.441,
+  "height": 0.771,
+  "max": [
+   0.416,
+   0.771,
+   0.395
+  ],
+  "min": [
+   -0.338,
+   -0.093,
+   -0.32
+  ]
+ },
+ "Grass0": {
+  "faces": 28,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.255,
+  "height": 0.761,
+  "max": [
+   0.198,
+   0.761,
+   0.203
+  ],
+  "min": [
+   -0.313,
+   -0.007,
+   -0.219
+  ]
+ },
+ "Grass1": {
+  "faces": 32,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.233,
+  "height": 0.793,
+  "max": [
+   0.274,
+   0.793,
+   0.188
+  ],
+  "min": [
+   -0.191,
+   -0.007,
+   -0.226
+  ]
+ },
+ "Grass2": {
+  "faces": 24,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.294,
+  "height": 0.788,
+  "max": [
+   0.294,
+   0.788,
+   0.207
+  ],
+  "min": [
+   -0.293,
+   -0.005,
+   -0.241
+  ]
+ },
+ "Grass3": {
+  "faces": 24,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.174,
+  "height": 0.764,
+  "max": [
+   0.083,
+   0.764,
+   0.131
+  ],
+  "min": [
+   -0.219,
+   -0.007,
+   -0.218
+  ]
+ },
+ "Lichen0": {
+  "faces": 100,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.469,
+  "height": 0.145,
+  "max": [
+   0.403,
+   0.145,
+   0.307
+  ],
+  "min": [
+   -0.442,
+   -0.06,
+   -0.327
+  ]
+ },
+ "Lichen1": {
+  "faces": 80,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.494,
+  "height": 0.154,
+  "max": [
+   0.243,
+   0.154,
+   0.195
+  ],
+  "min": [
+   -0.41,
+   -0.042,
+   -0.38
+  ]
+ },
+ "Lichen2": {
+  "faces": 120,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.44,
+  "height": 0.14,
+  "max": [
+   0.42,
+   0.14,
+   0.202
+  ],
+  "min": [
+   -0.373,
+   -0.058,
+   -0.428
+  ]
+ },
+ "Lingonberry0": {
+  "faces": 120,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.531,
+  "height": 0.48,
+  "max": [
+   0.382,
+   0.48,
+   0.507
+  ],
+  "min": [
+   -0.382,
+   -0.072,
+   -0.471
+  ]
+ },
+ "Lingonberry1": {
+  "faces": 160,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.543,
+  "height": 0.344,
+  "max": [
+   0.561,
+   0.344,
+   0.287
+  ],
+  "min": [
+   -0.48,
+   -0.033,
+   -0.491
+  ]
+ },
+ "Lingonberry2": {
+  "faces": 120,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.52,
+  "height": 0.474,
+  "max": [
+   0.344,
+   0.474,
+   0.328
+  ],
+  "min": [
+   -0.511,
+   -0.005,
+   -0.399
+  ]
+ },
+ "Log0": {
+  "faces": 47,
+  "file": "res://assets/kit/props.glb",
+  "foot": 3.318,
+  "height": 1.187,
+  "max": [
+   3.002,
+   1.187,
+   0.828
+  ],
+  "min": [
+   -3.335,
+   -0.216,
+   -0.756
+  ]
+ },
+ "Log1": {
+  "faces": 47,
+  "file": "res://assets/kit/props.glb",
+  "foot": 3.288,
+  "height": 1.405,
+  "max": [
+   3.002,
+   1.405,
+   0.836
+  ],
+  "min": [
+   -3.324,
+   -0.216,
+   -0.828
+  ]
+ },
+ "Pebble0": {
+  "faces": 20,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.375,
+  "height": 0.945,
+  "max": [
+   1.075,
+   0.945,
+   1.05
+  ],
+  "min": [
+   -1.05,
+   -0.557,
+   -1.372
+  ]
+ },
+ "Pebble1": {
+  "faces": 20,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.091,
+  "height": 0.967,
+  "max": [
+   1.255,
+   0.967,
+   0.88
+  ],
+  "min": [
+   -1.285,
+   -0.565,
+   -0.904
+  ]
+ },
+ "Pebble2": {
+  "faces": 20,
+  "file": "res://assets/kit/rocks.glb",
+  "foot": 1.041,
+  "height": 0.907,
+  "max": [
+   1.031,
+   0.907,
+   0.933
+  ],
+  "min": [
+   -1.019,
+   -0.438,
+   -0.811
+  ]
+ },
+ "Pine0": {
+  "faces": 174,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 1.549,
+  "height": 12.348,
+  "max": [
+   1.211,
+   12.348,
+   1.4
+  ],
+  "min": [
+   -1.177,
+   -0.4,
+   -1.698
+  ]
+ },
+ "Pine1": {
+  "faces": 200,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 1.728,
+  "height": 9.789,
+  "max": [
+   1.172,
+   9.789,
+   1.6
+  ],
+  "min": [
+   -2.285,
+   -0.4,
+   -0.845
+  ]
+ },
+ "Pine2": {
+  "faces": 206,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 1.769,
+  "height": 12.605,
+  "max": [
+   1.973,
+   12.605,
+   1.64
+  ],
+  "min": [
+   -1.566,
+   -0.4,
+   -1.58
+  ]
+ },
+ "Pine3": {
+  "faces": 194,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 1.73,
+  "height": 10.237,
+  "max": [
+   1.267,
+   10.237,
+   1.536
+  ],
+  "min": [
+   -1.57,
+   -0.4,
+   -1.925
+  ]
+ },
+ "Pine4": {
+  "faces": 226,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 1.826,
+  "height": 10.125,
+  "max": [
+   1.48,
+   10.125,
+   1.46
+  ],
+  "min": [
+   -1.42,
+   -0.4,
+   -2.192
+  ]
+ },
+ "Pine5": {
+  "faces": 206,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 1.461,
+  "height": 11.437,
+  "max": [
+   1.494,
+   11.437,
+   2.01
+  ],
+  "min": [
+   -1.116,
+   -0.4,
+   -0.911
+  ]
+ },
+ "RuneStone": {
+  "faces": 54,
+  "file": "res://assets/kit/props.glb",
+  "foot": 0.619,
+  "height": 1.739,
+  "max": [
+   0.585,
+   1.739,
+   0.285
+  ],
+  "min": [
+   -0.583,
+   -0.23,
+   -0.266
+  ]
+ },
+ "Shrub0": {
+  "faces": 60,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.487,
+  "height": 0.418,
+  "max": [
+   0.353,
+   0.418,
+   0.484
+  ],
+  "min": [
+   -0.113,
+   -0.015,
+   -0.399
+  ]
+ },
+ "Shrub1": {
+  "faces": 100,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.434,
+  "height": 0.497,
+  "max": [
+   0.33,
+   0.497,
+   0.413
+  ],
+  "min": [
+   -0.433,
+   -0.013,
+   -0.397
+  ]
+ },
+ "Shrub2": {
+  "faces": 80,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.681,
+  "height": 0.393,
+  "max": [
+   0.565,
+   0.393,
+   0.565
+  ],
+  "min": [
+   -0.396,
+   -0.036,
+   -0.517
+  ]
+ },
+ "Snag0": {
+  "faces": 26,
+  "file": "res://assets/kit/props.glb",
+  "foot": 0.736,
+  "height": 5.426,
+  "max": [
+   0.759,
+   5.426,
+   0.601
+  ],
+  "min": [
+   -0.713,
+   -0.2,
+   -0.629
+  ]
+ },
+ "Snag1": {
+  "faces": 26,
+  "file": "res://assets/kit/props.glb",
+  "foot": 0.726,
+  "height": 4.166,
+  "max": [
+   0.375,
+   4.166,
+   1.0
+  ],
+  "min": [
+   -1.076,
+   -0.2,
+   -0.3
+  ]
+ },
+ "Snag2": {
+  "faces": 20,
+  "file": "res://assets/kit/props.glb",
+  "foot": 0.593,
+  "height": 5.762,
+  "max": [
+   0.618,
+   5.762,
+   0.513
+  ],
+  "min": [
+   -0.26,
+   -0.2,
+   -0.673
+  ]
+ },
+ "TallGrass0": {
+  "faces": 28,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.193,
+  "height": 1.134,
+  "max": [
+   0.154,
+   1.134,
+   0.163
+  ],
+  "min": [
+   -0.231,
+   -0.003,
+   -0.178
+  ]
+ },
+ "TallGrass1": {
+  "faces": 28,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.185,
+  "height": 1.28,
+  "max": [
+   0.124,
+   1.28,
+   0.172
+  ],
+  "min": [
+   -0.246,
+   -0.003,
+   -0.098
+  ]
+ },
+ "TallGrass2": {
+  "faces": 40,
+  "file": "res://assets/kit/plants.glb",
+  "foot": 0.259,
+  "height": 1.262,
+  "max": [
+   0.225,
+   1.262,
+   0.233
+  ],
+  "min": [
+   -0.293,
+   -0.004,
+   -0.274
+  ]
+ },
+ "TallSpruce0": {
+  "faces": 72,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 2.773,
+  "height": 13.611,
+  "max": [
+   2.773,
+   13.611,
+   2.844
+  ],
+  "min": [
+   -2.773,
+   -0.3,
+   -2.562
+  ]
+ },
+ "TallSpruce1": {
+  "faces": 80,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 2.658,
+  "height": 13.146,
+  "max": [
+   2.658,
+   13.146,
+   2.727
+  ],
+  "min": [
+   -2.658,
+   -0.3,
+   -2.457
+  ]
+ },
+ "TallSpruce2": {
+  "faces": 72,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 2.922,
+  "height": 14.409,
+  "max": [
+   2.922,
+   14.409,
+   2.998
+  ],
+  "min": [
+   -2.922,
+   -0.3,
+   -2.701
+  ]
+ },
+ "TallSpruce3": {
+  "faces": 64,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 2.938,
+  "height": 14.286,
+  "max": [
+   2.938,
+   14.286,
+   3.013
+  ],
+  "min": [
+   -2.938,
+   -0.3,
+   -2.715
+  ]
+ },
+ "TallSpruce4": {
+  "faces": 72,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 2.167,
+  "height": 10.391,
+  "max": [
+   2.167,
+   10.391,
+   2.223
+  ],
+  "min": [
+   -2.167,
+   -0.3,
+   -2.003
+  ]
+ },
+ "YoungSpruce0": {
+  "faces": 28,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 0.48,
+  "height": 1.3,
+  "max": [
+   0.415,
+   1.3,
+   0.48
+  ],
+  "min": [
+   -0.415,
+   -0.1,
+   -0.48
+  ]
+ },
+ "YoungSpruce1": {
+  "faces": 35,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 0.778,
+  "height": 2.235,
+  "max": [
+   0.673,
+   2.235,
+   0.778
+  ],
+  "min": [
+   -0.673,
+   -0.1,
+   -0.778
+  ]
+ },
+ "YoungSpruce2": {
+  "faces": 28,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 0.481,
+  "height": 1.305,
+  "max": [
+   0.417,
+   1.305,
+   0.481
+  ],
+  "min": [
+   -0.417,
+   -0.1,
+   -0.481
+  ]
+ },
+ "YoungSpruce3": {
+  "faces": 35,
+  "file": "res://assets/kit/old_trees.glb",
+  "foot": 1.05,
+  "height": 3.018,
+  "max": [
+   0.909,
+   3.018,
+   1.05
+  ],
+  "min": [
+   -0.909,
+   -0.1,
+   -1.05
+  ]
+ }
+}

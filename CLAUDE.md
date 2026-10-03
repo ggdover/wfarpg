@@ -18,7 +18,7 @@ General knowledge, public documentation, and third-party libraries and engines a
 
 ## Project basics
 
-- Engine: Godot. 3D models: made in Blender. Art style: low-poly 3D.
+- Engine: Godot 4.7 (`~/.local/bin/godot`). 3D models: made in Blender 5.2. Art style: low-poly 3D.
 - Ground is a smooth, flat surface with painted textures (moss, grass patches, gravel on dirt paths, scattered small
   fallen leaves). Grass runs right up to the trees: no brown patches under them.
   Props such as trees, bushes and rocks are faceted low-poly shapes.
@@ -71,6 +71,10 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   Python scripts, saved in `tree_portfolio.blend`, with a tree editor (a Trees tab in Blender's sidebar) for tuning
   leaf cards and clumps. The user's tuned settings are in `assets/trees/tree_settings.json`; build from them, not
   from the defaults in `treegen.py`. See its README.
+- `game/`: the Godot project. For now a play demo: a small part of Storskogen (dense forest, a trail, a meadow with
+  a rise) with the old mockup trees or the new portfolio trees, a grey-box hero, the camera and controls. Its models,
+  ground textures and layout are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
+  portfolio and `game/tools/demo_area.py`; rebuild them after changing any of those. See `game/README.md`.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building
   scenes in Blender in background mode. `mockups/act1_world.py` holds the Act 1 layout as data. See `mockups/README.md`
   for how to rerun them. Generated output goes to `mockups/build/` (ignored by git); curated final images live in
