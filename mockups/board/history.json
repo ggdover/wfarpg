@@ -1,0 +1,1448 @@
+{
+ "about": "The look & feel board's history, one step per request. Each step lists the board items it added or changed, as they read at the end of that step. mockups/history_log.py turns this into HISTORY.html; `python3 history_log.py --record <step-id>` appends the changes since the last step from board/items.json.",
+ "board": "https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP",
+ "steps": [
+  {
+   "id": "board",
+   "date": "2026-10-03",
+   "asked_at": "00:33",
+   "posted_at": "00:48",
+   "title": "The look & feel board",
+   "section": "Starter sections",
+   "asked": "Set up a digital whiteboard as an HTML page, with text, images and video, to sketch out how the game should look and feel before planning the assets and the build.",
+   "changed": [
+    "A private board page on claude.ai that saves everything to its own database",
+    "Nine sections, from Overall vibe to Sound & music, each with a note of starter questions",
+    "Notes, images, video, links and color swatches, each of which can be marked Want, Maybe or Avoid",
+    "A section in CLAUDE.md with the board's link"
+   ],
+   "items": [
+    {
+     "id": "welcome",
+     "type": "note",
+     "status": "new",
+     "text": "# How to use this board\n- Add notes, images, video clips, links and color swatches with the buttons up top, or drop and paste them anywhere\n- Mark anything **Want**, **Maybe** or **Avoid** so we agree on what fits and what doesn't\n- Each section has starter questions. Answer them, edit them, delete them, or add sections of your own\n- I read this board before we plan, so the more that's here, the closer the game gets to what you picture",
+     "author": "claude"
+    },
+    {
+     "id": "s-vibe",
+     "type": "frame",
+     "status": "new",
+     "title": "Overall vibe",
+     "author": "claude"
+    },
+    {
+     "id": "s-art",
+     "type": "frame",
+     "status": "new",
+     "title": "Art style",
+     "author": "claude"
+    },
+    {
+     "id": "s-camera",
+     "type": "frame",
+     "status": "new",
+     "title": "Camera & view",
+     "author": "claude"
+    },
+    {
+     "id": "s-combat",
+     "type": "frame",
+     "status": "new",
+     "title": "Combat feel",
+     "author": "claude"
+    },
+    {
+     "id": "s-characters",
+     "type": "frame",
+     "status": "new",
+     "title": "Characters & enemies",
+     "author": "claude"
+    },
+    {
+     "id": "s-world",
+     "type": "frame",
+     "status": "new",
+     "title": "World & places",
+     "author": "claude"
+    },
+    {
+     "id": "s-loot",
+     "type": "frame",
+     "status": "new",
+     "title": "Loot & progression",
+     "author": "claude"
+    },
+    {
+     "id": "s-ui",
+     "type": "frame",
+     "status": "new",
+     "title": "UI & HUD",
+     "author": "claude"
+    },
+    {
+     "id": "s-sound",
+     "type": "frame",
+     "status": "new",
+     "title": "Sound & music",
+     "author": "claude"
+    },
+    {
+     "id": "q-vibe",
+     "type": "note",
+     "status": "new",
+     "text": "# What should it feel like?\n- Three words for the mood of the game\n- Grim and oppressive, bright and heroic, or something else?\n- Which games, films, books or art capture the feeling?\n- What should a player say after their first hour?",
+     "author": "claude"
+    },
+    {
+     "id": "q-art",
+     "type": "note",
+     "status": "new",
+     "text": "# How should it look?\n- 2D or 3D? Pixel art, hand-painted, low-poly, stylized or realistic?\n- Drop in images of the style you want, and mark the ones to avoid\n- Add color swatches to sketch the palette",
+     "author": "claude"
+    },
+    {
+     "id": "q-camera",
+     "type": "note",
+     "status": "new",
+     "text": "# How do we see the world?\n- Isometric, top-down or an angled third-person view?\n- How close is the camera? How much of the screen is the hero?\n- Fixed angle, or can the player rotate it?",
+     "author": "claude"
+    },
+    {
+     "id": "q-combat",
+     "type": "note",
+     "status": "new",
+     "text": "# How should a fight feel?\n- Fast and twitchy, or slow and heavy?\n- Hordes of weak enemies, or a few tough ones?\n- How loud is a hit: screen shake, hit-stop, gore, big damage numbers?\n- Clips of combat you love are perfect here",
+     "author": "claude"
+    },
+    {
+     "id": "q-characters",
+     "type": "note",
+     "status": "new",
+     "text": "# Who is in it?\n- The player: one fixed hero, classes, or build your own?\n- What are the enemies: monsters, people, machines, something stranger?\n- Bosses: how big and how dramatic?",
+     "author": "claude"
+    },
+    {
+     "id": "q-world",
+     "type": "note",
+     "status": "new",
+     "text": "# Where does it take place?\n- Setting: dark fantasy, sci-fi, myth, something else?\n- Hand-built levels, randomly generated dungeons, or a mix?\n- Places you can already picture: caves, cities, ruins, forests?",
+     "author": "claude"
+    },
+    {
+     "id": "q-loot",
+     "type": "note",
+     "status": "new",
+     "text": "# What do you collect and grow?\n- How much loot drops: a shower or a trickle?\n- Skill trees, gear, crafting: which matters most?\n- How long should a full playthrough take?",
+     "author": "claude"
+    },
+    {
+     "id": "q-ui",
+     "type": "note",
+     "status": "new",
+     "text": "# What is on screen?\n- Health and resource bars, a skill bar, a minimap?\n- Minimal and clean, or ornate and themed?\n- How should the inventory and item tooltips look?",
+     "author": "claude"
+    },
+    {
+     "id": "q-sound",
+     "type": "note",
+     "status": "new",
+     "text": "# What does it sound like?\n- Music: orchestral, ambient, metal, synth, something else?\n- How punchy should hits and spells sound?\n- Voice acting, or text only?",
+     "author": "claude"
+    }
+   ],
+   "wip": []
+  },
+  {
+   "id": "mechanics",
+   "date": "2026-10-03",
+   "asked_at": "09:33",
+   "posted_at": "09:36",
+   "title": "Movement and aim",
+   "section": "Game mechanics",
+   "asked": "Get the game mechanics down: an ARPG with a 3D camera looking down at an isometric, top-down angle. WASD moves the character and the mouse aims separately, so you can move one way and aim another.",
+   "changed": [
+    "A Game mechanics section with cards for the camera, moving with WASD and aiming with the mouse, all marked Want",
+    "A diagram of walking one way while aiming another",
+    "A note on what this means for animation, and a list of open questions",
+    "Camera & view: the view marked as decided, plus questions on how steep it is and perspective versus flat isometric"
+   ],
+   "items": [
+    {
+     "id": "s-mechanics",
+     "type": "frame",
+     "status": "new",
+     "title": "Game mechanics",
+     "author": "claude"
+    },
+    {
+     "id": "m-camera",
+     "type": "note",
+     "status": "new",
+     "text": "# Camera\nA 3D world seen from above at an isometric angle, the classic ARPG view.\n\nThe details still open (how steep, how close, fixed or rotating) are in Camera & view.",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "m-move",
+     "type": "note",
+     "status": "new",
+     "text": "# Move with WASD\n- W, A, S and D move the character\n- Holding two keys walks diagonally\n- Assumed: directions follow the screen, so W walks up the screen and A walks left",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "m-aim",
+     "type": "note",
+     "status": "new",
+     "text": "# Aim with the mouse\n- The mouse aims, separately from movement\n- You can run one way while aiming and attacking another\n- This scheme is often called twin-stick controls",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "m-diagram",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking toward the bottom-left while aiming up-right. The character keeps facing the cursor.",
+     "assetId": "acf7d5441f2845215323aedd4adc9781",
+     "file": "renders/diagrams/move-aim.svg",
+     "author": "claude"
+    },
+    {
+     "id": "m-anim",
+     "type": "note",
+     "status": "new",
+     "text": "# What this means for animation\nThe character can face one way while moving another, so a forward run alone won't do. It needs movement animations for each direction relative to where it faces: forward, backward, and strafing left and right, blended for the diagonals.\n\nThat raises the number of animations we have to make, so it's worth settling early.",
+     "author": "claude"
+    },
+    {
+     "id": "m-questions",
+     "type": "note",
+     "status": "new",
+     "text": "# Open questions on controls\n- Does the character always face the cursor, or only while attacking?\n- What do left and right click do?\n- Which keys use skills: 1–4, Q/E/R, or something else?\n- Is there a dodge or dash, and on which key?\n- Is moving backward slower than moving forward?\n- Should a gamepad work too (left stick moves, right stick aims)?",
+     "author": "claude"
+    },
+    {
+     "id": "q-camera",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# How do we see the world?\n- **Decided:** a 3D world seen from above at an isometric angle\n- How steep: nearly straight down, or the classic tilted view?\n- Perspective (things shrink with distance) or orthographic (flat, true isometric)?\n- How close is the camera? How much of the screen is the hero?\n- Fixed angle, or can the player rotate it?",
+     "author": "claude"
+    }
+   ],
+   "wip": []
+  },
+  {
+   "id": "facing",
+   "date": "2026-10-03",
+   "asked_at": "09:40",
+   "posted_at": "09:42",
+   "title": "Facing, and slower while attacking",
+   "section": "Game mechanics",
+   "asked": "Face the way you move when not attacking. Once attacking, face the mouse pointer while WASD still moves you. Moving while attacking is slower, and that's important.",
+   "changed": [
+    "Cards for the facing rule and for moving slower while attacking, the second marked important",
+    "The diagram redrawn as two states: not attacking and attacking",
+    "The animation note updated: attacks have to play while the legs keep walking",
+    "The answered questions replaced with three new ones: how much slower, how fast it turns, and when it turns back"
+   ],
+   "items": [
+    {
+     "id": "m-aim",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Aim with the mouse\n- The mouse aims, separately from movement\n- Attacks go toward the cursor\n- You can keep moving with WASD while attacking",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "m-facing",
+     "type": "note",
+     "status": "new",
+     "text": "# Facing\n- **Not attacking:** the character faces the way it's moving\n- **Attacking:** it turns to face the mouse cursor, while you keep moving with WASD",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "m-slow",
+     "type": "note",
+     "status": "new",
+     "text": "# Slower while attacking\n**Important:** moving while attacking is slower than moving normally.\n\nHow much slower is still open (see the questions below).",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "m-diagram",
+     "type": "image",
+     "status": "replaced",
+     "changed": [
+      "caption",
+      "assetId"
+     ],
+     "caption": "Left: moving normally, the character faces where it goes. Right: while attacking, it faces the cursor and moves slower.",
+     "assetId": "beb19702357a42da2b152dcbe3b276e1",
+     "file": "renders/diagrams/facing-states.svg",
+     "author": "claude"
+    },
+    {
+     "id": "m-anim",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# What this means for animation\n- **Not attacking:** a normal forward walk and run are enough, since the character faces where it goes\n- **Attacking:** it faces the cursor but can move any way, so it needs slower walks forward, backward and strafing left and right\n- Attacks have to play while walking, which usually means the upper body attacks while the legs walk on their own (layered animation)",
+     "author": "claude"
+    },
+    {
+     "id": "m-questions",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Open questions on controls\n- How much slower is moving while attacking: a little, or about half speed?\n- Does the character snap to face the cursor the moment an attack starts?\n- When you stop attacking, does it turn back to the walking direction right away or after a short pause?\n- What do left and right click do?\n- Which keys use skills: 1–4, Q/E/R, or something else?\n- Is there a dodge or dash, and on which key?\n- Should a gamepad work too (left stick moves, right stick aims)?",
+     "author": "claude"
+    }
+   ],
+   "wip": []
+  },
+  {
+   "id": "forest-v1",
+   "date": "2026-10-03",
+   "asked_at": "09:55",
+   "posted_at": "10:22",
+   "title": "Act 1 forest, version 1",
+   "section": "Act 1: Pine forest",
+   "asked": "Leave the three follow-up questions for a playtest. Act 1 is set in a Swedish pine forest like the reference images, in daylight and when the fog rolls in. Make some screenshots of what a play demo might look like. The game will be made in Godot, with assets from Blender, in a low-poly 3D style.",
+   "changed": [
+    "A low-poly forest built in Blender from your references, rendered from the game camera",
+    "Four mockups with a placeholder HUD: a daylight path, a daylight pond, the fog path and a fog bog",
+    "A Tools note (Godot, Blender, low-poly 3D) and a Tune in a playtest note for the deferred questions",
+    "Your eight reference images placed under the mockups"
+   ],
+   "found": [
+    "Tall pines block an overhead camera, so the game will need to fade or cut away trees near the camera",
+    "The hero disappears in fog without a soft light of their own",
+    "The fog look relies on volumetric fog, which Godot supports only in its Forward+ renderer"
+   ],
+   "items": [
+    {
+     "id": "tools",
+     "type": "note",
+     "status": "new",
+     "text": "# Tools and style\n- Game engine: **Godot**\n- 3D models: made in **Blender**\n- Style: low-poly 3D",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "m-questions",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Open questions on controls\n- What do left and right click do?\n- Which keys use skills: 1–4, Q/E/R, or something else?\n- Is there a dodge or dash, and on which key?\n- Should a gamepad work too (left stick moves, right stick aims)?",
+     "author": "claude"
+    },
+    {
+     "id": "m-playtest",
+     "type": "note",
+     "status": "new",
+     "text": "# Tune in a playtest\nWe'll set these by feel once there's something playable:\n- How much slower moving while attacking is\n- How fast the character turns to the cursor when an attack starts\n- How soon it turns back after you stop attacking",
+     "author": "claude"
+    },
+    {
+     "id": "q-art",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# How should it look?\n- **Decided:** low-poly 3D, with models made in Blender\n- Drop in images of the style you want, and mark the ones to avoid\n- Add color swatches to sketch the palette",
+     "author": "claude"
+    },
+    {
+     "id": "q-world",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Where does it take place?\n- **Act 1:** a Swedish pine forest, in daylight and when the fog rolls in (see the Act 1 section)\n- Later acts: where do they go?\n- Hand-built levels, randomly generated dungeons, or a mix?",
+     "author": "claude"
+    },
+    {
+     "id": "s-act1",
+     "type": "frame",
+     "status": "new",
+     "title": "Act 1: Pine forest",
+     "author": "claude"
+    },
+    {
+     "id": "a1-setting",
+     "type": "note",
+     "status": "new",
+     "text": "# Act 1: Swedish pine forest\n- The game will have several acts; we start with Act 1 only\n- Set in a Swedish pine forest, like the reference images below\n- Two moods: clear daylight, and fog rolling in",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "a1-day",
+     "type": "note",
+     "status": "new",
+     "text": "# Daylight, from the references\n- Tall Scots pines with orange bark higher up\n- Big granite boulders with moss and pale lichen\n- Needle-covered paths crossed by roots\n- Blueberry, lingonberry, heather and reindeer lichen\n- Still forest ponds, rune stones, Swedish signposts",
+     "author": "claude"
+    },
+    {
+     "id": "a1-fog",
+     "type": "note",
+     "status": "new",
+     "text": "# When the fog rolls in\n- Cold, grey-blue and washed out\n- Glowing see-through spirits, some with antlers, and a spirit stag\n- Rune stones glow; lanterns and candles give warm light\n- Bogs, fallen logs and dead trees",
+     "author": "claude"
+    },
+    {
+     "id": "a1-about",
+     "type": "note",
+     "status": "new",
+     "text": "# About these mockups\n- I built a quick low-poly scene in Blender from the references and rendered it from the game camera\n- Everything is placeholder: models, colors, effects, the HUD and names\n- React to them: mark what feels right **Want** and what's off **Avoid**, or add notes",
+     "author": "claude"
+    },
+    {
+     "id": "a1-mock-daypath",
+     "type": "image",
+     "status": "new",
+     "caption": "Mockup, daylight: walking the needle path past a rune stone and a signpost (SJÖN / MYREN).",
+     "assetId": "813a8bcc79fc454b8e3b62336f981d29",
+     "file": "renders/forest_v1/day_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-mock-daytarn",
+     "type": "image",
+     "status": "new",
+     "caption": "Mockup, daylight: a forest pond with reeds, blueberries, heather and a granite outcrop.",
+     "assetId": "a5133bf1d439419fa072303f9dd2275f",
+     "file": "renders/forest_v1/day_tarn.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-mock-fogpath",
+     "type": "image",
+     "status": "new",
+     "caption": "Mockup, fog: the same spot as the first shot. Wraiths close in, and attacking turns the hero toward the cursor.",
+     "assetId": "372a2f7497de15750a5d56044d8660d4",
+     "file": "renders/forest_v1/fog_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-mock-fogbog",
+     "type": "image",
+     "status": "new",
+     "caption": "Mockup, fog: a spirit stag in the bog, lit by a candle on a cairn and the hero's own light.",
+     "assetId": "ae5667c9afdf23678f034c714aa1430e",
+     "file": "renders/forest_v1/fog_bog.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-ref-day1",
+     "type": "image",
+     "status": "new",
+     "caption": "Your reference: daylight",
+     "assetId": "38c547d28359174c367f09f941ff7b72",
+     "file": "renders/reference_copies/ref_day_1.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "a1-ref-day2",
+     "type": "image",
+     "status": "new",
+     "caption": "Your reference: daylight",
+     "assetId": "200424920e7b9f771bf8ef773d988093",
+     "file": "renders/reference_copies/ref_day_2.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "a1-ref-day3",
+     "type": "image",
+     "status": "new",
+     "caption": "Your reference: daylight",
+     "assetId": "038336c58a6209059d7e39094a81d83c",
+     "file": "renders/reference_copies/ref_day_3.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "a1-ref-day4",
+     "type": "image",
+     "status": "new",
+     "caption": "Your reference: daylight",
+     "assetId": "3e5416975d7f6872c606e19d0d69936e",
+     "file": "renders/reference_copies/ref_day_4.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "a1-ref-fog1",
+     "type": "image",
+     "status": "new",
+     "caption": "Your reference: fog",
+     "assetId": "527ee629d14a52dc23879c654d8e83d0",
+     "file": "renders/reference_copies/ref_fog_1.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "a1-ref-fog2",
+     "type": "image",
+     "status": "new",
+     "caption": "Your reference: fog",
+     "assetId": "e25b5855351aac0b749f3dc42fa80bb8",
+     "file": "renders/reference_copies/ref_fog_2.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "a1-ref-fog3",
+     "type": "image",
+     "status": "new",
+     "caption": "Your reference: fog",
+     "assetId": "4ee84ee850b0b3e1e8069957755735f5",
+     "file": "renders/reference_copies/ref_fog_3.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "a1-ref-fog4",
+     "type": "image",
+     "status": "new",
+     "caption": "Your reference: fog",
+     "assetId": "fb7067b47367e74df0da1a90f5e5afd1",
+     "file": "renders/reference_copies/ref_fog_4.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/01_first_render_black.jpg",
+     "caption": "The very first render came out black: a fog setting over the whole scene also blocked the sunlight"
+    },
+    {
+     "file": "renders/wip/02_terrain_without_fog.jpg",
+     "caption": "With that fog setting removed, the bare faceted ground showed up"
+    },
+    {
+     "file": "renders/wip/03_forest_v1_preview.jpg",
+     "caption": "The first preview: huge tree crowns hide the path, the boulders look like mossy balls, and the wraiths glow solid white"
+    },
+    {
+     "file": "renders/wip/04_forest_v1_pond_and_bog.jpg",
+     "caption": "The pond's water spilled over its shore onto the path (left), next to a draft of the bog"
+    }
+   ]
+  },
+  {
+   "id": "forest-v2",
+   "date": "2026-10-03",
+   "asked_at": "10:32",
+   "posted_at": "10:41",
+   "title": "Version 2: smooth, textured ground",
+   "section": "Act 1: Pine forest",
+   "asked": "The ground uses too many triangle shapes. Make it a flat surface with textures, such as grass patches and gravel on dirt roads, but keep trees, bushes and rocks faceted. Make a second version.",
+   "changed": [
+    "Smooth ground painted in layers: moss with grass patches, needle litter under the pines, gravel on the paths, a grassy shore and bog mud",
+    "Trees, bushes, rocks and other props keep their faceted shapes",
+    "The same four shots, with every tree and rock where it was in version 1",
+    "A Ground vs. props card in Art style, marked Want"
+   ],
+   "items": [
+    {
+     "id": "a1-about",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# About these mockups\n- Built as a quick low-poly scene in Blender from the references, rendered from the game camera\n- **Version 2** (top row): smooth ground with painted-style textures; props stay faceted\n- **Version 1** (below it): faceted ground, kept for comparison\n- Everything is placeholder: models, colors, effects, the HUD and names\n- Mark what feels right **Want** and what's off **Avoid**, or add notes",
+     "author": "claude"
+    },
+    {
+     "id": "a1-v2-daypath",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2, daylight path: smooth textured ground with grass patches, needle litter under the pines and gravel on the path.",
+     "assetId": "c6033d7128684684084003a251e7ba8c",
+     "file": "renders/forest_v2/day_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-v2-daytarn",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2, daylight pond: a grassy shore and a gravel path on the smooth ground.",
+     "assetId": "81e8346291a603da5a3fc76ab3ee2706",
+     "file": "renders/forest_v2/day_tarn.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-v2-fogpath",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2, fog: wraiths close in, and attacking turns the hero toward the cursor.",
+     "assetId": "2777e7b7d91d52896c45212aa54ea965",
+     "file": "renders/forest_v2/fog_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-v2-fogbog",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2, fog: a spirit stag in the bog, with mud and puddles on the smooth ground.",
+     "assetId": "4bde2b7b6a012578a6f288528be6713e",
+     "file": "renders/forest_v2/fog_bog.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-mock-daypath",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1 (faceted ground), daylight: walking the needle path past a rune stone and a signpost (SJÖN / MYREN).",
+     "assetId": "813a8bcc79fc454b8e3b62336f981d29",
+     "file": "renders/forest_v1/day_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-mock-daytarn",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1 (faceted ground), daylight: a forest pond with reeds, blueberries, heather and a granite outcrop.",
+     "assetId": "a5133bf1d439419fa072303f9dd2275f",
+     "file": "renders/forest_v1/day_tarn.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-mock-fogpath",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1 (faceted ground), fog: the same spot as the first shot. Wraiths close in, and attacking turns the hero toward the cursor.",
+     "assetId": "372a2f7497de15750a5d56044d8660d4",
+     "file": "renders/forest_v1/fog_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-mock-fogbog",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1 (faceted ground), fog: a spirit stag in the bog, lit by a candle on a cairn and the hero's own light.",
+     "assetId": "ae5667c9afdf23678f034c714aa1430e",
+     "file": "renders/forest_v1/fog_bog.png",
+     "author": "claude"
+    },
+    {
+     "id": "art-ground",
+     "type": "note",
+     "status": "new",
+     "text": "# Ground vs. props\n- **Ground:** a smooth, flat surface with painted textures: moss, grass patches, needle litter, gravel on dirt paths\n- **Props** (trees, bushes, rocks): faceted low-poly shapes",
+     "stance": "want",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/05_forest_v2_preview.jpg",
+     "caption": "Preview of version 2: the smooth ground in place, before the full-size renders"
+    }
+   ]
+  },
+  {
+   "id": "forest-v3",
+   "date": "2026-10-03",
+   "asked_at": "11:27",
+   "posted_at": "11:41",
+   "title": "Version 3: berries, rocks, trunks and paths",
+   "section": "Act 1: Pine forest",
+   "asked": "The blueberries are scattered everywhere and seem to float, and the purple balls look like rocks rather than flowers. Give rocks uneven faces of mixed shapes and sizes. Make each trunk one piece, or more segments, since three segments lean too much. Make the paths curve instead of forming a T.",
+   "changed": [
+    "Berries only in patches, fewer per bush, sitting on the leaves; the purple clumps (meant as heather) removed",
+    "Boulders with fewer, larger faces of uneven shape and size, and less moss",
+    "One-piece trunks, straight or gently leaning",
+    "Winding paths of uneven width, with a curved fork instead of a T",
+    "A pale lichen layer in the ground texture removed, after it showed up as white smudges"
+   ],
+   "found": [
+    "The paths were redrawn, so the trees and rocks along them moved; version 3 doesn't line up shot for shot with the earlier versions",
+    "Your message pointed to an example of winding paths that didn't come through, so the paths follow your daylight references"
+   ],
+   "items": [
+    {
+     "id": "a1-about",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# About these mockups\n- A quick low-poly scene built in Blender from the references, rendered from the game camera\n- **Version 3** (top row): winding paths, chunkier rocks, one-piece trunks, berries in patches, no purple clumps\n- **Version 2**: the first smooth, textured ground\n- **Version 1**: faceted ground\n- Everything is placeholder: models, colors, effects, the HUD and names",
+     "author": "claude"
+    },
+    {
+     "id": "a1-v3-daypath",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 3, daylight path: a winding gravel path with a curved fork, chunkier rocks, one-piece trunks and berries in patches.",
+     "assetId": "ec020edfe4845d7ba442c80416166f16",
+     "file": "renders/forest_v3/day_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-v3-daytarn",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 3, daylight pond: the path winds past the pond; the purple clumps are gone.",
+     "assetId": "a7a94b82cfb5559fc9e707dbcf291b8b",
+     "file": "renders/forest_v3/day_tarn.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-v3-fogpath",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 3, fog: wraiths close in, and attacking turns the hero toward the cursor.",
+     "assetId": "5b514668e180967ce8367e0914d4bc46",
+     "file": "renders/forest_v3/fog_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "a1-v3-fogbog",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 3, fog: the spirit stag in the bog.",
+     "assetId": "bc7cabf70ce12ecd57db8de9d97eaf64",
+     "file": "renders/forest_v3/fog_bog.png",
+     "author": "claude"
+    },
+    {
+     "id": "art-details",
+     "type": "note",
+     "status": "new",
+     "text": "# Props and details\n- **Rocks:** chunky, with uneven faces of mixed shapes and sizes, not lots of small triangles\n- **Tree trunks:** one piece, straight or gently leaning\n- **Paths:** winding, uneven width, curved forks\n- **Berries:** grouped in patches, sitting on the bushes\n- **Avoid:** blocky purple flower clumps",
+     "stance": "want",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/06_forest_v3_preview.jpg",
+     "caption": "First preview of version 3: winding paths and one-piece trunks, but pale smudges on the ground"
+    },
+    {
+     "file": "renders/wip/07_forest_v3_smudges.jpg",
+     "caption": "Close-up of the smudges, which came from a pale lichen layer in the ground texture"
+    }
+   ]
+  },
+  {
+   "id": "camera",
+   "date": "2026-10-03",
+   "asked_at": "12:38",
+   "posted_at": "12:47",
+   "title": "Camera control",
+   "section": "Camera control",
+   "asked": "Holding the right mouse button and moving the mouse orbits the camera around the player, like in WoW: sideways and up and down, from top-down to behind the player. Show screenshots with the camera in different positions.",
+   "changed": [
+    "Six shots of the version 3 forest with the camera orbited, from straight down to low behind the hero",
+    "The camera moves closer for the low views, like a mouse-wheel zoom",
+    "A sky, a ring of distant forest and haze, since low views see to the horizon",
+    "HUD: right click is off the skill bar (now left click and keys 1–5), and the minimap turns with the camera"
+   ],
+   "items": [
+    {
+     "id": "s-cameractl",
+     "type": "frame",
+     "status": "new",
+     "title": "Camera control",
+     "author": "claude"
+    },
+    {
+     "id": "cam-control",
+     "type": "note",
+     "status": "new",
+     "text": "# Camera control\n- Hold the **right mouse button** and move the mouse to orbit the camera around the hero, like in WoW\n- Sideways turns the view around the hero\n- Up and down changes the angle: from straight down, through the default high view, to low behind the hero",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "cam-means",
+     "type": "note",
+     "status": "new",
+     "text": "# What a free camera changes\n- **WASD follows the camera:** W walks away from the camera, whichever way it faces\n- **Right click is taken,** so attacks and skills use left click and the keyboard\n- **Low angles show the horizon,** so we need a sky, distant forest and haze to hide the edge of the map\n- **Trees must fade** between the camera and the hero at every angle\n- **Aiming gets touchy at low angles,** where the ground is seen almost edge-on",
+     "author": "claude"
+    },
+    {
+     "id": "cam-questions",
+     "type": "note",
+     "status": "new",
+     "text": "# Open camera questions\n- Zoom in and out with the mouse wheel?\n- How low and how high can the camera go?\n- When you let go of the right button, does the camera stay where you left it?\n- Should it ever swing back behind the hero by itself?\n- Does the mouse cursor hide while you rotate?",
+     "author": "claude"
+    },
+    {
+     "id": "cam-shot-default",
+     "type": "image",
+     "status": "new",
+     "caption": "Default view: high and angled, the classic ARPG camera.",
+     "assetId": "629c6d15975eeedd122bbc04612edf5d",
+     "file": "renders/camera/cam_default.png",
+     "author": "claude"
+    },
+    {
+     "id": "cam-shot-topdown",
+     "type": "image",
+     "status": "new",
+     "caption": "Rotated up to almost straight down: a map-like view.",
+     "assetId": "0ae90f24a650053cab57006e36a739ab",
+     "file": "renders/camera/cam_topdown.png",
+     "author": "claude"
+    },
+    {
+     "id": "cam-shot-side",
+     "type": "image",
+     "status": "new",
+     "caption": "Turned 90° around the hero and lowered a little: the fork and signpost seen from the side. The minimap turns with the camera.",
+     "assetId": "cfb4f3d0cce2ae421afa2de9749fa3c6",
+     "file": "renders/camera/cam_side.png",
+     "author": "claude"
+    },
+    {
+     "id": "cam-shot-behind",
+     "type": "image",
+     "status": "new",
+     "caption": "Lowered behind the hero and zoomed in: a third-person view down the path, with the forest stretching away.",
+     "assetId": "f5551103eb5ad14652b4d5691796fffc",
+     "file": "renders/camera/cam_behind.png",
+     "author": "claude"
+    },
+    {
+     "id": "cam-shot-tarn",
+     "type": "image",
+     "status": "new",
+     "caption": "Low and turned toward the pond, looking past the hero across the water.",
+     "assetId": "7bc4aed7e8f89e1af3c6f0d324b1dc61",
+     "file": "renders/camera/cam_tarn.png",
+     "author": "claude"
+    },
+    {
+     "id": "cam-shot-fogbehind",
+     "type": "image",
+     "status": "new",
+     "caption": "Low behind the hero in the fog: wraiths come out between the trunks while the hero attacks.",
+     "assetId": "9992cf9e6d0032fe6bfcd76c8a1e16f0",
+     "file": "renders/camera/cam_fogbehind.png",
+     "author": "claude"
+    },
+    {
+     "id": "m-camera",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Camera\n- Default: a 3D world seen from above at an isometric angle\n- Hold the right mouse button to orbit it around the hero, from straight down to low behind (see Camera control)",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "m-move",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Move with WASD\n- W, A, S and D move the character\n- Holding two keys walks diagonally\n- Assumed: directions follow the camera, so W walks away from the camera and A to its left",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "m-questions",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Open questions on controls\n- What does left click do: a basic attack?\n- Which keys use skills: 1–4, Q/E/R, or something else?\n- Is there a dodge or dash, and on which key?\n- Should a gamepad work too (left stick moves, right stick aims)?\n- Right click now turns the camera (see Camera control)",
+     "author": "claude"
+    },
+    {
+     "id": "q-camera",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# How do we see the world?\n- **Decided:** a 3D world, seen by default from above at an isometric angle\n- **Decided:** hold the right mouse button to orbit the camera (see Camera control)\n- Because the camera can go low behind the hero, it needs a perspective view; a flat orthographic view only works from above\n- How close is the camera by default?",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/08_camera_preview.jpg",
+     "caption": "Preview of the six camera positions; the low fog shot (bottom right) came out in daylight by mistake"
+    }
+   ]
+  },
+  {
+   "id": "hud-v1",
+   "date": "2026-10-03",
+   "asked_at": "13:32",
+   "posted_at": "13:41",
+   "title": "HUD, version 1",
+   "section": "HUD style",
+   "asked": "Red for life and blue for mana. The black-and-white ability icons are boring. Make the HUD, icons and fonts look like an action-adventure fantasy ARPG: rustic and Viking, in the spirit of Diablo or Path of Exile.",
+   "changed": [
+    "A red life orb and a blue mana orb in bronze rims carved with runes",
+    "A carved wooden skill bar with bronze trim, and painted, glowing ability icons",
+    "Cinzel lettering, a framed minimap, a target frame, damage numbers and an aiming cursor",
+    "Notes on the style, on what is placeholder, and open HUD questions"
+   ],
+   "items": [
+    {
+     "id": "s-hud",
+     "type": "frame",
+     "status": "new",
+     "title": "HUD style",
+     "author": "claude"
+    },
+    {
+     "id": "hud-style",
+     "type": "note",
+     "status": "new",
+     "text": "# HUD style\n- Rustic Norse ARPG: carved wood, iron and bronze, runes\n- **Red life orb** and **blue mana orb**\n- Painted, colorful ability icons that glow\n- Fantasy lettering for names and numbers",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "hud-about",
+     "type": "note",
+     "status": "new",
+     "text": "# About this HUD\n- Drawn as its own layer over the version 3 renders\n- Ability names and icons are placeholders: Cleave, Whirlwind, Charge, Ward Rune, Shield Bash\n- Numbers sit above the orbs; the gold line on the bar is experience\n- The lettering is Cinzel, a free font under the SIL Open Font License, so it could ship with the game",
+     "author": "claude"
+    },
+    {
+     "id": "hud-questions",
+     "type": "note",
+     "status": "new",
+     "text": "# Open HUD questions\n- Mana, or a different resource such as rage or stamina?\n- Potions or flasks on the bar?\n- Numbers on the orbs all the time, or only on hover?\n- How many skill slots: 5 keys plus left click, or more?",
+     "author": "claude"
+    },
+    {
+     "id": "hud-icons",
+     "type": "image",
+     "status": "new",
+     "caption": "Ability icons, large. Names are placeholders.",
+     "assetId": "2ea90d8975303cf1a11b6eacbbd33a9e",
+     "file": "renders/hud_v1/icons.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-daypath",
+     "type": "image",
+     "status": "new",
+     "caption": "Exploring in daylight, default camera.",
+     "assetId": "aeb4654b0376efd7ba184b12849bd355",
+     "file": "renders/hud_v1/day_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-fogpath",
+     "type": "image",
+     "status": "new",
+     "caption": "Fighting in the fog: target frame up top, damage numbers, Cleave lit up and Charge on cooldown.",
+     "assetId": "3484c39b934875b5a28abe367c0be0f6",
+     "file": "renders/hud_v1/fog_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-behind",
+     "type": "image",
+     "status": "new",
+     "caption": "The camera lowered behind the hero.",
+     "assetId": "564826e3ff637fe9c24814a7a71d50a6",
+     "file": "renders/hud_v1/cam_behind.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-tarn",
+     "type": "image",
+     "status": "new",
+     "caption": "Low view toward the pond; the minimap turns with the camera.",
+     "assetId": "bedb74de2d1e3dfbbaf0c5abfdf93e55",
+     "file": "renders/hud_v1/cam_tarn.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-fogbehind",
+     "type": "image",
+     "status": "new",
+     "caption": "Fighting in the fog from behind the hero.",
+     "assetId": "5b915102c48bb86b612dad1f89806857",
+     "file": "renders/hud_v1/cam_fogbehind.png",
+     "author": "claude"
+    },
+    {
+     "id": "q-ui",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# What is on screen?\n- **Decided:** a rustic Norse ARPG look with a red life orb, a blue mana orb and painted ability icons (see HUD style)\n- Minimap in a riveted frame, top right\n- How should the inventory and item tooltips look?",
+     "author": "claude"
+    }
+   ],
+   "wip": []
+  },
+  {
+   "id": "hud-v2",
+   "date": "2026-10-03",
+   "asked_at": "14:12",
+   "posted_at": "14:20",
+   "title": "HUD, version 2: sharper",
+   "section": "HUD style",
+   "asked": "The HUD looks too smooth, with gradients and rounded corners. Make it sharper and more detailed, closer to Path of Exile 2 than Diablo 4, and make the thick yellow orb borders thinner.",
+   "changed": [
+    "No rounded corners: slots, key plaques, the target frame and the bar use square or cut corners",
+    "Hammered iron with crisp bevels, brass trim lines, bolts and engraved knots instead of smooth gradients",
+    "Slim iron orb rims with four clasps, and darker, swirling liquid",
+    "More detailed icons, a segmented experience bar and hard-edged text shadows"
+   ],
+   "items": [
+    {
+     "id": "hud-style",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# HUD style\n- Rustic Norse ARPG: hammered iron, brass, runes and knotwork\n- **Sharp and detailed**, not smooth: hard edges, cut corners, fine texture\n- **Red life orb** and **blue mana orb** with slim rims\n- Painted, colorful ability icons\n- Fantasy lettering for names and numbers",
+     "stance": "want",
+     "author": "claude"
+    },
+    {
+     "id": "hud-about",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# About this HUD\n- Drawn as its own layer over the version 3 renders\n- **Version 2** (top): hard edges, hammered iron, thin brass trim, slim orb rims\n- **Version 1** (below): the smoother first pass\n- Ability names and icons are placeholders\n- The lettering is Cinzel, a free font under the SIL Open Font License",
+     "author": "claude"
+    },
+    {
+     "id": "hud2-icons",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2 ability icons, large: sharper edges, more texture and detail.",
+     "assetId": "0c1e724f4de9158a66db2c60e9a65a9a",
+     "file": "renders/hud_v2/icons.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud2-closeup",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2 close-up: slim orb rims with clasps, an iron plate with engraved knots and bolts, and a segmented experience bar.",
+     "assetId": "fcc6cd1c1852fc2e35b78506d66d144d",
+     "file": "renders/hud_v2/closeup.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud2-daypath",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2: exploring in daylight, default camera.",
+     "assetId": "4864a587c19f8ed6a14ffed0ac59ed7d",
+     "file": "renders/hud_v2/day_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud2-fogpath",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2: fighting in the fog, with the target frame, damage numbers and a skill on cooldown.",
+     "assetId": "05fe5b853bd20c49fd6c90ec9f077b59",
+     "file": "renders/hud_v2/fog_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud2-behind",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2: the camera lowered behind the hero.",
+     "assetId": "ae3b460f0152e225c46542f4f04ea45e",
+     "file": "renders/hud_v2/cam_behind.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud2-tarn",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2: low view toward the pond.",
+     "assetId": "f74fdba9f97d94e011157404aa896733",
+     "file": "renders/hud_v2/cam_tarn.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud2-fogbehind",
+     "type": "image",
+     "status": "new",
+     "caption": "Version 2: fighting in the fog from behind the hero.",
+     "assetId": "54f33d0921a1c697f6198ffbf223b269",
+     "file": "renders/hud_v2/cam_fogbehind.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-icons",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1 ability icons (smoother first pass).",
+     "assetId": "2ea90d8975303cf1a11b6eacbbd33a9e",
+     "file": "renders/hud_v1/icons.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-daypath",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1: exploring in daylight, default camera.",
+     "assetId": "aeb4654b0376efd7ba184b12849bd355",
+     "file": "renders/hud_v1/day_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-fogpath",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1: fighting in the fog.",
+     "assetId": "3484c39b934875b5a28abe367c0be0f6",
+     "file": "renders/hud_v1/fog_path.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-behind",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1: the camera lowered behind the hero.",
+     "assetId": "564826e3ff637fe9c24814a7a71d50a6",
+     "file": "renders/hud_v1/cam_behind.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-tarn",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1: low view toward the pond.",
+     "assetId": "bedb74de2d1e3dfbbaf0c5abfdf93e55",
+     "file": "renders/hud_v1/cam_tarn.png",
+     "author": "claude"
+    },
+    {
+     "id": "hud-shot-fogbehind",
+     "type": "image",
+     "status": "relabelled",
+     "changed": [
+      "caption"
+     ],
+     "caption": "Version 1: fighting in the fog from behind the hero.",
+     "assetId": "5b915102c48bb86b612dad1f89806857",
+     "file": "renders/hud_v1/cam_fogbehind.png",
+     "author": "claude"
+    }
+   ],
+   "wip": []
+  },
+  {
+   "id": "act1",
+   "date": "2026-10-03",
+   "asked_at": "14:31",
+   "posted_at": "16:15",
+   "title": "The whole of Act 1",
+   "section": "Act 1: the whole act",
+   "asked": "Look at the whole of Act 1: 10–15 quests and 1–2 hours of play, laid out like act1_layout.png. Past the town comes Storskogen (the fairmeadow), a vast forest with open plains, thick forest, raised ground and hollows, all with slopes you can walk. Make top-down blueprints of the act and screenshots from different zones at different camera angles.",
+   "changed": [
+    "The act traced from your sketch at about 1.2 m per unit: seven areas and about 1.2 km² to walk",
+    "Storskogen: open meadows, a thicket, an esker ridge, a lookout hill and a kettle-hole hollow, and no slope in the act steeper than 20°",
+    "12 quests (7 main, 5 side): about 80 minutes for the story, 1 h 55 min for everything",
+    "Two blueprints and ten screenshots, A–J, all made from the same world data"
+   ],
+   "items": [
+    {
+     "id": "s-act1map",
+     "type": "frame",
+     "status": "new",
+     "title": "Act 1: the whole act",
+     "author": "claude"
+    },
+    {
+     "id": "am-glance",
+     "type": "note",
+     "status": "new",
+     "text": "# Act 1 at a glance\n- Seven areas traced from your act1_layout.png, at about 1.2 m per sketch unit\n- **Tallmo** (town) opens onto **Storskogen**, the hub\n- From Storskogen: **Härddalen** to the north-east, **Gamla gården** to the east, **Dimskogen** to the north-west\n- Dimskogen leads down to **Dimmyren**, then a winding path west to **Ödeskogen**, where the act ends\n- About 1.2 km² to walk; Storskogen alone is about 720 × 650 m",
+     "author": "claude"
+    },
+    {
+     "id": "am-names",
+     "type": "note",
+     "status": "new",
+     "text": "# Zone names (suggestions)\n- **Tallmo**: the town\n- **Storskogen**: the fairmeadow\n- **Härddalen**: Hearthvale\n- **Gamla gården**: the Old Courtyard\n- **Dimskogen**: the Misty Woods\n- **Dimmyren**: the Misty Swamp\n- **Ödeskogen**: the Forsaken Forest",
+     "author": "claude"
+    },
+    {
+     "id": "am-story",
+     "type": "note",
+     "status": "new",
+     "text": "# Main story (placeholder)\n- **1 Vägen ut:** clear the road to the crossroads\n- **4 Vårdkasen:** light the beacon on the lookout hill\n- **5 Den kalla härden:** find the survivors of the burned farm\n- **8 Förvaltarens brev:** the steward's letter points to the fog\n- **9 När dimman kommer:** follow the wisps into Dimskogen\n- **11 De sjunkna stenarna:** raise the sunken rune stones\n- **12 Den hornkrönte:** face the Antlered One at the dead tree\n\nPlus 5 side quests. Main story about 80 min, everything about 1 h 55 min.",
+     "author": "claude"
+    },
+    {
+     "id": "am-terrain",
+     "type": "note",
+     "status": "new",
+     "text": "# Storskogen terrain\n- Open meadows: **Stora ängen** and **Hagen**\n- Dense pine and spruce: **Tätskogen**\n- Raised: **Åsen**, an 11 m esker ridge with a trail on top, and **Utsiktsberget**, an 18 m lookout hill\n- Lowered: **Trollgrytan**, a 10 m deep kettle hole with a grove, a tarn and a stone circle\n- Steepest slope anywhere in Act 1 is 20°, so all of it is walkable",
+     "author": "claude"
+    },
+    {
+     "id": "am-questions",
+     "type": "note",
+     "status": "new",
+     "text": "# Open questions\n- Do the Swedish zone names work, or should some stay English?\n- Should the fog stay with Dimskogen and beyond, or roll in and out anywhere?\n- Is Tallmo big enough, or should it grow?\n- Is 7 main and 5 side quests the right mix?\n- Do the zone sizes feel right for 1–2 hours?",
+     "author": "claude"
+    },
+    {
+     "id": "am-blueprint",
+     "type": "image",
+     "status": "new",
+     "caption": "Act 1 blueprint: all zones, roads, quests (pins 1–12), waystones and the camera spots A–J for the screenshots below.",
+     "assetId": "1d512305edf3924cbfe5002340e2ad23",
+     "file": "renders/act1/blueprint_act1_first.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "am-storskogen",
+     "type": "image",
+     "status": "new",
+     "caption": "Storskogen in detail: 2 m contours, landforms, quests 1–4 and a height profile across the hollow, the esker and the hill.",
+     "assetId": "d9366fd8fccefc2ea973386703dacc31",
+     "file": "renders/act1/blueprint_storskogen_first.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-b",
+     "type": "image",
+     "status": "new",
+     "caption": "B · Stora ängen: the open meadow. Wolves close in on the sheep. Low camera.",
+     "assetId": "ba5d44ff7603aa2b24448b87cf12ad55",
+     "file": "renders/act1/angen.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-c",
+     "type": "image",
+     "status": "new",
+     "caption": "C · Tätskogen: the thicket of pine and spruce. Default camera.",
+     "assetId": "2825ef7b7eaf640c110b598e2b929f82",
+     "file": "renders/act1/tatskogen.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-d",
+     "type": "image",
+     "status": "new",
+     "caption": "D · Utsiktsberget: the lit beacon and the tower, looking out over the forest. Low camera.",
+     "assetId": "b2cce1ce639f266656597472b399249b",
+     "file": "renders/act1/utsikten.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-e",
+     "type": "image",
+     "status": "new",
+     "caption": "E · Trollgrytan: walking down into the kettle hole, with the tarn and stone circle at the bottom.",
+     "assetId": "0e88e61a771e18c5981bbd5e67b678f2",
+     "file": "renders/act1/trollgrytan.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-a",
+     "type": "image",
+     "status": "new",
+     "caption": "A · Tallmo: the town square with the longhouse, market stalls, a well sweep and the waystone. Default high camera.",
+     "assetId": "475f2ff387ec49325733d8784b6b8041",
+     "file": "renders/act1/tallmo.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-f",
+     "type": "image",
+     "status": "new",
+     "caption": "F · Härddalen: the burned farm still smoulders next to the barn.",
+     "assetId": "0ba6f3db26d9c0a5ce680d0972e2c773",
+     "file": "renders/act1/harddalen.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-g",
+     "type": "image",
+     "status": "new",
+     "caption": "G · Gamla gården at sunset: the ruined manor, its walls and the cobbled yard.",
+     "assetId": "d25caf500d2576958cd3bc4805299ee4",
+     "file": "renders/act1/gamlagarden.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-h",
+     "type": "image",
+     "status": "new",
+     "caption": "H · Dimskogen: the lantern path in the fog.",
+     "assetId": "c241811e67b02156fceb91f3adea4b2d",
+     "file": "renders/act1/dimskogen.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-i",
+     "type": "image",
+     "status": "new",
+     "caption": "I · Dimmyren: the spirit stag beyond the bog, with the boardwalk to the left.",
+     "assetId": "97ce5425b1d701d59fd5edd13b36fcf6",
+     "file": "renders/act1/dimmyren.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-shot-j",
+     "type": "image",
+     "status": "new",
+     "caption": "J · Ödeskogen: fighting Den hornkrönte (the Antlered One) at the dead tree.",
+     "assetId": "e064604ed2d65d53d15628b60bbf845d",
+     "file": "renders/act1/odeskogen.png",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/09_act1_town_and_meadow.jpg",
+     "caption": "An early Tallmo, still mostly a bare dirt square, and Stora ängen from a low camera"
+    },
+    {
+     "file": "renders/wip/10_act1_preview_round.jpg",
+     "caption": "A preview round of the other eight zones: the thicket still sparse, Trollgrytan flat, Dimskogen's view blocked by tree crowns"
+    },
+    {
+     "file": "renders/wip/11_act1_first_full_set.jpg",
+     "caption": "The first full-size set: Tallmo still a big dirt square, the thicket too open, the hollow at Trollgrytan hard to see"
+    },
+    {
+     "file": "renders/wip/12_act1_with_hud.jpg",
+     "caption": "With the HUD, before the last fixes: Trollgrytan doesn't read as a hollow yet, and the hero sits at the bottom edge in Dimmyren"
+    },
+    {
+     "file": "renders/wip/13_act1_last_fixes.jpg",
+     "caption": "The second-to-last round: Trollgrytan as published; Dimskogen's camera went up once more after this"
+    }
+   ]
+  },
+  {
+   "id": "repo",
+   "date": "2026-10-03",
+   "asked_at": "16:27",
+   "posted_at": "16:38",
+   "title": "Saved in git",
+   "section": "Repository",
+   "asked": "Store the progress in the wfarpg folder, under version control with git.",
+   "changed": [
+    "A git repository with the mockup scripts, every final render, the fonts and a snapshot of the board: 86 files, about 82 MB",
+    "The blueprints regenerated so Trollgrytan and camera spot E match the final screenshots, then swapped in on the board",
+    "A fix found while testing: the HUD now works on preview renders too"
+   ],
+   "items": [
+    {
+     "id": "am-blueprint",
+     "type": "image",
+     "status": "replaced",
+     "changed": [
+      "assetId"
+     ],
+     "caption": "Act 1 blueprint: all zones, roads, quests (pins 1–12), waystones and the camera spots A–J for the screenshots below.",
+     "assetId": "ece160df2ab7a1ecc9953e9c63ec14e4",
+     "file": "renders/act1/blueprint_act1.png",
+     "author": "claude"
+    },
+    {
+     "id": "am-storskogen",
+     "type": "image",
+     "status": "replaced",
+     "changed": [
+      "assetId"
+     ],
+     "caption": "Storskogen in detail: 2 m contours, landforms, quests 1–4 and a height profile across the hollow, the esker and the hill.",
+     "assetId": "5d4e59d70ff9ef6b2d42c2735a671fb7",
+     "file": "renders/act1/blueprint_storskogen.png",
+     "author": "claude"
+    }
+   ],
+   "wip": []
+  },
+  {
+   "id": "history-log",
+   "date": "2026-10-03",
+   "asked_at": "16:41",
+   "posted_at": "17:07",
+   "title": "The design history",
+   "section": "Top of the board",
+   "asked": "Put all the screenshots that were generated, and the notes written with them, into a history log that shows the versions from the first to the newest.",
+   "changed": [
+    "This page: every step from the first sketch to the whole of Act 1, with the board's notes word for word as they read at the end of each step",
+    "The 13 in-between renders that still existed, such as the first all-black one, saved to the repo in renders/wip/",
+    "The first published blueprints kept next to the updated ones",
+    "A Design history link on the board, next to the Tools note",
+    "New steps are recorded from the board itself, so the log stays word for word"
+   ],
+   "items": [
+    {
+     "id": "history-link",
+     "type": "link",
+     "status": "new",
+     "title": "Design history",
+     "text": "Every step of this board so far, from the first sketch to the whole of Act 1: your requests, what changed, every screenshot and earlier attempt, and the notes as they read at each step.",
+     "url": "https://claude.ai/artifact/L74mBkoQbstMGxKg7S1cND",
+     "author": "claude"
+    }
+   ],
+   "wip": []
+  }
+ ]
+}

@@ -679,6 +679,19 @@
   "y": -910,
   "z": 51
  },
+ "history-link": {
+  "author": "claude",
+  "createdAt": 1791040032878,
+  "text": "Every step of this board so far, from the first sketch to the whole of Act 1: your requests, what changed, every screenshot and earlier attempt, and the notes as they read at each step.",
+  "title": "Design history",
+  "type": "link",
+  "updatedAt": 1791040032878,
+  "url": "https://claude.ai/artifact/L74mBkoQbstMGxKg7S1cND",
+  "w": 360,
+  "x": 1048,
+  "y": -1660,
+  "z": 89
+ },
  "hud-about": {
   "author": "claude",
   "color": "paper",

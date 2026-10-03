@@ -15,6 +15,28 @@ are no `.blend` files. Rerunning a script gives the same picture, apart from fai
   Want / Maybe / Avoid mark.
 - `board/assets.json`: which file under `renders/` each image on the board is.
 
+## Design history
+
+`HISTORY.html` logs every step of the board, from the first sketch to the newest mockups. Each step shows the request,
+what changed, the images, any earlier attempts, and the board's notes word for word as they read at the end of that
+step. Open it in a browser from this folder. A private copy is published at
+<https://claude.ai/artifact/L74mBkoQbstMGxKg7S1cND>.
+
+- `board/history.json`: the history data. Each step lists the board items it added or changed, as they read at the end
+  of the step, and its earlier attempts.
+- `history_log.py`: builds the page from it.
+- `renders/wip/`: in-between renders shown as earlier attempts.
+
+After a step that changes the board:
+
+1. Refresh `board/items.json` and `board/assets.json` from the live board.
+2. Run `python3 history_log.py --record <step-id>`. It appends a step with every item added, changed or removed since
+   the last step.
+3. In `board/history.json`, fill in that step's `asked_at`, `title`, `section`, `asked` and `changed`. List any
+   in-between renders saved to `renders/wip/` under `wip`.
+4. Run `python3 history_log.py` to rebuild `HISTORY.html`, and `python3 history_log.py --web build/history_web` for the
+   web copy. Publish `build/history_web/index.html` to the URL above, together with its `img/` and `fonts/` files.
+
 ## Act 1 pipeline
 
 | Script | What it does |
@@ -64,9 +86,10 @@ The final images shown on the board, by board section:
 | `renders/forest_v1`, `forest_v2`, `forest_v3` | Act 1: Pine forest (versions 1–3 of the close-ups) |
 | `renders/camera` | Camera control |
 | `renders/hud_v1`, `renders/hud_v2` | HUD style |
-| `renders/act1` | Act 1: the whole act |
+| `renders/act1` | Act 1: the whole act (`*_first.jpg` are the blueprints as first published) |
 | `renders/diagrams` | Game mechanics |
 | `renders/reference_copies` | Smaller copies of `ref_imgs/` used on the board |
+| `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History
 

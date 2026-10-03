@@ -48,6 +48,10 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
 - Items you add must set `author: "claude"`. Items without it were added by the user.
 - `mockups/board/items.json` is a snapshot of the board's database and `mockups/board/assets.json` maps each image id to
   its file under `mockups/renders/`. The live board is the source of truth; refresh the snapshot after changing the board.
+- The design history logs every step of the board, with notes word for word as they read at each step:
+  `mockups/HISTORY.html`, built from `mockups/board/history.json` and published at
+  https://claude.ai/artifact/L74mBkoQbstMGxKg7S1cND. After a step that changes the board, record it and republish the
+  page to that URL, as described in `mockups/README.md`. Keep in-between renders worth showing in `mockups/renders/wip/`.
 
 ## Repository layout
 
