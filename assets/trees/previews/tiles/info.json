@@ -3,9 +3,9 @@
   "name": "Scots pine",
   "swedish": "Tall",
   "latin": "Pinus sylvestris",
-  "height": 17.8,
-  "faces": 758,
-  "cards": 117
+  "height": 17.2,
+  "faces": 1521,
+  "cards": 880
  },
  "SilverBirch": {
   "name": "Silver birch",
@@ -19,7 +19,7 @@
   "name": "Norway spruce",
   "swedish": "Gran",
   "latin": "Picea abies",
-  "height": 17.0,
+  "height": 17.1,
   "faces": 4580,
   "cards": 1791
  },
@@ -27,7 +27,7 @@
   "name": "Aspen",
   "swedish": "Asp",
   "latin": "Populus tremula",
-  "height": 15.3,
+  "height": 15.4,
   "faces": 683,
   "cards": 225
  },
@@ -43,7 +43,7 @@
   "name": "Alder",
   "swedish": "Klibbal",
   "latin": "Alnus glutinosa",
-  "height": 12.0,
+  "height": 11.9,
   "faces": 650,
   "cards": 222
  },

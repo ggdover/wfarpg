@@ -1946,7 +1946,7 @@
    "posted_at": "19:41",
    "title": "Tree portfolio",
    "section": "Tree portfolio",
-   "cover": "../assets/trees/previews/grove_game_view.png",
+   "cover": "../assets/trees/previews/v1/grove_game_view.png",
    "asked": "Start a portfolio of assets, beginning with trees to replace the current ones: the trees of a Swedish forest from your new reference sheet, as low-poly 3D models made in Blender with Python and viewable in Blender. Trunks and branches low-poly; leaf clumps made with crossed planes, several copies of a leaf card intersecting at different angles around the same centre.",
    "changed": [
     "Scots pine, silver birch, Norway spruce, aspen, rowan, alder and juniper, two variants of each, in assets/trees/tree_portfolio.blend",
@@ -1981,7 +1981,7 @@
      "status": "new",
      "caption": "The seven species, variant A, each with a 1.8 m person for scale, and the leaf cards.",
      "assetId": "6ea40ea4cd679a99615416161a6deac7",
-     "file": "../assets/trees/previews/portfolio.png",
+     "file": "../assets/trees/previews/v1/portfolio.png",
      "author": "claude"
     },
     {
@@ -1990,7 +1990,7 @@
      "status": "new",
      "caption": "A mixed grove from the game camera: pines, spruces, birches, aspens, rowans, alders and junipers.",
      "assetId": "773efaa1c61edf04ae2e960d84053d5f",
-     "file": "../assets/trees/previews/grove_game_view.png",
+     "file": "../assets/trees/previews/v1/grove_game_view.png",
      "author": "claude"
     },
     {
@@ -2006,7 +2006,7 @@
      "status": "new",
      "caption": "The leaf cards: one 512 × 512 texture per species, crossed three times per clump.",
      "assetId": "9e27503dcad107a7b4850111a57f58f5",
-     "file": "../assets/trees/previews/leaf_cards.png",
+     "file": "../assets/trees/previews/v1/leaf_cards.png",
      "author": "claude"
     },
     {
@@ -2015,7 +2015,7 @@
      "status": "new",
      "caption": "Row A in the .blend, with name signs.",
      "assetId": "793ca9ad4f65e21cd69b34c621f2e30b",
-     "file": "../assets/trees/previews/row_a.png",
+     "file": "../assets/trees/previews/v1/row_a.png",
      "author": "claude"
     },
     {
@@ -2024,11 +2024,104 @@
      "status": "new",
      "caption": "Row B: a second variant of each species, from a different seed.",
      "assetId": "069be6d16e76a4e758d51bec718e5730",
-     "file": "../assets/trees/previews/row_b.png",
+     "file": "../assets/trees/previews/v1/row_b.png",
      "author": "claude"
     }
    ],
    "wip": []
+  },
+  {
+   "id": "tree-editor",
+   "date": "2026-10-03",
+   "asked_at": "19:59",
+   "posted_at": "20:14",
+   "title": "Tree editor",
+   "section": "Tree editor",
+   "cover": "../assets/trees/previews/v2/grove_game_view.png",
+   "asked": "The Scots pine's leaf card is too big to give the patchy look, and it isn't crossed enough times, so it looks like crossed planes rather than leaves. Make an editor for trying different leaf cards on each tree, five unique cards per tree, with sliders for how big the cards are, how many cards intersect in each patch and other settings, to tune until the trees look right.",
+   "changed": [
+    "Five leaf cards for each tree, 35 in all, plus berry versions of the rowan's",
+    "A Trees tab in Blender's sidebar: pick a tree and a card from thumbnails, then sliders for card size, cards per clump, clumps (patches), patch spread, clump height, angle randomness, leaf colour, tree height, crown width and seed",
+    "The trees rebuild live as the sliders move, in both variants and in the grove; Save settings keeps them for the next full build",
+    "The Scots pine retuned: cards about half the size, crossed five times, packed into flat pads"
+   ],
+   "found": [
+    "Many small tufts scattered at random only made the crown look polka-dotted; packing them into the flat space a big clump took turned them into pads",
+    "Changing leaf settings never moves a tree's trunk and branches, because the leaves use their own random numbers"
+   ],
+   "items": [
+    {
+     "id": "s-editor",
+     "type": "frame",
+     "status": "new",
+     "title": "Tree editor",
+     "author": "claude"
+    },
+    {
+     "id": "te-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Tree editor\nTry leaf cards and clump settings on the trees in Blender:\n- Open `assets/trees/tree_portfolio.blend` and click **Allow Execution** when Blender asks\n- Press **N** in the 3D viewport and pick the **Trees** tab\n\nPick a tree, then one of its five leaf cards, and move the sliders: card size, cards per clump, clumps (patches), patch spread, clump height, angle randomness, leaf colour, tree height, crown width and seed. The tree rebuilds as you go.\n\n**Save settings** keeps them; tell me when you have, and I'll rebuild the portfolio and its renders from them.",
+     "author": "claude"
+    },
+    {
+     "id": "te-pine-img",
+     "type": "image",
+     "status": "new",
+     "caption": "Scots pine before (left) and after (right): small tufts crossed five times, packed into pads.",
+     "assetId": "e3d58b7192eb365290e5405510007393",
+     "file": "../assets/trees/previews/v2/pine_before_after.png",
+     "author": "claude"
+    },
+    {
+     "id": "te-cards",
+     "type": "image",
+     "status": "new",
+     "caption": "The leaf cards: five designs for each tree to try in the editor (rowan's also come with berries).",
+     "assetId": "ba1e1efd401e27ef01709788e2682260",
+     "file": "../assets/trees/previews/v2/leaf_cards.png",
+     "author": "claude"
+    },
+    {
+     "id": "te-pine",
+     "type": "note",
+     "status": "new",
+     "text": "# Scots pine, retuned\n- Smaller cards, about half the old size, each clump crossed 5 times instead of 3\n- 4.5 clumps packed into a flat pad at each spot on the branches\n- The crown reads as patches of needles instead of a few big crossed planes",
+     "author": "claude"
+    },
+    {
+     "id": "te-sheet",
+     "type": "image",
+     "status": "new",
+     "caption": "The portfolio with the retuned pine; the other trees keep their first card, as before.",
+     "assetId": "ce1f71ba5475ca5945bde83a14f3528d",
+     "file": "../assets/trees/previews/v2/portfolio.png",
+     "author": "claude"
+    },
+    {
+     "id": "te-grove",
+     "type": "image",
+     "status": "new",
+     "caption": "The grove from the game camera, with the retuned pines.",
+     "assetId": "fdd8d2bc942491b8af9f5ca71ac279ce",
+     "file": "../assets/trees/previews/v2/grove_game_view.png",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/18_pine_trial_1.jpg",
+     "caption": "First pine trials (left: the old look): small tufts scattered round each spot read as polka dots"
+    },
+    {
+     "file": "renders/wip/19_pine_trial_2.jpg",
+     "caption": "Tufts packed into the space of the old clump: tighter, but the crown still lacked mass"
+    },
+    {
+     "file": "renders/wip/20_pine_trial_3.jpg",
+     "caption": "Fuller pads; the middle one, tuft clusters crossed five times, became the default"
+    }
+   ]
   }
  ]
 }

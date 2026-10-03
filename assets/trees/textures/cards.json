@@ -1,0 +1,51 @@
+{
+ "pine": [
+  "Tuft cluster",
+  "Single tuft",
+  "Twig with tufts",
+  "Long, sparse needles",
+  "Packed pad"
+ ],
+ "spruce": [
+  "Hanging curtain",
+  "Flat comb",
+  "Upturned tip",
+  "Dense mass",
+  "Short spray"
+ ],
+ "birch": [
+  "Hanging twigs",
+  "Sparse strands",
+  "Round cluster",
+  "With catkins",
+  "Late summer"
+ ],
+ "aspen": [
+  "Twig fan",
+  "Round cluster",
+  "Small leaves",
+  "Autumn",
+  "Pale undersides"
+ ],
+ "rowan": [
+  "Radial",
+  "Few, large leaves",
+  "Dense",
+  "Autumn",
+  "Young, light"
+ ],
+ "alder": [
+  "Twig fan",
+  "Round cluster",
+  "Cones and catkins",
+  "Small leaves",
+  "Deep green"
+ ],
+ "juniper": [
+  "Twig fan",
+  "Prickly ball",
+  "Upright spikes",
+  "Silver blue",
+  "Many berries"
+ ]
+}

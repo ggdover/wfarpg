@@ -66,7 +66,9 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
 
 - `ref_imgs/`: the user's reference images, the Act 1 layout sketch and the tree reference sheet.
 - `assets/`: game assets. `assets/trees/` is the tree portfolio: low-poly Swedish forest trees built in Blender by
-  Python scripts, saved in `tree_portfolio.blend`. See its README.
+  Python scripts, saved in `tree_portfolio.blend`, with a tree editor (a Trees tab in Blender's sidebar) for tuning
+  leaf cards and clumps. The user's tuned settings are in `assets/trees/tree_settings.json`; build from them, not
+  from the defaults in `treegen.py`. See its README.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building
   scenes in Blender in background mode. `mockups/act1_world.py` holds the Act 1 layout as data. See `mockups/README.md`
   for how to rerun them. Generated output goes to `mockups/build/` (ignored by git); curated final images live in

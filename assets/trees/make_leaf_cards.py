@@ -1,11 +1,14 @@
-"""Leaf cards for the tree portfolio: one texture per species, with a transparent background.
+"""Leaf cards for the tree portfolio: five designs per species, each a texture with a transparent background.
 
-    python3 make_leaf_cards.py      writes textures/<card>.png (512 x 512) and previews/leaf_cards.png
+    python3 make_leaf_cards.py      writes textures/<species>_<1-5>.png (512 x 512) and previews/leaf_cards.png
 
-Each card is a cluster of leaves or needles. make_trees.py crosses three copies of a card at their centre to make a
-leaf clump. Leaves are drawn as two flat halves, one lighter and one darker, to match the faceted low-poly props.
-The transparent pixels carry the cards' average leaf colour, so filtered edges don't get dark or white fringes.
+Each card is a cluster of leaves or needles. The trees cross several copies of a card at their centre to make a leaf
+clump; the tree editor (tree_editor.py) picks the card and how the copies are crossed. Rowan cards also come with
+berries, as textures/rowan_<n>_berries.png. Leaves are drawn as two flat halves, one lighter and one darker, to match
+the faceted low-poly props. The transparent pixels carry the card's average leaf colour, so filtered edges don't get
+dark or white fringes.
 """
+import json
 import math
 import os
 import random
@@ -88,12 +91,28 @@ class Card:
         b = (start[0] + dy * width, start[1] - dx * width)
         self.d.polygon([self.px(a), self.px(tip), self.px(b)], fill=col + (255,))
 
+    def tuft(self, c, n, length, spread=None, direction=0.0, width=0.0055, pal=None):
+        """Needles fanning out from one point: all round, or spread radians either side of direction."""
+        for _ in range(n):
+            a = self.rng.uniform(0, TAU) if spread is None else direction + self.rng.gauss(0, spread)
+            s = self.rng.uniform(0.0, 0.02)
+            self.needle((c[0] + math.cos(a) * s, c[1] + math.sin(a) * s), a, length * self.rng.uniform(0.65, 1.0), width,
+                        self.colour(pal) if pal else None)
+
     def berry(self, c, r, col, hi):
         x, y = self.px(c)
         rr = r * N
         self.d.ellipse([x - rr, y - rr, x + rr, y + rr], fill=rgb(col) + (255,))
         h = rr * 0.38
         self.d.ellipse([x - rr * 0.45 - h, y - rr * 0.45 - h, x - rr * 0.45 + h, y - rr * 0.45 + h], fill=rgb(hi) + (255,))
+
+    def needles_along(self, tw, step=0.0055, length=(0.03, 0.045), angle=(0.9, 1.35), width=0.0045):
+        total = sum(math.dist(tw[i], tw[i + 1]) for i in range(len(tw) - 1))
+        for j in range(int(total / step)):
+            f = j * step / total
+            p, h = at(tw, f), heading(tw, f)
+            for side in (1, -1):
+                self.needle(p, h + side * self.rng.uniform(*angle), self.rng.uniform(*length) * (1.05 - 0.4 * f), width)
 
     def save(self, name):
         os.makedirs(OUT, exist_ok=True)
@@ -104,13 +123,10 @@ class Card:
 
 def curve_pts(p0, ang, length, bend, n=8, droop=0.0):
     """Points along a gently curving twig: bend turns it sideways, droop pulls it down."""
-    pts = []
-    for i in range(n + 1):
+    pts = [p0]
+    for i in range(1, n + 1):
         t = i / n
         a = ang + bend * t
-        if i == 0:
-            pts.append(p0)
-            continue
         x, y = pts[-1]
         step = length / n
         pts.append((x + math.cos(a) * step, y + math.sin(a) * step - droop * step * t))
@@ -135,94 +151,176 @@ ROUND = lambda t: math.sin(math.pi * t) ** 0.55                       # aspen
 OVAL = lambda t: math.sin(math.pi * min(t, 0.97)) ** 0.5               # alder, with a notched tip
 LANCE = lambda t: math.sin(math.pi * t) ** 0.9                        # rowan leaflets
 
+PINE_GREEN = ["#3B5A35", "#48683E", "#557548", "#5F7F4E", "#6B8A55"]
+SPRUCE_GREEN = ["#1E3A25", "#25442C", "#2D5033", "#355A3A", "#3F6644"]
+BIRCH_GREEN = ["#7DA03A", "#8BAE43", "#99BA4C", "#A9C659", "#B8CF66"]
+ASPEN_GREEN = ["#7C9C43", "#8AAA4C", "#98B656", "#A7C062", "#BCC66C"]
+ROWAN_GREEN = ["#4C7A2C", "#588634", "#64923C", "#71A045", "#7FAA4E"]
+ALDER_GREEN = ["#33592A", "#3C6530", "#467238", "#517E40", "#5C884A"]
+JUNIPER_GREEN = ["#3E5C4C", "#4A6A58", "#577664", "#668470", "#78927E"]
 
-def pine():
-    c = Card(["#3B5A35", "#48683E", "#557548", "#5F7F4E", "#6B8A55"], 11)
-    r = c.rng
-    tufts = [(0.5, 0.5, 0.21)]  # x, y, needle length: a full round cluster of tufts
-    for ring, (rad, n, length) in enumerate(((0.16, 6, 0.19), (0.3, 9, 0.15))):
-        for k in range(n):
-            a = k * TAU / n + ring * 0.35 + r.uniform(-0.2, 0.2)
-            tufts.append((0.5 + rad * math.cos(a), 0.5 + rad * math.sin(a), length))
-    for tx, ty, _ in tufts[1:]:
-        c.twig([(0.5, 0.5), (tx, ty)], 0.01, "#7A4E2E")
-    for i, (tx, ty, length) in enumerate(tufts):
-        base = math.atan2(ty - 0.5, tx - 0.5)
-        for _ in range(80):
-            a = r.uniform(0, TAU) if i == 0 else base + r.gauss(0, 0.85)
-            st = r.uniform(0.0, 0.03)
-            c.needle((tx + math.cos(a) * st, ty + math.sin(a) * st), a, length * r.uniform(0.7, 1.0), 0.0055)
+
+# ------------------------------------------------------------------ Scots pine
+def pine(v):
+    if v == 1:  # a round cluster of tufts on twigs
+        c = Card(PINE_GREEN, 11)
+        r = c.rng
+        tufts = [(0.5, 0.5, 0.21)]
+        for ring, (rad, n, length) in enumerate(((0.16, 6, 0.19), (0.3, 9, 0.15))):
+            for k in range(n):
+                a = k * TAU / n + ring * 0.35 + r.uniform(-0.2, 0.2)
+                tufts.append((0.5 + rad * math.cos(a), 0.5 + rad * math.sin(a), length))
+        for tx, ty, _ in tufts[1:]:
+            c.twig([(0.5, 0.5), (tx, ty)], 0.01, "#7A4E2E")
+        for i, (tx, ty, length) in enumerate(tufts):
+            c.tuft((tx, ty), 80, length, None if i == 0 else 0.85, math.atan2(ty - 0.5, tx - 0.5))
+    elif v == 2:  # one dense tuft filling the card: small round clumps for packing into patches
+        c = Card(PINE_GREEN, 21)
+        c.tuft((0.5, 0.5), 260, 0.44, width=0.007)
+        c.tuft((0.5, 0.5), 90, 0.3, width=0.007, pal=["#6B8A55", "#7A9860"])
+    elif v == 3:  # a twig with tufts along it
+        c = Card(PINE_GREEN, 31)
+        r = c.rng
+        tw = curve_pts((0.12, 0.36), 0.35, 0.68, -0.3, 10)
+        c.twig(tw, 0.012, "#7A4E2E")
+        for f in (0.25, 0.42, 0.58, 0.74, 0.9, 1.0):
+            p = at(tw, f)
+            c.tuft(p, 70, r.uniform(0.15, 0.2), 0.9, heading(tw, f) + r.uniform(-0.4, 0.4))
+    elif v == 4:  # sparse, long needles: an airy, light clump
+        c = Card(["#55753F", "#62824A", "#6F8E54", "#7C9A5E"], 41)
+        r = c.rng
+        for k in range(4):
+            a = k * TAU / 4 + 0.6
+            p = (0.5 + 0.12 * math.cos(a), 0.5 + 0.12 * math.sin(a))
+            c.twig([(0.5, 0.5), p], 0.009, "#7A4E2E")
+            c.tuft(p, 45, r.uniform(0.27, 0.33), 0.9, a, width=0.0045)
+    else:  # a packed pad of short tufts, darker inside: a painted look
+        c = Card(PINE_GREEN, 51)
+        r = c.rng
+        pts = []
+        while len(pts) < 26:
+            p = (r.uniform(0.18, 0.82), r.uniform(0.25, 0.75))
+            if ((p[0] - 0.5) / 0.34) ** 2 + ((p[1] - 0.5) / 0.26) ** 2 < 1:
+                pts.append(p)
+        for p in sorted(pts, key=lambda p: -abs(p[1] - 0.5)):
+            inner = 1 - min(1.0, math.dist(p, (0.5, 0.5)) / 0.34)
+            pal = ["#34522F", "#3F5E37"] if inner > 0.6 else None
+            c.tuft(p, 60, r.uniform(0.09, 0.13), width=0.006, pal=pal)
     return c
 
 
-def spruce():
-    c = Card(["#1E3A25", "#25442C", "#2D5033", "#355A3A", "#3F6644"], 12)
+# ------------------------------------------------------------------ Norway spruce
+def spruce(v):
+    c = Card(SPRUCE_GREEN, 12 + 10 * v)
     r = c.rng
-    main = curve_pts((0.06, 0.76), -0.04, 0.88, -0.1, 12)
-    twigs = [main]
-    for k in range(9):  # a curtain of branchlets hanging from the twig, as on a Norway spruce
-        f = 0.08 + 0.84 * k / 8
-        twigs.append(curve_pts(at(main, f), -math.pi / 2 + r.uniform(-0.35, 0.35), r.uniform(0.38, 0.58) * (1.1 - 0.5 * abs(f - 0.5)), r.uniform(-0.3, 0.3), 8))
-    for f in (0.15, 0.3, 0.45, 0.6, 0.75, 0.88):  # and a few reaching up and out
-        twigs.append(curve_pts(at(main, f), heading(main, f) + r.uniform(0.6, 0.9), r.uniform(0.12, 0.2), -0.3, 5))
+    twigs = []
+    if v == 1:  # a curtain of branchlets hanging from a twig
+        main = curve_pts((0.06, 0.76), -0.04, 0.88, -0.1, 12)
+        twigs.append(main)
+        for k in range(9):
+            f = 0.08 + 0.84 * k / 8
+            twigs.append(curve_pts(at(main, f), -math.pi / 2 + r.uniform(-0.35, 0.35), r.uniform(0.38, 0.58) * (1.1 - 0.5 * abs(f - 0.5)), r.uniform(-0.3, 0.3), 8))
+        for f in (0.15, 0.3, 0.45, 0.6, 0.75, 0.88):
+            twigs.append(curve_pts(at(main, f), heading(main, f) + r.uniform(0.6, 0.9), r.uniform(0.12, 0.2), -0.3, 5))
+    elif v == 2:  # a flat comb: side twigs both ways along a twig
+        main = curve_pts((0.06, 0.5), 0.0, 0.88, -0.1, 12)
+        twigs.append(main)
+        for k, f in enumerate([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]):
+            side = 1 if k % 2 else -1
+            twigs.append(curve_pts(at(main, f), heading(main, f) + side * r.uniform(0.7, 0.95), r.uniform(0.2, 0.32) * (1.15 - f * 0.5), side * -0.3, 6))
+    elif v == 3:  # a branch tip with shoots turning up
+        main = curve_pts((0.06, 0.3), 0.15, 0.8, 0.5, 12)
+        twigs.append(main)
+        for f in (0.3, 0.45, 0.6, 0.75, 0.88):
+            for side in (1, -1):
+                twigs.append(curve_pts(at(main, f), heading(main, f) + side * 0.8, r.uniform(0.14, 0.22), side * 0.6, 6))
+    elif v == 4:  # a dense mass seen from above
+        for k in range(12):
+            a = k * TAU / 12 + r.uniform(-0.15, 0.15)
+            twigs.append(curve_pts((0.5, 0.5), a, r.uniform(0.3, 0.42), r.uniform(-0.4, 0.4), 8))
+    else:  # a short, compact spray for small clumps
+        main = curve_pts((0.2, 0.42), 0.25, 0.6, -0.2, 10)
+        twigs.append(main)
+        for f in (0.2, 0.35, 0.5, 0.65, 0.8):
+            for side in (1, -1):
+                twigs.append(curve_pts(at(main, f), heading(main, f) + side * 0.9, r.uniform(0.12, 0.18), side * -0.2, 5))
     for tw in twigs:
         c.twig(tw, 0.007, "#5A4030")
     for tw in twigs:
-        length = sum(math.dist(tw[i], tw[i + 1]) for i in range(len(tw) - 1))
-        for j in range(int(length / 0.0055)):
-            f = j * 0.0055 / length
-            p, h = at(tw, f), heading(tw, f)
-            for side in (1, -1):
-                c.needle(p, h + side * r.uniform(0.9, 1.35), r.uniform(0.03, 0.045) * (1.05 - 0.4 * f), 0.0045)
+        c.needles_along(tw)
     return c
 
 
-def birch():
-    c = Card(["#7DA03A", "#8BAE43", "#99BA4C", "#A9C659", "#B8CF66"], 13)
+# ------------------------------------------------------------------ silver birch
+def birch(v):
+    pal = BIRCH_GREEN + (["#C9C25A", "#D4C467"] if v == 5 else [])
+    c = Card(pal, 13 + 10 * v)
     r = c.rng
-    for k in range(11):
-        x0 = 0.16 + 0.68 * k / 10 + r.uniform(-0.03, 0.03)
-        tw = curve_pts((x0, r.uniform(0.82, 0.94)), -math.pi / 2 + r.uniform(-0.35, 0.35), r.uniform(0.6, 0.78), r.uniform(-0.4, 0.4), 10)
+    if v == 3:  # a round cluster, no hanging strands
+        for k in range(9):
+            tw = curve_pts((0.5, 0.5), k * TAU / 9 + r.uniform(-0.15, 0.15), r.uniform(0.26, 0.34), r.uniform(-0.4, 0.4), 6)
+            c.twig(tw, 0.0045, "#4A3B30")
+            for j in range(6):
+                f = 0.15 + 0.85 * j / 5
+                c.leaf(at(tw, f), heading(tw, f) + (1 if j % 2 else -1) * r.uniform(0.45, 1.0), r.uniform(0.07, 0.095), r.uniform(0.048, 0.058), DELTOID, serr=0.12)
+        return c
+    strands = {1: 11, 2: 6, 4: 10, 5: 11}[v]
+    for k in range(strands):
+        x0 = 0.16 + 0.68 * k / (strands - 1) + r.uniform(-0.03, 0.03)
+        tw = curve_pts((x0, r.uniform(0.82, 0.94)), -math.pi / 2 + r.uniform(-0.35, 0.35), r.uniform(0.6, 0.8), r.uniform(-0.4, 0.4), 10)
         c.twig(tw, 0.0045, "#4A3B30")
-        n = r.randint(8, 11)
+        n = r.randint(8, 11) if v != 2 else r.randint(10, 13)
         for j in range(n):
             f = 0.08 + 0.9 * j / n
-            side = 1 if j % 2 else -1
-            c.leaf(at(tw, f), heading(tw, f) + side * r.uniform(0.45, 1.0), r.uniform(0.06, 0.085), r.uniform(0.042, 0.052), DELTOID, serr=0.12)
+            c.leaf(at(tw, f), heading(tw, f) + (1 if j % 2 else -1) * r.uniform(0.45, 1.0), r.uniform(0.06, 0.085), r.uniform(0.042, 0.052), DELTOID, serr=0.12)
+        if v == 4 and k % 3 == 0:  # catkins hanging at the strand's end
+            p = tw[-1]
+            c.twig([p, (p[0] + r.uniform(-0.02, 0.02), p[1] - 0.09)], 0.016, r.choice(["#8E7A4A", "#A08A52"]))
     return c
 
 
-def aspen():
-    c = Card(["#7C9C43", "#8AAA4C", "#98B656", "#A7C062", "#BCC66C"], 14)
+# ------------------------------------------------------------------ aspen
+def aspen(v):
+    pal = {4: ["#C9B44E", "#D9C25A", "#B8A040", "#9EAA48", "#E0A84A"], 5: ASPEN_GREEN + ["#C8CDB8", "#B8BEA6"]}.get(v, ASPEN_GREEN)
+    c = Card(pal, 14 + 10 * v)
     r = c.rng
-    for k in range(8):
-        tw = curve_pts((0.5, 0.3), math.radians(30 + 120 * k / 7) + r.uniform(-0.12, 0.12), r.uniform(0.27, 0.36), r.uniform(-0.3, 0.3), 8)
+    size = 0.7 if v == 3 else 1.0
+    if v == 2 or v == 3:  # round clusters around the centre
+        twigs = [curve_pts((0.5, 0.5), k * TAU / 7 + r.uniform(-0.2, 0.2), r.uniform(0.18, 0.28), r.uniform(-0.4, 0.4), 6) for k in range(7)]
+        per = (5, 7) if v == 2 else (8, 10)
+    else:
+        twigs = [curve_pts((0.5, 0.3), math.radians(30 + 120 * k / 7) + r.uniform(-0.12, 0.12), r.uniform(0.27, 0.36), r.uniform(-0.3, 0.3), 8) for k in range(8)]
+        per = (6, 8)
+    for tw in twigs:
         c.twig(tw, 0.006, "#5E5A4A")
-        for j in range(r.randint(6, 8)):
-            f = 0.2 + 0.8 * j / 7
-            side = 1 if j % 2 else -1
+        n = r.randint(*per)
+        for j in range(n):
+            f = 0.2 + 0.8 * j / max(1, n - 1)
             p = at(tw, f)
-            a = heading(tw, f) + side * r.uniform(0.6, 1.2)
-            stalk = r.uniform(0.03, 0.045)
+            a = heading(tw, f) + (1 if j % 2 else -1) * r.uniform(0.6, 1.2)
+            stalk = r.uniform(0.03, 0.045) * size
             q = (p[0] + math.cos(a) * stalk, p[1] + math.sin(a) * stalk)
             c.twig([p, q], 0.003, "#6E7A40")
-            col = c.colour(["#C9C86E", "#B9B85E"]) if r.random() < 0.15 else None
-            c.leaf(q, a + r.uniform(-0.4, 0.4), r.uniform(0.09, 0.12), r.uniform(0.085, 0.105), ROUND, col)
+            col = c.colour(["#C9C86E", "#B9B85E"]) if (v == 1 and r.random() < 0.15) else None
+            c.leaf(q, a + r.uniform(-0.4, 0.4), r.uniform(0.09, 0.12) * size, r.uniform(0.085, 0.105) * size, ROUND, col)
     return c
 
 
-def rowan(berries=False):
-    c = Card(["#4C7A2C", "#588634", "#64923C", "#71A045", "#7FAA4E"], 16 if berries else 15)
+# ------------------------------------------------------------------ rowan
+def rowan(v, berries=False):
+    pal = {4: ["#B8461E", "#C85A24", "#9A5A2A", "#7A8A34", "#D06A2A"], 5: ["#6E9A3C", "#7EAA46", "#8EB852", "#9CC25E"]}.get(v, ROWAN_GREEN)
+    c = Card(pal, 15 + 10 * v)
     r = c.rng
-    for k in range(9):
-        a = k * TAU / 9 + r.uniform(-0.15, 0.15)
-        rach = curve_pts((0.5, 0.48), a, r.uniform(0.3, 0.38), r.uniform(-0.25, 0.25), 8)
-        c.twig(rach, 0.004, "#4E6B2E")
+    leaves, rach, leaflet = {1: (9, (0.3, 0.38), 1.0), 2: (5, (0.34, 0.42), 1.25), 3: (13, (0.26, 0.36), 0.95), 4: (9, (0.3, 0.38), 1.0), 5: (9, (0.24, 0.3), 0.8)}[v]
+    for k in range(leaves):
+        a = k * TAU / leaves + r.uniform(-0.15, 0.15)
+        rc = curve_pts((0.5, 0.48), a, r.uniform(*rach), r.uniform(-0.25, 0.25), 8)
+        c.twig(rc, 0.004, "#4E6B2E")
         for s in (0.2, 0.34, 0.48, 0.62, 0.76):
-            h = heading(rach, s)
+            h = heading(rc, s)
             for side in (1, -1):
-                c.leaf(at(rach, s), h + side * r.uniform(0.95, 1.15), r.uniform(0.065, 0.085), r.uniform(0.019, 0.023), LANCE, serr=0.15)
-        c.leaf(rach[-1], heading(rach, 1.0), r.uniform(0.07, 0.085), 0.021, LANCE, serr=0.15)
+                c.leaf(at(rc, s), h + side * r.uniform(0.95, 1.15), r.uniform(0.065, 0.085) * leaflet, r.uniform(0.019, 0.023) * leaflet, LANCE, serr=0.15)
+        c.leaf(rc[-1], heading(rc, 1.0), r.uniform(0.07, 0.085) * leaflet, 0.021 * leaflet, LANCE, serr=0.15)
     if berries:
         for k in range(3):
             a = k * TAU / 3 + r.uniform(-0.4, 0.4)
@@ -239,23 +337,27 @@ def rowan(berries=False):
     return c
 
 
-def alder():
-    c = Card(["#33592A", "#3C6530", "#467238", "#517E40", "#5C884A"], 17)
+# ------------------------------------------------------------------ alder
+def alder(v):
+    pal = {5: ["#24461E", "#2C5226", "#355E2C", "#3F6A34"]}.get(v, ALDER_GREEN)
+    c = Card(pal, 17 + 10 * v)
     r = c.rng
-    tws = []
-    for k in range(8):
-        tw = curve_pts((0.5, 0.32), math.radians(25 + 130 * k / 7) + r.uniform(-0.12, 0.12), r.uniform(0.25, 0.33), r.uniform(-0.3, 0.3), 8)
+    size = 0.72 if v == 4 else 1.0
+    if v == 2:
+        twigs = [curve_pts((0.5, 0.5), k * TAU / 7 + r.uniform(-0.2, 0.2), r.uniform(0.2, 0.28), r.uniform(-0.3, 0.3), 6) for k in range(7)]
+    else:
+        twigs = [curve_pts((0.5, 0.32), math.radians(25 + 130 * k / 7) + r.uniform(-0.12, 0.12), r.uniform(0.25, 0.33), r.uniform(-0.3, 0.3), 8) for k in range(8)]
+    for tw in twigs:
         c.twig(tw, 0.006, "#4A3E34")
-        tws.append(tw)
-        for j in range(r.randint(5, 7)):
-            f = 0.2 + 0.8 * j / 6
-            side = 1 if j % 2 else -1
+        n = r.randint(5, 7) if v != 4 else r.randint(7, 9)
+        for j in range(n):
+            f = 0.2 + 0.8 * j / max(1, n - 1)
             p = at(tw, f)
-            a = heading(tw, f) + side * r.uniform(0.6, 1.1)
+            a = heading(tw, f) + (1 if j % 2 else -1) * r.uniform(0.6, 1.1)
             q = (p[0] + math.cos(a) * 0.02, p[1] + math.sin(a) * 0.02)
             c.twig([p, q], 0.003, "#4A5A34")
-            c.leaf(q, a + r.uniform(-0.3, 0.3), r.uniform(0.11, 0.145), r.uniform(0.095, 0.115), OVAL, serr=0.08, notch=True)
-    for tw in r.sample(tws, 2):  # small cones near the twig tips
+            c.leaf(q, a + r.uniform(-0.3, 0.3), r.uniform(0.11, 0.145) * size, r.uniform(0.095, 0.115) * size, OVAL, serr=0.08, notch=True)
+    for tw in r.sample(twigs, 5 if v == 3 else 2):  # small cones near the twig tips; catkins too on design 3
         p = at(tw, 0.85)
         for k in range(3):
             a = r.uniform(0, TAU)
@@ -263,47 +365,72 @@ def alder():
             c.twig([p, q], 0.003, "#3E2C20")
             x, y = c.px(q)
             c.d.ellipse([x - 0.012 * N, y - 0.017 * N, x + 0.012 * N, y + 0.017 * N], fill=rgb(r.choice(["#3E2C20", "#4E3828"])) + (255,))
+        if v == 3:
+            c.twig([p, (p[0] + r.uniform(-0.03, 0.03), p[1] - 0.1)], 0.014, r.choice(["#7A5A3A", "#8A6A42"]))
     return c
 
 
-def juniper():
-    c = Card(["#3E5C4C", "#4A6A58", "#577664", "#668470", "#78927E", "#8AA090"], 18)
+# ------------------------------------------------------------------ juniper
+def juniper(v):
+    pal = {4: ["#5E7A80", "#6E8A90", "#7E9AA0", "#8FAAAE", "#9EB6B8"]}.get(v, JUNIPER_GREEN + ["#8AA090"])
+    c = Card(pal, 18 + 10 * v)
     r = c.rng
-    tws = []
-    for k in range(9):
-        tw = curve_pts((0.5, 0.06), math.radians(52 + 76 * k / 8) + r.uniform(-0.08, 0.08), r.uniform(0.55, 0.82), r.uniform(-0.25, 0.25), 10)
-        tws.append(tw)
+    if v == 2:  # a prickly ball
+        twigs = [curve_pts((0.5, 0.5), k * TAU / 11 + r.uniform(-0.15, 0.15), r.uniform(0.3, 0.4), r.uniform(-0.3, 0.3), 8) for k in range(11)]
+    elif v == 3:  # upright spikes
+        twigs = [curve_pts((0.22 + 0.56 * k / 6, 0.08), math.radians(90) + r.uniform(-0.12, 0.12), r.uniform(0.6, 0.84), r.uniform(-0.15, 0.15), 10) for k in range(7)]
+    else:
+        twigs = [curve_pts((0.5, 0.06), math.radians(52 + 76 * k / 8) + r.uniform(-0.08, 0.08), r.uniform(0.55, 0.82), r.uniform(-0.25, 0.25), 10) for k in range(9)]
+    for tw in twigs:
         c.twig(tw, 0.006, "#6A4A3A")
-    for tw in tws:
+    for tw in twigs:
         for j in range(70):
             f = 0.1 + 0.9 * j / 70
             p, h = at(tw, f), heading(tw, f)
             for side in (-1, 0, 1):  # whorls of three short, sharp needles
                 c.needle(p, h + side * r.uniform(0.45, 0.75) + (0 if side else r.uniform(-0.2, 0.2)), r.uniform(0.03, 0.048), 0.005)
-    for _ in range(7):
-        tw = r.choice(tws)
+    for _ in range(20 if v == 5 else 7):
+        tw = r.choice(twigs)
         c.berry(at(tw, r.uniform(0.35, 0.9)), 0.016, r.choice(["#2E3A5E", "#3A4A72"]), "#7D8DB8")
     return c
 
 
-CARDS = {"pine": pine, "spruce": spruce, "birch": birch, "aspen": aspen, "rowan": rowan,
-         "rowan_berries": lambda: rowan(True), "alder": alder, "juniper": juniper}
+SPECIES = {"pine": pine, "spruce": spruce, "birch": birch, "aspen": aspen, "rowan": rowan, "alder": alder, "juniper": juniper}
+NAMES = {  # what each design is called in the editor
+    "pine": ["Tuft cluster", "Single tuft", "Twig with tufts", "Long, sparse needles", "Packed pad"],
+    "spruce": ["Hanging curtain", "Flat comb", "Upturned tip", "Dense mass", "Short spray"],
+    "birch": ["Hanging twigs", "Sparse strands", "Round cluster", "With catkins", "Late summer"],
+    "aspen": ["Twig fan", "Round cluster", "Small leaves", "Autumn", "Pale undersides"],
+    "rowan": ["Radial", "Few, large leaves", "Dense", "Autumn", "Young, light"],
+    "alder": ["Twig fan", "Round cluster", "Cones and catkins", "Small leaves", "Deep green"],
+    "juniper": ["Twig fan", "Prickly ball", "Upright spikes", "Silver blue", "Many berries"],
+}
 
 if __name__ == "__main__":
-    made = [(name, fn().save(name)) for name, fn in CARDS.items()]
-    # a contact sheet for the board
-    tile, pad = 300, 24
-    sheet = Image.new("RGB", (4 * (tile + pad) + pad, 2 * (tile + pad + 34) + pad), (236, 232, 222))
+    made = {}
+    for sp, fn in SPECIES.items():
+        for v in range(1, 6):
+            made[(sp, v)] = fn(v).save(f"{sp}_{v}")
+            if sp == "rowan":
+                rowan(v, berries=True).save(f"rowan_{v}_berries")
+    # a contact sheet: one row per species
+    tile, pad, label_w = 200, 16, 190
+    sheet = Image.new("RGB", (label_w + 5 * (tile + pad) + pad, len(SPECIES) * (tile + pad + 26) + pad), (236, 232, 222))
     dr = ImageDraw.Draw(sheet)
     try:
-        font = ImageFont.truetype(os.path.join(HERE, "..", "..", "mockups", "fonts", "Cinzel.ttf"), 22)
+        big, small = (ImageFont.truetype(os.path.join(HERE, "..", "..", "mockups", "fonts", "Cinzel.ttf"), s) for s in (26, 15))
     except OSError:
-        font = ImageFont.load_default()
-    for i, (name, img) in enumerate(made):
-        x = pad + (i % 4) * (tile + pad)
-        y = pad + (i // 4) * (tile + pad + 34)
-        sheet.paste(img.resize((tile, tile), Image.LANCZOS), (x, y), img.resize((tile, tile), Image.LANCZOS))
-        dr.text((x + tile / 2, y + tile + 6), name.replace("_", " + "), fill=(60, 52, 40), font=font, anchor="mt")
+        big = small = ImageFont.load_default()
+    for row, sp in enumerate(SPECIES):
+        y = pad + row * (tile + pad + 26)
+        dr.text((pad, y + tile / 2), sp.capitalize(), fill=(60, 52, 40), font=big, anchor="lm")
+        for v in range(1, 6):
+            x = label_w + pad + (v - 1) * (tile + pad)
+            img = made[(sp, v)].resize((tile, tile), Image.LANCZOS)
+            sheet.paste(img, (x, y), img)
+            dr.text((x + tile / 2, y + tile + 4), f"{v}  {NAMES[sp][v - 1]}", fill=(90, 80, 64), font=small, anchor="mt")
     os.makedirs(os.path.join(HERE, "previews"), exist_ok=True)
     sheet.save(os.path.join(HERE, "previews", "leaf_cards.png"))
-    print("wrote", len(made), "cards to", OUT)
+    with open(os.path.join(OUT, "cards.json"), "w") as fh:  # the design names, for the tree editor
+        json.dump(NAMES, fh, indent=1)
+    print("wrote", len(made), "cards (and 5 rowan berry versions) to", OUT)
