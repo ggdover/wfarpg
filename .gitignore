@@ -1,0 +1,18 @@
+# mockup build output (regenerate with the scripts in mockups/)
+mockups/build/
+mockups/_*.html
+mockups/_*.png
+mockups/history/_*.html
+mockups/history/_*.png
+
+# Python
+__pycache__/
+*.pyc
+
+# Blender backups and Godot cache
+*.blend1
+.godot/
+
+# OS clutter
+.DS_Store
+Thumbs.db

@@ -1,0 +1,86 @@
+# Mockups
+
+Concept tools for working out how wfarpg should look and feel before production starts. Nothing here is game code: the
+game will be built in Godot, with assets made in Blender.
+
+Everything is generated from code. Each scene script starts Blender in the background, builds the scene from scratch
+(terrain, low-poly trees, rocks, buildings, characters, lighting, camera), renders it and exits without saving, so there
+are no `.blend` files. Rerunning a script gives the same picture, apart from faint render noise.
+
+## The look & feel board
+
+- Live board: <https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP> (a private claude.ai artifact)
+- `board/wfarpg-board.html`: source of the board page. The page only draws what is in the artifact's database.
+- `board/items.json`: snapshot of that database: every note, section and image, with position, text and the
+  Want / Maybe / Avoid mark.
+- `board/assets.json`: which file under `renders/` each image on the board is.
+
+## Act 1 pipeline
+
+| Script | What it does |
+|---|---|
+| `act1_world.py` | Act 1 as data: zone outlines traced from `ref_imgs/act1_layout.png` (1 sketch unit is about 1.2 m), terrain height, forest density, roads, water, quests, waystones and the screenshot cameras A–J. The other scripts read from here. |
+| `act1_check.py` | Checks the layout: roads, quests and cameras on walkable ground, steepest slope. |
+| `act1_dump.py` | Exports the world data to JSON for the blueprint script. |
+| `act1_maps.py` | Bakes the map layers: shaded terrain, contours, tree positions, the height profile. |
+| `act1_blueprint.py` | Draws the act blueprint and the Storskogen blueprint from the baked layers. |
+| `act1_shots.py` | Builds and renders the 3D screenshots A–J. |
+| `hud_act.py` | Paints the HUD over rendered screenshots. |
+| `forest_cam.py` | The low-poly kit (plants, rocks, hero, wraiths, ground material, lighting, orbit camera) plus the earlier forest close-ups and camera-angle shots. `act1_shots.py` builds on it. |
+
+Requirements: Blender 5.2, Google Chrome (renders the HUD and blueprint labels) and Python 3 with Pillow. Run from this
+folder. Output goes to `build/`, which git ignores.
+
+```sh
+blender -b --factory-startup --python act1_check.py
+blender -b --factory-startup --python act1_dump.py
+blender -b --factory-startup --python act1_maps.py
+python3 act1_blueprint.py
+
+# screenshots: use `preview` instead of `final` for quick low-resolution frames
+blender -b --factory-startup -P act1_shots.py -- build/act1/shots final tallmo angen tatskogen utsikten trollgrytan
+python3 hud_act.py build/act1/shots build/act1/final tallmo angen tatskogen utsikten trollgrytan
+```
+
+Shot ids: `tallmo`, `angen`, `tatskogen`, `utsikten`, `trollgrytan`, `harddalen`, `gamlagarden`, `dimskogen`,
+`dimmyren`, `odeskogen`.
+
+The forest close-ups and camera angles work the same way:
+
+```sh
+blender -b --factory-startup -P forest_cam.py -- build/forest final day_path day_tarn fog_path fog_bog cam_behind
+python3 hud_act.py build/forest build/forest/hud day_path day_tarn fog_path fog_bog cam_behind
+```
+
+Shot ids: `day_path`, `day_tarn`, `fog_path`, `fog_bog`, `cam_default`, `cam_topdown`, `cam_side`, `cam_behind`,
+`cam_tarn`, `cam_fogbehind`.
+
+## Renders
+
+The final images shown on the board, by board section:
+
+| Folder | Board section |
+|---|---|
+| `renders/forest_v1`, `forest_v2`, `forest_v3` | Act 1: Pine forest (versions 1–3 of the close-ups) |
+| `renders/camera` | Camera control |
+| `renders/hud_v1`, `renders/hud_v2` | HUD style |
+| `renders/act1` | Act 1: the whole act |
+| `renders/diagrams` | Game mechanics |
+| `renders/reference_copies` | Smaller copies of `ref_imgs/` used on the board |
+
+## History
+
+Earlier versions of the scripts, kept for reference. Each produced an earlier section of the board.
+
+| Script | Produced |
+|---|---|
+| `history/forest.py` | Forest close-ups, version 1 (faceted ground) |
+| `history/forest_v2.py` | Version 2 (smooth, textured ground) |
+| `history/forest_v3.py` | Version 3 (winding paths, chunky rocks, one-piece trunks) |
+| `history/hud.py`, `history/hud_cam.py` | The first placeholder HUD |
+| `history/hud_fantasy.py` | HUD style, version 1 |
+| `history/hud_sharp.py` | HUD style, version 2, before `hud_act.py` generalised it for Act 1 |
+
+## Fonts
+
+Cinzel and Cinzel Decorative by Natanael Gama, under the SIL Open Font License (`fonts/OFL-Cinzel.txt`).

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 600" width="880" height="600" font-family="Arial Narrow, Roboto Condensed, Arial, Helvetica, sans-serif">
+<rect x="0" y="0" width="880" height="600" rx="14" fill="#1C2026"/>
+<polygon points="440.0,130.0 840.0,330.0 440.0,530.0 40.0,330.0" fill="#232931"/>
+<line x1="440.0" y1="130.0" x2="40.0" y2="330.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="440.0" y1="130.0" x2="840.0" y2="330.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="480.0" y1="150.0" x2="80.0" y2="350.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="400.0" y1="150.0" x2="800.0" y2="350.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="520.0" y1="170.0" x2="120.0" y2="370.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="360.0" y1="170.0" x2="760.0" y2="370.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="560.0" y1="190.0" x2="160.0" y2="390.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="320.0" y1="190.0" x2="720.0" y2="390.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="600.0" y1="210.0" x2="200.0" y2="410.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="280.0" y1="210.0" x2="680.0" y2="410.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="640.0" y1="230.0" x2="240.0" y2="430.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="240.0" y1="230.0" x2="640.0" y2="430.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="680.0" y1="250.0" x2="280.0" y2="450.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="200.0" y1="250.0" x2="600.0" y2="450.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="720.0" y1="270.0" x2="320.0" y2="470.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="160.0" y1="270.0" x2="560.0" y2="470.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="760.0" y1="290.0" x2="360.0" y2="490.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="120.0" y1="290.0" x2="520.0" y2="490.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="800.0" y1="310.0" x2="400.0" y2="510.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="80.0" y1="310.0" x2="480.0" y2="510.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="840.0" y1="330.0" x2="440.0" y2="530.0" stroke="#343C47" stroke-width="1.5"/>
+<line x1="40.0" y1="330.0" x2="440.0" y2="530.0" stroke="#343C47" stroke-width="1.5"/>
+<text x="32" y="52" fill="#E6E8EC" font-size="30" font-weight="700" letter-spacing="1.5">MOVE AND AIM ARE SEPARATE</text>
+<text x="32" y="80" fill="#9AA2AE" font-size="17">Seen from the game camera, above and at an angle</text>
+<path d="M440,312 L514.8,231.3 A110,110 0 0 1 549.4,300.6 Z" fill="#E2B04F" fill-opacity="0.22" stroke="#E2B04F" stroke-opacity="0.5" stroke-width="1.5"/>
+<line x1="538.4" y1="262.8" x2="676.7" y2="193.6" stroke="#E2B04F" stroke-width="3" stroke-dasharray="10 8" stroke-linecap="round"/>
+<circle cx="700" cy="182" r="18" fill="none" stroke="#E2B04F" stroke-width="3"/>
+<line x1="700" y1="172" x2="700" y2="154" stroke="#E2B04F" stroke-width="3" stroke-linecap="round"/>
+<line x1="700" y1="192" x2="700" y2="210" stroke="#E2B04F" stroke-width="3" stroke-linecap="round"/>
+<line x1="690" y1="182" x2="672" y2="182" stroke="#E2B04F" stroke-width="3" stroke-linecap="round"/>
+<line x1="710" y1="182" x2="728" y2="182" stroke="#E2B04F" stroke-width="3" stroke-linecap="round"/>
+<circle cx="700" cy="182" r="3" fill="#E2B04F"/>
+<text x="740" y="178" fill="#E2B04F" font-size="26" font-weight="700" letter-spacing="1.5">AIM</text>
+<text x="740" y="202" fill="#9AA2AE" font-size="17">mouse cursor</text>
+<line x1="413.5" y1="344.0" x2="272.6" y2="418.4" stroke="#63C38E" stroke-width="7" stroke-linecap="round"/>
+<polygon points="262.0,424.0 274.1,405.7 284.0,424.3" fill="#63C38E"/>
+<text x="250" y="400" text-anchor="end" fill="#63C38E" font-size="26" font-weight="700" letter-spacing="1.5">MOVE</text>
+<ellipse cx="440" cy="334" rx="30" ry="15" fill="#0E1114" opacity="0.7"/>
+<rect x="423" y="290" width="34" height="44" rx="17" fill="#C9CED6"/>
+<circle cx="440" cy="290" r="14" fill="#E6E8EC"/>
+<text x="474" y="372" fill="#9AA2AE" font-size="16">faces the cursor, walks the other way</text>
+<rect x="76" y="448" width="44" height="44" rx="7" fill="#2A3039" stroke="#444C58" stroke-width="2"/>
+<text x="98" y="478" text-anchor="middle" fill="#9AA2AE" font-size="22" font-weight="700">W</text>
+<rect x="24" y="500" width="44" height="44" rx="7" fill="#27382A" stroke="#63C38E" stroke-width="2"/>
+<text x="46" y="530" text-anchor="middle" fill="#63C38E" font-size="22" font-weight="700">A</text>
+<rect x="76" y="500" width="44" height="44" rx="7" fill="#27382A" stroke="#63C38E" stroke-width="2"/>
+<text x="98" y="530" text-anchor="middle" fill="#63C38E" font-size="22" font-weight="700">S</text>
+<rect x="128" y="500" width="44" height="44" rx="7" fill="#2A3039" stroke="#444C58" stroke-width="2"/>
+<text x="150" y="530" text-anchor="middle" fill="#9AA2AE" font-size="22" font-weight="700">D</text>
+<text x="186" y="529" fill="#9AA2AE" font-size="16">A + S held: walk toward the bottom-left</text>
+</svg>
