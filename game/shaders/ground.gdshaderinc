@@ -13,12 +13,19 @@ uniform sampler2D canopy_tex : hint_default_white, filter_linear_mipmap, repeat_
 uniform vec4 bounds = vec4(-112.0, -88.0, 224.0, 176.0);  // x, z, width, depth of the baked area
 uniform float canopy_strength = 0.35;  // how much of the baked shade to use: 0.35 matches the mockups
 uniform float bump_strength = 0.5;
-// How much small detail to draw on top of the baked colours: 3 high (everything), 2 medium (no flat stones, grit or
-// grain bumps, cheaper noise), 1 low (the small gravel and the leaves), 0 none. However high, the details fade into
-// their average further off than DETAIL_FAR metres from the camera, where they would be too small to see, and are not
-// worked out at all beyond.
-uniform int detail_level : hint_range(0, 3) = 3;
+// How much small detail the including shader draws on top of the baked colours, its DETAIL: 3 high (everything),
+// 2 medium (no flat stones, grit or grain bumps, cheaper noise), 1 low (the small gravel and the leaves), 0 none. However
+// high, the details fade into their average further off than DETAIL_FAR metres from the camera, where they would be too
+// small to see, and are not worked out at all beyond. With BAKED defined too, High's details come from tiling textures
+// baked once at startup (shaders/detail_bake.gdshader, scripts/ground_detail.gd), instead of being worked out for
+// every pixel: the same stones, grit, leaves and grain, at a fraction of the cost.
 uniform float leaf_amount = 1.0;  // more or fewer fallen leaves
+#ifdef BAKED
+uniform sampler2D detail_small : hint_default_black, filter_linear_mipmap_anisotropic, repeat_enable;  // 4 m tile
+uniform sampler2D detail_big : hint_default_black, filter_linear_mipmap_anisotropic, repeat_enable;  // 4 m tile
+uniform sampler2D detail_flat : hint_default_black, filter_linear_mipmap_anisotropic, repeat_enable;  // 10 m tile
+uniform sampler2D detail_leaves : hint_default_black, filter_linear_mipmap_anisotropic, repeat_enable;  // 4 m tile
+#endif
 // How far the paths' wear spreads into the grass: 0 is the mockups', where the dirt gives way to trampled grass
 // within about two half-widths of the path's centre line. Up to 1, the trampled grass, bare patches and stray stones
 // reach further out, the dirt and grass break up in patches a metre or two across, and more grass tufts grow in the
@@ -144,6 +151,29 @@ void gravel(vec2 wp, float scale, float gap0, float gap1, float density, float d
 	rnd = mix(rnd, 0.5, far_off);
 }
 
+#ifdef BAKED
+// gravel() from a baked layer t (detail_bake.gdshader): its inset, the density at which its stone is there, and its
+// colour's random value. aa is how many of the layer's cells a pixel spans.
+void gravel_baked(vec4 t, float aa, float density, float detail, out float stone, out float rnd, out float shadow, out float hgt) {
+	if (detail <= 0.0 || density <= 0.0) {
+		gravel_average(density, stone, rnd, shadow, hgt);
+		return;
+	}
+	float inset = t.r - 0.3;
+	float here = smoothstep(-0.01, 0.01, density - t.g);
+	float w = min(aa * 0.5, 0.2);
+	stone = smoothstep(-w, 0.04 + w, inset) * here;
+	shadow = (smoothstep(-0.07 - w, 0.0, inset) - smoothstep(-w, 0.04 + w, inset)) * here;
+	hgt = smoothstep(0.0, 0.16, inset) * here;
+	rnd = t.b;
+	float far_off = max(smoothstep(0.25, 0.7, aa), 1.0 - detail);
+	stone = mix(stone, 0.45 * density, far_off);
+	shadow = mix(shadow, 0.12 * density, far_off);
+	hgt *= 1.0 - far_off;
+	rnd = mix(rnd, 0.5, far_off);
+}
+#endif
+
 void fragment() {
 	vec2 uv = (world_pos.xz - bounds.xy) / bounds.zw;
 	vec3 col = texture(grass_tex, uv).rgb;
@@ -166,19 +196,42 @@ void fragment() {
 	dirt = mix(dirt, verge, map_s(wear, 0.35, 0.85, 0.4, 0.0));
 	vec2 p = vec2(world_pos.x, -world_pos.z);  // Blender's X, Y
 	float hgt = 0.0;
+#ifdef BAKED
+	// the baked details' texture coordinates and their slopes, worked out here, where every pixel of a quad runs, so
+	// the textures can be read inside the branches below at the right mipmap level
+	vec2 t4 = p / 4.0;
+	vec2 t4x = dFdx(t4);
+	vec2 t4y = dFdy(t4);
+	vec2 t10 = p / 10.0;
+	vec4 flat_grain = textureGrad(detail_flat, t10, dFdx(t10), dFdy(t10));
+	float px = length(fwidth(p));  // metres a pixel spans
+#endif
 
 	// near the paths: where feet have worn the grass away, the dirt shows, with gravel densest in the middle and
 	// thinning out into the grass, and grit in the dirt
-	float level = float(detail_level);
-	float detail = detail_level > 0 ? 1.0 - smoothstep(0.7 * DETAIL_FAR[detail_level], DETAIL_FAR[detail_level], length(VERTEX)) : 0.0;
+	float level = float(DETAIL);
+	float detail = DETAIL > 0 ? 1.0 - smoothstep(0.7 * DETAIL_FAR[DETAIL], DETAIL_FAR[DETAIL], length(VERTEX)) : 0.0;
 	if (worn > 0.0005) {
+#ifdef BAKED
+		vec4 big = textureGrad(detail_big, t4, t4x, t4y);
+		float fine = detail > 0.0 ? big.a - 0.5 : 0.0;
+#else
 		float fine = detail > 0.0 ? noise_fbm2((p + vec2(13.0, 3.0)) * 7.0, level >= 3.0 ? 2.0 : 1.0, 0.6) - 0.5 : 0.0;
+#endif
 		float bare = smoothstep(0.35, 0.7, wear + 2.0 * tufts + 0.5 * fine + 1.2 * sp * patches);
 		col = mix(col, dirt, bare);
 		float strewn = wear + 0.3 * fine;
 		float small_d = (map_s(strewn, 0.15, 0.75, 0.0, 0.6) + 0.08 * worn) * stones.x;
 		float big_d = (map_s(strewn, 0.25, 0.85, 0.0, 0.45) + 0.05 * worn) * stones.y;
 		float flat_d = map_s(strewn, 0.5, 0.9, 0.0, 0.06) * stones.z;
+		float s_st, s_r, s_sh, s_h, b_st, b_r, b_sh, b_h, f_st, f_r, f_sh, f_h;
+#ifdef BAKED
+		vec4 small = textureGrad(detail_small, t4, t4x, t4y);
+		gravel_baked(small, px * 13.0, small_d, detail, s_st, s_r, s_sh, s_h);
+		gravel_baked(big, px * 5.5, big_d, detail, b_st, b_r, b_sh, b_h);
+		gravel_baked(flat_grain, px * 1.7, flat_d, detail, f_st, f_r, f_sh, f_h);
+		float grit = mix(small.a, 0.5, max(smoothstep(0.3, 0.8, px * 30.0), 1.0 - detail));
+#else
 		vec2 warped = p;
 #if DETAIL >= 3
 		if (detail > 0.0) {
@@ -186,7 +239,6 @@ void fragment() {
 			warped += vec2(noise_fbm2((p + vec2(31.7, 5.3)) * 9.0, d, 0.5), noise_fbm2((p + vec2(7.1, 71.3)) * 9.0, d, 0.5)) * 0.07;
 		}
 #endif
-		float s_st, s_r, s_sh, s_h, b_st, b_r, b_sh, b_h, f_st, f_r, f_sh, f_h;
 		bool exact = DETAIL >= 3;
 #if DETAIL >= 1
 		gravel(warped, 13.0, 0.12, 0.24, small_d, detail, exact, s_st, s_r, s_sh, s_h);
@@ -214,6 +266,7 @@ void fragment() {
 			grit = mix(dot(gc, vec3(0.2126, 0.7152, 0.0722)), 0.5, grit_lod);
 		}
 #endif
+#endif
 		col = mix(col, ramp_seg(grit, 0.2, grit0, 0.8, grit1), min(bare * 0.35 * grit_amount, 1.0));
 		col = mix(col, shade, min(0.3 * s_sh + 0.5 * b_sh + 0.5 * f_sh, 0.5));
 		col = mix(col, ramp3(s_r, 0.0, small0, 0.5, small1, 1.0, small2), s_st);
@@ -232,6 +285,11 @@ void fragment() {
 		float drift = (0.12 + map_s(m.a, 0.5, 0.75, 0.0, 0.2)) * leaf_amount;
 		float leaf = 0.0;
 		float tone = 0.0;
+#ifdef BAKED
+		vec4 baked_leaf = textureGrad(detail_leaves, t4, t4x, t4y);
+		leaf = baked_leaf.r * smoothstep(-0.01, 0.01, drift - baked_leaf.g);
+		tone = baked_leaf.b;
+#else
 		float aa = min(fwidth(lv.x) * 20.0, 0.5);
 		for (int j = 0; j < 2; j++) {
 			for (int i = 0; i < 2; i++) {
@@ -255,11 +313,16 @@ void fragment() {
 				}
 			}
 		}
+#endif
 		leaf *= (1.0 - smoothstep(0.3, 0.9, length(fwidth(lv)) * 4.0)) * detail;  // too small to see far off
 		col = mix(col, leaf_ramp(tone), leaf);
 		hgt += 0.3 * leaf;
 #if DETAIL >= 3
+#ifdef BAKED
+		hgt += 0.12 * flat_grain.a;  // the grass's grain, for the bumps
+#else
 		hgt += 0.12 * noise_fbm2((p + vec2(2.0, 2.0)) * 6.0, 1.0, 0.65);  // the grass's grain, for the bumps
+#endif
 #endif
 	}
 #endif

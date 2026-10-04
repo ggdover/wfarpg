@@ -77,7 +77,10 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   from the defaults in `treegen.py`. See its README.
 - `game/`: the Godot project. For now a play demo: a small part of Storskogen (dense forest, a trail, a meadow with
   a rise) with the old mockup trees or the new portfolio trees, a grey-box hero, the camera and controls. It runs with
-  VSync off and no frame rate limit, as the user asked; its performance panel (F2) has a frame rate limit. Its models,
+  VSync off and no frame rate limit, as the user asked; its performance panel (F2) has a frame rate limit. The user
+  wants a before and after switch in F2 for every optimization, to judge what it costs the look; the speed-ups (ground
+  details baked into textures, tree shadows and far trees from pictures baked at startup, shadows only from trees
+  within 60 m, trimmed leaf cards) each have one, and "All as before" / "All on" flips them together. Its models,
   ground textures and layout are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
   portfolio and `game/tools/demo_area.py`; rebuild them after changing any of those. See `game/README.md`.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building

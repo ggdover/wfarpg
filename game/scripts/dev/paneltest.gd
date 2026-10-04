@@ -3,7 +3,8 @@ extends Node
 ## defaults (the graphics card's time per frame and the frame rate), then quits.
 ## godot --path game res://scenes/demo.tscn -- --paneltest [--quick]
 
-const TRIES := [["trimmed", true], ["fewer", true], ["tree_shadows", "full"], ["tree_shadows", "far"], ["tree_shadows", "off"],
+const TRIES := [["trimmed", false], ["fewer", true], ["tree_shadows", "full"], ["tree_shadows", "mid"], ["tree_shadows", "far"], ["tree_shadows", "off"],
+	["shadow_reach", 0.0], ["shadow_reach", 40.0], ["impostors", 0.0], ["impostors", 60.0], ["details", 3],
 	["fade", true], ["sight", false], ["scale", 0.75], ["scale", 0.5], ["aa", Viewport.SCREEN_SPACE_AA_FXAA], ["aa", Viewport.SCREEN_SPACE_AA_DISABLED],
 	["shadows", false], ["shadow_fit", false], ["shadow_size", 4096], ["shadow_size", 1024], ["shadow_size", 512],
 	["shadow_soft", RenderingServer.SHADOW_QUALITY_HARD], ["shadow_soft", RenderingServer.SHADOW_QUALITY_SOFT_HIGH],
@@ -12,10 +13,10 @@ const TRIES := [["trimmed", true], ["fewer", true], ["tree_shadows", "full"], ["
 	["ssao", RenderingServer.ENV_SSAO_QUALITY_VERY_LOW], ["ssao", RenderingServer.ENV_SSAO_QUALITY_LOW],
 	["ssao", RenderingServer.ENV_SSAO_QUALITY_HIGH], ["ssao", -1], ["fog", false],
 	["trees", "old"]]
-const DEFAULTS := {"trimmed": false, "fewer": false, "tree_shadows": "mid", "fade": false, "sight": true, "scale": 1.0,
+const DEFAULTS := {"trimmed": true, "fewer": false, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "fade": false, "sight": true, "scale": 1.0,
 	"aa": Viewport.SCREEN_SPACE_AA_SMAA, "shadows": true, "shadow_fit": true, "shadow_size": 2048,
 	"shadow_soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "cascades": DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS,
-	"details": 3, "ssao": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "fog": true, "trees": "new"}
+	"details": 4, "ssao": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "fog": true, "trees": "new"}
 
 
 func run(demo: Node) -> void:
@@ -35,6 +36,16 @@ func run(demo: Node) -> void:
 		await _frames(demo, 30)
 	base = await _measure(demo)
 	print("paneltest: defaults again: %.1f ms" % base.x)
+	# the speed-ups' buttons: all as before them, then all on, which should be the defaults again
+	panel.choose_all(PerfPanel.BEFORE)
+	await _frames(demo, 45)
+	var before := await _measure(demo)
+	panel.choose_all(PerfPanel.SPED_UP)
+	await _frames(demo, 45)
+	var after := await _measure(demo)
+	var same := PerfPanel.SPED_UP.keys().all(func(k: String) -> bool: return (panel._groups[k][PerfPanel.SPED_UP[k]] as Button).button_pressed)
+	print("paneltest: speed-ups all as before: %.1f ms, %d fps; all on: %.1f ms, %d fps%s" % [before.x, roundi(before.y), after.x, roundi(after.y),
+		"" if same else " (FAIL: not all on)"])
 	# the frame rate limit slider: capped below what the defaults reach, then no limit
 	panel.slide("fps", 40.0)
 	var limit := Engine.max_fps

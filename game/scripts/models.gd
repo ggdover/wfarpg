@@ -47,8 +47,8 @@ static func mesh(model: String) -> Mesh:
 ## Trees fade out when they stand in the way between the camera and the hero, so it never disappears behind them.
 static func is_tree(model: String) -> bool:
 	load_info()
-	var file: String = info[model]["file"]
-	return file.ends_with("trees.glb") or model.begins_with("Snag")
+	var file := (info[model]["file"] as String).get_file()  # old_trees.glb, trees.glb, trees_trim.glb, trees_few.glb
+	return file.ends_with("trees.glb") or file.begins_with("trees_") or model.begins_with("Snag")
 
 
 static func _material_for(model: String, surface: String, imported: Material) -> Material:

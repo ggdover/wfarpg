@@ -99,13 +99,16 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 
 | Switch | What it does |
 |---|---|
+| Speed-ups | **All as before** and **All on** flip every speed-up (below, under Speed) between how it was before it and now, to compare the look and the frame rate |
 | Trees | The old or the new trees (as T) |
 | Path colours | The paths' colour theme (as P) |
 | Path wear spread | How far the paths' wear spreads into the grass: 0 as in the mockups, up to 1 (the default), where the trampled grass, bare patches and stray stones reach further out and break up in patches, so it's less clear exactly where a path runs |
-| Leaf cards | Square cards, or cards trimmed to an outline round their leaves: the same look, fewer pixels to draw |
+| Leaf cards | Square cards, or cards trimmed to an outline round their leaves (the default): the same look, fewer pixels to draw |
 | Cards per clump | As tuned, or about half as many (a little bigger): sparser crowns |
-| Tree shadows from | Which version of a new tree casts its shadow: the full one, the mid one, the far one, or none |
+| Tree shadows from | What casts a new tree's shadow: one of its versions (the full, mid or far one), its trunk and branches with a picture of its leaves as the sun sees them (**Pictures**, the default; under Speed), or nothing |
+| from trees within | Only the trees within this far of the camera cast shadows: all, 60 m (the default), 40 m or 25 m |
 | Lighter trees from | Where the new trees switch to their lighter versions |
+| Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they're in the way |
 | Trees in the way | Hide the whole of every tree that's in the way between the camera and the hero (the default), or keep them. **Clear round the hero** also keeps the ground that far round the hero clear of trees; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
@@ -119,22 +122,23 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Ambient occlusion | Godot's screen-space ambient occlusion: off, or very low to high quality |
 | Haze | The fog |
 
-The ground details come at four levels, each its own compiled shader, so a lower level doesn't pay for what it skips:
+The ground details come at five levels, each its own compiled shader, so a lower level doesn't pay for what it skips:
 
 | Level | What it draws |
 |---|---|
 | High | Everything: three sizes of stones with exact, slightly wavy outlines, grit between them, fallen leaves, and bumps that catch the light |
+| Baked | The same as High, but its stones, grit, leaves and the grass's grain are worked out once at startup into tiling textures, rather than for every pixel of every frame (the default; under Speed). It looks the same |
 | Medium | The small and big stones, with simpler outlines, and the fallen leaves: no flat stones, grit or bumps. It looks almost the same |
 | Low | The small stones and the fallen leaves; the bigger stones become an even colour |
 | Off | The dirt and grass colours only |
 
-Each level also stops drawing details further from the camera (High at 50 m, Medium 38 m, Low 28 m).
+Each level also stops drawing details further from the camera (High and Baked at 50 m, Medium 38 m, Low 28 m).
 
 **Walk the trail** walks from the start to the meadow the same way every time and lists the result with the settings,
 so runs compare fairly. With VSync off and no frame rate limit (the defaults), the frame rate goes as high as the
 graphics card allows. The hero moves in the physics' 60 steps a second and is drawn between them (physics
 interpolation, `project.godot`), so walking stays smooth at any frame rate. `--paneltest` presses every switch in turn
-and prints what each costs, and checks the frame rate limit.
+and prints what each costs, then the speed-ups all as before and all on, and checks the frame rate limit.
 
 ## Path colours
 
@@ -156,35 +160,72 @@ The demo starts with Forest earth.
 
 ## Speed
 
-The new trees cost much more than the old ones, mostly from overlapping leaf cards. On this laptop's integrated
-graphics (Intel Arc 140V) at 1600 × 900, with VSync off, no frame rate limit and nothing else running:
+The new trees cost much more than the old ones, mostly from overlapping leaf cards, and so did the ground's details
+on the paths. On this laptop's integrated graphics (Intel Arc 140V) at 1600 × 900, with VSync off, no frame rate limit
+and nothing else running, the graphics card's time per frame, before the speed-ups below and now:
 
-- **Old trees:** about 100 fps at the start, in the thicket.
-- **New trees:** about 51 fps at the start. Walking the trail from there to the meadow averages 65 fps, with the
-  slowest 1% of frames at 42.
+| View | Before | Now |
+|---|---|---|
+| The start | 19.3 ms (52 fps) | 10.4 ms (96 fps) |
+| The start, camera low | 26.0 ms (38 fps) | 13.5 ms (74 fps) |
+| Dense forest, camera low | 26.5 ms (38 fps) | 14.2 ms (70 fps) |
+| The thicket | 19.6 ms (51 fps) | 11.0 ms (91 fps) |
+| The meadow path | 12.3 ms (81 fps) | 5.2 ms (192 fps) |
+| The meadow, camera low | 16.3 ms (61 fps) | 7.3 ms (137 fps) |
+| The forest from straight above | 17.2 ms (58 fps) | 11.4 ms (88 fps) |
 
-To keep it there:
+Walking the trail from the start to the meadow averages 131 fps, with the slowest 1% of frames at 74 (before: 65 and
+42). The old trees take 4.8 ms at the start.
 
-- **Lighter versions:** each new tree has two, with fewer, bigger leaf cards, used from 45 m and 120 m.
-- **Trimmed cards:** every version also comes with its cards cut to the outline round their leaves (`trees_trim.glb`),
-  and the full trees come with fewer cards per clump too (`trees_few.glb`), for trying in the performance panel.
-- **Shadows:** the full tree casts its shadow from the lighter version.
+The speed-ups, each with its switch in the panel, so you can flip back and forth and judge what it costs the look
+(**All as before** and **All on** flip them all), and what undoing each one alone costs:
+
+- **Ground details: Baked** (before: High). The stones, grit, fallen leaves and the grass's grain, which High works
+  out from noise for every pixel, are worked out once at startup into four tiling textures of 1024 × 1024
+  (`scripts/ground_detail.gd`, `shaders/detail_bake.gdshader`, with the noise's cells wrapped so they tile), which
+  the ground shader reads (`shaders/ground_baked.gdshader`). It looks the same. High costs 6.7 ms more on the meadow
+  path, 5.0 on the meadow with the camera low, 4.1 at the start.
+- **Tree shadows from pictures** (before: the mid versions' leaf cards). At startup, each new tree model's leaves are
+  pictured as the sun sees them, from 16 sides round it, white where a leaf is, into one atlas
+  (`scripts/tree_shadow_pictures.gd`). A tree's shadow is then cast by its trunk and branches as they are, and by one
+  quad that faces the sun through the middle of its crown, cut out to the picture from the side nearest the sun's
+  (`shaders/shadow_picture.gdshader`), instead of by hundreds of leaf cards. The shadows on the ground and on the hero
+  are much the same; the crowns shade themselves a little more simply. Leaf-card shadows cost 1.8–3.7 ms more in the
+  forest. If the sun moves, the pictures must be taken again.
+- **Far trees as pictures from 90 m** (before: never). At startup, each new tree model is pictured from 8 sides a
+  little from above (`scripts/tree_impostors.gd`), and from 90 m a tree is drawn as one quad turned to the camera,
+  showing the two pictures nearest the camera's side, blended and lit like the crowns (`shaders/impostor.gdshader`).
+  Drawing them as trees costs 2.5–3.1 ms more with the camera low; at the start, where little is that far, nothing.
+  The pictures look a little fuller than the lightest versions they replace.
+- **Shadows from trees within 60 m** (before: all). Only the trees within 60 m of the camera cast shadows; the shadows
+  reach at most 70 m from it anyway. All of them cost up to 1.1 ms more with the camera low. 40 m saves a few tenths
+  more, but low over the meadow it loses a big tree's shadow.
+- **Trimmed leaf cards** (before: square). The same look, fewer pixels to draw: square cards cost up to 1.7 ms more.
+
+Also:
+
+- **Lighter versions:** each new tree has two, with fewer, bigger leaf cards, used from 45 m and 120 m. Using them
+  nearer saves at most 1 ms, as their bigger cards cover about as many pixels.
+- **Trimmed and fewer cards:** every version also comes with its cards cut to the outline round their leaves
+  (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`).
 - **Hidden trees:** trees hidden because they're in the way, or faded out near the camera, aren't drawn at all,
   apart from their shadows. Working out which trees are in the way takes 0.1–0.5 ms a frame in the forest; the
   trees' shapes for it are worked out as they load (about 60 ms for both sets).
+- **The depth prepass** (Godot's own, on): without it, the forest takes twice as long.
+- **Tried, and not worth it:** a draw distance for the bushes and berries (under 1 ms with the camera low), skipping
+  the shadows of trees behind the camera (Godot already does), and moving where the near shadow cascade ends (Godot's
+  10% is the fastest).
 
-The biggest costs after the trees, measured with the panel at the start (time per frame on the graphics card, against
-the defaults' 19.1 ms):
+What costs the most now, measured with the panel at the start (against the defaults' 10.4 ms):
 
-- **Ground details:** Medium saves 3.5 ms (63 fps), Low 3.6 and Off 4.2. Medium keeps nearly all of the look, so it
-  gets nearly all of Off's speed without losing the gravel and leaves.
-- **Shadows:** off saves 5.4 ms (71 fps). A 1024 shadow map saves 2.1 ms against 2048, and 4096 costs 8.7 ms more.
-  Fitting the distance to the view saves 1.6 ms against a fixed 70 m. Tree shadows from the far versions save 1.2 ms,
-  none at all 4.8.
-- **Ambient occlusion:** off saves 3.4 ms (62 fps), very low 0.2; high costs 2.5 ms more.
-- **Render scale:** 75% saves 4.0 ms (65 fps), 50% 8.1 (88 fps).
-- **Leaf cards:** trimmed cards save 3.0 ms (61 fps), fewer cards per clump 2.2.
-- **Fade trees near camera:** on, it costs 1.6 ms, from the trees half faded near the camera.
+- **Shadows:** off saves 2.7 ms (126 fps); the trees' shadows alone 2.2. A 1024 shadow map saves 1.0 ms against
+  2048, and 4096 costs 2.4 ms more.
+- **Render scale:** 75% saves 2.2 ms (119 fps), 50% 4.2 (156 fps).
+- **Leaf cards:** fewer cards per clump save 2.0 ms (116 fps).
+- **Ambient occlusion:** off saves 1.9 ms (115 fps), with the camera low up to 3.7; very low saves 0.4; high costs
+  1.8 ms more.
+- **Fade trees near camera:** on, it costs 1.1 ms, from the trees half faded near the camera.
+- **Ground details:** below Baked, Off saves 0.8 ms and Medium and Low 0.5.
 
 ## Rebuilding the assets
 
@@ -216,12 +257,14 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scenes/start.tscn`, `scenes/demo.tscn` | The start screen and the demo |
 | `scripts/demo.gd` | The demo: builds the scene, the HUD, and the command-line options for checking it |
 | `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions), rocks and plants, colliders, walls |
+| `scripts/ground_detail.gd` | Bakes the ground's details into tiling textures at startup, for the Baked level |
+| `scripts/tree_impostors.gd`, `scripts/tree_shadow_pictures.gd` | Picture the new trees at startup: from the side, for the far trees, and their leaves from the sun, for their shadows |
 | `scripts/hero.gd`, `scripts/camera_rig.gd` | The hero and the camera |
 | `scripts/perf_panel.gd`, `scripts/trail_walk.gd` | The performance panel, and the walk along the trail it uses |
 | `scripts/path_themes.gd` | The paths' colour themes |
 | `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
-| `shaders/` | Ground (`ground.gdshaderinc`, compiled at four levels of detail: `ground`, `ground_medium`, `ground_low`, `ground_flat`), leaves, the low-poly material, sky, Blender's noise |
+| `shaders/` | Ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material, the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
 | `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels) and `lineup.gd` (models in rows, for comparing with Blender) |
 | `tools/` | The Blender build scripts (Godot ignores this folder) |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

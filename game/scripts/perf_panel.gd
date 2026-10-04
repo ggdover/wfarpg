@@ -11,6 +11,9 @@ const INK := Color("#E6E0D2")
 const DIM := Color("#B7AE9A")
 const BRASS := Color("#C9A24A")
 const NO_LIMIT := 250.0  ## the frame rate limit slider's top end, which means no limit
+## the speed-ups of the performance pass (README.md, Speed), each switch as it was before it and as it is now
+const BEFORE := {"trimmed": false, "tree_shadows": "mid", "shadow_reach": 0.0, "impostors": 0.0, "details": 3}
+const SPED_UP := {"trimmed": true, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "details": 4}
 
 var demo: Node
 var _frames: Array[Vector2] = []  # (time in s, frame ms)
@@ -66,6 +69,15 @@ func setup(d: Node) -> void:
 	var vp := get_viewport()
 	var sun: DirectionalLight3D = demo.get_node("DirectionalLight3D")
 	var env: Environment = (demo.get_child(0) as WorldEnvironment).environment
+	var row_s := HBoxContainer.new()  # all the speed-ups at once; each has its own switch below too
+	row_s.add_theme_constant_override("separation", 8)
+	col.add_child(row_s)
+	var ls := _label(row_s, "Speed-ups", 13, INK)
+	ls.custom_minimum_size.x = 150
+	var before := _button(row_s, "All as before", func() -> void: choose_all(BEFORE))
+	before.tooltip_text = "Square leaf cards, shadows from the mid trees, from all trees, no far trees as pictures, ground details high"
+	var on := _button(row_s, "All on", func() -> void: choose_all(SPED_UP))
+	on.tooltip_text = "Trimmed leaf cards, shadows from pictures, from trees within 60 m, far trees as pictures from 90 m, ground details baked"
 	_choice(col, "trees", "Trees", [["Old", "old"], ["New", "new"]], Game.tree_set, func(v: String) -> void: demo.show_tree_set(v))
 	var row0 := HBoxContainer.new()
 	col.add_child(row0)
@@ -85,9 +97,13 @@ func setup(d: Node) -> void:
 	_slider(col, "path_wear", "Path wear spread", 0.0, 1.0, 0.1, w.path_wear, "%.1f", func(v: float) -> void: w.set_path_wear(v))
 	_choice(col, "trimmed", "Leaf cards", [["Square", false], ["Trimmed", true]], w.trimmed, func(v: bool) -> void: w.set_trees("trimmed", v))
 	_choice(col, "fewer", "Cards per clump", [["As tuned", false], ["Fewer", true]], w.fewer, func(v: bool) -> void: w.set_trees("fewer", v))
-	_choice(col, "tree_shadows", "Tree shadows from", [["Full", "full"], ["Mid", "mid"], ["Far", "far"], ["None", "off"]], w.tree_shadows,
+	_choice(col, "tree_shadows", "Tree shadows from", [["Full", "full"], ["Mid", "mid"], ["Far", "far"], ["Pictures", "pictures"], ["None", "off"]], w.tree_shadows,
 		func(v: String) -> void: w.set_trees("tree_shadows", v))
+	_choice(col, "shadow_reach", "  from trees within", [["All", 0.0], ["60 m", 60.0], ["40 m", 40.0], ["25 m", 25.0]], w.shadow_reach,
+		func(v: float) -> void: w.set_trees("shadow_reach", v))
 	_slider(col, "lod_near", "Lighter trees from", 10.0, 110.0, 5.0, w.lod_near, "%d m", func(v: float) -> void: w.set_trees("lod_near", v))
+	_choice(col, "impostors", "Far trees as pictures", [["Never", 0.0], ["From 120 m", 120.0], ["90 m", 90.0], ["60 m", 60.0]], w.impostors_from,
+		func(v: float) -> void: w.set_trees("impostors_from", v))
 	_choice(col, "fade", "Fade trees near camera", [["On", true], ["Off", false]], w.fade_near_camera,
 		func(v: bool) -> void: w.set_trees("fade_near_camera", v))
 	_choice(col, "sight", "Trees in the way", [["Hide", true], ["Keep", false]], w.hide_in_sight,
@@ -124,7 +140,7 @@ func setup(d: Node) -> void:
 		["4", DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS]], sun.directional_shadow_mode,
 		func(v: int) -> void: sun.directional_shadow_mode = v as DirectionalLight3D.ShadowMode)
 	_rule(col)
-	_choice(col, "details", "Ground details", [["High", 3], ["Medium", 2], ["Low", 1], ["Off", 0]], w.ground_detail,
+	_choice(col, "details", "Ground details", [["High", 3], ["Baked", 4], ["Medium", 2], ["Low", 1], ["Off", 0]], w.ground_detail,
 		func(v: int) -> void: w.set_ground_detail(v))
 	_choice(col, "ssao", "Ambient occlusion", [["Off", -1], ["Very low", RenderingServer.ENV_SSAO_QUALITY_VERY_LOW],
 		["Low", RenderingServer.ENV_SSAO_QUALITY_LOW], ["Medium", RenderingServer.ENV_SSAO_QUALITY_MEDIUM], ["High", RenderingServer.ENV_SSAO_QUALITY_HIGH]],
@@ -216,7 +232,7 @@ func _walk_done(r: Dictionary) -> void:
 	if r.is_empty():
 		return
 	var settings := []
-	for k in ["trees", "trimmed", "fewer", "tree_shadows", "scale", "shadows", "shadow_size", "details", "ssao", "vsync", "fps"]:
+	for k in ["trees", "trimmed", "fewer", "tree_shadows", "shadow_reach", "impostors", "scale", "shadows", "shadow_size", "details", "ssao", "vsync", "fps"]:
 		settings.append(_choices[k])
 	_runs.push_front("%d · avg %d, 5%% low %d, 1%% low %d fps%s\n    %s" % [_runs.size() + 1, roundi(r["fps"]), roundi(r["low5"]),
 		roundi(r["low1"]), "" if r["completed"] else " (stopped early)", ", ".join(settings)])
@@ -256,9 +272,21 @@ func _choice(parent: Control, key: String, text: String, options: Array, current
 				apply.call(o[1]))
 
 
-## Press one of a row's buttons, as a click would (for the dev panel test).
+## Press one of a row's buttons, as a click would (for --set and the dev panel test). A number matches whichever
+## button has the same value, 0 or 0.0.
 func choose(key: String, value: Variant) -> void:
-	(_groups[key][value] as Button).button_pressed = true
+	var group: Dictionary = _groups[key]
+	if not group.has(value) and (value is int or value is float):
+		for k: Variant in group:
+			if (k is int or k is float) and is_equal_approx(float(k), float(value)):
+				value = k
+	(group[value] as Button).button_pressed = true
+
+
+## Make several choices at once, {setting: value}.
+func choose_all(settings: Dictionary) -> void:
+	for k: String in settings:
+		choose(k, settings[k])
 
 
 func show_theme(theme: String) -> void:

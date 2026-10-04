@@ -2712,6 +2712,113 @@
     "At 24 random spots and camera angles, trees covered at most 1% of the hero; a few went up to a metre early, from the see-through parts of their leaf cards"
    ],
    "cover": "renders/play_demo_in_the_way/pine_3m.jpg"
+  },
+  {
+   "id": "play-demo-speed",
+   "date": "2026-10-04",
+   "asked_at": "18:56",
+   "posted_at": "21:08",
+   "title": "The play demo, twice as fast",
+   "section": "Play demo: speed",
+   "asked": "The biggest things that eat fps seem to be the ground detail on paths and the trees. Even adjusting the shadow resolution has nowhere near as big an effect as whether trees and/or the ground details on a path are in view. Without either I easily get up to 140 fps, but with one of them in view 60–80 fps, and with the camera low so I see lots of trees it goes down to 30 fps. Please do a thorough scan yourself, playtesting and monitoring fps, and look at things that can be optimized that would have a heavy impact on fps. For everything you find to optimize, always have a before and after so I can toggle back and forth, and inspect afterwards whether the optimization degrades the look of the graphics too much",
+   "changed": [
+    "About twice the frame rate: 52 fps at the start becomes 96, 38 with the camera low in the forest becomes 74, and 81 on the meadow path becomes 192; walking the trail averages 131 fps instead of 65, with the slowest 1% of frames at 74 instead of 42",
+    "Ground details: Baked, the new default. High's stones, grit, fallen leaves and grain are worked out once at startup into four tiling textures, instead of for every pixel; it looks the same and saves up to 6.7 ms a frame on the paths",
+    "Tree shadows from pictures, the new default. A new tree's shadow comes from its trunk and branches and one quad facing the sun through its crown, cut out to a picture of its leaves as the sun sees them, taken at startup from 16 sides, instead of from hundreds of leaf cards; it saves 1.8–3.7 ms in the forest",
+    "Far trees as pictures from 90 m: each new tree model is pictured from 8 sides at startup, and from 90 m a tree is one quad turned to the camera; it saves 2.5–3.1 ms with the camera low",
+    "Only the trees within 60 m of the camera cast shadows (up to 1.1 ms), and the leaf cards are trimmed by default (up to 1.7 ms)",
+    "Every speed-up has its switch in the performance panel, and \"All as before\" and \"All on\" flip them all at once; the panel test runs both",
+    "Fixed: with trimmed cards, trees in the way left their bare branches behind, and the Medium and Low ground details worked out High's noise anyway"
+   ],
+   "items": [
+    {
+     "id": "s-speed",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: speed",
+     "author": "claude"
+    },
+    {
+     "id": "sp-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Play demo: speed\nYou said the trees and the ground's details on the paths eat the frame rate: about 140 fps without them, 60–80 with one in view, and about 30 with the camera low over many trees. You asked me to find what costs the most and speed it up, with a before and after for each change, so you can judge whether one costs too much of the look.\n\nNow, on this laptop (time per frame on the graphics card):\n- **At the start:** 19.3 ms (52 fps) → 10.4 ms (96 fps)\n- **Camera low in the forest:** 26 ms (38 fps) → 13.5 ms (74 fps)\n- **The meadow path:** 12.3 ms (81 fps) → 5.2 ms (192 fps)\n- **Walking the trail:** 65 fps on average → 131, the slowest 1% of frames 42 → 74",
+     "author": "claude"
+    },
+    {
+     "id": "sp-overall",
+     "type": "image",
+     "status": "new",
+     "caption": "All as before (left) and all on (right), with the panel's new buttons: at the start, with the camera low at the start, and on the meadow path. The numbers are the graphics card's time per frame.",
+     "assetId": "dfdacb5593862680828368cd15678ab9",
+     "file": "renders/play_demo_speed/before_and_now.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sp-shadows",
+     "type": "image",
+     "status": "new",
+     "caption": "Tree shadows from the mid trees' leaf cards (left) and from pictures (right): the lone pine on the meadow, and the thicket. The sun spots fall in the same places.",
+     "assetId": "987fbcc2374477234187e4855ceb9780",
+     "file": "renders/play_demo_speed/shadow_pictures.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sp-changes",
+     "type": "note",
+     "status": "new",
+     "text": "# What changed, each with its switch in F2\n**All as before** and **All on**, at the top of the panel, flip them all at once.\n- **Ground details: Baked** (before: High). The stones, grit, fallen leaves and the grass's grain are worked out once at startup into textures, instead of for every pixel. It looks the same and saves up to 6.7 ms on the paths\n- **Tree shadows from: Pictures** (before: Mid). A tree's shadow comes from its trunk and branches and one picture of its leaves as the sun sees them, instead of hundreds of leaf cards. Saves 1.8–3.7 ms in the forest\n- **Far trees as pictures: 90 m** (before: Never). Trees further off than 90 m are one picture each. Saves 2.5–3.1 ms with the camera low\n- **from trees within: 60 m** (before: All). Only trees within 60 m of the camera cast shadows. Saves up to 1.1 ms; at 40 m a big shadow on the meadow goes\n- **Leaf cards: Trimmed** (before: Square). The same look, up to 1.7 ms",
+     "author": "claude"
+    },
+    {
+     "id": "sp-reach",
+     "type": "image",
+     "status": "new",
+     "caption": "Shadows from all trees, from those within 60 m (the default), and from those within 40 m, where the shadow of a tree off to the left goes.",
+     "assetId": "ff69f0bfafb48939517c581e0a3dafbf",
+     "file": "renders/play_demo_speed/shadow_reach.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sp-far",
+     "type": "image",
+     "status": "new",
+     "caption": "The far treeline over the rise: always trees (top), and pictures from 90 m (bottom). The pictures look a little fuller than the lightest trees they replace.",
+     "assetId": "a66774f5a493fe705e5b0df42466c375",
+     "file": "renders/play_demo_speed/far_trees.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sp-more",
+     "type": "note",
+     "status": "new",
+     "text": "# What else costs, and what didn't help\nThe biggest costs left, at the start (10.4 ms a frame):\n- **Shadows:** 2.7 ms, 2.2 of it the trees'\n- **Ambient occlusion:** 1.9 ms, up to 3.7 with the camera low\n- **Render scale 75%** saves 2.2 ms, and **fewer cards per clump** 2.0, but the crowns get sparser\n\nNot worth it: the lighter trees nearer, a draw distance for the bushes, leaving out the shadows of trees behind the camera (Godot already does), and moving the shadow cascades' split. Without Godot's depth prepass the forest takes twice as long.\n\nFixed on the way: the Medium and Low ground details worked out High's noise anyway, so they now save a little more.",
+     "author": "claude"
+    },
+    {
+     "id": "sp-ground",
+     "type": "image",
+     "status": "new",
+     "caption": "The meadow path's ground details: High, worked out for every pixel (left), and Baked into textures at startup (right).",
+     "assetId": "099d19015f66566b3532dc21f18502c2",
+     "file": "renders/play_demo_speed/ground_baked.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/28_bare_branches.jpg",
+     "caption": "With trimmed cards, trees in the way left their bare branches behind and hid the hero, as the trimmed trees' bark didn't fade (left); fixed (right)"
+    }
+   ],
+   "found": [
+    "Most of a frame went on the trees' leaf cards, drawn once for the picture and again for the shadow map, and on the ground shader working out noise for every pixel of the paths",
+    "The shadows of trees behind the camera cost nothing extra: Godot already leaves them out",
+    "The lighter tree versions hardly help nearer the camera, as their fewer, bigger cards cover about as many pixels",
+    "Godot's depth prepass halves the forest's cost: without it, every leaf card is shaded where something else hides it",
+    "With shadows only from the trees within 40 m, low over the meadow a big tree's shadow went, so it's 60 m"
+   ],
+   "cover": "renders/play_demo_speed/before_and_now.jpg"
   }
  ]
 }

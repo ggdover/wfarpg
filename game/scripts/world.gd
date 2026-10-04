@@ -50,22 +50,34 @@ const NEAR_GONE := 1.0  # metres from the camera within which trees have faded o
 
 var _ground_materials := {}  # detail level -> its material (shaders/ground*.gdshader)
 var _ground_meshes: Array[MeshInstance3D] = []
-var ground_detail := 3
+var ground_detail := 4
 ## how far the paths' wear spreads into the grass: 0 as in the mockups, 1 the widest (wear_spread in the ground shader)
 var path_wear := 1.0
 const GROUND_SHADERS := {3: "res://shaders/ground.gdshader", 2: "res://shaders/ground_medium.gdshader",
-	1: "res://shaders/ground_low.gdshader", 0: "res://shaders/ground_flat.gdshader"}
+	1: "res://shaders/ground_low.gdshader", 0: "res://shaders/ground_flat.gdshader", 4: "res://shaders/ground_baked.gdshader"}
+const BAKED := 4  ## the ground detail level that reads High's details from textures baked at startup (scripts/ground_detail.gd)
+var _baked_ready := false
 
 # How the new trees are drawn; set them with set_trees().
 ## leaf cards cut down from their squares to the outline round their leaves (looks the same, fewer pixels to draw)
-var trimmed := false
+var trimmed := true
 ## about half the leaf cards per clump (changes the look)
 var fewer := false
-## which version casts a tree's shadow: "full", "mid" (the first lighter one), "far" (the lightest), or "off"
-var tree_shadows := "mid"
+## what casts a tree's shadow: a version of it, "full", "mid" (the first lighter one) or "far" (the lightest), or
+## "pictures" (its trunk and branches, and a picture of its leaves as the sun sees them: TreeShadowPictures), or "off"
+var tree_shadows := "pictures"
+## only the trees within this far of the camera cast shadows (metres; 0 for every tree)
+var shadow_reach := 60.0
 ## where the lighter versions take over (metres from the camera)
 var lod_near := 45.0
 var lod_far := 120.0
+## from this far off (metres; 0 for never), the new trees are drawn as impostors: one quad each, showing pictures of
+## the tree baked at startup (scripts/tree_impostors.gd), instead of hundreds of overlapping leaf cards
+var impostors_from := 90.0
+var _impostors: TreeImpostors = null
+var _impostors_baking := false
+var _shadow_pictures: TreeShadowPictures = null
+var _shadow_pictures_baking := false
 ## fade out trees near a high camera, as the mockups hide them, though never near the hero (scripts/camera_rig.gd);
 ## off, as trees should only go once they're in the way
 var fade_near_camera := false
@@ -306,14 +318,9 @@ func _refresh_drawn(i: int) -> void:
 	_draw_tree(i, want)
 
 
+## Draw the version near the camera, or not; the tree's shadow comes from its own instance, so it stays either way.
 func _draw_tree(i: int, draw: bool) -> void:
-	var tree: Dictionary = _tree_sets[_current][i]
-	var rid: RID = tree["draw"][0]
-	if _casts_shadow(tree, 0):  # keep its shadow while it isn't drawn
-		RenderingServer.instance_geometry_set_cast_shadows_setting(rid, RenderingServer.SHADOW_CASTING_SETTING_ON if draw
-			else RenderingServer.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
-	else:
-		RenderingServer.instance_set_visible(rid, draw)
+	RenderingServer.instance_set_visible(_tree_sets[_current][i]["draw"][0], draw)
 
 
 func _unskip() -> void:
@@ -329,8 +336,8 @@ func _unskip() -> void:
 	_clear_for.clear()
 
 
-## Change how the trees are drawn, now: any of trimmed, fewer, tree_shadows, lod_near, lod_far, fade_near_camera,
-## hide_in_sight.
+## Change how the trees are drawn, now: any of trimmed, fewer, tree_shadows, shadow_reach, lod_near, lod_far,
+## impostors_from, fade_near_camera, hide_in_sight.
 func set_trees(option: String, value: Variant) -> void:
 	_unskip()
 	set(option, value)
@@ -345,13 +352,17 @@ func _build_occluders() -> void:
 		_occluder(tree)
 
 
-## Does this instance of the tree (0: the one drawn near the camera) cast the tree's shadow?
-func _casts_shadow(tree: Dictionary, i: int) -> bool:
+## What casts the tree's shadow: the version drawn near the camera (names[0]) for "full", a lighter one for "mid" and
+## "far" (old trees have no lighter ones, nor pictures), its picture for "pictures" (the mid version until they're
+## baked), or nothing (null).
+func _shadow_caster(tree: Dictionary, names: Array) -> Mesh:
 	if tree_shadows == "off":
-		return false
-	if tree["kind"] != "full":  # old trees and young spruces cast their own
-		return true
-	return i > 0 if tree_shadows != "full" else true
+		return null
+	if tree_shadows == "full" or tree["kind"] == "old":
+		return Models.mesh(names[0])
+	if tree_shadows == "pictures" and _shadow_pictures != null:
+		return _shadow_pictures.meshes[tree["model"]]
+	return Models.mesh(tree["model"] + ("_2" if tree_shadows == "far" else "_1") + ("_t" if trimmed else ""))
 
 
 ## Set a parameter of the ground shader, at every level of detail.
@@ -360,11 +371,13 @@ func set_ground_param(param: String, value: Variant) -> void:
 		mat.set_shader_parameter(param, value)
 
 
-## How much small detail the ground draws: 3 high, 2 medium, 1 low, 0 none (see shaders/ground.gdshaderinc).
+## How much small detail the ground draws: 3 high, 4 high from baked textures, 2 medium, 1 low, 0 none (see
+## shaders/ground.gdshaderinc). The baked level shows High until its textures are ready, a few frames in.
 func set_ground_detail(level: int) -> void:
 	ground_detail = level
+	var use := 3 if level == BAKED and not _baked_ready else level
 	for mi in _ground_meshes:
-		mi.material_override = _ground_materials[level]
+		mi.material_override = _ground_materials[use]
 
 
 ## How far the paths' wear spreads into the grass, 0 (the mockups') to 1.
@@ -409,6 +422,11 @@ func _build_terrain() -> void:
 	set_ground_param("masks_tex", load("res://assets/ground/masks.png"))
 	set_ground_param("bounds", Vector4(b[0], b[1], b[2], b[3]))
 	set_ground_param("wear_spread", path_wear)
+	GroundDetail.bake(self, func(layer: String, tex: Texture2D) -> void:
+		_ground_materials[BAKED].set_shader_parameter(layer, tex)
+		if layer == GroundDetail.LAYERS[-1]:
+			_baked_ready = true
+			set_ground_detail(ground_detail))
 	# the detailed ground, in strips so the camera can skip what it doesn't see
 	var strip := 64
 	for j0 in range(0, _size.y - 1, strip):
@@ -509,22 +527,21 @@ func _build_trees(which: String) -> Array:
 			(_tree_cells[cell] as Array).append(_tree_xz.size())
 			_tree_xz.append(Vector2(p[0], p[2]))
 			_tree_y.append(p[1])
-		# old trees: one instance; portfolio trees: full, mid and far versions, and one more that casts the shadow;
-		# young spruces: the mid and far versions, which are fine for something that small
+		# the versions it's drawn in (old trees: one; portfolio trees: full, mid and far; young spruces: the mid and far
+		# versions, which are fine for something that small), and one more that casts its shadow
 		var kind := "old"
 		if Models.has(model + "_1"):
 			kind = "young" if t["kind"] == "YoungSpruce" else "full"
 		var count: int = {"old": 1, "young": 2, "full": 3}[kind]
-		var tree := {"model": model, "kind": kind, "draw": [], "shadow": RID(), "bound": _bound(model) * float(t["s_" + which]),
-			"inv": xf.affine_inverse()}
+		var tree := {"model": model, "kind": kind, "draw": [], "shadow": RID(), "impostor": RID(),
+			"bound": _bound(model) * float(t["s_" + which]), "xf": xf, "inv": xf.affine_inverse()}
 		_max_reach = maxf(_max_reach, (tree["bound"] as Vector3).x)
 		for i in count:
 			var rid := RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)
 			RenderingServer.instance_set_transform(rid, xf)
 			(tree["draw"] as Array).append(rid)
-		if kind == "full":
-			tree["shadow"] = RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)
-			RenderingServer.instance_set_transform(tree["shadow"], xf)
+		tree["shadow"] = RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)
+		RenderingServer.instance_set_transform(tree["shadow"], xf)
 		trees.append(tree)
 	return trees
 
@@ -532,6 +549,12 @@ func _build_trees(which: String) -> Array:
 ## Point every tree of the shown set at the versions the settings ask for, with their distances and shadows.
 func _apply_trees() -> void:
 	var t_ := "_t" if trimmed else ""
+	var pictures := impostors_from > 0.0 and tree_lod == 0
+	if pictures and _impostors == null and not _impostors_baking:
+		_bake_impostors()
+	if tree_shadows == "pictures" and _shadow_pictures == null and not _shadow_pictures_baking:
+		_bake_shadow_pictures()
+	var far := maxf(impostors_from, lod_near + 2.0 * LOD_MARGIN)  # where the pictures take over
 	for tree: Dictionary in _tree_sets[_current]:
 		var draw: Array = tree["draw"]
 		var m: String = tree["model"]
@@ -547,30 +570,41 @@ func _apply_trees() -> void:
 			names = names.map(func(_n: String) -> String: return m + "_%d" % tree_lod + t_)
 		var ranges: Array = [[0.0, 0.0]] if names.size() == 1 else ([[0.0, lod_far], [lod_far, 0.0]] if names.size() == 2
 			else [[0.0, lod_near], [lod_near, lod_far], [lod_far, 0.0]])
+		var pictured: bool = pictures and _impostors != null and tree["kind"] != "old"
+		if pictured:  # the lightest version gives way to the picture
+			ranges = [[0.0, far], [far, far]] if names.size() == 2 else [[0.0, lod_near], [lod_near, far], [far, far]]
 		for i in draw.size():
 			var rid: RID = draw[i]
 			RenderingServer.instance_set_base(rid, Models.mesh(names[i]).get_rid())
 			RenderingServer.instance_geometry_set_visibility_range(rid, ranges[i][0], ranges[i][1],
 				LOD_MARGIN if i > 0 else 0.0, LOD_MARGIN if i < draw.size() - 1 else 0.0,
 				RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)  # a dithered cross-fade leaves black holes with alpha-cut leaves
-			RenderingServer.instance_geometry_set_cast_shadows_setting(rid, RenderingServer.SHADOW_CASTING_SETTING_ON
-				if _casts_shadow(tree, i) else RenderingServer.SHADOW_CASTING_SETTING_OFF)
-			RenderingServer.instance_set_visible(rid, true)
+			RenderingServer.instance_geometry_set_cast_shadows_setting(rid, RenderingServer.SHADOW_CASTING_SETTING_OFF)
+			RenderingServer.instance_set_visible(rid, ranges[i][0] != ranges[i][1] or ranges[i][0] == 0.0)
+		var impostor: RID = tree["impostor"]
+		if pictured:
+			if not impostor.is_valid():
+				impostor = RenderingServer.instance_create2(_impostors.meshes[m].get_rid(), get_world_3d().scenario)
+				RenderingServer.instance_set_transform(impostor, tree["xf"])
+				RenderingServer.instance_geometry_set_cast_shadows_setting(impostor, RenderingServer.SHADOW_CASTING_SETTING_OFF)
+				tree["impostor"] = impostor
+			RenderingServer.instance_geometry_set_visibility_range(impostor, far, 0.0, LOD_MARGIN, 0.0,
+				RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)
+			RenderingServer.instance_set_visible(impostor, true)
+		elif impostor.is_valid():
+			RenderingServer.instance_set_visible(impostor, false)
+		# the shadow comes from one more instance, drawn into the shadow map only: what tree_shadows picks, out to
+		# shadow_reach from the camera
 		var shadow: RID = tree["shadow"]
-		if shadow.is_valid():
-			# the full version's shadow comes from a lighter one, drawn into the shadow map only
-			var use := tree_shadows in ["mid", "far"]
-			RenderingServer.instance_set_visible(shadow, use)
-			if use:
-				var far := tree_shadows == "far"
-				RenderingServer.instance_set_base(shadow, Models.mesh(m + ("_2" if far else "_1") + t_).get_rid())
-				RenderingServer.instance_geometry_set_visibility_range(shadow, 0.0, lod_near, 0.0, LOD_MARGIN,
-					RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)
-				RenderingServer.instance_geometry_set_cast_shadows_setting(shadow, RenderingServer.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
-				if far:  # the mid version's own shadow comes from the lightest too
-					RenderingServer.instance_geometry_set_cast_shadows_setting(draw[1], RenderingServer.SHADOW_CASTING_SETTING_OFF)
-					RenderingServer.instance_geometry_set_visibility_range(shadow, 0.0, lod_far, 0.0, LOD_MARGIN,
-						RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)
+		var caster := _shadow_caster(tree, names)
+		RenderingServer.instance_set_visible(shadow, caster != null)
+		if caster != null:
+			RenderingServer.instance_set_base(shadow, caster.get_rid())
+			RenderingServer.instance_geometry_set_visibility_range(shadow, 0.0, shadow_reach, 0.0, LOD_MARGIN if shadow_reach > 0.0 else 0.0,
+				RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)
+			RenderingServer.instance_geometry_set_cast_shadows_setting(shadow, RenderingServer.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+	for i: int in _undrawn:  # those faded out near the camera or out of the way stay undrawn
+		_draw_tree(i, false)
 
 
 ## How far a tree model reaches from its trunk, and its bottom and top, unscaled: round the boxes of all its versions,
@@ -592,9 +626,51 @@ func _bound(model: String) -> Vector3:
 
 func _instances(tree: Dictionary) -> Array:
 	var out: Array = (tree["draw"] as Array).duplicate()
-	if (tree["shadow"] as RID).is_valid():
-		out.append(tree["shadow"])
+	for k in ["shadow", "impostor"]:
+		if (tree[k] as RID).is_valid():
+			out.append(tree[k])
 	return out
+
+
+## Picture the new trees for their impostors (TreeImpostors), and put them to use once that's done, a frame later.
+func _bake_impostors() -> void:
+	_impostors_baking = true
+	var models := []
+	var versions := {}
+	for tree: Dictionary in _tree_sets[_current]:
+		var m: String = tree["model"]
+		if tree["kind"] != "old" and not versions.has(m):
+			models.append(m)
+			versions[m] = m  # the full version, with square cards, which look the same as the trimmed ones
+	if models.is_empty():
+		_impostors_baking = false
+		return
+	var imp := TreeImpostors.new()
+	await imp.bake(self, models, versions)
+	_impostors = imp
+	_impostors_baking = false
+	_apply_trees()
+
+
+## Picture the new trees' leaves for their shadows (TreeShadowPictures), from the full versions, as the day's sun
+## sees them (scripts/mood.gd), and put them to use once that's done, a frame later.
+func _bake_shadow_pictures() -> void:
+	_shadow_pictures_baking = true
+	var models := []
+	var versions := {}
+	for tree: Dictionary in _tree_sets[_current]:
+		var m: String = tree["model"]
+		if tree["kind"] != "old" and not versions.has(m):
+			models.append(m)
+			versions[m] = m
+	if models.is_empty():
+		_shadow_pictures_baking = false
+		return
+	var pics := TreeShadowPictures.new()
+	await pics.bake(self, models, versions, -Mood.sun_direction(Mood.SUN_ROTATION.x, Mood.SUN_ROTATION.y))
+	_shadow_pictures = pics
+	_shadow_pictures_baking = false
+	_apply_trees()
 
 
 func _exit_tree() -> void:
