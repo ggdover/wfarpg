@@ -267,9 +267,14 @@ def mat_ground():
     bare = sstep(math("ADD", wear, math("ADD", math("MULTIPLY", tufts, 2.0), math("MULTIPLY", fine, 0.5))), 0.35, 0.7)
     worn = sstep(e, 0.7, 2.1, 1.0, 0.0)
     worn.node.name = "Worn"
-    worn_grass = ramp(noise(3.0, 2.0, 0.6, 0, (23, 7, 0)), [(0.3, "#93904F"), (0.7, "#ABA462")])
+    worn_noise = noise(3.0, 2.0, 0.6, 0, (23, 7, 0))
+    worn_noise.node.name = "WornNoise"
+    worn_grass = ramp(worn_noise, [(0.3, "#93904F"), (0.7, "#ABA462")])
     col = mix(math("MULTIPLY", worn, 0.5), col, worn_grass)
-    dirt = ramp(noise(0.9, 3.0, 0.5, 0, (3, 29, 0)), [(0.3, "#D6A151"), (0.5, "#DDAF64"), (0.72, "#E0BB7B")])
+    col.node.name = "WornGrass"  # A: the grass before feet trampled it
+    dirt_noise = noise(0.9, 3.0, 0.5, 0, (3, 29, 0))
+    dirt_noise.node.name = "DirtNoise"
+    dirt = ramp(dirt_noise, [(0.3, "#D6A151"), (0.5, "#DDAF64"), (0.72, "#E0BB7B")])
     dirt = mix(sstep(wear, 0.35, 0.85, 0.4, 0.0), dirt, "#B3A456")
     col = mix(bare, col, dirt)
     col.node.name = "PathDirt"  # A: the grass beside the path, B: the path's dirt, Factor: where the dirt shows

@@ -10,16 +10,22 @@ uniform float specular_level = 0.25;
 uniform float ao_light_affect = 0.2;
 // the mood's grade: saturation and value, like the Grade node in the mockups
 global uniform vec2 mood_grade;
+#ifdef PEBBLE
+global uniform vec3 pebble_colour;
+#endif
 
 void fragment() {
 #ifdef HERO_FADE
 	float fade = max(hero_fade(VERTEX, VIEW_MATRIX, PROJECTION_MATRIX, CAMERA_POSITION_WORLD, VIEWPORT_SIZE),
 			tree_fade(NODE_POSITION_WORLD, CAMERA_POSITION_WORLD));
-	if (fade > bayer4(FRAGCOORD.xy)) {
+	if (faded_out(fade, (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz)) {
 		discard;
 	}
 #endif
 	vec3 c = srgb_to_linear(COLOR.rgb);
+#ifdef PEBBLE
+	c = pebble_colour * dot(c, vec3(0.2126, 0.7152, 0.0722)) / 0.42;  // 0.42: the pebbles' average brightness
+#endif
 	float grey = dot(c, vec3(0.2126, 0.7152, 0.0722));
 	ALBEDO = mix(vec3(grey), c, mood_grade.x) * mood_grade.y;
 	ROUGHNESS = roughness;

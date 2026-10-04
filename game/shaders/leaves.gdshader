@@ -19,7 +19,7 @@ global uniform vec2 mood_grade;
 void fragment() {
 	float fade = max(hero_fade(VERTEX, VIEW_MATRIX, PROJECTION_MATRIX, CAMERA_POSITION_WORLD, VIEWPORT_SIZE),
 			tree_fade(NODE_POSITION_WORLD, CAMERA_POSITION_WORLD));
-	if (fade > bayer4(FRAGCOORD.xy)) {
+	if (faded_out(fade, (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz)) {
 		discard;
 	}
 	vec4 c = texture(card, UV);

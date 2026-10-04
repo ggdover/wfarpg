@@ -22,6 +22,7 @@ It needs Godot 4.7, the standard build without .NET. This machine has it at `~/.
 godot --path game                                  # from the repository root: plays the demo
 godot -e --path game                               # opens the project in the editor (F5 plays)
 godot --path game res://scenes/demo.tscn -- --trees=old   # straight into the demo, with the old trees
+godot --path game res://scenes/demo.tscn -- --theme=Brown_earth   # with one of the path colours (_ for spaces)
 ```
 
 The first time, Godot imports the models and textures, which takes a minute. When running it from the command line
@@ -38,6 +39,7 @@ The controls follow the mechanics and camera notes on the look & feel board.
 | Mouse wheel | Zoom |
 | Left mouse button (hold) | "Attack": the hero turns to face the cursor and walks at 55% speed. There are no attacks yet |
 | T | Swap the old and new trees |
+| P | Change the paths' colours (seven themes, below) |
 | F2 | The performance panel (below) |
 | F1 | Show or hide the help |
 | F3 | Frame rate |
@@ -56,11 +58,12 @@ place (`tools/reference_shots.py`).
   - Faceted models keep their per-face colours in the vertex colours.
   - Leaf cards use the portfolio's cards, cut out at alpha 0.5 as in Blender.
 - **Ground:** the mockups' ground shader in two parts.
-  - Its large-scale colours are baked from Blender into textures: moss, grass patches, the meadow, the trampled
-    grass beside the trails, and the trails' dirt.
-  - `shaders/ground.gdshader` draws the small things on top with the same formulas, so they stay sharp up close:
-    gravel and pebbles, grit, and fallen leaves. It uses a port of Blender's noise
-    (`shaders/blender_noise.gdshaderinc`).
+  - Its large-scale colours are baked from Blender into textures: moss, grass patches and the meadow. Where the
+    trails wear the grass, the bake keeps the noise and the masks (`path_noise.png`, `masks.png`) instead of the
+    colours, so the game can paint the trails in any of the path colours.
+  - `shaders/ground.gdshaderinc` draws the trails and the small things on top with the same formulas, so they stay
+    sharp up close: the trampled grass and dirt, gravel and pebbles, grit, and fallen leaves. It uses a port of
+    Blender's noise (`shaders/blender_noise.gdshaderinc`), and comes in four levels of detail (below).
 - **Light:** `scripts/mood.gd` copies the mockups' daylight: the sun, a plain ambient colour, the gradient sky with
   clouds, haze, and AgX tone mapping.
 - **Shading under the trees:** Godot's ambient light isn't blocked by geometry, unlike Eevee's, so the build bakes
@@ -70,6 +73,8 @@ place (`tools/reference_shots.py`).
 - **Trees and the camera:**
   - Trees between the camera and the hero get a round hole cut round the hero.
   - With the camera high up, trees near it fade out completely, as the mockups hide them; their shadows stay.
+  - Both fade in patches a few tenths of a metre across rather than in a dither of single pixels, which the
+    ambient occlusion turned into black specks.
 
 Where it differs on purpose:
 
@@ -88,19 +93,52 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Switch | What it does |
 |---|---|
 | Trees | The old or the new trees (as T) |
+| Path colours | The paths' colour theme (as P) |
 | Leaf cards | Square cards, or cards trimmed to an outline round their leaves: the same look, fewer pixels to draw |
 | Cards per clump | As tuned, or about half as many (a little bigger): sparser crowns |
 | Tree shadows from | Which version of a new tree casts its shadow: the full one, the mid one, the far one, or none |
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Fade trees near camera | The mockups' fade of trees near a high camera (it also saves drawing them) |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
-| Antialiasing, VSync, Shadows, Shadow distance, Shadow cascades | Godot's own settings |
-| Ground details | The gravel, grit, fallen leaves and bumps the ground shader draws |
-| Ambient occlusion (SSAO), Haze | Godot's screen-space ambient occlusion, and the fog |
+| Antialiasing, VSync, Shadows | Godot's own settings |
+| Shadow distance | How far from the camera shadows reach. **Fit the view** follows what the camera sees, up to the slider's distance, so the shadows round the hero never go; **Fixed** uses the slider's distance |
+| Shadow resolution | The size of the sun's shadow map: less detailed, softer-edged shadows at 1024 and 512, but all of them still there |
+| Shadow softness | Hard, low or high: how many samples soften the shadows' edges |
+| Shadow cascades | 1, 2 or 4: more cascades keep near shadows sharp while reaching far, for more drawing |
+| Ground details | How much the ground shader draws on the paths and the grass (below) |
+| Ambient occlusion | Godot's screen-space ambient occlusion: off, or very low to high quality |
+| Haze | The fog |
+
+The ground details come at four levels, each its own compiled shader, so a lower level doesn't pay for what it skips:
+
+| Level | What it draws |
+|---|---|
+| High | Everything: three sizes of stones with exact, slightly wavy outlines, grit between them, fallen leaves, and bumps that catch the light |
+| Medium | The small and big stones, with simpler outlines, and the fallen leaves: no flat stones, grit or bumps. It looks almost the same |
+| Low | The small stones and the fallen leaves; the bigger stones become an even colour |
+| Off | The dirt and grass colours only |
+
+Each level also stops drawing details further from the camera (High at 50 m, Medium 38 m, Low 28 m).
 
 **Walk the trail** walks from the start to the meadow the same way every time and lists the result with the settings,
 so runs compare fairly. VSync caps the frame rate at the screen's, so turn it off to see how far above 60 a setting
 gets. `--paneltest` presses every switch in turn and prints what each costs.
+
+## Path colours
+
+P (or the panel) cycles through seven colour themes for the paths, from dark brown to sandy. They're in
+`scripts/path_themes.gd`: the dirt, the trampled grass beside it, the grit, the gravel's shadow and the stones'
+colours, how many stones of each size, and how many fallen leaves.
+
+| Theme | Look |
+|---|---|
+| Forest soil | Dark, packed forest soil with grey-brown stones and more fallen leaves |
+| Brown earth | Medium brown earth with pale, sandy stones |
+| Iron soil | Warm, rusty brown soil, as where the ground is rich in iron, with grey granite stones |
+| Granite gravel | A grey-beige gravel track of crushed granite, grey and pink, with more stones |
+| Esker sand | Pale sand and gravel, as on the eskers, with grey-brown pebbles |
+| Sandy, mixed stones | The light tan paths' sandy dirt, with stones of mixed browns and greys standing out from it |
+| Light tan | The mockups' paths: light tan dirt with gravel in the same tones |
 
 ## Speed
 
@@ -117,6 +155,15 @@ To keep it there:
   and the full trees come with fewer cards per clump too (`trees_few.glb`), for trying in the performance panel.
 - **Shadows:** the full tree casts its shadow from the lighter version.
 - **Faded trees:** trees faded out near the camera aren't drawn at all, apart from their shadows.
+
+The biggest costs after the trees, measured with the panel (time per frame on the graphics card, against the
+defaults):
+
+- **Ground details:** Medium saves 4.6 ms, Low 4.7 and Off 5.0. Medium keeps nearly all of the look, so it gets
+  nearly all of Off's speed without losing the gravel and leaves.
+- **Shadows:** a 1024 shadow map saves about 4.8 ms against 2048, 4096 costs 11.7 ms more. Fitting the distance to
+  the view saves about 2 ms against a fixed 70 m. Tree shadows from the far versions save about 4 ms.
+- **Ambient occlusion:** off saves 6.1 ms, very low 0.6; high costs 5.9 ms more.
 
 ## Rebuilding the assets
 
@@ -149,9 +196,10 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions), rocks and plants, colliders, walls |
 | `scripts/hero.gd`, `scripts/camera_rig.gd` | The hero and the camera |
 | `scripts/perf_panel.gd`, `scripts/trail_walk.gd` | The performance panel, and the walk along the trail it uses |
+| `scripts/path_themes.gd` | The paths' colour themes |
 | `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
-| `shaders/` | Ground, leaves, the low-poly material, sky, Blender's noise |
+| `shaders/` | Ground (`ground.gdshaderinc`, compiled at four levels of detail: `ground`, `ground_medium`, `ground_low`, `ground_flat`), leaves, the low-poly material, sky, Blender's noise |
 | `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--disable-vsync` before the scene path, and `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`) and `lineup.gd` (models in rows, for comparing with Blender) |
 | `tools/` | The Blender build scripts (Godot ignores this folder) |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

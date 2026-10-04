@@ -62,6 +62,10 @@ tree_fade_radius={
 "type": "float",
 "value": 0.0
 }
+pebble_colour={
+"type": "vec3",
+"value": Vector3(0.63, 0.40, 0.15)
+}
 mood_grade={
 "type": "vec2",
 "value": Vector2(1, 1)

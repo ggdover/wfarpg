@@ -9,6 +9,7 @@ extends Node3D
 ##   --fps=seconds    measure the frame rate first and print it                       --selftest  try the controls
 ##   --walktest       walk the trail and print the frame times                       --treelod=1|2  lighter trees
 ##   --panel          open the performance panel (F2)
+##   --set:option=value  a panel option, e.g. --set:shadow_size=1024 --set:details=2 --set:tree_shadows=far --set:shadow_cap=40
 ##   for measuring what costs what: --noshadow, --nofade, --flatground, --canopy=0..1, --bump=0..1,
 ##   --sun:property=value, --env:property=value, --vp:property=value
 
@@ -19,6 +20,9 @@ var _info: Label
 var _help: Control
 var _fps: Label
 var _panel: PerfPanel
+## the shadows reach as far as the camera sees the ground, at most shadow_cap metres; or always shadow_cap if false
+var shadow_fit := true
+var shadow_cap := 70.0
 var _shot := ""
 var _wait := 90
 var _measure := 0.0
@@ -38,6 +42,7 @@ func _ready() -> void:
 	world = DemoWorld.new()
 	add_child(world)
 	world.build(Game.tree_set)
+	PathThemes.apply(world, Game.path_theme)
 	hero = Hero.new()
 	add_child(hero)
 	hero.global_position = world.start_position() + Vector3(0, 0.1, 0)
@@ -73,6 +78,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		show_tree_set("old" if Game.tree_set == "new" else "new")
 	elif event.is_action_pressed("perf_panel"):
 		_panel.visible = not _panel.visible
+	elif event.is_action_pressed("path_theme"):
+		var order := PathThemes.ORDER
+		show_path_theme(order[(order.find(Game.path_theme) + 1) % order.size()])
 	elif event.is_action_pressed("toggle_help"):
 		_help.visible = not _help.visible
 	elif event.is_action_pressed("toggle_fps"):
@@ -93,6 +101,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_tree().change_scene_to_file("res://scenes/start.tscn")
 
 
+## Paint the paths in one of the colour themes (scripts/path_themes.gd).
+func show_path_theme(theme: String) -> void:
+	Game.path_theme = theme
+	PathThemes.apply(world, theme)
+	_update_info()
+	_panel.show_theme(theme)
+
+
 ## Show the old trees or the new ones, where you stand.
 func show_tree_set(which: String) -> void:
 	Game.tree_set = which
@@ -103,6 +119,7 @@ func show_tree_set(which: String) -> void:
 
 func _process(delta: float) -> void:
 	_fps.text = "%d fps" % Engine.get_frames_per_second()
+	_fit_shadows()
 	if _shot == "":
 		return
 	_wait -= 1
@@ -125,6 +142,28 @@ func _process(delta: float) -> void:
 				RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME),
 				RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)])
 			_take_shot()
+
+
+## Godot's shadows reach a set distance from the camera. Make that just as far as the camera sees the ground (the
+## top edge of the screen, measured along the view), so the shadows round the hero always stay, none are drawn that
+## can't be seen, and the shadow map's detail goes where it's needed. Low cameras that see the horizon get shadow_cap.
+func _fit_shadows() -> void:
+	var sun: DirectionalLight3D = get_node("DirectionalLight3D")
+	var want := shadow_cap
+	if shadow_fit:
+		var cam := rig.camera
+		var vp := get_viewport().get_visible_rect().size
+		var forward := -cam.global_basis.z
+		for x in [0.0, 0.5, 1.0]:  # the top edge's corners and middle
+			var ray := cam.project_ray_normal(Vector2(vp.x * x, 0.0))
+			var reach := shadow_cap
+			if ray.y < -0.02:
+				var t := (cam.global_position.y - hero.global_position.y) / -ray.y
+				reach = minf(t * ray.dot(forward) + 6.0, shadow_cap)
+			want = reach if x == 0.0 else maxf(want, reach)
+		want = maxf(want, rig.distance + 12.0)
+	if absf(sun.directional_shadow_max_distance - want) > 0.5:
+		sun.directional_shadow_max_distance = want
 
 
 func _take_shot() -> void:
@@ -152,16 +191,26 @@ func _read_args() -> void:
 		elif a.begins_with("--vp:"):
 			var kv := a.substr(5).split("=")
 			get_viewport().set(kv[0], str_to_var(kv[1]))
+		elif a.begins_with("--ground:"):  # --ground:parameter=value, the ground shader's
+			var kv := a.substr(9).split("=")
+			world.set_ground_param(kv[0], str_to_var(kv[1]))
+		elif a.begins_with("--set:"):  # --set:option=value, a performance panel option (see dev/paneltest.gd)
+			var kv := a.substr(6).split("=")
+			var v: Variant = str_to_var(kv[1])
+			if kv[0] == "shadow_cap":  # the panel's slider
+				shadow_cap = float(v)
+			else:
+				_panel.choose(kv[0], kv[1] if v == null else v)
 		elif a.begins_with("--bump="):
-			world._ground_material.set_shader_parameter("bump_strength", float(a.substr(7)))
+			world.set_ground_param("bump_strength", float(a.substr(7)))
 		elif a.begins_with("--canopy="):
-			world._ground_material.set_shader_parameter("canopy_strength", float(a.substr(9)))
+			world.set_ground_param("canopy_strength", float(a.substr(9)))
+		elif a.begins_with("--detail="):
+			world.set_ground_detail(int(a.substr(9)))
 		elif a == "--nofade":
 			RenderingServer.global_shader_parameter_set("hero_fade_on", 0.0)
 		elif a == "--flatground":
-			for c in world.get_children():
-				if c is MeshInstance3D:
-					(c as MeshInstance3D).material_override = StandardMaterial3D.new()
+			world.set_ground_detail(0)
 		elif a.begins_with("--pose="):  # x,z,yaw,pitch,distance[,hero facing in degrees like the start's]
 			var v := a.substr(7).split_floats(",")
 			hero.global_position = Vector3(v[0], world.height_at(v[0], v[1]) + 0.05, v[1])
@@ -207,8 +256,8 @@ func _build_hud() -> void:
 		+ "Right mouse button + move  orbit the camera\n"
 		+ "Mouse wheel  zoom\n"
 		+ "Left mouse button  'attack': face the cursor, walk slower\n"
-		+ "T  swap old and new trees    F2  performance    F3  frame rate    F4  render scale\n"
-		+ "F12  screenshot    F1  hide this    Esc  menu")
+		+ "T  swap old and new trees    P  path colours    F2  performance    F3  frame rate\n"
+		+ "F4  render scale    F12  screenshot    F1  hide this    Esc  menu")
 	_help.add_theme_color_override("font_color", Color("#CFC6B2"))
 	_help.add_theme_font_size_override("font_size", 13)
 	col.add_child(_help)
@@ -224,7 +273,7 @@ func _build_hud() -> void:
 	_panel.visible = false
 	_panel.anchor_left = 1.0
 	_panel.anchor_right = 1.0
-	_panel.offset_left = -436.0
+	_panel.offset_left = -526.0
 	_panel.offset_right = -16.0
 	_panel.offset_top = 14.0
 	layer.add_child(_panel)
@@ -235,6 +284,7 @@ func _build_hud() -> void:
 func _update_info() -> void:
 	_info.text = ("New trees: the tree portfolio (Blender)" if Game.tree_set == "new"
 		else "Old trees: as in the mockups") + "   ·   T swaps them"
+	_info.text += "\nPaths: %s   ·   P changes them" % Game.path_theme
 	var scale := get_viewport().scaling_3d_scale
 	if scale < 0.99:
 		_info.text += "\nRendering at %d%% (F4)" % roundi(scale * 100.0)

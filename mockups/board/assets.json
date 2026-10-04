@@ -94,5 +94,16 @@
  "10add0dd57443ea0388ee4bd16a24620": "renders/worn_paths_v2/fog_path.png",
  "c15f1f47ffa8cacc2b01889ff9272ca7": "renders/worn_paths_v2/tallmo.png",
  "83f42e4b97e93e582d4860063874c9b0": "renders/worn_paths_v2/tatskogen.png",
- "ebbbf0f0a59bdcca5a5a1746ccacb99e": "renders/worn_paths_v2/trollgrytan.png"
+ "ebbbf0f0a59bdcca5a5a1746ccacb99e": "renders/worn_paths_v2/trollgrytan.png",
+ "f03d1b04812a80feac0675a92c4f1e03": "renders/play_demo_paths/theme_forest_soil.jpg",
+ "ae2d384ef9ad6be954d1deafda928856": "renders/play_demo_paths/theme_brown_earth.jpg",
+ "ad845984a5c246c7605042c7c1ba4de8": "renders/play_demo_paths/theme_iron_soil.jpg",
+ "7986ad125014e2567806e4a135939e8f": "renders/play_demo_paths/theme_granite_gravel.jpg",
+ "42578dffc4803081e888688f14bad31e": "renders/play_demo_paths/theme_esker_sand.jpg",
+ "4f9e8e03f44b8f80ef0bd471c176ea56": "renders/play_demo_paths/theme_sandy_mixed_stones.jpg",
+ "7dc0d071a0f16c102a9fc7c6783b5c23": "renders/play_demo_paths/theme_light_tan.jpg",
+ "2809b5e83e4ff497c64af99b64d045ea": "renders/play_demo_paths/themes_meadow.jpg",
+ "b89a5fae8fb589985577946e55efd6ea": "renders/play_demo_paths/shadow_options.jpg",
+ "48100878ae40cbec35a9bcadac90a9a6": "renders/play_demo_paths/ground_detail_levels.jpg",
+ "bd2c4eb04f25c9597fdaf261d2eda4ef": "renders/play_demo_paths/panel.jpg"
 }

@@ -90,6 +90,9 @@ The final images shown on the board, by board section:
 | `renders/diagrams` | Game mechanics |
 | `renders/reference_copies` | Smaller copies of `ref_imgs/` used on the board |
 | `renders/worn_paths`, `renders/worn_paths_v2` | Worn paths, versions 1 and 2 (before/after pairs; each "before" is the previous render) |
+| `renders/town_square` | Tallmo's square |
+| `renders/play_demo` | Play demo (Godot): screenshots from the game |
+| `renders/play_demo_paths` | Play demo: path colours and speed (the path colour themes, shadow options, ground detail levels and the performance panel) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History

@@ -23,8 +23,11 @@ General knowledge, public documentation, and third-party libraries and engines a
   fallen leaves). Grass runs right up to the trees: no brown patches under them.
   Props such as trees, bushes and rocks are faceted low-poly shapes.
 - Paths are worn into the grass by feet, so they never end in a hard line: the grass thins out and turns trampled toward
-  them. The dirt is a light tan (between wheat and desert sand), and the gravel and pebbles in it are the same tones, so
-  they read as texture rather than contrasting spots. Avoid hard edges between ground textures in general.
+  them. The mockups' dirt is a light tan (between wheat and desert sand), with gravel and pebbles in the same tones, so
+  they read as texture rather than contrasting spots. The user now finds that too much like sand and wants a little
+  more colour contrast, without going too dark brown: the play demo has seven path colour themes to try, from dark
+  brown to sandy (P; `game/scripts/path_themes.gd`), and the user hasn't picked one yet. Avoid hard edges between
+  ground textures in general.
 - Trees: Scots pine, silver birch, Norway spruce, aspen, rowan and alder (`ref_imgs/Trees of the Swedish Forest.png`;
   the user dropped the juniper). Low-poly trunks and branches; leaf clumps are crossed planes (copies of a leaf card
   with alpha, crossing at the clump's centre). The spruce instead has pinnate sprays: spray cards along each branch

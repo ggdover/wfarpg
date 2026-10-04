@@ -26,6 +26,7 @@ var _choices := {}  # setting -> label of the chosen option, for the run list
 var _groups := {}  # setting -> {value: Button}
 var _texts := {}  # setting -> its row's text
 var _refresh := 0.0
+var _theme_box: OptionButton
 
 
 func setup(d: Node) -> void:
@@ -36,10 +37,15 @@ func setup(d: Node) -> void:
 	bg.set_border_width_all(1)
 	bg.set_content_margin_all(12)
 	add_theme_stylebox_override("panel", bg)
-	custom_minimum_size = Vector2(410, 0)
+	custom_minimum_size = Vector2(500, 0)
+	var scroll := ScrollContainer.new()  # in a small window, the panel scrolls
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(476, minf(get_viewport().get_visible_rect().size.y - 60.0, 900.0))
+	add_child(scroll)
 	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 5)
-	add_child(col)
+	col.add_theme_constant_override("separation", 3)
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(col)
 	var title := Label.new()
 	title.text = "Performance  ·  F2 hides"
 	title.add_theme_font_override("font", load("res://assets/fonts/Cinzel.ttf"))
@@ -48,7 +54,7 @@ func setup(d: Node) -> void:
 	col.add_child(title)
 	_graph = FrameGraph.new()
 	_graph.panel = self
-	_graph.custom_minimum_size = Vector2(386, 96)
+	_graph.custom_minimum_size = Vector2(464, 90)
 	col.add_child(_graph)
 	_now_label = _label(col, "", 15, INK)
 	_detail_label = _label(col, "", 12, DIM)
@@ -59,6 +65,21 @@ func setup(d: Node) -> void:
 	var sun: DirectionalLight3D = demo.get_node("DirectionalLight3D")
 	var env: Environment = (demo.get_child(0) as WorldEnvironment).environment
 	_choice(col, "trees", "Trees", [["Old", "old"], ["New", "new"]], Game.tree_set, func(v: String) -> void: demo.show_tree_set(v))
+	var row0 := HBoxContainer.new()
+	col.add_child(row0)
+	var l0 := _label(row0, "Path colours (P)", 13, INK)
+	l0.custom_minimum_size.x = 150
+	_theme_box = OptionButton.new()
+	_theme_box.focus_mode = Control.FOCUS_NONE
+	_theme_box.add_theme_font_size_override("font_size", 12)
+	_theme_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for t: String in PathThemes.ORDER:
+		_theme_box.add_item(t)
+		_theme_box.set_item_tooltip(_theme_box.item_count - 1, PathThemes.THEMES[t]["about"])
+	_theme_box.select(PathThemes.ORDER.find(Game.path_theme))
+	_theme_box.item_selected.connect(func(i: int) -> void: demo.show_path_theme(PathThemes.ORDER[i]))
+	row0.add_child(_theme_box)
+	_choices["theme"] = "paths " + Game.path_theme.to_lower()
 	_choice(col, "trimmed", "Leaf cards", [["Square", false], ["Trimmed", true]], w.trimmed, func(v: bool) -> void: w.set_trees("trimmed", v))
 	_choice(col, "fewer", "Cards per clump", [["As tuned", false], ["Fewer", true]], w.fewer, func(v: bool) -> void: w.set_trees("fewer", v))
 	_choice(col, "tree_shadows", "Tree shadows from", [["Full", "full"], ["Mid", "mid"], ["Far", "far"], ["None", "off"]], w.tree_shadows,
@@ -75,14 +96,31 @@ func setup(d: Node) -> void:
 		vp.screen_space_aa, func(v: int) -> void: vp.screen_space_aa = v as Viewport.ScreenSpaceAA)
 	_choice(col, "vsync", "VSync", [["On", true], ["Off", false]], DisplayServer.window_get_vsync_mode() != DisplayServer.VSYNC_DISABLED,
 		func(v: bool) -> void: DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if v else DisplayServer.VSYNC_DISABLED))
+	_rule(col)
 	_choice(col, "shadows", "Shadows", [["On", true], ["Off", false]], sun.shadow_enabled, func(v: bool) -> void: sun.shadow_enabled = v)
-	_slider(col, "Shadow distance", 20.0, 120.0, 5.0, sun.directional_shadow_max_distance, "%d m",
-		func(v: float) -> void: sun.directional_shadow_max_distance = v)
-	_choice(col, "cascades", "Shadow cascades", [["2", DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS], ["4", DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS]],
-		sun.directional_shadow_mode, func(v: int) -> void: sun.directional_shadow_mode = v as DirectionalLight3D.ShadowMode)
-	_choice(col, "details", "Ground details", [["On", true], ["Off", false]], true,
-		func(v: bool) -> void: w._ground_material.set_shader_parameter("details", v))
-	_choice(col, "ssao", "Ambient occlusion (SSAO)", [["On", true], ["Off", false]], env.ssao_enabled, func(v: bool) -> void: env.ssao_enabled = v)
+	_choice(col, "shadow_fit", "Shadow distance", [["Fit the view", true], ["Fixed", false]], demo.shadow_fit,
+		func(v: bool) -> void: demo.shadow_fit = v)
+	_slider(col, "  fixed, or at most", 20.0, 120.0, 5.0, demo.shadow_cap, "%d m", func(v: float) -> void: demo.shadow_cap = v)
+	_choice(col, "shadow_size", "Shadow resolution", [["4096", 4096], ["2048", 2048], ["1024", 1024], ["512", 512]],
+		ProjectSettings.get_setting("rendering/lights_and_shadows/directional_shadow/size"),
+		func(v: int) -> void: RenderingServer.directional_shadow_atlas_set_size(v, true))
+	_choice(col, "shadow_soft", "Shadow softness", [["Hard", RenderingServer.SHADOW_QUALITY_HARD], ["Low", RenderingServer.SHADOW_QUALITY_SOFT_LOW],
+		["High", RenderingServer.SHADOW_QUALITY_SOFT_HIGH]], RenderingServer.SHADOW_QUALITY_SOFT_LOW,
+		func(v: int) -> void: RenderingServer.directional_soft_shadow_filter_set_quality(v as RenderingServer.ShadowQuality))
+	_choice(col, "cascades", "Shadow cascades", [["1", DirectionalLight3D.SHADOW_ORTHOGONAL], ["2", DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS],
+		["4", DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS]], sun.directional_shadow_mode,
+		func(v: int) -> void: sun.directional_shadow_mode = v as DirectionalLight3D.ShadowMode)
+	_rule(col)
+	_choice(col, "details", "Ground details", [["High", 3], ["Medium", 2], ["Low", 1], ["Off", 0]], w.ground_detail,
+		func(v: int) -> void: w.set_ground_detail(v))
+	_choice(col, "ssao", "Ambient occlusion", [["Off", -1], ["Very low", RenderingServer.ENV_SSAO_QUALITY_VERY_LOW],
+		["Low", RenderingServer.ENV_SSAO_QUALITY_LOW], ["Medium", RenderingServer.ENV_SSAO_QUALITY_MEDIUM], ["High", RenderingServer.ENV_SSAO_QUALITY_HIGH]],
+		RenderingServer.ENV_SSAO_QUALITY_MEDIUM if env.ssao_enabled else -1,
+		func(v: int) -> void:
+			env.ssao_enabled = v >= 0
+			if v >= 0:
+				RenderingServer.environment_set_ssao_quality(v as RenderingServer.EnvironmentSSAOQuality, v < RenderingServer.ENV_SSAO_QUALITY_HIGH, 0.5,
+					1 if v <= RenderingServer.ENV_SSAO_QUALITY_LOW else 2, 50.0, 300.0))
 	_choice(col, "fog", "Haze", [["On", true], ["Off", false]], env.fog_enabled, func(v: bool) -> void: env.fog_enabled = v)
 	_rule(col)
 	var row := HBoxContainer.new()
@@ -165,7 +203,7 @@ func _walk_done(r: Dictionary) -> void:
 	if r.is_empty():
 		return
 	var settings := []
-	for k in ["trees", "trimmed", "fewer", "tree_shadows", "scale", "shadows", "vsync"]:
+	for k in ["trees", "trimmed", "fewer", "tree_shadows", "scale", "shadows", "shadow_size", "details", "ssao", "vsync"]:
 		settings.append(_choices[k])
 	_runs.push_front("%d · avg %d, 5%% low %d, 1%% low %d fps%s\n    %s" % [_runs.size() + 1, roundi(r["fps"]), roundi(r["low5"]),
 		roundi(r["low1"]), "" if r["completed"] else " (stopped early)", ", ".join(settings)])
@@ -181,7 +219,7 @@ func _choice(parent: Control, key: String, text: String, options: Array, current
 	var row := HBoxContainer.new()
 	parent.add_child(row)
 	var l := _label(row, text, 13, INK)
-	l.custom_minimum_size.x = 168
+	l.custom_minimum_size.x = 150
 	var group := ButtonGroup.new()
 	_groups[key] = {}
 	_texts[key] = text
@@ -192,7 +230,7 @@ func _choice(parent: Control, key: String, text: String, options: Array, current
 		b.button_group = group
 		b.focus_mode = Control.FOCUS_NONE
 		b.add_theme_font_size_override("font_size", 12)
-		b.custom_minimum_size = Vector2(52, 24)
+		b.custom_minimum_size = Vector2(46, 22)
 		_style(b)
 		row.add_child(b)
 		_groups[key][o[1]] = b
@@ -210,6 +248,11 @@ func choose(key: String, value: Variant) -> void:
 	(_groups[key][value] as Button).button_pressed = true
 
 
+func show_theme(theme: String) -> void:
+	_theme_box.select(PathThemes.ORDER.find(theme))
+	_choices["theme"] = "paths " + theme.to_lower()
+
+
 ## Mark a choice as made elsewhere (T swaps the trees, F4 the render scale) without applying it again.
 func show_choice(key: String, value: Variant) -> void:
 	var b: Button = _groups.get(key, {}).get(value)
@@ -222,7 +265,7 @@ func _slider(parent: Control, text: String, lo: float, hi: float, step: float, v
 	var row := HBoxContainer.new()
 	parent.add_child(row)
 	var l := _label(row, text, 13, INK)
-	l.custom_minimum_size.x = 168
+	l.custom_minimum_size.x = 150
 	var s := HSlider.new()
 	s.min_value = lo
 	s.max_value = hi
@@ -233,7 +276,7 @@ func _slider(parent: Control, text: String, lo: float, hi: float, step: float, v
 	s.custom_minimum_size.y = 22
 	row.add_child(s)
 	var v := _label(row, fmt % value, 12, DIM)
-	v.custom_minimum_size.x = 42
+	v.custom_minimum_size.x = 48
 	s.value_changed.connect(func(x: float) -> void: v.text = fmt % x)
 	s.drag_ended.connect(func(_changed: bool) -> void: apply.call(s.value))
 

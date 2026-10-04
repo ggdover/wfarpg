@@ -29,7 +29,11 @@ var _skipped := {}  # tree index -> true while the tree is faded out completely 
 var _current := ""
 const CELL := 8.0
 
-var _ground_material: ShaderMaterial
+var _ground_materials := {}  # detail level -> its material (shaders/ground*.gdshader)
+var _ground_meshes: Array[MeshInstance3D] = []
+var ground_detail := 3
+const GROUND_SHADERS := {3: "res://shaders/ground.gdshader", 2: "res://shaders/ground_medium.gdshader",
+	1: "res://shaders/ground_low.gdshader", 0: "res://shaders/ground_flat.gdshader"}
 
 # How the new trees are drawn; set them with set_trees().
 ## leaf cards cut down from their squares to the outline round their leaves (looks the same, fewer pixels to draw)
@@ -74,7 +78,7 @@ func show_trees(which: String) -> void:
 					RenderingServer.instance_set_visible(rid, false)
 	_current = which
 	_apply_trees()
-	_ground_material.set_shader_parameter("canopy_tex", load("res://assets/ground/canopy_%s.png" % which))
+	set_ground_param("canopy_tex", load("res://assets/ground/canopy_%s.png" % which))
 
 
 ## The shaders fade out trees near a high camera (tree_fade in shaders/common.gdshaderinc); those faded out
@@ -131,6 +135,19 @@ func _casts_shadow(tree: Dictionary, i: int) -> bool:
 	return i > 0 if tree_shadows != "full" else true
 
 
+## Set a parameter of the ground shader, at every level of detail.
+func set_ground_param(param: String, value: Variant) -> void:
+	for mat: ShaderMaterial in _ground_materials.values():
+		mat.set_shader_parameter(param, value)
+
+
+## How much small detail the ground draws: 3 high, 2 medium, 1 low, 0 none (see shaders/ground.gdshaderinc).
+func set_ground_detail(level: int) -> void:
+	ground_detail = level
+	for mi in _ground_meshes:
+		mi.material_override = _ground_materials[level]
+
+
 func start_position() -> Vector3:
 	var p: Array = layout["start"]["position"]
 	return Vector3(p[0], p[1], p[2])
@@ -158,18 +175,21 @@ func _build_terrain() -> void:
 	_grid = ground["grid"]
 	_size = Vector2i(ground["size"][0], ground["size"][1])
 	heights = FileAccess.get_file_as_bytes(ground["heights"]).to_float32_array()
-	_ground_material = ShaderMaterial.new()
-	_ground_material.shader = load("res://shaders/ground.gdshader")
-	_ground_material.set_shader_parameter("grass_tex", load("res://assets/ground/grass.jpg"))
-	_ground_material.set_shader_parameter("dirt_tex", load("res://assets/ground/dirt.jpg"))
-	_ground_material.set_shader_parameter("masks_tex", load("res://assets/ground/masks.png"))
-	_ground_material.set_shader_parameter("bounds", Vector4(b[0], b[1], b[2], b[3]))
+	for level: int in GROUND_SHADERS:  # the same ground at each level of small detail, to switch between
+		var mat := ShaderMaterial.new()
+		mat.shader = load(GROUND_SHADERS[level])
+		_ground_materials[level] = mat
+	set_ground_param("grass_tex", load("res://assets/ground/grass.jpg"))
+	set_ground_param("path_noise_tex", load("res://assets/ground/path_noise.png"))
+	set_ground_param("masks_tex", load("res://assets/ground/masks.png"))
+	set_ground_param("bounds", Vector4(b[0], b[1], b[2], b[3]))
 	# the detailed ground, in strips so the camera can skip what it doesn't see
 	var strip := 64
 	for j0 in range(0, _size.y - 1, strip):
 		var mi := MeshInstance3D.new()
 		mi.mesh = _grid_mesh(heights, _size, _origin, _grid, j0, mini(j0 + strip, _size.y - 1), Rect2())
-		mi.material_override = _ground_material
+		mi.material_override = _ground_materials[ground_detail]
+		_ground_meshes.append(mi)
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(mi)
 	# the outer ground, under the distant forest, with a hole where the detailed ground lies

@@ -709,6 +709,16 @@ def drift_socket(nt):
     return n.outputs["Fac"]
 
 
+def path_noise_socket(nt):
+    """The noises the path's colours are drawn from, as red (the dirt's) and green (the trampled grass's), so the game
+    can colour the path from a palette (scripts/path_themes.gd)."""
+    comb = nt.nodes.get("BakePathNoise") or nt.nodes.new("ShaderNodeCombineColor")
+    comb.name = "BakePathNoise"
+    nt.links.new(nt.nodes["DirtNoise"].outputs["Fac"], comb.inputs[0])
+    nt.links.new(nt.nodes["WornNoise"].outputs["Fac"], comb.inputs[1])
+    return comb.outputs[0]
+
+
 def masks_socket(nt):
     """Wear, worn and the tufts' noise as red, green and blue."""
     comb = nt.nodes.get("BakeMasks") or nt.nodes.new("ShaderNodeCombineColor")
@@ -856,12 +866,13 @@ def build_ground():
     FX, FY = np.meshgrid(fxs, fys[::-1])
     D.height(FX, FY).astype("<f4").tofile(os.path.join(GROUND_DIR, "heights_far.bin"))
 
-    # the mockups' ground shader, baked from above: the grass beside the paths, the paths' dirt and the masks
+    # the mockups' ground shader, baked from above: the grass and moss before feet trampled them, the noises the
+    # path's colours come from, and the masks; the game paints the trampled grass and the dirt from a palette
     inner = ground_mesh("Ground", D.BAKE, GRID, kit)
-    show(kit, lambda nt: mix_input(nt.nodes["PathDirt"], "A"))
+    show(kit, lambda nt: mix_input(nt.nodes["WornGrass"], "A"))
     bake_view(D.BAKE, COLOUR_TEXEL, os.path.join(GROUND_DIR, "grass.jpg"), tiles=(4, 4), quality=92)
-    show(kit, lambda nt: mix_input(nt.nodes["PathDirt"], "B"))
-    bake_view(D.BAKE, MASK_TEXEL, os.path.join(GROUND_DIR, "dirt.jpg"), quality=92)
+    show(kit, path_noise_socket)
+    bake_view(D.BAKE, MASK_TEXEL, os.path.join(GROUND_DIR, "path_noise.png"))
     show(kit, masks_socket)
     masks = bake_view(D.BAKE, MASK_TEXEL, None)
     show(kit, drift_socket)
@@ -871,7 +882,7 @@ def build_ground():
     save_pixels(masks, os.path.join(GROUND_DIR, "masks.png"), alpha=True)
     bpy.data.objects.remove(inner)
     outer = ground_mesh("FarGround", (-FAR, FAR, -FAR, FAR), FAR_GRID, kit)
-    show(kit, lambda nt: mix_input(nt.nodes["PathDirt"], "A"))
+    show(kit, lambda nt: mix_input(nt.nodes["WornGrass"], "A"))
     bake_view((-FAR, FAR, -FAR, FAR), FAR_TEXEL, os.path.join(GROUND_DIR, "grass_far.jpg"), quality=92)
     bpy.data.objects.remove(outer)
 

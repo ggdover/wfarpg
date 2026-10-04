@@ -62,6 +62,11 @@ static func _material_for(model: String, surface: String, imported: Material) ->
 			m.albedo_color = Color("#3A3A36")
 			m.roughness = 0.9
 			return m)
+	if model.begins_with("Pebble"):
+		return _cached("pebble", func() -> Material:
+			var m := ShaderMaterial.new()
+			m.shader = load("res://shaders/lowpoly_pebble.gdshader")
+			return m)
 	var fade := is_tree(model)
 	return _cached("lowpoly_fade" if fade else "lowpoly", func() -> Material:
 		var m := ShaderMaterial.new()

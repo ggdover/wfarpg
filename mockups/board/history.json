@@ -2334,6 +2334,166 @@
     "Blender's glTF exporter writes real vertex colours for a mesh's first material only, so the trees' baked shading travels in a second UV map instead",
     "The new trees cost three to four times as much to draw as the old ones, mostly in overlapping leaf cards"
    ]
+  },
+  {
+   "id": "path-colours",
+   "date": "2026-10-04",
+   "asked_at": "14:17",
+   "posted_at": "15:01",
+   "title": "Shadows, ground detail and path colours",
+   "section": "Play demo: path colours and speed",
+   "asked": "Shadow distance makes a noticeable difference, but lowering it made many shadows near the player disappear, and the shadows add a lot of immersion: save performance by making them less detailed instead of removing them. Removing the ground details made a huge difference: give different degrees of ground detail, without removing it altogether. And give more versions of the path colour and ground details: the current one feels too much like sand; a little more colour contrast, without going too dark brown, with themes from darker brown to sandy that fit a Swedish forest",
+   "changed": [
+    "Shadow distance: by default it now fits the view, reaching just past the top of the screen, so the shadows round the hero never go; it is 2 ms faster than the fixed 70 m",
+    "Less detailed shadows to try in the performance panel: resolution from 4096 to 512, softness and cascades. At 1024 every shadow stays, softer, 4.8 ms faster",
+    "The ground shader at four levels of detail, each compiled on its own: Medium looks almost the same as High and is 4.6 ms faster, Low 4.7, Off 5.0",
+    "Cheaper ground detail at every level: a faster hash for the noise, simpler stone outlines below High, and a cheaper test for the fallen leaves",
+    "Seven path colour themes, from dark forest soil to light sand, most with stones that stand out from the dirt. P cycles through them, and the panel lists them",
+    "Ambient occlusion levels in the panel: off saves 6.1 ms, very low 0.6",
+    "Trees fading near the camera now go in patches instead of a dither of single pixels, which the ambient occlusion turned into black specks"
+   ],
+   "items": [
+    {
+     "id": "s-pathcolours",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: path colours and speed",
+     "author": "claude"
+    },
+    {
+     "id": "pc-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Path colours and speed\nYou asked for:\n- shadows that stay, only less detailed, instead of a shorter shadow distance\n- levels of ground detail between all and none\n- path colours with more contrast than the light tan, from darker brown to sandy, that fit a Swedish forest\n\nIn the demo, **P** cycles through the seven path colours, and **F2** opens the performance panel with the new shadow and ground options.\n\nEach colour below shows the default camera on the left and a forest close-up on the right. Mark the ones you like with Want, Maybe or Avoid.",
+     "author": "claude"
+    },
+    {
+     "id": "pc-forest-soil",
+     "type": "image",
+     "status": "new",
+     "caption": "Forest soil: dark, packed forest soil with grey-brown stones and more fallen leaves.",
+     "assetId": "f03d1b04812a80feac0675a92c4f1e03",
+     "file": "renders/play_demo_paths/theme_forest_soil.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-brown-earth",
+     "type": "image",
+     "status": "new",
+     "caption": "Brown earth: medium brown earth with pale, sandy stones.",
+     "assetId": "ae2d384ef9ad6be954d1deafda928856",
+     "file": "renders/play_demo_paths/theme_brown_earth.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-iron-soil",
+     "type": "image",
+     "status": "new",
+     "caption": "Iron soil: warm, rusty brown soil, as where the ground is rich in iron, with grey granite stones.",
+     "assetId": "ad845984a5c246c7605042c7c1ba4de8",
+     "file": "renders/play_demo_paths/theme_iron_soil.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-granite",
+     "type": "image",
+     "status": "new",
+     "caption": "Granite gravel: a grey-beige track of crushed granite, grey and pink, with more stones.",
+     "assetId": "7986ad125014e2567806e4a135939e8f",
+     "file": "renders/play_demo_paths/theme_granite_gravel.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-shadows",
+     "type": "note",
+     "status": "new",
+     "text": "# Shadows\n**Why they went:** the shadow distance counts from the camera, not the hero, and the camera is 20 m from the hero. Set below about 35 m, it cuts shadows at the top of the screen; below about 25 m, the ones round the hero go.\n\n**Now:** by default the distance fits the view, reaching just past the top of the screen, so it never cuts the shadows you can see. That is 2 ms faster than the old fixed 70 m.\n\n**Less detailed, not fewer:**\n- Shadow resolution 1024: softer edges, every shadow kept, 4.8 ms faster\n- 512: blurrier, and gaps start to show\n- Tree shadows from the far trees: simpler crowns, 4 ms faster\n\nTimes are per frame on this laptop's graphics card.",
+     "author": "claude"
+    },
+    {
+     "id": "pc-esker",
+     "type": "image",
+     "status": "new",
+     "caption": "Esker sand: pale sand and gravel, as on the eskers, with grey-brown pebbles.",
+     "assetId": "42578dffc4803081e888688f14bad31e",
+     "file": "renders/play_demo_paths/theme_esker_sand.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-sandy-mixed",
+     "type": "image",
+     "status": "new",
+     "caption": "Sandy, mixed stones: the light tan paths' sandy dirt, with stones of mixed browns and greys standing out from it.",
+     "assetId": "4f9e8e03f44b8f80ef0bd471c176ea56",
+     "file": "renders/play_demo_paths/theme_sandy_mixed_stones.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-ground",
+     "type": "note",
+     "status": "new",
+     "text": "# Ground details\nThe ground shader comes in four levels now, each compiled on its own, so a lower level doesn't pay for what it skips:\n- **High:** everything, as before\n- **Medium:** no flat stones, grit or bumps, and simpler stone outlines. It looks almost the same, and is 4.6 ms faster\n- **Low:** the small stones and the leaves only, 4.7 ms faster\n- **Off:** 5.0 ms faster\n\nI suggest Medium: nearly all of Off's speed, and the paths keep their gravel and leaves.",
+     "author": "claude"
+    },
+    {
+     "id": "pc-light-tan",
+     "type": "image",
+     "status": "new",
+     "caption": "Light tan: the mockups' paths, to compare: light tan dirt with gravel in the same tones.",
+     "assetId": "7dc0d071a0f16c102a9fc7c6783b5c23",
+     "file": "renders/play_demo_paths/theme_light_tan.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-meadow",
+     "type": "image",
+     "status": "new",
+     "caption": "All seven on the meadow, from a low camera.",
+     "assetId": "2809b5e83e4ff497c64af99b64d045ea",
+     "file": "renders/play_demo_paths/themes_meadow.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-panel",
+     "type": "image",
+     "status": "new",
+     "caption": "The performance panel (F2): shadow distance, resolution, softness and cascades, ground detail levels, ambient occlusion levels and the path colours.",
+     "assetId": "bd2c4eb04f25c9597fdaf261d2eda4ef",
+     "file": "renders/play_demo_paths/panel.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-shadow-options",
+     "type": "image",
+     "status": "new",
+     "caption": "Shadow options round the hero at the start: fixed at 20 m, the shadows near the hero go; at a lower resolution they stay, only softer.",
+     "assetId": "b89a5fae8fb589985577946e55efd6ea",
+     "file": "renders/play_demo_paths/shadow_options.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "pc-detail-levels",
+     "type": "image",
+     "status": "new",
+     "caption": "The four levels of ground detail, in the forest close-up.",
+     "assetId": "48100878ae40cbec35a9bcadac90a9a6",
+     "file": "renders/play_demo_paths/ground_detail_levels.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/25_fade_specks.jpg",
+     "caption": "Trees fading near the camera left black specks, from the ambient occlusion (left); fading in patches fixed them (right)"
+    }
+   ],
+   "cover": "renders/play_demo_paths/themes_meadow.jpg",
+   "found": [
+    "The shadow distance counts from the camera, which is 20 m from the hero, so below about 25 m the shadows round the hero go",
+    "Nearly all of the ground's cost is in what only High draws: the bumps, the exact, wavy stone outlines, the flat stones and the grit",
+    "The black specks left by trees fading near the camera came from the ambient occlusion: worked out at half resolution, it blackens the ground between single dithered pixels",
+    "Under the forest's blue ambient light, grey paths read blue-grey, so the grey themes needed warmer stones"
+   ]
   }
  ]
 }

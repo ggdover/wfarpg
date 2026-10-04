@@ -64,6 +64,11 @@ func run(d: Node) -> void:
 	_key(KEY_T)
 	await _frames(3)
 	_check("T swaps the trees", Game.tree_set != set0, "%s -> %s" % [set0, Game.tree_set])
+	# P changes the paths' colours
+	var theme0: String = Game.path_theme
+	_key(KEY_P)
+	await _frames(3)
+	_check("P changes the paths' colours", Game.path_theme != theme0, "%s -> %s" % [theme0, Game.path_theme])
 	# the walls hold: walk west for a long time from near the west edge
 	hero.global_position = Vector3(-74.0, demo.world.height_at(-74.0, 0.0) + 0.2, 0.0)
 	rig.yaw = 0.0  # camera east of the hero: W walks west

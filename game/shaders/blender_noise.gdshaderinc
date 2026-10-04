@@ -2,6 +2,9 @@
 // Perlin noise and fBm (the Noise Texture node, normalized, lacunarity 2), and its Voronoi cells (F1 and distance to
 // edge), with Bob Jenkins' lookup3 hash as Blender uses it. Ported from Blender's GPU shader library; values follow
 // the same distribution, though the 2D versions draw different patterns than Blender's 3D ones.
+//
+// Define BN_FAST_HASH before including this for the 2D functions to use the PCG hash instead (Jarzynski and Olano,
+// "Hash Functions for GPU Rendering", 2020): a few times cheaper, just as random, with different patterns.
 
 uint bn_rot(uint x, uint k) {
 	return (x << k) | (x >> (32u - k));
@@ -45,11 +48,36 @@ float hash_uint3_to_float(uint kx, uint ky, uint kz) {
 	return float(hash_uint3(kx, ky, kz)) / 4294967295.0;
 }
 
+uvec3 pcg3d(uvec3 v) {
+	v = v * 1664525u + 1013904223u;
+	v.x += v.y * v.z;
+	v.y += v.z * v.x;
+	v.z += v.x * v.y;
+	v = v ^ (v >> uvec3(16u));
+	v.x += v.y * v.z;
+	v.y += v.z * v.x;
+	v.z += v.x * v.y;
+	return v;
+}
+
+// a random number for a 2D lattice point (the Perlin gradients' choice)
+uint hash_point2(uint x, uint y) {
+#ifdef BN_FAST_HASH
+	return pcg3d(uvec3(x, y, 0u)).x;
+#else
+	return hash_uint2(x, y);
+#endif
+}
+
 // a random vector for a 2D cell, each part 0..1
 vec3 hash_cell2(ivec2 c) {
 	uint x = uint(c.x);
 	uint y = uint(c.y);
+#ifdef BN_FAST_HASH
+	return vec3(pcg3d(uvec3(x, y, 0x9e3779b9u))) / 4294967295.0;
+#else
 	return vec3(hash_uint2_to_float(x, y), hash_uint3_to_float(x, y, 1u), hash_uint3_to_float(x, y, 2u));
+#endif
 }
 
 // ------------------------------------------------------------------ Perlin noise
@@ -80,10 +108,10 @@ float snoise2(vec2 p) {
 	uint Y = uint(int(fl.y));
 	float u = bn_fade(f.x);
 	float v = bn_fade(f.y);
-	float a = bn_grad2(hash_uint2(X, Y), f.x, f.y);
-	float b = bn_grad2(hash_uint2(X + 1u, Y), f.x - 1.0, f.y);
-	float c = bn_grad2(hash_uint2(X, Y + 1u), f.x, f.y - 1.0);
-	float d = bn_grad2(hash_uint2(X + 1u, Y + 1u), f.x - 1.0, f.y - 1.0);
+	float a = bn_grad2(hash_point2(X, Y), f.x, f.y);
+	float b = bn_grad2(hash_point2(X + 1u, Y), f.x - 1.0, f.y);
+	float c = bn_grad2(hash_point2(X, Y + 1u), f.x, f.y - 1.0);
+	float d = bn_grad2(hash_point2(X + 1u, Y + 1u), f.x - 1.0, f.y - 1.0);
 	return 0.6616 * mix(mix(a, b, u), mix(c, d, u), v);
 }
 
@@ -193,6 +221,31 @@ void voronoi_cell_edge(vec2 p, float randomness, out vec3 colour, out float edge
 			vec2 perp = to_pt - to_closest;
 			if (dot(perp, perp) > 0.0001) {
 				edge = min(edge, dot((to_closest + to_pt) * 0.5, normalize(perp)));
+			}
+		}
+	}
+}
+
+// F1 and F2 in one pass, and the nearest cell's random vector: (F2 - F1) / 2 is a cheap stand-in for the distance to
+// the cell's edge (exact on the line between the two points, a little short elsewhere, which rounds the corners).
+void voronoi_f1f2(vec2 p, float randomness, out vec3 colour, out float f1, out float f2) {
+	vec2 cell_f = floor(p);
+	vec2 local = p - cell_f;
+	ivec2 cell = ivec2(cell_f);
+	f1 = 1e9;
+	f2 = 1e9;
+	colour = vec3(0.0);
+	for (int j = -1; j <= 1; j++) {
+		for (int i = -1; i <= 1; i++) {
+			ivec2 off = ivec2(i, j);
+			vec3 h = hash_cell2(cell + off);
+			float d = distance(vec2(off) + h.xy * randomness, local);
+			if (d < f1) {
+				f2 = f1;
+				f1 = d;
+				colour = h;
+			} else if (d < f2) {
+				f2 = d;
 			}
 		}
 	}

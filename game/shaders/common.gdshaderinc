@@ -12,12 +12,32 @@ vec3 srgb_to_linear(vec3 c) {
 	return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(vec3(0.04045), c));
 }
 
-// A 4 x 4 ordered dither, 0..1, for fading by discarding pixels.
-float bayer4(vec2 frag) {
-	int x = int(mod(frag.x, 4.0));
-	int y = int(mod(frag.y, 4.0));
-	float m[16] = { 0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0 };
-	return (m[x + y * 4] + 0.5) / 16.0;
+// A random number, 0..1, for a cell of a 3D grid.
+float hash_cell3(vec3 c) {
+	uvec3 v = uvec3(ivec3(c)) * uvec3(1597334673u, 3812015801u, 2798796415u);
+	return float((v.x ^ v.y ^ v.z) * 1597334673u) / 4294967295.0;
+}
+
+// Smooth value noise in 3D, 0..1, with features about a cell across.
+float value_noise3(vec3 p) {
+	vec3 i = floor(p);
+	vec3 f = p - i;
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(mix(hash_cell3(i), hash_cell3(i + vec3(1, 0, 0)), f.x),
+			mix(hash_cell3(i + vec3(0, 1, 0)), hash_cell3(i + vec3(1, 1, 0)), f.x), f.y),
+			mix(mix(hash_cell3(i + vec3(0, 0, 1)), hash_cell3(i + vec3(1, 0, 1)), f.x),
+			mix(hash_cell3(i + vec3(0, 1, 1)), hash_cell3(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}
+
+// Whether a pixel of something fading out (fade 0..1) is gone. It goes in patches that grow as it fades, a few
+// tenths of a metre across, rather than in a dither of single pixels: the ambient occlusion (SSAO, worked out at
+// half resolution) turns the ground between single dithered pixels black.
+bool faded_out(float fade, vec3 world) {
+	if (fade <= 0.0) {
+		return false;
+	}
+	float n = 0.65 * value_noise3(world * 3.0) + 0.35 * value_noise3(world * 8.0 + 17.0);
+	return fade > clamp((n - 0.5) * 1.7 + 0.5, 0.001, 0.999);
 }
 
 // How much to fade a pixel of something standing between the camera and the hero, so trees never hide it: a round,
