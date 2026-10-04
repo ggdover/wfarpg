@@ -40,7 +40,7 @@ General knowledge, public documentation, and third-party libraries and engines a
   (not yet confirmed by the user). Trees that block the view are cut down to stumps, shadows kept, as in Path of Exile
   2 (the user's choice; no round hole): those in front of the hero in the lower middle of the screen (the area in
   `ref_imgs/camera_disappearing_tree.png`), those whose leaves come near the camera, and any other in the way of the
-  hero. Trees past the hero stay until it's about to pass them: cutting them took too many trees ahead, and leaving
+  hero. Trees beside or past the hero stay unless they hide it: cutting them took too many trees ahead, and leaving
   the trees round a low camera let branches pop into the screen (`ref_imgs/tree_disappear/`).
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:

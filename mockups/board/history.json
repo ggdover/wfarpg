@@ -2997,6 +2997,52 @@
     "With Lower middle, about a fifth of the trees it cut were past the hero, up to 6 m beyond it"
    ],
    "cover": "renders/play_demo_in_front/camera_low.jpg"
+  },
+  {
+   "id": "play-demo-beside",
+   "date": "2026-10-04",
+   "asked_at": "22:46",
+   "posted_at": "23:06",
+   "title": "Trees beside the hero stay",
+   "section": "Play demo: trees beside the hero stay",
+   "asked": "This looks quite good, but I noticed one thing. I added a screenshot, front.png, using \"In front\": it looks like the tree stays gone even though I've moved quite far away from it to the side (the tree on the left of the character is still a stump, though the player isn't anywhere close to being hidden by it). Could you explain why? Is it intended? What can be done to make sure the tree is there as long as the player isn't behind it?",
+   "changed": [
+    "A tree now counts for the lower middle of the screen by where it stands: its foot and the first 2 m of its trunk, as thick as its stump",
+    "With In front, only the trees at least 1 m in front of the hero go there (\"by at least\" in F2); those beside it or past it stay, unless they hide the hero or come near the camera",
+    "A tree gone near the camera is held gone only while it's on the screen within one and a half times the near-camera distance, not most of the way to the hero",
+    "The self-test checks that a tall tree beside the hero stays, with both tree sets; Lower middle cuts fewer trees too, now that the trunks are their real thickness"
+   ],
+   "items": [
+    {
+     "id": "s-beside",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: trees beside the hero stay",
+     "author": "claude"
+    },
+    {
+     "id": "bs-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Trees beside the hero stay\nYou found a pine on the meadow still a stump with the hero well to its side, and asked why. It wasn't meant to: two things in the test for the lower middle of the screen.\n- A tree counted by its whole trunk, from its foot to its top. Seen from above, a trunk leans in towards the middle of the screen as it rises, so a tall tree beside the area reached into its corner\n- The trunk's thickness came from the tree's footprint near the ground, which for pines and spruces takes in their low branches: 3 to 6 m across instead of half a metre\n\nNow a tree counts by where it stands, its foot and the first 2 m of its trunk, as thick as its stump. And with In front, only the trees at least 1 m in front of the hero go: those beside it or past it stay, unless they hide the hero or come near the camera.",
+     "author": "claude"
+    },
+    {
+     "id": "bs-spot",
+     "type": "image",
+     "status": "new",
+     "caption": "Your shot (left): the pine to the left of the hero was a stump, the hero 7 m to its side. Now (right), from the same spot, it stands.",
+     "assetId": "ce6c325f3bd1292464e62026885c91f5",
+     "file": "renders/play_demo_beside/pine_beside_the_hero.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "The pine counted by its whole trunk, from its foot to its 22 m top; seen from above, the trunk leaned in towards the middle of the screen as it rose, into the area's corner",
+    "The trunk's thickness came from the tree's footprint near the ground, which for pines and spruces takes in their low branches: 3 to 6 m across instead of half a metre, which made the area much wider for them"
+   ],
+   "cover": "renders/play_demo_beside/pine_beside_the_hero.jpg"
   }
  ]
 }

@@ -561,6 +561,32 @@
   "y": 28,
   "z": 41
  },
+ "bs-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791147954934,
+  "h": 820,
+  "text": "# Trees beside the hero stay\nYou found a pine on the meadow still a stump with the hero well to its side, and asked why. It wasn't meant to: two things in the test for the lower middle of the screen.\n- A tree counted by its whole trunk, from its foot to its top. Seen from above, a trunk leans in towards the middle of the screen as it rises, so a tall tree beside the area reached into its corner\n- The trunk's thickness came from the tree's footprint near the ground, which for pines and spruces takes in their low branches: 3 to 6 m across instead of half a metre\n\nNow a tree counts by where it stands, its foot and the first 2 m of its trunk, as thick as its stump. And with In front, only the trees at least 1 m in front of the hero go: those beside it or past it stay, unless they hide the hero or come near the camera.",
+  "type": "note",
+  "updatedAt": 1791147954934,
+  "w": 460,
+  "x": 28,
+  "y": 30796,
+  "z": 211
+ },
+ "bs-spot": {
+  "ar": 3.338,
+  "assetId": "ce6c325f3bd1292464e62026885c91f5",
+  "author": "claude",
+  "caption": "Your shot (left): the pine to the left of the hero was a stump, the hero 7 m to its side. Now (right), from the same spot, it stands.",
+  "createdAt": 1791147954934,
+  "type": "image",
+  "updatedAt": 1791147954934,
+  "w": 2200,
+  "x": 512,
+  "y": 30796,
+  "z": 212
+ },
  "cam-control": {
   "author": "claude",
   "color": "gold",
@@ -1633,6 +1659,19 @@
   "x": 960,
   "y": 0,
   "z": 2
+ },
+ "s-beside": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791147954934,
+  "h": 876,
+  "title": "Play demo: trees beside the hero stay",
+  "type": "frame",
+  "updatedAt": 1791147954934,
+  "w": 2740,
+  "x": 0,
+  "y": 30768,
+  "z": 28
  },
  "s-camera": {
   "author": "claude",

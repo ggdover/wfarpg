@@ -90,7 +90,7 @@ func run(d: Node) -> void:
 
 ## Trees that block the view. In front of the hero (the default): a tree between the camera and the hero goes,
 ## leaving its stump, and comes back once the hero has walked well past it; a tree just ahead of the hero stays, and
-## so does one well beyond it; a tall tree round a low camera goes. In the lower middle of the screen: the tree just
+## so does one well beyond it; a tall tree round a low camera goes, and comes back once it stands beside the hero. In the lower middle of the screen: the tree just
 ## ahead of the hero goes too. Only those in the way of the hero ("line"): a tree 5 m ahead of the hero stays; with
 ## the camera low behind the tree, it's in the way and fades out, and it comes back once it isn't.
 func _sight_checks() -> void:
@@ -139,6 +139,12 @@ func _sight_checks() -> void:
 	await _seconds(0.6)
 	var near := w.sight_fade(tall)
 	_check("%s trees: a tall tree round a low camera goes" % set, near >= 1.0, "faded %.2f" % near)
+	# the tall tree beside the hero, 7 m to its side and level with it, with the camera high: it stays
+	rig.pitch = 40.0
+	_place_hero(w._tree_xz[tall] + side * 7.0 - to_camera * 0.5)
+	await _seconds(1.5)
+	var beside := w.sight_fade(tall)
+	_check("%s trees: a tall tree beside the hero stays" % set, beside == 0.0, "faded %.2f" % beside)
 	# the lower middle of the screen, as before: the tree just ahead of the hero goes too
 	w.set_trees("cut_trees", "area")
 	rig.pitch = 55.0

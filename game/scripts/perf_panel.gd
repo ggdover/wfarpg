@@ -115,7 +115,7 @@ func setup(d: Node) -> void:
 	_slider(col, "cut_width", "  area width", 0.2, 1.0, 0.02, w.cut_half_width * 2.0, percent, func(v: float) -> void: w.cut_half_width = v * 0.5)
 	_slider(col, "cut_top", "  area from the top", 0.0, 0.5, 0.02, w.cut_top, percent, func(v: float) -> void: w.cut_top = v)
 	_slider(col, "cut_near", "  in front: near camera", 0.0, 0.8, 0.05, w.cut_near, percent, func(v: float) -> void: w.cut_near = v)
-	_slider(col, "cut_ahead", "  in front: ahead of hero", 0.0, 6.0, 0.5, w.cut_ahead, "%.1f m", func(v: float) -> void: w.cut_ahead = v)
+	_slider(col, "cut_front", "  in front: by at least", 0.0, 5.0, 0.5, w.cut_front, "%.1f m", func(v: float) -> void: w.cut_front = v)
 	_slider(col, "cut_behind", "  lower middle: past hero", 0.0, 20.0, 1.0, w.cut_behind, "%d m", func(v: float) -> void: w.cut_behind = v)
 	_slider(col, "sight_clear", "  clear round the hero", 0.0, 8.0, 0.5, w.sight_clear, "%.1f m", func(v: float) -> void: w.sight_clear = v)
 	_rule(col)
