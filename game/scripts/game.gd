@@ -10,7 +10,7 @@ var tree_set := "new"
 const KEYS := {
 	"move_forward": [KEY_W, KEY_UP], "move_back": [KEY_S, KEY_DOWN],
 	"move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
-	"swap_trees": [KEY_T], "toggle_help": [KEY_F1, KEY_H], "toggle_fps": [KEY_F3], "render_scale": [KEY_F4],
+	"swap_trees": [KEY_T], "toggle_help": [KEY_F1, KEY_H], "perf_panel": [KEY_F2], "toggle_fps": [KEY_F3], "render_scale": [KEY_F4],
 	"screenshot": [KEY_F12], "menu": [KEY_ESCAPE],
 }
 

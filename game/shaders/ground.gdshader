@@ -19,6 +19,8 @@ uniform sampler2D canopy_tex : hint_default_white, filter_linear_mipmap, repeat_
 uniform vec4 bounds = vec4(-112.0, -88.0, 224.0, 176.0);  // x, z, width, depth of the baked area
 uniform float canopy_strength = 0.35;  // how much of the baked shade to use: 0.35 matches the mockups
 uniform float bump_strength = 0.5;
+// the gravel, grit, fallen leaves and bumps drawn on top of the baked colours (off only for measuring their cost)
+uniform bool details = true;
 global uniform vec2 mood_grade;
 
 const vec3 SHADE = vec3(0.3278, 0.1683, 0.0437);  // #9B723B, the gravel's contact shadow
@@ -113,50 +115,54 @@ void fragment() {
 	// near the paths: where feet have worn the grass away, the dirt shows, with gravel densest in the middle and
 	// thinning out into the grass, and grit in the dirt
 	if (wear + worn > 0.0005) {
-		float fine = noise_fbm2((p + vec2(13.0, 3.0)) * 7.0, 2.0, 0.6) - 0.5;
+		float fine = details ? noise_fbm2((p + vec2(13.0, 3.0)) * 7.0, 2.0, 0.6) - 0.5 : 0.0;
 		float bare = smoothstep(0.35, 0.7, wear + 2.0 * tufts + 0.5 * fine);
 		col = mix(col, dirt, bare);
-		float spread = wear + 0.3 * fine;
-		float small_d = map_s(spread, 0.15, 0.75, 0.0, 0.6) + 0.08 * worn;
-		float big_d = map_s(spread, 0.25, 0.85, 0.0, 0.45) + 0.05 * worn;
-		float flat_d = map_s(spread, 0.5, 0.9, 0.0, 0.06);
-		vec2 warped = p + vec2(noise_fbm2((p + vec2(31.7, 5.3)) * 9.0, 2.0, 0.5), noise_fbm2((p + vec2(7.1, 71.3)) * 9.0, 2.0, 0.5)) * 0.07;
-		float s_st, s_r, s_sh, s_h, b_st, b_r, b_sh, b_h, f_st, f_r, f_sh, f_h;
-		gravel(warped, 13.0, 0.12, 0.24, small_d, s_st, s_r, s_sh, s_h);
-		gravel(warped + vec2(3.7, 1.3), 5.5, 0.14, 0.26, big_d, b_st, b_r, b_sh, b_h);
-		gravel(warped + vec2(5.1, 2.3), 1.7, 0.16, 0.3, flat_d, f_st, f_r, f_sh, f_h);
-		float gd;
-		vec3 gc;
-		vec2 gp;
-		voronoi_f1(warped * 30.0, 1.0, gd, gc, gp);
-		float grit_lod = 1.0 - smoothstep(0.3, 0.8, length(fwidth(warped * 30.0)));
-		float grit = mix(0.5, dot(gc, vec3(0.2126, 0.7152, 0.0722)), grit_lod);
-		col = mix(col, ramp_seg(grit, 0.2, G0, 0.8, G1), bare * 0.35);
-		col = mix(col, SHADE, min(0.3 * s_sh + 0.5 * b_sh + 0.5 * f_sh, 0.5));
-		col = mix(col, ramp3(s_r, 0.0, S0, 0.5, S1, 1.0, S2), s_st);
-		col = mix(col, ramp5(b_r, B0, B1, B2, B3, B4), b_st);
-		col = mix(col, ramp_seg(f_r, 0.0, F0, 1.0, F1), f_st);
-		hgt += 0.5 * s_h + b_h + 1.3 * f_h;
+		if (details) {
+			float spread = wear + 0.3 * fine;
+			float small_d = map_s(spread, 0.15, 0.75, 0.0, 0.6) + 0.08 * worn;
+			float big_d = map_s(spread, 0.25, 0.85, 0.0, 0.45) + 0.05 * worn;
+			float flat_d = map_s(spread, 0.5, 0.9, 0.0, 0.06);
+			vec2 warped = p + vec2(noise_fbm2((p + vec2(31.7, 5.3)) * 9.0, 2.0, 0.5), noise_fbm2((p + vec2(7.1, 71.3)) * 9.0, 2.0, 0.5)) * 0.07;
+			float s_st, s_r, s_sh, s_h, b_st, b_r, b_sh, b_h, f_st, f_r, f_sh, f_h;
+			gravel(warped, 13.0, 0.12, 0.24, small_d, s_st, s_r, s_sh, s_h);
+			gravel(warped + vec2(3.7, 1.3), 5.5, 0.14, 0.26, big_d, b_st, b_r, b_sh, b_h);
+			gravel(warped + vec2(5.1, 2.3), 1.7, 0.16, 0.3, flat_d, f_st, f_r, f_sh, f_h);
+			float gd;
+			vec3 gc;
+			vec2 gp;
+			voronoi_f1(warped * 30.0, 1.0, gd, gc, gp);
+			float grit_lod = 1.0 - smoothstep(0.3, 0.8, length(fwidth(warped * 30.0)));
+			float grit = mix(0.5, dot(gc, vec3(0.2126, 0.7152, 0.0722)), grit_lod);
+			col = mix(col, ramp_seg(grit, 0.2, G0, 0.8, G1), bare * 0.35);
+			col = mix(col, SHADE, min(0.3 * s_sh + 0.5 * b_sh + 0.5 * f_sh, 0.5));
+			col = mix(col, ramp3(s_r, 0.0, S0, 0.5, S1, 1.0, S2), s_st);
+			col = mix(col, ramp5(b_r, B0, B1, B2, B3, B4), b_st);
+			col = mix(col, ramp_seg(f_r, 0.0, F0, 1.0, F1), f_st);
+			hgt += 0.5 * s_h + b_h + 1.3 * f_h;
+		}
 	}
 
 	// fallen leaves: small ellipses, each turned its own way, in loose drifts over the grass and the paths
-	vec2 lv = p + vec2(2.3, 7.7);
-	float ld;
-	vec3 lc;
-	vec2 lp;
-	voronoi_f1(lv * 4.5, 0.75, ld, lc, lp);
-	vec2 rel = lv - lp / 4.5;
-	float ang = lc.g * 6.2832;
-	vec2 tr = vec2(rel.x * cos(ang) - rel.y * sin(ang), rel.x * sin(ang) + rel.y * cos(ang));
-	float size = fract(lc.b * 5.7) * 0.5 + 0.75;
-	float qd = pow(tr.x / (size * 0.05), 2.0) + pow(tr.y / (size * 0.025), 2.0);
-	float drift = 0.12 + map_s(m.a, 0.5, 0.75, 0.0, 0.2);
-	float edge_w = min(fwidth(qd), 0.5);
-	float leaf = (1.0 - smoothstep(0.75 - edge_w, 1.0 + edge_w, qd)) * smoothstep(-0.01, 0.01, drift - lc.r);
-	leaf *= 1.0 - smoothstep(0.3, 0.9, length(fwidth(lv * 4.5)) * 4.0);  // too small to see far off
-	col = mix(col, leaf_ramp(lc.b), leaf);
-	float grain = noise_fbm2((p + vec2(2.0, 2.0)) * 6.0, 1.0, 0.65);  // for the bumps only (one octave fewer)
-	hgt += 0.12 * grain + 0.3 * leaf;
+	if (details) {
+		vec2 lv = p + vec2(2.3, 7.7);
+		float ld;
+		vec3 lc;
+		vec2 lp;
+		voronoi_f1(lv * 4.5, 0.75, ld, lc, lp);
+		vec2 rel = lv - lp / 4.5;
+		float ang = lc.g * 6.2832;
+		vec2 tr = vec2(rel.x * cos(ang) - rel.y * sin(ang), rel.x * sin(ang) + rel.y * cos(ang));
+		float size = fract(lc.b * 5.7) * 0.5 + 0.75;
+		float qd = pow(tr.x / (size * 0.05), 2.0) + pow(tr.y / (size * 0.025), 2.0);
+		float drift = 0.12 + map_s(m.a, 0.5, 0.75, 0.0, 0.2);
+		float edge_w = min(fwidth(qd), 0.5);
+		float leaf = (1.0 - smoothstep(0.75 - edge_w, 1.0 + edge_w, qd)) * smoothstep(-0.01, 0.01, drift - lc.r);
+		leaf *= 1.0 - smoothstep(0.3, 0.9, length(fwidth(lv * 4.5)) * 4.0);  // too small to see far off
+		col = mix(col, leaf_ramp(lc.b), leaf);
+		float grain = noise_fbm2((p + vec2(2.0, 2.0)) * 6.0, 1.0, 0.65);  // for the bumps only (one octave fewer)
+		hgt += 0.12 * grain + 0.3 * leaf;
+	}
 
 	float grey = dot(col, vec3(0.2126, 0.7152, 0.0722));
 	ALBEDO = mix(vec3(grey), col, mood_grade.x) * mood_grade.y;
@@ -174,6 +180,6 @@ void fragment() {
 	float det = dot(dpdx, r1);
 	vec3 grad = sign(det) * (dFdx(h) * r1 + dFdy(h) * r2);
 	vec3 bumped = normalize(abs(det) * n - grad);
-	n = normalize(mix(n, bumped, bump_strength));
+	n = normalize(mix(n, bumped, details ? bump_strength : 0.0));
 	NORMAL = normalize((VIEW_MATRIX * vec4(n, 0.0)).xyz);
 }

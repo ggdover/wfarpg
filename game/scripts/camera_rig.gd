@@ -81,7 +81,7 @@ func _place() -> void:
 	RenderingServer.global_shader_parameter_set("main_camera_position", pos)
 	# trees near a high camera fade out, as the mockups hide them; low behind the hero, only those right at the camera
 	var above := pos.y - (world.height_at(pos.x, pos.z) if world else 0.0)
-	var radius := clampf(above * 0.85, 2.5, 15.0)
+	var radius := clampf(above * 0.85, 2.5, 15.0) if (world == null or world.fade_near_camera) else 0.0
 	RenderingServer.global_shader_parameter_set("tree_fade_radius", radius)
 	if world:
 		world.skip_faded(pos, radius)

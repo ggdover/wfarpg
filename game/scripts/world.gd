@@ -5,12 +5,12 @@ extends Node3D
 ## the walls round the walkable area.
 ##
 ## Each tree is drawn on its own, so the camera skips the ones it doesn't see; the portfolio's trees switch to
-## lighter versions with distance (LOD_RANGES). Rocks and plants are drawn as multimeshes in square chunks.
+## lighter versions with distance. How the trees are drawn (which versions, which casts the shadow) can change while
+## playing, from the performance panel (scripts/perf_panel.gd). Rocks and plants are multimeshes in square chunks.
 
 const LAYOUT := "res://data/demo_layout.json"
 const GROUND := "res://assets/ground/ground.json"
 const CHUNK := 32.0
-const LOD_RANGES := [45.0, 120.0]  ## where the new trees switch to their lighter versions (metres from the camera)
 const LOD_MARGIN := 5.0
 const PLANT_RANGE := 110.0  # small plants and pebbles are not drawn further off than this
 const LAYER_GROUND := 1
@@ -22,8 +22,7 @@ var heights := PackedFloat32Array()
 var _size := Vector2i.ZERO
 var _origin := Vector2.ZERO
 var _grid := 0.5
-var _tree_sets := {}  # "old"/"new" -> Array of the trees' RenderingServer instances
-var _near := {}  # "old"/"new" -> per tree: [the instance drawn near the camera, its shadow setting]
+var _tree_sets := {}  # "old"/"new" -> Array of trees: {model, kind, draw: [instances], shadow: instance or none}
 var _tree_xz := PackedVector2Array()
 var _tree_cells := {}  # Vector2i -> tree indices, for finding the trees near the camera
 var _skipped := {}  # tree index -> true while the tree is faded out completely and not drawn
@@ -31,8 +30,19 @@ var _current := ""
 const CELL := 8.0
 
 var _ground_material: ShaderMaterial
-## the full trees cast their shadows from their lighter version, which costs much less to draw into the shadow map
-var shadow_lod := true
+
+# How the new trees are drawn; set them with set_trees().
+## leaf cards cut down from their squares to the outline round their leaves (looks the same, fewer pixels to draw)
+var trimmed := false
+## about half the leaf cards per clump (changes the look)
+var fewer := false
+## which version casts a tree's shadow: "full", "mid" (the first lighter one), "far" (the lightest), or "off"
+var tree_shadows := "mid"
+## where the lighter versions take over (metres from the camera)
+var lod_near := 45.0
+var lod_far := 120.0
+## fade out trees near a high camera, as the mockups hide them (scripts/camera_rig.gd)
+var fade_near_camera := true
 ## small plants and pebbles cast no shadows
 var plant_shadows := false
 ## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
@@ -54,22 +64,23 @@ func build(tree_set: String) -> void:
 
 ## Show one tree set, building it the first time.
 func show_trees(which: String) -> void:
-	for i: int in _skipped:
-		_draw_tree(i, true)
-	_skipped.clear()
+	_unskip()
 	if not _tree_sets.has(which):
 		_tree_sets[which] = _build_trees(which)
 	for k: String in _tree_sets:
-		for rid: RID in _tree_sets[k]:
-			RenderingServer.instance_set_visible(rid, k == which)
+		if k != which:
+			for tree: Dictionary in _tree_sets[k]:
+				for rid: RID in _instances(tree):
+					RenderingServer.instance_set_visible(rid, false)
 	_current = which
+	_apply_trees()
 	_ground_material.set_shader_parameter("canopy_tex", load("res://assets/ground/canopy_%s.png" % which))
 
 
 ## The shaders fade out trees near a high camera (tree_fade in shaders/common.gdshaderinc); those faded out
 ## completely are not drawn at all, which saves a lot in thick forest. Their shadows stay.
 func skip_faded(camera_pos: Vector3, radius: float) -> void:
-	var inner := radius - 2.6
+	var inner := radius - 2.6 if fade_near_camera else 0.0
 	var c := Vector2(camera_pos.x, camera_pos.z)
 	var now := {}
 	if inner > 0.5:
@@ -88,11 +99,36 @@ func skip_faded(camera_pos: Vector3, radius: float) -> void:
 
 
 func _draw_tree(i: int, draw: bool) -> void:
-	var near: Array = _near[_current][i]
-	if near[1] == RenderingServer.SHADOW_CASTING_SETTING_OFF:  # a portfolio tree: its shadow comes from another instance
-		RenderingServer.instance_set_visible(near[0], draw)
+	var tree: Dictionary = _tree_sets[_current][i]
+	var rid: RID = tree["draw"][0]
+	if _casts_shadow(tree, 0):  # keep its shadow while it isn't drawn
+		RenderingServer.instance_geometry_set_cast_shadows_setting(rid, RenderingServer.SHADOW_CASTING_SETTING_ON if draw
+			else RenderingServer.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
 	else:
-		RenderingServer.instance_geometry_set_cast_shadows_setting(near[0], near[1] if draw else RenderingServer.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+		RenderingServer.instance_set_visible(rid, draw)
+
+
+func _unskip() -> void:
+	if _current != "":
+		for i: int in _skipped:
+			_draw_tree(i, true)
+	_skipped.clear()
+
+
+## Change how the trees are drawn, now: any of trimmed, fewer, tree_shadows, lod_near, lod_far, fade_near_camera.
+func set_trees(option: String, value: Variant) -> void:
+	_unskip()
+	set(option, value)
+	_apply_trees()
+
+
+## Does this instance of the tree (0: the one drawn near the camera) cast the tree's shadow?
+func _casts_shadow(tree: Dictionary, i: int) -> bool:
+	if tree_shadows == "off":
+		return false
+	if tree["kind"] != "full":  # old trees and young spruces cast their own
+		return true
+	return i > 0 if tree_shadows != "full" else true
 
 
 func start_position() -> Vector3:
@@ -213,57 +249,93 @@ static func _grid_mesh(h: PackedFloat32Array, size: Vector2i, origin: Vector2, s
 
 # ------------------------------------------------------------------ trees and props
 func _build_trees(which: String) -> Array:
-	var rids := []
-	var near := []
+	var trees := []
 	var scenario := get_world_3d().scenario
 	var first_set := _tree_xz.is_empty()
 	for t: Dictionary in layout["trees"]:
 		var p: Array = t["p"]
 		var model: String = t[which]
 		var xf := Transform3D(Basis(Vector3.UP, t["r"]).scaled(Vector3.ONE * float(t["s_" + which])), Vector3(p[0], p[1], p[2]))
-		var lods := [model]
-		if Models.has(model + "_1"):  # a portfolio tree; young spruces are small enough for the lighter ones
-			lods = [model + "_1", model + "_2"] if t["kind"] == "YoungSpruce" else [model, model + "_1", model + "_2"]
-			if tree_lod > 0:
-				lods = [model + "_%d" % tree_lod]
-		var ranges := [0.0] + (LOD_RANGES.slice(1) if lods.size() == 2 else LOD_RANGES) + [0.0]
 		if first_set:
 			var cell := Vector2i(floori(p[0] / CELL), floori(p[2] / CELL))
 			if not _tree_cells.has(cell):
 				_tree_cells[cell] = []
 			(_tree_cells[cell] as Array).append(_tree_xz.size())
 			_tree_xz.append(Vector2(p[0], p[2]))
-		for i in lods.size():
-			var shadow := RenderingServer.SHADOW_CASTING_SETTING_ON
-			if i == 0 and lods.size() == 3 and shadow_lod:  # the full tree's shadow comes from the lighter one
-				shadow = RenderingServer.SHADOW_CASTING_SETTING_OFF
-				rids.append(_tree_instance(lods[1], xf, scenario, 0.0, ranges[1], 0.0, LOD_MARGIN, RenderingServer.SHADOW_CASTING_SETTING_SHADOWS_ONLY))
-			if lods.size() == 1:
-				rids.append(_tree_instance(lods[0], xf, scenario, 0.0, 0.0, 0.0, 0.0, shadow))
-			else:
-				rids.append(_tree_instance(lods[i], xf, scenario, ranges[i], ranges[i + 1], LOD_MARGIN if i > 0 else 0.0,
-					LOD_MARGIN if i < lods.size() - 1 else 0.0, shadow))
-			if i == 0:
-				near.append([rids[-1], shadow])
-	_near[which] = near
-	return rids
+		# old trees: one instance; portfolio trees: full, mid and far versions, and one more that casts the shadow;
+		# young spruces: the mid and far versions, which are fine for something that small
+		var kind := "old"
+		if Models.has(model + "_1"):
+			kind = "young" if t["kind"] == "YoungSpruce" else "full"
+		var count: int = {"old": 1, "young": 2, "full": 3}[kind]
+		var tree := {"model": model, "kind": kind, "draw": [], "shadow": RID()}
+		for i in count:
+			var rid := RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)
+			RenderingServer.instance_set_transform(rid, xf)
+			(tree["draw"] as Array).append(rid)
+		if kind == "full":
+			tree["shadow"] = RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)
+			RenderingServer.instance_set_transform(tree["shadow"], xf)
+		trees.append(tree)
+	return trees
 
 
-func _tree_instance(model: String, xf: Transform3D, scenario: RID, begin: float, end: float, begin_margin: float,
-		end_margin: float, shadow: RenderingServer.ShadowCastingSetting) -> RID:
-	var rid := RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)
-	RenderingServer.instance_set_transform(rid, xf)
-	if begin > 0.0 or end > 0.0:
-		RenderingServer.instance_geometry_set_visibility_range(rid, begin, end, begin_margin, end_margin,
-			RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)  # a dithered cross-fade leaves black holes with alpha-cut leaves
-	RenderingServer.instance_geometry_set_cast_shadows_setting(rid, shadow)
-	return rid
+## Point every tree of the shown set at the versions the settings ask for, with their distances and shadows.
+func _apply_trees() -> void:
+	var t_ := "_t" if trimmed else ""
+	for tree: Dictionary in _tree_sets[_current]:
+		var draw: Array = tree["draw"]
+		var m: String = tree["model"]
+		var names: Array
+		match tree["kind"]:
+			"old":
+				names = [m]
+			"young":
+				names = [m + "_1" + t_, m + "_2" + t_]
+			_:
+				names = [m + ("_f" if fewer else "") + t_, m + "_1" + t_, m + "_2" + t_]
+		if tree_lod > 0 and tree["kind"] != "old":
+			names = names.map(func(_n: String) -> String: return m + "_%d" % tree_lod + t_)
+		var ranges: Array = [[0.0, 0.0]] if names.size() == 1 else ([[0.0, lod_far], [lod_far, 0.0]] if names.size() == 2
+			else [[0.0, lod_near], [lod_near, lod_far], [lod_far, 0.0]])
+		for i in draw.size():
+			var rid: RID = draw[i]
+			RenderingServer.instance_set_base(rid, Models.mesh(names[i]).get_rid())
+			RenderingServer.instance_geometry_set_visibility_range(rid, ranges[i][0], ranges[i][1],
+				LOD_MARGIN if i > 0 else 0.0, LOD_MARGIN if i < draw.size() - 1 else 0.0,
+				RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)  # a dithered cross-fade leaves black holes with alpha-cut leaves
+			RenderingServer.instance_geometry_set_cast_shadows_setting(rid, RenderingServer.SHADOW_CASTING_SETTING_ON
+				if _casts_shadow(tree, i) else RenderingServer.SHADOW_CASTING_SETTING_OFF)
+			RenderingServer.instance_set_visible(rid, true)
+		var shadow: RID = tree["shadow"]
+		if shadow.is_valid():
+			# the full version's shadow comes from a lighter one, drawn into the shadow map only
+			var use := tree_shadows in ["mid", "far"]
+			RenderingServer.instance_set_visible(shadow, use)
+			if use:
+				var far := tree_shadows == "far"
+				RenderingServer.instance_set_base(shadow, Models.mesh(m + ("_2" if far else "_1") + t_).get_rid())
+				RenderingServer.instance_geometry_set_visibility_range(shadow, 0.0, lod_near, 0.0, LOD_MARGIN,
+					RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)
+				RenderingServer.instance_geometry_set_cast_shadows_setting(shadow, RenderingServer.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+				if far:  # the mid version's own shadow comes from the lightest too
+					RenderingServer.instance_geometry_set_cast_shadows_setting(draw[1], RenderingServer.SHADOW_CASTING_SETTING_OFF)
+					RenderingServer.instance_geometry_set_visibility_range(shadow, 0.0, lod_far, 0.0, LOD_MARGIN,
+						RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)
+
+
+func _instances(tree: Dictionary) -> Array:
+	var out: Array = (tree["draw"] as Array).duplicate()
+	if (tree["shadow"] as RID).is_valid():
+		out.append(tree["shadow"])
+	return out
 
 
 func _exit_tree() -> void:
 	for set: Array in _tree_sets.values():
-		for rid: RID in set:
-			RenderingServer.free_rid(rid)
+		for tree: Dictionary in set:
+			for rid: RID in _instances(tree):
+				RenderingServer.free_rid(rid)
 
 
 func _build_props() -> void:

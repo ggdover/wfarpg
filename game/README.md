@@ -38,6 +38,7 @@ The controls follow the mechanics and camera notes on the look & feel board.
 | Mouse wheel | Zoom |
 | Left mouse button (hold) | "Attack": the hero turns to face the cursor and walks at 55% speed. There are no attacks yet |
 | T | Swap the old and new trees |
+| F2 | The performance panel (below) |
 | F1 | Show or hide the help |
 | F3 | Frame rate |
 | F4 | Render scale, 100% / 75% / 50%, for slower graphics cards |
@@ -78,6 +79,29 @@ Where it differs on purpose:
   The leaf cards' transparent pixels are black, so in Blender the black seeps into the leaf edges and darkens the
   crowns. With the fix off, Godot shows the trees as you tuned them.
 
+## The performance panel (F2)
+
+A frame-time graph of the last 3 seconds (one bar per frame: green is faster than 60 fps, amber than 30, red
+slower), with the frame rate now, on average, and in the slowest 5% and 1% of frames. Below the graph: how long the
+graphics card takes per frame, the triangles drawn and the draw calls. Every switch below takes effect at once:
+
+| Switch | What it does |
+|---|---|
+| Trees | The old or the new trees (as T) |
+| Leaf cards | Square cards, or cards trimmed to an outline round their leaves: the same look, fewer pixels to draw |
+| Cards per clump | As tuned, or about half as many (a little bigger): sparser crowns |
+| Tree shadows from | Which version of a new tree casts its shadow: the full one, the mid one, the far one, or none |
+| Lighter trees from | Where the new trees switch to their lighter versions |
+| Fade trees near camera | The mockups' fade of trees near a high camera (it also saves drawing them) |
+| Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
+| Antialiasing, VSync, Shadows, Shadow distance, Shadow cascades | Godot's own settings |
+| Ground details | The gravel, grit, fallen leaves and bumps the ground shader draws |
+| Ambient occlusion (SSAO), Haze | Godot's screen-space ambient occlusion, and the fog |
+
+**Walk the trail** walks from the start to the meadow the same way every time and lists the result with the settings,
+so runs compare fairly. VSync caps the frame rate at the screen's, so turn it off to see how far above 60 a setting
+gets. `--paneltest` presses every switch in turn and prints what each costs.
+
 ## Speed
 
 The new trees cost much more than the old ones, mostly from overlapping leaf cards. On this laptop's integrated
@@ -89,6 +113,8 @@ graphics (Intel Arc 140V) at 1600 × 900:
 To keep it there:
 
 - **Lighter versions:** each new tree has two, with fewer, bigger leaf cards, used from 45 m and 120 m.
+- **Trimmed cards:** every version also comes with its cards cut to the outline round their leaves (`trees_trim.glb`),
+  and the full trees come with fewer cards per clump too (`trees_few.glb`), for trying in the performance panel.
 - **Shadows:** the full tree casts its shadow from the lighter version.
 - **Faded trees:** trees faded out near the camera aren't drawn at all, apart from their shadows.
 
@@ -122,9 +148,10 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/demo.gd` | The demo: builds the scene, the HUD, and the command-line options for checking it |
 | `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions), rocks and plants, colliders, walls |
 | `scripts/hero.gd`, `scripts/camera_rig.gd` | The hero and the camera |
+| `scripts/perf_panel.gd`, `scripts/trail_walk.gd` | The performance panel, and the walk along the trail it uses |
 | `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
 | `shaders/` | Ground, leaves, the low-poly material, sky, Blender's noise |
-| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest=40` walks the trail and prints the frame times; add `--disable-vsync` before the scene path, and `--treelod=1` or `2` to try the lighter trees) and `lineup.gd` (models in rows, for comparing with Blender) |
+| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--disable-vsync` before the scene path, and `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`) and `lineup.gd` (models in rows, for comparing with Blender) |
 | `tools/` | The Blender build scripts (Godot ignores this folder) |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

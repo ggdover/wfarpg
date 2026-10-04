@@ -226,9 +226,97 @@ def lod_settings(cfg, level):
     return c
 
 
-def build_tree(key, variant, cfg, me, level=0):
-    """treegen.build_into, at a level of detail. Returns (leaf cards, faces)."""
+# for trying out in the demo's performance panel: about half the leaf cards per clump, a little bigger
+def fewer_settings(cfg):
+    c = dict(cfg)
+    if c["layout"] == "pinnate":
+        c["planes"] = max(1, int(cfg["planes"]) // 2)
+        c["size"] = cfg["size"] * 1.08
+    else:
+        c["planes"] = max(2, round(int(cfg["planes"]) * 0.6))
+        c["density"] = max(1.0, cfg["density"] * 0.75)
+        c["size"] = cfg["size"] * 1.12
+    return c
+
+
+def clip_polygon(poly, d, limit):
+    """The part of a convex polygon where dot(d, p) <= limit (Sutherland-Hodgman)."""
+    out = []
+    for i in range(len(poly)):
+        a, b = poly[i], poly[(i + 1) % len(poly)]
+        da = d[0] * a[0] + d[1] * a[1] - limit
+        db = d[0] * b[0] + d[1] * b[1] - limit
+        if da <= 0:
+            out.append(a)
+        if (da < 0) != (db < 0):
+            t = da / (da - db)
+            out.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t))
+    return out
+
+
+def card_outline(path, margin_px=6.0, cut=0.02):
+    """The octagon round a leaf card's leaves, in its UV space: the square cut at 45 degrees too, with a few pixels
+    to spare so filtering and mipmaps never reach past it. Drawing only this part of each card saves pixels: most of
+    a card is transparent, and the graphics card works through every pixel of it anyway."""
+    img = bpy.data.images.load(path, check_existing=True)
+    W, H = img.size
+    a = np.array(img.pixels[:], np.float32).reshape(H, W, 4)[..., 3]
+    ys, xs = np.nonzero(a > cut)
+    u, v = (xs + 0.5) / W, (ys + 0.5) / H
+    m = margin_px / W
+    poly = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]
+    for k in range(4):
+        ang = math.pi * k / 4
+        d = (math.cos(ang), math.sin(ang))
+        proj = u * d[0] + v * d[1]
+        poly = clip_polygon(poly, d, float(proj.max()) + m)
+        poly = clip_polygon(poly, (-d[0], -d[1]), -(float(proj.min()) - m))
+    return [(max(0.0, min(1.0, x)), max(0.0, min(1.0, y))) for x, y in poly]
+
+
+def trim_cards(tree, outlines):
+    """Cut every leaf card of a treegen.Tree from its square down to the outline round its card's leaves (outlines:
+    material slot name -> UV polygon), keeping its UVs, its normals (interpolated) and its winding."""
+    nv, nf, nmat, ncol, nuv, nnrm = [], [], [], [], [], []
+    remap = {}
+
+    def keep(i):
+        if i not in remap:
+            remap[i] = len(nv)
+            nv.append(tree.v[i])
+        return remap[i]
+
+    for i, face in enumerate(tree.f):
+        m, uvs = tree.mat[i], tree.uv[i]
+        outline = outlines.get(tree.slots[m]) if m > 0 else None
+        if outline is None or uvs is None or len(face) != 4:
+            nf.append(tuple(keep(j) for j in face))
+            nmat.append(m), ncol.append(tree.col[i]), nuv.append(uvs), nnrm.append(tree.nrm[i])
+            continue
+        at = {(round(u), round(v)): k for k, (u, v) in enumerate(uvs)}
+        p00, p10, p01 = (tree.v[face[at[c]]] for c in ((0, 0), (1, 0), (0, 1)))
+        n = {c: tree.nrm[i][k] for c, k in at.items()} if tree.nrm[i] else None
+        poly = outline
+        if sum(uvs[k][0] * uvs[(k + 1) % 4][1] - uvs[(k + 1) % 4][0] * uvs[k][1] for k in range(4)) < 0:
+            poly = list(reversed(poly))  # a mirrored card winds the other way round
+        idx, puv, pn = [], [], []
+        for u, v in poly:
+            nv.append(p00 + (p10 - p00) * u + (p01 - p00) * v)
+            idx.append(len(nv) - 1)
+            puv.append((u, v))
+            if n:
+                pn.append((n[(0, 0)] * ((1 - u) * (1 - v)) + n[(1, 0)] * (u * (1 - v)) + n[(1, 1)] * (u * v) + n[(0, 1)] * ((1 - u) * v)).normalized())
+        nf.append(tuple(idx))
+        nmat.append(m), ncol.append(tree.col[i]), nuv.append(puv), nnrm.append(pn or None)
+    tree.v, tree.f, tree.mat, tree.col, tree.uv, tree.nrm = nv, nf, nmat, ncol, nuv, nnrm
+
+
+def build_tree(key, variant, cfg, me, level=0, outlines=None, fewer=False):
+    """treegen.build_into, at a level of detail, optionally with fewer cards per clump and with the cards trimmed to
+    their leaves (outlines from card_outline, by material slot). Returns (leaf cards, faces)."""
     import treegen
+    if fewer:
+        cfg = fewer_settings(cfg)
     if level:
         cfg = lod_settings(cfg, level)
     marks = []
@@ -247,6 +335,8 @@ def build_tree(key, variant, cfg, me, level=0):
         keep = [i for i in range(len(tree.f)) if tree.mat[i] > 0 or i < marks[0]]
         for attr in ("f", "mat", "col", "uv", "nrm"):
             setattr(tree, attr, [getattr(tree, attr)[i] for i in keep])
+    if outlines:
+        trim_cards(tree, outlines)
     tree.to_mesh(me, treegen.materials_for(key, cfg))
     return sum(1 for m in tree.mat if m > 0), len(tree.f)
 
@@ -264,13 +354,44 @@ def tree_meshes():
     return out
 
 
+# the trees' versions, by .glb file: (name suffix, level of detail, trimmed cards, fewer cards). In the game, the
+# performance panel switches between them (scripts/world.gd).
+TREE_VERSIONS = {
+    "trees": [("", 0, False, False), ("_1", 1, False, False), ("_2", 2, False, False)],
+    "trees_trim": [("_t", 0, True, False), ("_1_t", 1, True, False), ("_2_t", 2, True, False)],
+    "trees_few": [("_f", 0, False, True), ("_f_t", 0, True, True)],
+}
+
+
+def transfer_ao(me_square, ao_square, me_trimmed):
+    """Ambient occlusion for a tree with trimmed cards, from the same tree with square ones (bake_ao counts a whole
+    square as half see-through, so baking the trimmed cards would come out lighter): the bark keeps its values, and
+    each trimmed card takes its square's corners' values, interpolated by UV."""
+    uv_sq = me_square.uv_layers["UVMap"].data
+    uv_t = me_trimmed.uv_layers["UVMap"].data
+    out = np.ones(len(me_trimmed.loops), np.float32)
+    for fs, ft in zip(me_square.polygons, me_trimmed.polygons):
+        ls, lt = list(fs.loop_indices), list(ft.loop_indices)
+        if fs.material_index == 0:
+            out[lt] = ao_square[ls]
+            continue
+        c = {(round(uv_sq[l].uv[0]), round(uv_sq[l].uv[1])): ao_square[l] for l in ls}
+        for l in lt:
+            u, v = uv_t[l].uv
+            out[l] = c[(0, 0)] * (1 - u) * (1 - v) + c[(1, 0)] * u * (1 - v) + c[(1, 1)] * u * v + c[(0, 1)] * (1 - u) * v
+    return out
+
+
 def build_trees():
-    """The tree portfolio's trees, as tuned in assets/trees/tree_settings.json, two variants of each."""
+    """The tree portfolio's trees, as tuned in assets/trees/tree_settings.json, two variants of each, each in a full
+    and two lighter versions, and each of those with square or trimmed leaf cards; and for trying out, the full
+    trees with fewer cards per clump."""
     import treegen
     settings = treegen.load_settings()
     tex_dir = os.path.join(TREE_DIR, "textures")
     os.makedirs(tex_dir, exist_ok=True)
-    info, objs, ao = {}, [], {}
+    info = {}
+    files = {group: ([], {}) for group in TREE_VERSIONS}
     for key, *_ in treegen.SPECIES:
         cfg = settings[key]
         card = treegen.BY_KEY[key][6]
@@ -279,20 +400,35 @@ def build_trees():
             textures["berries"] = f"{card}_{int(cfg['card'])}_berries"
         for name in textures.values():
             copy_card(name, cfg, tex_dir)
+        outlines = {slot: card_outline(os.path.join(tex_dir, t + ".png")) for slot, t in textures.items()}
         for variant in "AB":
-            for level in range(3):  # Name, Name_1, Name_2: the full tree and two lighter ones for distance
-                name = f"{key}_{variant}" + (f"_{level}" if level else "")
-                me = bpy.data.meshes.new(name)
-                cards, faces = build_tree(key, variant, cfg, me, level)
-                ob = bpy.data.objects.new(name, me)
-                bpy.context.scene.collection.objects.link(ob)
-                objs.append(ob)
-                info[name] = dict(mesh_info(me, bark_slot=0), cards=cards, faces=faces, species=key, file="res://assets/trees/trees.glb",
-                                  textures={slot: f"res://assets/trees/textures/{t}.png" for slot, t in textures.items()},
-                                  materials=[m.name for m in me.materials])
-                ao[name] = bake_ao(me, see_through={i for i, m in enumerate(me.materials) if m.name != "Bark"})
-                print(name, "cards", cards, "faces", faces, "height", info[name]["height"], "mean ao %.2f" % ao[name].mean())
-    export_glb(objs, os.path.join(TREE_DIR, "trees.glb"), ao)
+            square = {}  # (level, fewer) -> (mesh, ao) of the square-card version, for its trimmed twin
+            for group, versions in TREE_VERSIONS.items():
+                objs, ao = files[group]
+                for suffix, level, trimmed, fewer in versions:
+                    name = f"{key}_{variant}{suffix}"
+                    me = bpy.data.meshes.new(name)
+                    cards, faces = build_tree(key, variant, cfg, me, level, outlines if trimmed else None, fewer)
+                    ob = bpy.data.objects.new(name, me)
+                    bpy.context.scene.collection.objects.link(ob)
+                    objs.append(ob)
+                    info[name] = dict(mesh_info(me, bark_slot=0), cards=cards, faces=faces, species=key,
+                                      file=f"res://assets/trees/{group}.glb", triangles=sum(len(f.vertices) - 2 for f in me.polygons),
+                                      textures={slot: f"res://assets/trees/textures/{t}.png" for slot, t in textures.items()},
+                                      materials=[m.name for m in me.materials])
+                    if trimmed:
+                        sq_me, sq_ao = square.get((level, fewer)) or (None, None)
+                        if sq_me is None:  # the square version of the fewer-card tree is built just for this
+                            sq_me = bpy.data.meshes.new(name + "_square")
+                            build_tree(key, variant, cfg, sq_me, level, None, fewer)
+                            sq_ao = bake_ao(sq_me, see_through={i for i, m in enumerate(sq_me.materials) if m.name != "Bark"})
+                        ao[name] = transfer_ao(sq_me, sq_ao, me)
+                    else:
+                        ao[name] = bake_ao(me, see_through={i for i, m in enumerate(me.materials) if m.name != "Bark"})
+                        square[(level, fewer)] = (me, ao[name])
+                    print(name, "cards", cards, "triangles", info[name]["triangles"], "mean ao %.2f" % ao[name].mean())
+    for group, (objs, ao) in files.items():
+        export_glb(objs, os.path.join(TREE_DIR, group + ".glb"), ao)
     with open(os.path.join(TREE_DIR, "trees.json"), "w") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)
 

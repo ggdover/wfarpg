@@ -7,7 +7,8 @@ extends Node3D
 ##   --trees=old|new  which trees            --pose=x,z,yaw,pitch,distance[,facing]  where the hero and camera are
 ##   --shot=out.png   take a screenshot and quit (after --wait=frames, default 90)    --nohud  without the HUD
 ##   --fps=seconds    measure the frame rate first and print it                       --selftest  try the controls
-##   --walktest=s     walk the trail and print the frame times                       --treelod=1|2  lighter trees
+##   --walktest       walk the trail and print the frame times                       --treelod=1|2  lighter trees
+##   --panel          open the performance panel (F2)
 ##   for measuring what costs what: --noshadow, --nofade, --flatground, --canopy=0..1, --bump=0..1,
 ##   --sun:property=value, --env:property=value, --vp:property=value
 
@@ -17,6 +18,7 @@ var rig: CameraRig
 var _info: Label
 var _help: Control
 var _fps: Label
+var _panel: PerfPanel
 var _shot := ""
 var _wait := 90
 var _measure := 0.0
@@ -50,10 +52,16 @@ func _ready() -> void:
 	_read_args()
 	rig.snap()
 	for a in OS.get_cmdline_user_args():
-		if a.begins_with("--walktest="):
+		if a.begins_with("--walktest"):
 			var walk: Node = load("res://scripts/dev/walktest.gd").new()
 			add_child(walk)
-			walk.run(self, float(a.substr(11)))
+			walk.run(self)
+		elif a == "--panel":
+			_panel.visible = true
+		elif a == "--paneltest":
+			var test: Node = load("res://scripts/dev/paneltest.gd").new()
+			add_child(test)
+			test.run(self)
 	if "--selftest" in OS.get_cmdline_user_args():
 		var test: Node = load("res://scripts/dev/selftest.gd").new()
 		add_child(test)
@@ -62,9 +70,9 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("swap_trees"):
-		Game.tree_set = "old" if Game.tree_set == "new" else "new"
-		world.show_trees(Game.tree_set)
-		_update_info()
+		show_tree_set("old" if Game.tree_set == "new" else "new")
+	elif event.is_action_pressed("perf_panel"):
+		_panel.visible = not _panel.visible
 	elif event.is_action_pressed("toggle_help"):
 		_help.visible = not _help.visible
 	elif event.is_action_pressed("toggle_fps"):
@@ -73,6 +81,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		var vp := get_viewport()
 		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
 		vp.scaling_3d_scale = {1.0: 0.75, 0.75: 0.5}.get(snappedf(vp.scaling_3d_scale, 0.01), 1.0)
+		_panel.show_choice("scale", snappedf(vp.scaling_3d_scale, 0.05))
 		_update_info()
 	elif event.is_action_pressed("screenshot"):
 		DirAccess.make_dir_recursive_absolute("user://screenshots")
@@ -82,6 +91,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("menu"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		get_tree().change_scene_to_file("res://scenes/start.tscn")
+
+
+## Show the old trees or the new ones, where you stand.
+func show_tree_set(which: String) -> void:
+	Game.tree_set = which
+	world.show_trees(which)
+	_update_info()
+	_panel.show_choice("trees", which)
 
 
 func _process(delta: float) -> void:
@@ -165,6 +182,7 @@ func _build_hud() -> void:
 	var font: Font = load("res://assets/fonts/Cinzel.ttf")
 	var box := PanelContainer.new()
 	box.position = Vector2(16, 14)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var bg := StyleBoxFlat.new()
 	bg.bg_color = Color(0.1, 0.09, 0.07, 0.62)
 	bg.set_content_margin_all(10)
@@ -189,7 +207,7 @@ func _build_hud() -> void:
 		+ "Right mouse button + move  orbit the camera\n"
 		+ "Mouse wheel  zoom\n"
 		+ "Left mouse button  'attack': face the cursor, walk slower\n"
-		+ "T  swap old and new trees    F3  frame rate    F4  render scale\n"
+		+ "T  swap old and new trees    F2  performance    F3  frame rate    F4  render scale\n"
 		+ "F12  screenshot    F1  hide this    Esc  menu")
 	_help.add_theme_color_override("font_color", Color("#CFC6B2"))
 	_help.add_theme_font_size_override("font_size", 13)
@@ -202,6 +220,15 @@ func _build_hud() -> void:
 	_fps.add_theme_color_override("font_color", Color("#E6E0D2"))
 	_fps.visible = false
 	layer.add_child(_fps)
+	_panel = PerfPanel.new()
+	_panel.visible = false
+	_panel.anchor_left = 1.0
+	_panel.anchor_right = 1.0
+	_panel.offset_left = -436.0
+	_panel.offset_right = -16.0
+	_panel.offset_top = 14.0
+	layer.add_child(_panel)
+	_panel.setup(self)
 	_update_info()
 
 
