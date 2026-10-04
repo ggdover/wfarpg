@@ -20,7 +20,8 @@ global uniform vec2 mood_grade;
 void fragment() {
 	float fade = max(tree_fade(sight_fade, VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD),
 			xray_fade(SCREEN_UV, VIEWPORT_SIZE, VERTEX, VIEW_MATRIX, CAMERA_POSITION_WORLD));
-	if (faded_out(fade, (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz)) {
+	vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	if (faded_out(fade, world) || faded_fine(cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD), world, FRAGCOORD.xy)) {
 		discard;
 	}
 	vec4 c = texture(card, UV);

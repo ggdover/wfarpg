@@ -71,39 +71,27 @@ place (`tools/reference_shots.py`).
   it instead.
   - Into each tree's vertices: how much of the sky each leaf and branch can see.
   - Into the ground: how much the trees shade each spot, separately for each tree set.
-- **Trees and the camera:** the trees in front of the hero go, leaving their bare trunks, so you see the hero and the
-  ground round and in front of it, while the trees beside it and ahead of it stay (`update_sight` in
-  `scripts/world.gd`). Their shadows stay.
-  - In front of the hero, a tree goes once where it stands, its foot and the first 2 m of its trunk, is in the lower
-    middle of the screen: the area in `ref_imgs/camera_disappearing_tree.png`, the middle 52% of the screen's width,
-    from 30% down to the bottom edge, and on past it, so the trees coming into view from below as the hero walks
-    towards the camera are gone already, as Path of Exile 2 cuts its trees. Only trees at least 1 m in front of the
-    hero go: those beside it or past it stay unless they hide it, as cutting those too took too many of the trees
-    ahead (`ref_imgs/tree_disappear/center_bottom.png`). Not the whole trunk, as seen from above a tall tree's trunk
-    leans in towards the middle of the screen as it rises, so a tall tree beside the area would count
-    (`ref_imgs/tree_disappear/front.png`).
-  - Any other tree in the way of the hero goes too, once some part of it, a leaf card, a branch or the trunk, is
-    between the camera and the hero: lines from the camera to a grid of points over the hero, as the camera sees it,
-    are tested against the tree's own triangles, in the version that's drawn, with square leaf cards, which contain
-    whatever of a card shows.
-  - A tree that goes leaves its bare trunk standing, without its branches, until the trunk itself hides the hero,
-    when it goes down to its stump, as asked for with `ref_imgs/tree_disappear/front2.png`. A spruce, whose
-    branches reach the ground, goes to its stump straight away. The trunks and stumps are the trees' own trunks,
-    the stumps cut at about knee height with the cut a little tilted, pale wood ringed with sapwood (`stumps.glb`,
-    built by `tools/build_demo.py`). A tree fades out in a fifth of a second, and back in half a second once it's
-    out of the area.
-  - Whatever of a tree comes within 40% of the way from the camera to the hero fades away, from 60% of that out,
-    wherever it is on the screen, pixel by pixel, so the branches round a low camera don't sweep in from the screen's
-    edges (`ref_imgs/tree_disappear/hero.png`); its trunk stays standing. Nothing near the camera goes or comes back
-    whole, so nothing pops.
-  - The x-ray, to try instead (the panel's "X-ray"): no tree goes whole, but the shaders cut away whatever of a tree
-    is in a window in the lower middle of the screen and nearer the camera than the hero, the window's edges soft and
-    patchy, its top corners round (`xray_fade` in `shaders/common.gdshaderinc`); the trunks stand there as above.
+- **Trees and the camera:** whatever of a tree is inside a cone from the edges of the screen to the hero fades away,
+  wholly in the cone's middle and gradually towards its edges (`ref_imgs/tree_disappear/camera_view.png`;
+  `cone_fade` in `shaders/common.gdshaderinc`, `update_sight` in `scripts/world.gd`). Their shadows stay.
+  - On the screen the cone shrinks with depth: the whole screen at the camera, and round the hero, at 2.5 times its
+    size, at the hero's depth; it stops just past the hero's far side. So trees near the camera fade wherever they are
+    on the screen, and their branches don't sweep in from its edges; those in front of the hero fade only round the
+    way to it, so a spruce whose outer branches cover the hero fades there, more the nearer the hero; and the trees
+    beside and past the hero stay.
+  - No tree goes whole, so nothing pops, and nothing is left as a bare stick. The fade is a fine dither in blocks of
+    two pixels, which reads as the trees' opacity changing and which the ambient occlusion, worked out at half
+    resolution, leaves alone; the outer 30% of the cone fades gradually.
+  - The panel has the earlier ways too, to compare: **Front**, whole trees in front of the hero (where they stand, in
+    the lower middle of the screen, at least 1 m in front of it) and any in the way of the hero go, leaving their
+    stumps (built from each tree's own trunk, `stumps.glb`) or their bare trunks; **X-ray**, a soft-edged window in
+    the lower middle of the screen; **Area**, the lower middle up to 6 m past the hero; **Line**, only the trees in
+    the way of the hero. With Front and X-ray, whatever of a tree comes near the camera fades too.
   - Whatever the camera is about to touch, within about 2.5 m of it, fades too.
   - The mockups also hide the trees near a high camera. The demo can, with the panel's "Fade trees near camera",
     though never within 6 m of the hero; it's off, as trees should only go once they block the view.
-  - Trees fade in patches a few tenths of a metre across rather than in a dither of single pixels, which the
-    ambient occlusion turned into black specks.
+  - Whole trees fade in patches a few tenths of a metre across rather than in a dither of single pixels, which the
+    ambient occlusion turned into black specks; the cone's dither, in blocks of two pixels, it leaves alone.
 
 Where it differs on purpose:
 
@@ -132,7 +120,7 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Trees in the way | Which trees go: those **In front** of the hero and in the way of the hero (the default, above); the **X-ray**'s window instead; those in the screen's **Lower mid**dle up to 6 m past the hero too (**past hero**), and any in the way of the hero; only those in the way of the hero (**Line**); or none. **Leave** their trunks (the default), their stumps, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Trees in the way | How trees get out of the way (above): the **Cone** (the default), with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
@@ -230,9 +218,9 @@ Also:
   nearer saves at most 1 ms, as their bigger cards cover about as many pixels.
 - **Trimmed and fewer cards:** every version also comes with its cards cut to the outline round their leaves
   (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`).
-- **Hidden trees:** trees that go aren't drawn at all, apart from their shadows and what's left of them. The trees in
-  front of the hero going makes the start about 1 ms faster than hiding only the trees in the way of the hero; the
-  x-ray, which cuts no tree whole, costs 2.6 ms more than that. Working out which trees
+- **Hidden trees:** with the cone, no tree goes whole, so it costs about 0.5 ms a frame more than leaving every tree
+  standing, and 2 ms more than Front, where the trees that go aren't drawn at all, apart from their shadows and
+  what's left of them. Working out which trees
   go takes 0.2–0.7 ms a frame in the forest; the trees' shapes for it are worked out as they load (about 60 ms for
   both sets).
 - **The depth prepass** (Godot's own, on): without it, the forest takes twice as long.
@@ -290,6 +278,6 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
 | `shaders/` | Ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material (and `lowpoly_trunk` for the bare trunks trees leave, which neither the x-ray nor the fade near the camera touch), the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
-| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels) and `lineup.gd` (models in rows, for comparing with Blender) |
+| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=cone` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender) |
 | `tools/` | The Blender build scripts (Godot ignores this folder) |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

@@ -3119,6 +3119,101 @@
     "Seen from the side, the x-ray's window slices dense spruces at its edges and shows their dark insides, so whole trees going looks cleaner there"
    ],
    "cover": "renders/play_demo_trunks/walk_camera_low.jpg"
+  },
+  {
+   "id": "play-demo-cone",
+   "date": "2026-10-05",
+   "asked_at": "00:07",
+   "posted_at": "00:30",
+   "title": "The cone",
+   "section": "Play demo: the cone",
+   "asked": "Thanks for fixing the pine staying gone when I move away from it to the side: much better. Two things now. The crown going separately from the trunk is an okay idea, but it looks a bit strange when the trunk suddenly has no branches or leaves at all: it's just a stick. And it's a bit sudden when spruces just disappear as I touch the outer parts of their leaves, as they don't really have a crown like other trees. Some ideas. First, camera_view.png shows a top-down view of my screen and what's seen in the game: the blue square is my screen, the green dot the player character in the game, and the red section is like a cone projecting from the edges of the screen (all four, in 3D) towards the edges of the player character; any part of a tree in the cone should be gone. Second, the spruce dilemma: instead of the whole crown disappearing, maybe fade out the outermost parts, with an opacity gradient, more transparent the closer to the player, but only starting once the player is overlapped by the spruce's leaves. It's a bit like the x-ray, but I don't like how defined the x-ray's area is, so its edges are harsh; I'd like more of an opacity gradient",
+   "changed": [
+    "The cone (Cone in F2, now the default): whatever of a tree is inside a cone from the edges of the screen to the hero fades away. On the screen it shrinks with depth, from the whole screen at the camera to round the hero, 2.5 times its size, at the hero's depth, and stops just past the hero, so the trees beside and past the hero stay",
+    "An opacity gradient, not a cut: trees are gone in the cone's middle and fade gradually across its outer 30%, in a fine dither in blocks of two pixels, which the ambient occlusion leaves alone",
+    "No tree goes whole in the cone, so no bare trunks or stumps are left; a spruce fades only where it comes into the cone round the hero, more the nearer the hero",
+    "Sliders for the cone in F2: soft share, round the hero, wide for longer, and fade in (Dither or Patches). Front, the default before, now leaves stumps; the bare trunks are still under leave",
+    "The self-test checks that the cone cuts no tree whole; the sight audit, with --mode=cone, finds the trees covering at most 1.5% of the hero at 12 random spots"
+   ],
+   "items": [
+    {
+     "id": "s-cone",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: the cone",
+     "author": "claude"
+    },
+    {
+     "id": "co-about",
+     "type": "note",
+     "status": "new",
+     "text": "# The cone\nAs you drew it in camera_view: a cone from the edges of the screen to the hero, and whatever of a tree is inside it fades away. At the camera it's the whole screen, so branches never sweep in from the edges; towards the hero it narrows, ending round the hero a little bigger than it (2.5 times), so you see the ground there. Past the hero nothing fades.\n\n- **A gradient, not a cut:** in the cone's middle trees are gone; across its outer 30% they fade gradually, in a fine dither two pixels across that reads as the needles turning see-through. No hard edges as with the x-ray\n- **Spruces** no longer go whole. One fades only where it comes into the cone round the hero, more the nearer the hero, so walking in under its outer branches thins just those\n- **No bare sticks:** the cone cuts no tree whole, so no trunks or stumps are left; the shadows stay",
+     "author": "claude"
+    },
+    {
+     "id": "co-sketch",
+     "type": "image",
+     "status": "new",
+     "caption": "Your camera_view sketch (left): the cone from the edges of the screen to the hero. Now (right), in the thicket: whatever of the trees is inside the cone fades, wholly in its middle and gradually towards its edges; the rest of the forest stands.",
+     "assetId": "88eacd29bfc7b42ac9ebcf6e535848fa",
+     "file": "renders/play_demo_cone/sketch_thicket.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "co-switches",
+     "type": "note",
+     "status": "new",
+     "text": "# To try in F2\nUnder **Trees in the way**: **Cone** (now), or the earlier ways, **Front**, **X-ray**, **Area**, **Line** and **Keep**. For the cone: **soft share** (how much of it fades gradually), **round the hero** (how big it is there; smaller, and trees wait until they nearly cover the hero), **wide for longer** (it stays wide further from the camera) and **fade in** (**Dither** or **Patches**). Front now leaves stumps; bare trunks are under **leave**.\n\nThe cone runs about 2 ms a frame slower than Front at the start (about 80 fps there), as it cuts no tree whole.",
+     "author": "claude"
+    },
+    {
+     "id": "co-spruce",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking in behind a big spruce (2.5 m past its trunk), from 7 m to its side to straight behind it. Front (top) cuts it whole while the hero is still well beside it; the cone (bottom) leaves it standing and thins only what comes round the hero.",
+     "assetId": "aa1226e48dd8392602dda6013824f55d",
+     "file": "renders/play_demo_cone/spruce_walk.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "co-low",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking the trail with the camera low: Line to hero, Front with stumps left, and the cone (now). Line and Front cut whole trees; the cone opens a soft-edged way through the trees to the hero.",
+     "assetId": "7c1dead1bfc81191d36bdf03d144e49e",
+     "file": "renders/play_demo_cone/walk_camera_low.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "co-high",
+     "type": "image",
+     "status": "new",
+     "caption": "The same with the default, high camera.",
+     "assetId": "4c67910c0ebc62d0a4de3d377ae3723a",
+     "file": "renders/play_demo_cone/walk_camera_high.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "co-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Close up, with the camera low at the start: the spruce between the camera and the hero thins out in a fine dither, more and more towards the hero, rather than in holes with hard edges.",
+     "assetId": "42dfde0d7d5d6be382791bf00309eef9",
+     "file": "renders/play_demo_cone/dither_close.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/30_cone_first.jpg",
+     "caption": "The first cone: its outer 70% fading, in patches a few centimetres across, which left the trees round the hero moth-eaten; here at the start, in the thicket, low at the start and in a dense stand"
+    }
+   ],
+   "found": [
+    "With most of the cone fading gradually, in patches a few centimetres across, the trees round the hero looked moth-eaten rather than see-through; a narrower soft edge in a fine dither on the screen reads as their opacity changing",
+    "Front cut a big spruce whole while the hero was still 4.5 m to its side, as it stood in the lower middle of the screen; the cone leaves it standing until its branches come round the hero"
+   ],
+   "cover": "renders/play_demo_cone/sketch_thicket.jpg"
   }
  ]
 }

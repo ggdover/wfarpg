@@ -5,7 +5,9 @@ extends SceneTree
 ##   covered  how much of the hero the trees still cover as the game draws it; should be none
 ##   hidden   each tree the game hides, with how much of the hero it would cover on its own; for one that would
 ##            cover none, how far its nearest pixel is from the hero's, in metres at the hero (hidden that early)
-## godot --path game --script res://scripts/dev/sightaudit.gd [-- --trimmed] [--spots=24]
+## With --mode=cone (or front, xray...), that way of cutting trees instead, with its own fades and the trees left
+## standing; for those that cut no tree whole, only how much of the hero the trees cover.
+## godot --path game --script res://scripts/dev/sightaudit.gd [-- --trimmed] [--spots=24] [--mode=cone]
 
 var demo: Node
 var world: DemoWorld
@@ -76,8 +78,12 @@ func _run() -> void:
 	hero = demo.hero
 	var rig: CameraRig = demo.rig
 	var spots := 24
+	var mode := "line"
 	world.set_trees("leave", "nothing")
-	world.set_trees("cut_trees", "line")
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--mode="):
+			mode = a.substr(7)
+	world.set_trees("cut_trees", mode)
 	for a in OS.get_cmdline_user_args():
 		if a == "--trimmed":
 			world.set_trees("trimmed", true)
@@ -159,7 +165,7 @@ func _run() -> void:
 				line += " (%.2f m off)" % gap
 		for i in nearby:
 			_show(i, true)
-		world.set_trees("cut_trees", "line")
+		world.set_trees("cut_trees", mode)
 		worst = maxf(worst, covered)
 		print("spot %2d  pitch %2d, %2d m: trees cover %4.1f%% of the hero; hidden %2d:%s" % [n, roundi(rig.pitch),
 			roundi(rig.distance), covered, hidden.size(), line])

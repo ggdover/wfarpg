@@ -40,6 +40,45 @@ bool faded_out(float fade, vec3 world) {
 	return fade > clamp((n - 0.5) * 1.7 + 0.5, 0.001, 0.999);
 }
 
+// Like faded_out, but for a fade that changes across a tree, so that it reads as the tree's opacity changing (the
+// cone): with cone_style 0, in patches a few centimetres across; with 1, in a fine even dither on the screen, in
+// blocks of two pixels, which the ambient occlusion, worked out at half resolution, leaves alone.
+global uniform float cone_style;
+
+bool faded_fine(float fade, vec3 world, vec2 pixel) {
+	if (fade <= 0.0) {
+		return false;
+	}
+	if (cone_style > 0.5) {
+		vec2 b = floor(pixel * 0.5);
+		float n = fract(52.9829189 * fract(0.06711056 * b.x + 0.00583715 * b.y));  // interleaved gradient noise
+		return fade > clamp(n, 0.001, 0.999);
+	}
+	float n = 0.6 * value_noise3(world * 11.0) + 0.4 * value_noise3(world * 27.0 + 9.0);
+	return fade > clamp((n - 0.5) * 1.7 + 0.5, 0.001, 0.999);
+}
+
+// The cone (cut_trees "cone" in scripts/world.gd): from the edges of the screen at the camera to the hero, whatever of
+// a tree is inside it fades away, wholly at its middle and less and less towards its edges. On the screen it shrinks
+// with depth, from the whole screen at the camera to round the hero at the hero's depth, and stops a little past the
+// hero. cone_hero: where it ends round the hero, its middle and half its size (screen UV); cone_shape: the hero's depth
+// from the camera (metres), the share of the cone, from its edge in, that fades gradually, how its size goes with depth
+// (1: evenly), and whether it's on.
+global uniform vec4 cone_hero;
+global uniform vec4 cone_shape;
+
+float cone_fade(vec2 screen_uv, vec3 vertex_view, vec3 camera_world) {
+	if (cone_shape.w < 0.5 || distance(camera_world, main_camera_position) > 0.05) {
+		return 0.0;
+	}
+	float depth = -vertex_view.z;
+	float s = pow(clamp(depth / cone_shape.x, 0.0, 1.0), cone_shape.z);
+	vec2 d = abs(screen_uv - mix(vec2(0.5), cone_hero.xy, s)) / mix(vec2(0.5), cone_hero.zw, s);
+	float q = pow(pow(d.x, 4.0) + pow(d.y, 4.0), 0.25);  // 0 at the cone's middle, 1 at its edge; its corners round
+	float past = smoothstep(cone_shape.x + 0.5, cone_shape.x + 1.5, depth);  // past the hero's far side
+	return (1.0 - smoothstep(1.0 - cone_shape.y, 1.0, q)) * (1.0 - past);
+}
+
 // The x-ray (cut_trees "xray" in scripts/world.gd, with xray_on): in a window in the lower middle of the screen,
 // whatever of a tree is nearer the camera than the hero is cut away, and only that, so you see the hero and the ground
 // round and in front of it. The window, xray_rect: half its width, as a fraction of the screen's; how far down its top

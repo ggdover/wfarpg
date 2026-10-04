@@ -88,7 +88,8 @@ func run(d: Node) -> void:
 	demo.get_tree().quit(1 if failed.size() else 0)
 
 
-## Trees that block the view. In front of the hero (the default): a tree between the camera and the hero goes, leaving
+## Trees that block the view. The cone (the default): no tree is cut whole, and the shaders get the cone round the
+## hero. In front of the hero: a tree between the camera and the hero goes, leaving
 ## its trunk or stump, and comes back once the hero has walked well past it; a tree just ahead of the hero stays, and
 ## so does one well beyond it, and a tall one beside it; a tree round a low camera isn't cut whole, but its trunk
 ## stands while the shaders fade the rest near the camera. The x-ray: a tree in front of the hero isn't cut whole, and
@@ -117,8 +118,20 @@ func _sight_checks() -> void:
 			pole = i
 	var pole_away := (Vector2(hero.global_position.x, hero.global_position.z) - w._tree_xz[pole]).normalized()
 	var pole_side := Vector2(-pole_away.y, pole_away.x)
-	# in front of the hero
+	# the cone
+	w.set_trees("cut_trees", "cone")
+	_place_hero(w._tree_xz[tree] + away * 4.0)
+	rig.yaw = fposmod(yaw_beyond + 180.0, 360.0)  # beyond the tree: it stands between the camera and the hero
+	rig.pitch = 55.0
+	rig.distance = 20.0
+	await _seconds(0.6)
+	var whole_cone := w.sight_fade(tree)
+	var nothing_left := not w._trunks.has(tree) and not w._stumped.has(tree)
+	_check("%s trees, the cone: no tree is cut whole, and the shaders get it" % set, w._cone and whole_cone == 0.0 and nothing_left,
+		"cone %s, cut whole %.2f" % ["on" if w._cone else "off", whole_cone])
+	# in front of the hero, leaving the trees' trunks
 	w.set_trees("cut_trees", "front")
+	w.set_trees("leave", "trunks")
 	_place_hero(w._tree_xz[tree] + away * 4.0)
 	rig.yaw = fposmod(yaw_beyond + 180.0, 360.0)  # beyond the tree: it stands between the camera and the hero
 	rig.pitch = 55.0
@@ -173,6 +186,7 @@ func _sight_checks() -> void:
 	_check("%s trees, x-ray: a trunk that hides the hero goes, to its stump" % set, hidden >= 1.0 and stump_too,
 		"faded %.2f, %s" % [hidden, "stump" if stump_too else "no stump"])
 	# the lower middle of the screen, as before: the tree just ahead of the hero goes too
+	w.set_trees("leave", "stumps")
 	w.set_trees("cut_trees", "area")
 	rig.pitch = 55.0
 	_place_hero(w._tree_xz[tree] + away * 3.0)
@@ -196,7 +210,7 @@ func _sight_checks() -> void:
 	_check("%s trees, only those in the way: a tree ahead of the hero stays" % set, ahead == 0.0, "faded %.2f" % ahead)
 	_check("%s trees, only those in the way: they fade out, and back" % set, gone >= 1.0 and w.sight_fade(tree) == 0.0,
 		"faded %.2f, then %.2f" % [gone, w.sight_fade(tree)])
-	w.set_trees("cut_trees", "front")
+	w.set_trees("cut_trees", "cone")
 	rig.pitch = 55.0
 	rig.distance = 20.0
 

@@ -133,5 +133,10 @@
  "ce6c325f3bd1292464e62026885c91f5": "renders/play_demo_beside/pine_beside_the_hero.jpg",
  "46694982943cc0e357387d05c4fd2db8": "renders/play_demo_trunks/pine_back.jpg",
  "f13547c9836cceab831629469d131530": "renders/play_demo_trunks/walk_camera_low.jpg",
- "331d71d632cb62b7fcae96c4e7f58772": "renders/play_demo_trunks/walk_camera_high.jpg"
+ "331d71d632cb62b7fcae96c4e7f58772": "renders/play_demo_trunks/walk_camera_high.jpg",
+ "88eacd29bfc7b42ac9ebcf6e535848fa": "renders/play_demo_cone/sketch_thicket.jpg",
+ "aa1226e48dd8392602dda6013824f55d": "renders/play_demo_cone/spruce_walk.jpg",
+ "7c1dead1bfc81191d36bdf03d144e49e": "renders/play_demo_cone/walk_camera_low.jpg",
+ "4c67910c0ebc62d0a4de3d377ae3723a": "renders/play_demo_cone/walk_camera_high.jpg",
+ "42dfde0d7d5d6be382791bf00309eef9": "renders/play_demo_cone/dither_close.jpg"
 }

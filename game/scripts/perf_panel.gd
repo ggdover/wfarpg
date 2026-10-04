@@ -106,13 +106,18 @@ func setup(d: Node) -> void:
 		func(v: float) -> void: w.set_trees("impostors_from", v))
 	_choice(col, "fade", "Fade trees near camera", [["On", true], ["Off", false]], w.fade_near_camera,
 		func(v: bool) -> void: w.set_trees("fade_near_camera", v))
-	_choice(col, "sight", "Trees in the way", [["In front", "front"], ["X-ray", "xray"], ["Lower mid", "area"], ["Line", "line"], ["Keep", "off"]],
+	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
+	_choice(col, "sight", "Trees in the way", [["Cone", "cone"], ["Front", "front"], ["X-ray", "xray"], ["Area", "area"], ["Line", "line"], ["Keep", "off"]],
 		w.cut_trees, func(v: String) -> void: w.set_trees("cut_trees", v))
-	_choice(col, "leave", "  leave", [["Trunks", "trunks"], ["Stumps", "stumps"], ["Nothing", "nothing"]], w.leave,
+	_slider(col, "cone_soft", "  cone: soft share", 0.1, 1.0, 0.05, w.cone_soft, percent, func(v: float) -> void: w.cone_soft = v)
+	_choice(col, "cone_style", "  cone: fade in", [["Dither", "dither"], ["Patches", "patches"]], w.cone_style,
+		func(v: String) -> void: w.cone_style = v)
+	_slider(col, "cone_tip", "  cone: round the hero", 1.0, 6.0, 0.25, w.cone_tip, "%.1f×", func(v: float) -> void: w.cone_tip = v)
+	_slider(col, "cone_power", "  cone: wide for longer", 0.5, 3.0, 0.1, w.cone_power, "%.1f", func(v: float) -> void: w.cone_power = v)
+	_choice(col, "leave", "  leave", [["Stumps", "stumps"], ["Trunks", "trunks"], ["Nothing", "nothing"]], w.leave,
 		func(v: String) -> void: w.set_trees("leave", v))
 	_choice(col, "cut_by", "  a tree goes by", [["Its trunk", "trunk"], ["Any part", "any"]], w.cut_by,
 		func(v: String) -> void: w.set_trees("cut_by", v))
-	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
 	_slider(col, "cut_width", "  area width", 0.2, 1.0, 0.02, w.cut_half_width * 2.0, percent, func(v: float) -> void: w.cut_half_width = v * 0.5)
 	_slider(col, "cut_top", "  area from the top", 0.0, 0.5, 0.02, w.cut_top, percent, func(v: float) -> void: w.cut_top = v)
 	_slider(col, "cut_near", "  near the camera", 0.0, 0.8, 0.05, w.cut_near, percent, func(v: float) -> void: w.cut_near = v)

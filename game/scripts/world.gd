@@ -40,6 +40,7 @@ var _xray := 0.0  # the x-ray as the shaders have it (xray_on)
 var _trunks := {}  # tree index -> how far its bare trunk has faded out, 0..1, while it's drawn (_leave)
 var _stumped := {}  # tree index -> true while its stump is drawn
 var _reach := 0.0  # the fade near the camera as the shaders have it (xray_near)
+var _cone := false  # the cone as the shaders have it (cone_shape)
 var _max_reach := 0.0
 var _current := ""
 const CELL := 8.0
@@ -102,12 +103,14 @@ var fade_near_camera := false
 ## it stay; "area", whole, those in the lower middle of the screen up to cut_behind past the hero too, as in Path of
 ## Exile 2, and any in the way of the hero; "line", whole, only those in the way of the hero; "xray", no tree whole,
 ## but whatever of a tree is in the lower middle of the screen and nearer the camera than the hero, cut away by the
-## shaders (xray_fade in shaders/common.gdshaderinc); or "off". With "front" and "xray", whatever of a tree comes near
-## the camera fades away too (cut_near). Their shadows stay.
-var cut_trees := "front"
+## shaders (xray_fade in shaders/common.gdshaderinc); "cone", no tree whole, but whatever of a tree is inside a cone
+## from the edges of the screen to the hero fades away, wholly at its middle and gradually towards its edges (cone_fade
+## in shaders/common.gdshaderinc), ref_imgs/tree_disappear/camera_view.png; or "off". With "front" and "xray",
+## whatever of a tree comes near the camera fades away too (cut_near). Their shadows stay.
+var cut_trees := "cone"
 ## what's left of a tree that goes: "trunks", its bare trunk, until that hides the hero, which takes it down to its
 ## stump (a spruce, whose branches reach the ground, goes to its stump straight away); "stumps"; or "nothing"
-var leave := "trunks"
+var leave := "stumps"
 ## the lower middle of the screen, where trees go: half its width either side of the middle, and from how far down
 ## its top is, as fractions of the screen's (ref_imgs/camera_disappearing_tree.png: the middle 52%, from 30% down)
 var cut_half_width := 0.26
@@ -126,6 +129,16 @@ var cut_near := 0.4
 ## hero (metres, along the ground towards the camera); those beside it or past it stay, unless they hide the hero or
 ## come near the camera
 var cut_front := 1.0
+## with "cone": the share of the cone, from its edge in, where trees fade gradually, rather than wholly
+var cone_soft := 0.3
+## and how they fade: "dither", in a fine even dither on the screen, which reads as their opacity changing, or
+## "patches", in patches a few centimetres across, like the other fades (faded_fine in shaders/common.gdshaderinc)
+var cone_style := "dither"
+## and how big it is round the hero, where it ends, as many times the hero's size on the screen
+var cone_tip := 2.5
+## and how its size goes with the depth: 1, evenly from the whole screen at the camera to round the hero; above 1, it
+## stays wide further out
+var cone_power := 1.0
 ## also keep the ground this far round the hero clear of trees in the way (metres; 0 for the hero alone)
 var sight_clear := 0.0
 ## small plants and pebbles cast no shadows
@@ -194,6 +207,13 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	if _current == "":
 		return
 	var camera_pos := camera.global_position
+	var cone := cut_trees == "cone"
+	if cone != _cone:
+		_cone = cone
+		if not cone:
+			RenderingServer.global_shader_parameter_set("cone_shape", Vector4(1.0, cone_soft, cone_power, 0.0))
+	if cone:
+		_update_cone(camera, hero_pos)
 	var xray := 1.0 if cut_trees == "xray" else 0.0
 	if xray != _xray:
 		_xray = xray
@@ -206,9 +226,24 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	if xray > 0.0:
 		RenderingServer.global_shader_parameter_set("xray_rect", Vector4(cut_half_width, cut_top, XRAY_EDGE, XRAY_CORNER))
 		window = _area_planes(camera, AREA_KEEP)
-	elif cut_trees != "off":
+	elif cut_trees != "off" and cut_trees != "cone":
 		_cut_whole(camera, hero_pos, delta)
 	_leave(camera, hero_pos, delta, reach, window)
+
+
+## The cone (cut_trees "cone"): where the hero is on the screen, how big (cone_tip times its size there), and how far
+## from the camera, for cone_fade in the shaders.
+func _update_cone(camera: Camera3D, hero_pos: Vector3) -> void:
+	var size := camera.get_viewport().get_visible_rect().size
+	var r := Rect2(camera.unproject_position(hero_pos), Vector2.ZERO)
+	for c in 8:
+		r = r.expand(camera.unproject_position(hero_pos + Vector3(0.4 if c & 1 else -0.4, 1.8 if c & 2 else 0.0, 0.4 if c & 4 else -0.4)))
+	var centre := r.get_center() / size
+	var half := r.size * 0.5 * cone_tip / size
+	var depth := -(camera.global_transform.affine_inverse() * (hero_pos + Vector3(0.0, 0.9, 0.0))).z
+	RenderingServer.global_shader_parameter_set("cone_hero", Vector4(centre.x, centre.y, half.x, half.y))
+	RenderingServer.global_shader_parameter_set("cone_shape", Vector4(maxf(depth, 0.5), cone_soft, cone_power, 1.0))
+	RenderingServer.global_shader_parameter_set("cone_style", 1.0 if cone_style == "dither" else 0.0)
 
 
 ## Fade out whole the trees that block the view, and fade them back once they don't. With cut_trees "front", those in

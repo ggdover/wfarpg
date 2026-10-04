@@ -21,10 +21,13 @@ global uniform vec3 pebble_colour;
 void fragment() {
 #ifdef HERO_FADE
 	float fade = tree_fade(sight_fade, VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD);
+	float soft = 0.0;  // the cone's
 #ifndef NO_XRAY
 	fade = max(fade, xray_fade(SCREEN_UV, VIEWPORT_SIZE, VERTEX, VIEW_MATRIX, CAMERA_POSITION_WORLD));
+	soft = cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD);
 #endif
-	if (faded_out(fade, (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz)) {
+	vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	if (faded_out(fade, world) || faded_fine(soft, world, FRAGCOORD.xy)) {
 		discard;
 	}
 #endif
