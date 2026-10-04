@@ -901,6 +901,71 @@
   "y": 1918,
   "z": 70
  },
+ "iw-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791130905292,
+  "h": 660,
+  "text": "# Trees go once they're in the way\nYou said the trees disappeared a bit early, even before the hero reached them, and should only go once some part of them is between the camera and the hero.\n\nNow:\n- A tree goes once one of its leaf cards, branches or its trunk is on a line from the camera to the hero, tested against the tree's own shape as it's drawn\n- Trees the hero walks towards stay until they're between the hero and the camera\n- No more clearing round the hero: the 3 m ring is gone, and so is the mockups' fade of the trees near a high camera. Both can be turned back on in F2 (\"clear round the hero\", \"Fade trees near camera\")\n- Only what the camera is about to touch, within about 2.5 m of it, still fades",
+  "type": "note",
+  "updatedAt": 1791130905292,
+  "w": 460,
+  "x": 28,
+  "y": 18774,
+  "z": 184
+ },
+ "iw-low": {
+  "ar": 1.644,
+  "assetId": "a824b8e6287d1590c287ffbfc3651387",
+  "author": "claude",
+  "caption": "Low cameras: nothing hidden, the previous version, and now. Only the trees that cover the hero go; in the last row the birch goes because one of its branches crosses in front of the hero.",
+  "createdAt": 1791130905292,
+  "type": "image",
+  "updatedAt": 1791130905292,
+  "w": 1086,
+  "x": 1626,
+  "y": 19765,
+  "z": 188
+ },
+ "iw-numbers": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791130905292,
+  "h": 500,
+  "text": "# How early, before and now\nWalking up to a tree from the default camera, it went:\n- **Scots pine:** 5 m before its trunk; now 1.5 m, as its branches reach the hero\n- **Norway spruce:** 7 m before; now 2.5 m, as its low branches reach over the hero\n\nAt 24 random spots and camera angles, trees covered at most 1% of the hero. A few went up to a metre early, from the see-through parts of their leaf cards.\n\n**Speed:** the trees round the hero are drawn now, so the start runs at 51 fps instead of 54; walking the trail averages 65.",
+  "type": "note",
+  "updatedAt": 1791130905292,
+  "w": 460,
+  "x": 28,
+  "y": 19458,
+  "z": 185
+ },
+ "iw-pine": {
+  "ar": 2.527,
+  "assetId": "949792b335aed5fac9539b06426161bd",
+  "author": "claude",
+  "caption": "3 m before the pine. Before, a clearing round the hero; now the pine and the trees round the hero stay, and the hero is in full view.",
+  "createdAt": 1791130905292,
+  "type": "image",
+  "updatedAt": 1791130905292,
+  "w": 1086,
+  "x": 512,
+  "y": 19765,
+  "z": 187
+ },
+ "iw-walk": {
+  "ar": 2.467,
+  "assetId": "fcfd5c8366587c3e078ed627fa990625",
+  "author": "claude",
+  "caption": "Walking up to the Scots pine and past it, from the default camera. Before (top) it went 5 m early, with everything round the hero; now (bottom) it stays until the hero is behind it.",
+  "createdAt": 1791130905292,
+  "type": "image",
+  "updatedAt": 1791130905292,
+  "w": 2200,
+  "x": 512,
+  "y": 18774,
+  "z": 186
+ },
  "m-aim": {
   "author": "claude",
   "color": "gold",
@@ -1568,6 +1633,19 @@
   "x": 2880,
   "y": 780,
   "z": 13
+ },
+ "s-intheway": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791130905292,
+  "h": 1789,
+  "title": "Play demo: trees go once they're in the way",
+  "type": "frame",
+  "updatedAt": 1791130905292,
+  "w": 2740,
+  "x": 0,
+  "y": 18746,
+  "z": 24
  },
  "s-loot": {
   "author": "claude",

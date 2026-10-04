@@ -72,12 +72,15 @@ place (`tools/reference_shots.py`).
   - Into each tree's vertices: how much of the sky each leaf and branch can see.
   - Into the ground: how much the trees shade each spot, separately for each tree set.
 - **Trees and the camera:**
-  - A tree standing in the way between the camera and the hero, or the ground within 3 m of the hero, fades out
-    whole in a fifth of a second, and comes back once it's out of the way; its shadow stays. Each tree's crown and
-    trunk count as upright cylinders, measured from the model (`update_sight` in `scripts/world.gd`).
-  - With the camera high up, trees near it fade out completely, as the mockups hide them; their shadows stay.
-  - Branches much nearer a low camera than the hero fade too.
-  - They fade in patches a few tenths of a metre across rather than in a dither of single pixels, which the
+  - A tree fades out whole once some part of it, a leaf card, a branch or the trunk, is between the camera and the
+    hero, and comes back once it's out of the way; its shadow stays. Not before: the trees the hero walks towards
+    stay until they're actually in the way. Lines from the camera to a grid of points over the hero, as the camera
+    sees it, are tested against the tree's own triangles, in the version that's drawn, with square leaf cards, which
+    contain whatever of a card shows (`update_sight` in `scripts/world.gd`).
+  - Whatever the camera is about to touch, within about 2.5 m of it, fades too.
+  - The mockups also hide the trees near a high camera. The demo can, with the panel's "Fade trees near camera",
+    though never within 6 m of the hero; it's off, as trees should only go once they're in the way.
+  - Trees fade in patches a few tenths of a metre across rather than in a dither of single pixels, which the
     ambient occlusion turned into black specks.
 
 Where it differs on purpose:
@@ -103,8 +106,8 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Cards per clump | As tuned, or about half as many (a little bigger): sparser crowns |
 | Tree shadows from | Which version of a new tree casts its shadow: the full one, the mid one, the far one, or none |
 | Lighter trees from | Where the new trees switch to their lighter versions |
-| Fade trees near camera | The mockups' fade of trees near a high camera (it also saves drawing them) |
-| Trees in the way | Hide the whole of every tree between the camera and the hero (the default), or keep them. **Clear round the hero** sets how much ground round the hero they keep clear of, 3 m by default |
+| Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they're in the way |
+| Trees in the way | Hide the whole of every tree that's in the way between the camera and the hero (the default), or keep them. **Clear round the hero** also keeps the ground that far round the hero clear of trees; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
@@ -156,9 +159,9 @@ The demo starts with Forest earth.
 The new trees cost much more than the old ones, mostly from overlapping leaf cards. On this laptop's integrated
 graphics (Intel Arc 140V) at 1600 × 900, with VSync off, no frame rate limit and nothing else running:
 
-- **Old trees:** about 97 fps at the start, in the thicket.
-- **New trees:** about 54 fps at the start. Walking the trail from there to the meadow averages 68 fps, with the
-  slowest 1% of frames at 43.
+- **Old trees:** about 100 fps at the start, in the thicket.
+- **New trees:** about 51 fps at the start. Walking the trail from there to the meadow averages 65 fps, with the
+  slowest 1% of frames at 42.
 
 To keep it there:
 
@@ -166,20 +169,22 @@ To keep it there:
 - **Trimmed cards:** every version also comes with its cards cut to the outline round their leaves (`trees_trim.glb`),
   and the full trees come with fewer cards per clump too (`trees_few.glb`), for trying in the performance panel.
 - **Shadows:** the full tree casts its shadow from the lighter version.
-- **Faded and hidden trees:** trees faded out near the camera, or hidden because they're in the way, aren't drawn at
-  all, apart from their shadows. Working out which trees are in the way takes 0.1–0.3 ms a frame in the forest.
+- **Hidden trees:** trees hidden because they're in the way, or faded out near the camera, aren't drawn at all,
+  apart from their shadows. Working out which trees are in the way takes 0.1–0.5 ms a frame in the forest; the
+  trees' shapes for it are worked out as they load (about 60 ms for both sets).
 
 The biggest costs after the trees, measured with the panel at the start (time per frame on the graphics card, against
-the defaults' 18.3 ms):
+the defaults' 19.1 ms):
 
-- **Ground details:** Medium saves 4.1 ms (69 fps), Low 4.2 and Off 4.8. Medium keeps nearly all of the look, so it
+- **Ground details:** Medium saves 3.5 ms (63 fps), Low 3.6 and Off 4.2. Medium keeps nearly all of the look, so it
   gets nearly all of Off's speed without losing the gravel and leaves.
-- **Shadows:** off saves 5.6 ms (77 fps). A 1024 shadow map saves 2.0 ms against 2048, and 4096 costs 8.6 ms more.
-  Fitting the distance to the view saves 1.5 ms against a fixed 70 m. Tree shadows from the far versions save 1.3 ms,
-  none at all 4.7.
-- **Ambient occlusion:** off saves 3.2 ms (64 fps), very low 0.1; high costs 2.4 ms more.
-- **Render scale:** 75% saves 3.9 ms (67 fps), 50% 7.7 (91 fps).
-- **Leaf cards:** trimmed cards save 2.5 ms (62 fps), fewer cards per clump 1.1.
+- **Shadows:** off saves 5.4 ms (71 fps). A 1024 shadow map saves 2.1 ms against 2048, and 4096 costs 8.7 ms more.
+  Fitting the distance to the view saves 1.6 ms against a fixed 70 m. Tree shadows from the far versions save 1.2 ms,
+  none at all 4.8.
+- **Ambient occlusion:** off saves 3.4 ms (62 fps), very low 0.2; high costs 2.5 ms more.
+- **Render scale:** 75% saves 4.0 ms (65 fps), 50% 8.1 (88 fps).
+- **Leaf cards:** trimmed cards save 3.0 ms (61 fps), fewer cards per clump 2.2.
+- **Fade trees near camera:** on, it costs 1.6 ms, from the trees half faded near the camera.
 
 ## Rebuilding the assets
 

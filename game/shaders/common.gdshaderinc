@@ -42,15 +42,14 @@ bool faded_out(float fade, vec3 world) {
 
 // How much a pixel of a tree fades out, 0..1. A tree in the way between the camera and the hero fades out whole
 // (sight: the tree's instance uniform, which scripts/world.gd sets in update_sight), and so do trees standing near
-// a high camera, as the mockups hide them (within tree_fade_radius of it along the ground); and anything much nearer
-// the camera than the hero fades too, such as branches right in front of a low camera. Never in the shadow pass, so
-// the shadows stay whole. node is the tree's position (NODE_POSITION_WORLD).
-float tree_fade(float sight, vec3 vertex_view, mat4 view_matrix, vec3 node, vec3 camera_world) {
+// a high camera, as the mockups hide them (within tree_fade_radius of it along the ground, which stops well short of
+// the hero); and whatever the camera is about to touch, such as a branch right in front of a low camera. Never in the
+// shadow pass, so the shadows stay whole. node is the tree's position (NODE_POSITION_WORLD).
+float tree_fade(float sight, vec3 vertex_view, vec3 node, vec3 camera_world) {
 	if (hero_fade_on < 0.5 || distance(camera_world, main_camera_position) > 0.05) {
 		return 0.0;
 	}
-	float hero_depth = -(view_matrix * vec4(hero_position + vec3(0.0, 0.9, 0.0), 1.0)).z;
-	float near = 1.0 - smoothstep(0.15, 0.3, -vertex_view.z / max(hero_depth, 1.0));
+	float near = 1.0 - smoothstep(1.0, 2.5, -vertex_view.z);
 	float camera = 1.0 - smoothstep(tree_fade_radius - 2.5, tree_fade_radius, distance(node.xz, main_camera_position.xz));
 	return max(sight, max(near, camera));
 }

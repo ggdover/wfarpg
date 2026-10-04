@@ -93,6 +93,8 @@ The final images shown on the board, by board section:
 | `renders/town_square` | Tallmo's square |
 | `renders/play_demo` | Play demo (Godot): screenshots from the game |
 | `renders/play_demo_paths` | Play demo: path colours and speed (the path colour themes, shadow options, ground detail levels and the performance panel) |
+| `renders/play_demo_sight` | Play demo: worn paths, trees out of the way, frame rate (Forest earth, the wider wear, the first hiding of trees in the way, the panel) |
+| `renders/play_demo_in_the_way` | Play demo: trees go once they're in the way (walking up to a pine, low cameras) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History

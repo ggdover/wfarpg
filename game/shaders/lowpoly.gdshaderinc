@@ -19,7 +19,7 @@ global uniform vec3 pebble_colour;
 
 void fragment() {
 #ifdef HERO_FADE
-	float fade = tree_fade(sight_fade, VERTEX, VIEW_MATRIX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD);
+	float fade = tree_fade(sight_fade, VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD);
 	if (faded_out(fade, (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz)) {
 		discard;
 	}

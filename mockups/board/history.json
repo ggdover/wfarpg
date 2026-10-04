@@ -2626,6 +2626,92 @@
     "Each tree's fade is a value per drawn instance, and Godot's default buffer for those holds only about 4,000 instances; with both tree sets the demo has about 19,000, so the buffer is now 8 MB"
    ],
    "cover": "renders/play_demo_sight/trees_behind.jpg"
+  },
+  {
+   "id": "trees-in-the-way",
+   "date": "2026-10-04",
+   "asked_at": "17:25",
+   "posted_at": "18:22",
+   "title": "Trees go only once they're in the way",
+   "section": "Play demo: trees go once they're in the way",
+   "asked": "The trees disappear a bit early, even before the player reaches them. They should only disappear once they block the view from the camera to the player, when some part of the tree is between the camera and the player",
+   "changed": [
+    "A tree goes once some part of it, a leaf card, a branch or the trunk, is on a line from the camera to the hero: lines to a grid of points over the hero as the camera sees it, tested against the tree's own triangles, in the version that's drawn",
+    "Trees the hero walks towards stay until they're between the hero and the camera: a Scots pine used to go 5 m before its trunk and now goes at 1.5 m, a Norway spruce 7 m and now 2.5 m, each as its branches reach the hero",
+    "The 3 m clearing round the hero is gone (\"clear round the hero\" in the panel, 0 m by default), and so is the mockups' fade of the trees near a high camera (\"Fade trees near camera\", off by default and never near the hero)",
+    "Only what the camera is about to touch, within about 2.5 m of it, still fades on its own",
+    "The self-test checks, with both tree sets, that a tree 5 m ahead of the hero stays and that a tree in the way goes",
+    "Speed: 51 fps at the start instead of 54, as the trees round the hero are drawn now; the trail averages 65"
+   ],
+   "items": [
+    {
+     "id": "s-intheway",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: trees go once they're in the way",
+     "author": "claude"
+    },
+    {
+     "id": "iw-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Trees go once they're in the way\nYou said the trees disappeared a bit early, even before the hero reached them, and should only go once some part of them is between the camera and the hero.\n\nNow:\n- A tree goes once one of its leaf cards, branches or its trunk is on a line from the camera to the hero, tested against the tree's own shape as it's drawn\n- Trees the hero walks towards stay until they're between the hero and the camera\n- No more clearing round the hero: the 3 m ring is gone, and so is the mockups' fade of the trees near a high camera. Both can be turned back on in F2 (\"clear round the hero\", \"Fade trees near camera\")\n- Only what the camera is about to touch, within about 2.5 m of it, still fades",
+     "author": "claude"
+    },
+    {
+     "id": "iw-walk",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking up to the Scots pine and past it, from the default camera. Before (top) it went 5 m early, with everything round the hero; now (bottom) it stays until the hero is behind it.",
+     "assetId": "fcfd5c8366587c3e078ed627fa990625",
+     "file": "renders/play_demo_in_the_way/walk_past_the_pine.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "iw-numbers",
+     "type": "note",
+     "status": "new",
+     "text": "# How early, before and now\nWalking up to a tree from the default camera, it went:\n- **Scots pine:** 5 m before its trunk; now 1.5 m, as its branches reach the hero\n- **Norway spruce:** 7 m before; now 2.5 m, as its low branches reach over the hero\n\nAt 24 random spots and camera angles, trees covered at most 1% of the hero. A few went up to a metre early, from the see-through parts of their leaf cards.\n\n**Speed:** the trees round the hero are drawn now, so the start runs at 51 fps instead of 54; walking the trail averages 65.",
+     "author": "claude"
+    },
+    {
+     "id": "iw-pine",
+     "type": "image",
+     "status": "new",
+     "caption": "3 m before the pine. Before, a clearing round the hero; now the pine and the trees round the hero stay, and the hero is in full view.",
+     "assetId": "949792b335aed5fac9539b06426161bd",
+     "file": "renders/play_demo_in_the_way/pine_3m.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "iw-low",
+     "type": "image",
+     "status": "new",
+     "caption": "Low cameras: nothing hidden, the previous version, and now. Only the trees that cover the hero go; in the last row the birch goes because one of its branches crosses in front of the hero.",
+     "assetId": "a824b8e6287d1590c287ffbfc3651387",
+     "file": "renders/play_demo_in_the_way/low_views.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/26_near_fade_short_or_off.jpg",
+     "caption": "The fade of the trees near a high camera, stopped short of the hero (left) or off (right): the same at the default camera, cleaner low down, but slower, so it's off"
+    },
+    {
+     "file": "renders/wip/27_spruce_over_the_hero.jpg",
+     "caption": "Seen from above, a spruce still covered the hero, as the lines all ran to one upright slice through it"
+    }
+   ],
+   "found": [
+    "The 3 m ring round the hero, and the fade of the trees near a high camera, which reached past the hero, made trees go 3 to 7 m before they were in the way",
+    "Testing against the trimmed leaf cards could miss needles that show; the square cards always contain them, so the test uses those, whichever are drawn",
+    "Seen from above, lines to an upright slice through the hero miss what covers its footprint, so the points lie on a plane facing the camera",
+    "Trees half faded near the camera cost more to draw than whole ones, so stopping that fade short of the hero made the start 2 ms slower; it's off now",
+    "Working out a tree's shape the first time it came near the camera stalled a frame; it's done as the trees load",
+    "At 24 random spots and camera angles, trees covered at most 1% of the hero; a few went up to a metre early, from the see-through parts of their leaf cards"
+   ],
+   "cover": "renders/play_demo_in_the_way/pine_3m.jpg"
   }
  ]
 }

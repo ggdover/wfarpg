@@ -59,6 +59,7 @@ func run(d: Node) -> void:
 	_check("attacking turns the hero to the cursor", absf(angle_difference(hero.facing, atan2(-aim.x, -aim.z))) < 0.25, "off by %.2f rad" % angle_difference(hero.facing, atan2(-aim.x, -aim.z)))
 	_check("attacking walks slower", (hero.global_position - start).length() < 0.5 * hero.speed * 0.5 * 1.15, "%.2f m in 0.5 s" % (hero.global_position - start).length())
 	_mouse_button(MOUSE_BUTTON_LEFT, false)
+	await _sight_checks()
 	# T swaps the trees
 	var set0: String = Game.tree_set
 	_key(KEY_T)
@@ -69,20 +70,7 @@ func run(d: Node) -> void:
 	_key(KEY_P)
 	await _frames(3)
 	_check("P changes the paths' colours", Game.path_theme != theme0, "%s -> %s" % [theme0, Game.path_theme])
-	# a tree between a low camera and the hero fades out of the way, and comes back once it isn't in the way
-	var w: DemoWorld = demo.world
-	var tree := w.nearest_tree(hero.global_position, 15.0)
-	var to_tree := Vector2(w._tree_xz[tree].x - hero.global_position.x, w._tree_xz[tree].y - hero.global_position.z).normalized()
-	rig.yaw = rad_to_deg(atan2(-to_tree.y, to_tree.x))
-	rig.pitch = 20.0
-	rig.distance = 25.0
-	await _seconds(0.6)
-	var gone := w.sight_fade(tree)
-	rig.yaw = fposmod(rig.yaw + 180.0, 360.0)
-	await _seconds(1.5)
-	_check("trees in the way fade out, and back", gone >= 1.0 and w.sight_fade(tree) == 0.0, "faded %.2f, then %.2f" % [gone, w.sight_fade(tree)])
-	rig.pitch = 55.0
-	rig.distance = 20.0
+	await _sight_checks()
 	# the walls hold: walk west for a long time from near the west edge
 	hero.global_position = Vector3(-74.0, demo.world.height_at(-74.0, 0.0) + 0.2, 0.0)
 	hero.reset_physics_interpolation()
@@ -98,6 +86,35 @@ func run(d: Node) -> void:
 		print(r)
 	print("selftest: %d passed, %d failed" % [results.size() - failed.size(), failed.size()])
 	demo.get_tree().quit(1 if failed.size() else 0)
+
+
+## A tree 5 m ahead of the hero, with the camera behind the hero, stays; with the camera low behind the tree, it's in
+## the way and fades out, and it comes back once it isn't in the way.
+func _sight_checks() -> void:
+	var hero: Hero = demo.hero
+	var rig: CameraRig = demo.rig
+	var w: DemoWorld = demo.world
+	var tree := w.nearest_tree(hero.global_position, 15.0)
+	var away := (Vector2(hero.global_position.x, hero.global_position.z) - w._tree_xz[tree]).normalized()
+	var spot := w._tree_xz[tree] + away * 5.0
+	hero.global_position = Vector3(spot.x, w.height_at(spot.x, spot.y) + 0.05, spot.y)
+	hero.reset_physics_interpolation()
+	rig.yaw = rad_to_deg(atan2(-away.y, away.x))  # the camera beyond the hero, looking towards the tree
+	rig.pitch = 55.0
+	rig.distance = 20.0
+	await _seconds(0.6)
+	var ahead := w.sight_fade(tree)
+	rig.yaw = fposmod(rig.yaw + 180.0, 360.0)  # beyond the tree, looking at the hero through it
+	rig.pitch = 20.0
+	rig.distance = 25.0
+	await _seconds(0.6)
+	var gone := w.sight_fade(tree)
+	rig.yaw = fposmod(rig.yaw + 180.0, 360.0)
+	await _seconds(1.5)
+	_check("%s trees: a tree ahead of the hero stays" % Game.tree_set, ahead == 0.0, "faded %.2f" % ahead)
+	_check("%s trees: trees in the way fade out, and back" % Game.tree_set, gone >= 1.0 and w.sight_fade(tree) == 0.0, "faded %.2f, then %.2f" % [gone, w.sight_fade(tree)])
+	rig.pitch = 55.0
+	rig.distance = 20.0
 
 
 func _check(what: String, ok: bool, detail: String) -> void:

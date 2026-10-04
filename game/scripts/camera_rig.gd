@@ -17,6 +17,8 @@ extends Node3D
 @export var min_distance := 7.0
 @export var max_distance := 34.0
 @export var sensitivity := 0.25  ## degrees per pixel of mouse movement
+## how far short of the hero (along the ground) the fade of trees near a high camera stops, in metres
+const HERO_GAP := 6.0
 
 var hero: Node3D
 var world: DemoWorld
@@ -91,9 +93,11 @@ func _place() -> void:
 	camera.look_at(_pivot + Vector3(0, 0.9 * (1.0 - pitch / 90.0), 0))
 	RenderingServer.global_shader_parameter_set("hero_position", _hero_at())
 	RenderingServer.global_shader_parameter_set("main_camera_position", pos)
-	# trees near a high camera fade out, as the mockups hide them; low behind the hero, only those right at the camera
+	# trees near a high camera fade out, as the mockups hide them; low behind the hero, only those right at the camera.
+	# Never near the hero, though: there trees only go once they're in the way (DemoWorld.update_sight)
 	var above := pos.y - (world.height_at(pos.x, pos.z) if world else 0.0)
 	var radius := clampf(above * 0.85, 2.5, 15.0) if (world == null or world.fade_near_camera) else 0.0
+	radius = maxf(0.0, minf(radius, Vector2(pos.x - _pivot.x, pos.z - _pivot.z).length() - HERO_GAP))
 	RenderingServer.global_shader_parameter_set("tree_fade_radius", radius)
 	if world:
 		world.skip_faded(pos, radius)

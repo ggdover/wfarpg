@@ -37,8 +37,8 @@ General knowledge, public documentation, and third-party libraries and engines a
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
-  (not yet confirmed by the user). Trees in the way between the camera and the hero disappear whole, shadows kept,
-  rather than being cut open with a round hole (the user's choice).
+  (not yet confirmed by the user). A tree disappears whole, shadow kept, only once some part of it is between the
+  camera and the hero, not before, even when it's near the hero or the camera (the user's choice; no round hole).
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
   hard edges and cut corners instead of rounded ones, fine texture instead of soft gradients, slim orb rims.
