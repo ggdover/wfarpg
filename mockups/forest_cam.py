@@ -419,10 +419,11 @@ class Builder:
         self.col = self.bm.loops.layers.float_color.new("Col")
 
     def _faces(self, verts):
-        s = set()
+        found = {}  # in a fixed order (a set's order changes from run to run, and with it each face's colour jitter)
         for v in verts:
-            s.update(v.link_faces)
-        return list(s)
+            for f in v.link_faces:
+                found.setdefault(f, None)
+        return list(found)
 
     def paint(self, faces, colfn, mat_index=0):
         for f in faces:
