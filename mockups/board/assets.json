@@ -105,5 +105,13 @@
  "2809b5e83e4ff497c64af99b64d045ea": "renders/play_demo_paths/themes_meadow.jpg",
  "b89a5fae8fb589985577946e55efd6ea": "renders/play_demo_paths/shadow_options.jpg",
  "48100878ae40cbec35a9bcadac90a9a6": "renders/play_demo_paths/ground_detail_levels.jpg",
- "bd2c4eb04f25c9597fdaf261d2eda4ef": "renders/play_demo_paths/panel.jpg"
+ "bd2c4eb04f25c9597fdaf261d2eda4ef": "renders/play_demo_paths/panel.jpg",
+ "26f04852ffeeee47ffa76290e0803dbc": "renders/play_demo_sight/themes_close.jpg",
+ "3dd0142bcb5a41526988421f698540f8": "renders/play_demo_sight/themes_start.jpg",
+ "caf871d0366b809b41db7a4fc0c93491": "renders/play_demo_sight/wear_spread_close.jpg",
+ "8d390ff53c14be0a2ce5b52e4bd22150": "renders/play_demo_sight/wear_spread_meadow.jpg",
+ "892e71543369f2d532bbb70854a337c9": "renders/play_demo_sight/trees_dense.jpg",
+ "4f9db0a1aa9adbad9769091f569da71b": "renders/play_demo_sight/trees_behind.jpg",
+ "42c2a860c53f726bd5d4f3b7fd9c24b8": "renders/play_demo_sight/trees_low.jpg",
+ "a8ee6f628006719a42b4e8098501c865": "renders/play_demo_sight/panel.jpg"
 }

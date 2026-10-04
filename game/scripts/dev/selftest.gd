@@ -69,8 +69,23 @@ func run(d: Node) -> void:
 	_key(KEY_P)
 	await _frames(3)
 	_check("P changes the paths' colours", Game.path_theme != theme0, "%s -> %s" % [theme0, Game.path_theme])
+	# a tree between a low camera and the hero fades out of the way, and comes back once it isn't in the way
+	var w: DemoWorld = demo.world
+	var tree := w.nearest_tree(hero.global_position, 15.0)
+	var to_tree := Vector2(w._tree_xz[tree].x - hero.global_position.x, w._tree_xz[tree].y - hero.global_position.z).normalized()
+	rig.yaw = rad_to_deg(atan2(-to_tree.y, to_tree.x))
+	rig.pitch = 20.0
+	rig.distance = 25.0
+	await _seconds(0.6)
+	var gone := w.sight_fade(tree)
+	rig.yaw = fposmod(rig.yaw + 180.0, 360.0)
+	await _seconds(1.5)
+	_check("trees in the way fade out, and back", gone >= 1.0 and w.sight_fade(tree) == 0.0, "faded %.2f, then %.2f" % [gone, w.sight_fade(tree)])
+	rig.pitch = 55.0
+	rig.distance = 20.0
 	# the walls hold: walk west for a long time from near the west edge
 	hero.global_position = Vector3(-74.0, demo.world.height_at(-74.0, 0.0) + 0.2, 0.0)
+	hero.reset_physics_interpolation()
 	rig.yaw = 0.0  # camera east of the hero: W walks west
 	await _frames(3)
 	Input.action_press("move_forward")

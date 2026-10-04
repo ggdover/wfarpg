@@ -44,7 +44,7 @@ static func mesh(model: String) -> Mesh:
 	return m
 
 
-## Trees fade out between the camera and the hero, so it never disappears behind them.
+## Trees fade out when they stand in the way between the camera and the hero, so it never disappears behind them.
 static func is_tree(model: String) -> bool:
 	load_info()
 	var file: String = info[model]["file"]

@@ -27,6 +27,9 @@ var _pivot := Vector3.ZERO
 
 
 func _ready() -> void:
+	# the rig moves every frame, not every physics tick, so it isn't interpolated; it follows where the hero is drawn,
+	# which is (physics interpolation, in project.godot, keeps the hero smooth above the physics' 60 ticks a second)
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	camera = Camera3D.new()
 	camera.keep_aspect = Camera3D.KEEP_WIDTH
 	camera.fov = rad_to_deg(2.0 * atan(18.0 / 35.0))  # a 35 mm lens on a 36 mm wide sensor, like Blender's
@@ -38,8 +41,15 @@ func _ready() -> void:
 
 
 func snap() -> void:
-	_pivot = hero.global_position + Vector3(0, 1.4, 0)
+	_pivot = _hero_at() + Vector3(0, 1.4, 0)
 	_place()
+	if world:
+		world.update_sight(camera.global_position, _hero_at(), 10.0)
+
+
+## Where the hero is drawn this frame, between its last two physics ticks.
+func _hero_at() -> Vector3:
+	return hero.get_global_transform_interpolated().origin
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -64,8 +74,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	_pivot = _pivot.lerp(hero.global_position + Vector3(0, 1.4, 0), 1.0 - exp(-14.0 * delta))
+	_pivot = _pivot.lerp(_hero_at() + Vector3(0, 1.4, 0), 1.0 - exp(-14.0 * delta))
 	_place()
+	if world:
+		world.update_sight(camera.global_position, _hero_at(), delta)
 
 
 func _place() -> void:
@@ -77,7 +89,7 @@ func _place() -> void:
 		pos.y = maxf(pos.y, world.height_at(pos.x, pos.z) + 0.8)  # never under the ground on a slope
 	camera.global_position = pos
 	camera.look_at(_pivot + Vector3(0, 0.9 * (1.0 - pitch / 90.0), 0))
-	RenderingServer.global_shader_parameter_set("hero_position", hero.global_position)
+	RenderingServer.global_shader_parameter_set("hero_position", _hero_at())
 	RenderingServer.global_shader_parameter_set("main_camera_position", pos)
 	# trees near a high camera fade out, as the mockups hide them; low behind the hero, only those right at the camera
 	var above := pos.y - (world.height_at(pos.x, pos.z) if world else 0.0)

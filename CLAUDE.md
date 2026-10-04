@@ -23,11 +23,11 @@ General knowledge, public documentation, and third-party libraries and engines a
   fallen leaves). Grass runs right up to the trees: no brown patches under them.
   Props such as trees, bushes and rocks are faceted low-poly shapes.
 - Paths are worn into the grass by feet, so they never end in a hard line: the grass thins out and turns trampled toward
-  them. The mockups' dirt is a light tan (between wheat and desert sand), with gravel and pebbles in the same tones, so
-  they read as texture rather than contrasting spots. The user now finds that too much like sand and wants a little
-  more colour contrast, without going too dark brown: the play demo has seven path colour themes to try, from dark
-  brown to sandy (P; `game/scripts/path_themes.gd`), and the user hasn't picked one yet. Avoid hard edges between
-  ground textures in general.
+  them, and the wear spreads out in patches, so it isn't clear exactly where a path runs. The mockups' dirt is a light
+  tan (between wheat and desert sand), with gravel and pebbles in the same tones, so they read as texture rather than
+  contrasting spots. The user found that too much like sand. Of the play demo's path colour themes (P;
+  `game/scripts/path_themes.gd`) they liked forest soil and brown earth best, and asked for a mix of the two: the
+  demo's default, "Forest earth", not yet confirmed. Avoid hard edges between ground textures in general.
 - Trees: Scots pine, silver birch, Norway spruce, aspen, rowan and alder (`ref_imgs/Trees of the Swedish Forest.png`;
   the user dropped the juniper). Low-poly trunks and branches; leaf clumps are crossed planes (copies of a leaf card
   with alpha, crossing at the clump's centre). The spruce instead has pinnate sprays: spray cards along each branch
@@ -37,7 +37,8 @@ General knowledge, public documentation, and third-party libraries and engines a
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
-  (not yet confirmed by the user).
+  (not yet confirmed by the user). Trees in the way between the camera and the hero disappear whole, shadows kept,
+  rather than being cut open with a round hole (the user's choice).
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
   hard edges and cut corners instead of rounded ones, fine texture instead of soft gradients, slim orb rims.
@@ -75,7 +76,8 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   leaf cards and clumps. The user's tuned settings are in `assets/trees/tree_settings.json`; build from them, not
   from the defaults in `treegen.py`. See its README.
 - `game/`: the Godot project. For now a play demo: a small part of Storskogen (dense forest, a trail, a meadow with
-  a rise) with the old mockup trees or the new portfolio trees, a grey-box hero, the camera and controls. Its models,
+  a rise) with the old mockup trees or the new portfolio trees, a grey-box hero, the camera and controls. It runs with
+  VSync off and no frame rate limit, as the user asked; its performance panel (F2) has a frame rate limit. Its models,
   ground textures and layout are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
   portfolio and `game/tools/demo_area.py`; rebuild them after changing any of those. See `game/README.md`.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building

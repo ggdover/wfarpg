@@ -22,16 +22,28 @@ var heights := PackedFloat32Array()
 var _size := Vector2i.ZERO
 var _origin := Vector2.ZERO
 var _grid := 0.5
-var _tree_sets := {}  # "old"/"new" -> Array of trees: {model, kind, draw: [instances], shadow: instance or none}
+var _tree_sets := {}  # "old"/"new" -> Array of trees: {model, kind, draw: [instances], shadow: instance or none,
+		# and its crown's size where it stands: radius, base, top}
 var _tree_xz := PackedVector2Array()
+var _tree_y := PackedFloat32Array()
 var _tree_cells := {}  # Vector2i -> tree indices, for finding the trees near the camera
-var _skipped := {}  # tree index -> true while the tree is faded out completely and not drawn
+var _skipped := {}  # tree index -> true while the tree is faded out near the camera
+var _sight := {}  # tree index -> how far it has faded out of the way between the camera and the hero, 0..1
+var _clear_for := {}  # tree index -> seconds since it was last in the way
+var _undrawn := {}  # tree index -> true while the tree isn't drawn (faded out near the camera or out of the way)
+var _crowns := {}  # model -> Vector3(crown radius, crown base, top), unscaled
+var _max_crown := 0.0
 var _current := ""
 const CELL := 8.0
+const SIGHT_OUT := 0.2  # seconds a tree in the way takes to fade out
+const SIGHT_IN := 0.45  # and to fade back
+const SIGHT_HOLD := 0.35  # seconds it stays out of the way after it no longer is
 
 var _ground_materials := {}  # detail level -> its material (shaders/ground*.gdshader)
 var _ground_meshes: Array[MeshInstance3D] = []
 var ground_detail := 3
+## how far the paths' wear spreads into the grass: 0 as in the mockups, 1 the widest (wear_spread in the ground shader)
+var path_wear := 1.0
 const GROUND_SHADERS := {3: "res://shaders/ground.gdshader", 2: "res://shaders/ground_medium.gdshader",
 	1: "res://shaders/ground_low.gdshader", 0: "res://shaders/ground_flat.gdshader"}
 
@@ -47,6 +59,11 @@ var lod_near := 45.0
 var lod_far := 120.0
 ## fade out trees near a high camera, as the mockups hide them (scripts/camera_rig.gd)
 var fade_near_camera := true
+## fade out the whole of every tree that stands in the way between the camera and the hero, or the ground round the
+## hero (update_sight); their shadows stay
+var hide_in_sight := true
+## how far round the hero the ground stays clear of trees in the way (metres)
+var sight_clear := 3.0
 ## small plants and pebbles cast no shadows
 var plant_shadows := false
 ## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
@@ -93,13 +110,144 @@ func skip_faded(camera_pos: Vector3, radius: float) -> void:
 				for i: int in _tree_cells.get(Vector2i(cx, cz), []):
 					if c.distance_to(_tree_xz[i]) < inner:
 						now[i] = true
-	for i: int in _skipped:
-		if not now.has(i):
-			_draw_tree(i, true)
-	for i: int in now:
-		if not _skipped.has(i):
-			_draw_tree(i, false)
+	var old := _skipped
 	_skipped = now
+	for i: int in old:
+		if not now.has(i):
+			_refresh_drawn(i)
+	for i: int in now:
+		if not old.has(i):
+			_refresh_drawn(i)
+
+
+## Fade out the trees in the way between the camera and the hero, or the ground round the hero, so you see the hero
+## and what is round them as if the trees weren't there; and fade them back once they're out of the way. A tree
+## counts as in the way when a line from the camera to the hero, or to a point sight_clear metres round them, passes
+## through its crown or its trunk. Called every frame by the camera rig, with how long the frame took.
+func update_sight(camera_pos: Vector3, hero_pos: Vector3, delta: float) -> void:
+	if _current == "":
+		return
+	var targets: Array[Vector3] = [hero_pos + Vector3(0, 1.0, 0)]
+	var check := {}
+	if hide_in_sight:
+		var fwd := Vector3(hero_pos.x - camera_pos.x, 0.0, hero_pos.z - camera_pos.z)
+		fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
+		var right := fwd.cross(Vector3.UP)
+		if sight_clear > 0.1:
+			for k in 8:
+				var a := TAU * k / 8.0
+				targets.append(hero_pos + (fwd * cos(a) + right * sin(a)) * sight_clear + Vector3(0, 0.3, 0))
+		var reach := sight_clear + _max_crown * 1.15 + 1.0
+		var lo := Vector2(minf(camera_pos.x, hero_pos.x) - reach, minf(camera_pos.z, hero_pos.z) - reach)
+		var hi := Vector2(maxf(camera_pos.x, hero_pos.x) + reach, maxf(camera_pos.z, hero_pos.z) + reach)
+		for cx in range(floori(lo.x / CELL), floori(hi.x / CELL) + 1):
+			for cz in range(floori(lo.y / CELL), floori(hi.y / CELL) + 1):
+				for i: int in _tree_cells.get(Vector2i(cx, cz), []):
+					check[i] = true
+	for i: int in _sight:
+		check[i] = true
+	var trees: Array = _tree_sets[_current]
+	for i: int in check:
+		var f: float = _sight.get(i, 0.0)
+		var in_way := hide_in_sight and _in_way(trees[i], i, camera_pos, targets, 1.15 if f > 0.0 else 1.0)
+		if not in_way and f == 0.0:
+			continue
+		var was := f
+		if in_way:
+			_clear_for[i] = 0.0
+			f = minf(f + delta / SIGHT_OUT, 1.0)
+		else:
+			var t: float = _clear_for.get(i, 0.0) + delta
+			_clear_for[i] = t
+			if t > SIGHT_HOLD:
+				f = maxf(f - delta / SIGHT_IN, 0.0)
+		if f != was:
+			for rid: RID in trees[i]["draw"]:
+				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_fade", f)
+		if f > 0.0:
+			_sight[i] = f
+		else:
+			_sight.erase(i)
+			_clear_for.erase(i)
+		if (f >= 1.0) != (was >= 1.0):
+			_refresh_drawn(i)
+
+
+## Is the tree in the way of any line from the camera to the targets? Its crown and trunk are upright cylinders,
+## the crown widened by grow while the tree is fading, so it doesn't flicker at the edge.
+func _in_way(tree: Dictionary, i: int, camera_pos: Vector3, targets: Array[Vector3], grow: float) -> bool:
+	var x := _tree_xz[i].x
+	var z := _tree_xz[i].y
+	var y := _tree_y[i]
+	var crown: Vector3 = tree["crown"]
+	var r := crown.x * grow
+	# quick test: is the tree anywhere near the lines?
+	var a2 := Vector2(targets[0].x, targets[0].z)
+	var b2 := Vector2(camera_pos.x, camera_pos.z)
+	if Geometry2D.get_closest_point_to_segment(Vector2(x, z), a2, b2).distance_to(Vector2(x, z)) > r + sight_clear + 0.5:
+		return false
+	for target in targets:
+		if _through(target, camera_pos, x, z, r, y + crown.y, y + crown.z) \
+				or _through(target, camera_pos, x, z, 0.35 * tree["scale"], y, y + crown.y):
+			return true
+	return false
+
+
+## Does the segment from a to b pass through the upright cylinder of radius r round (x, z), between heights y0 and y1?
+static func _through(a: Vector3, b: Vector3, x: float, z: float, r: float, y0: float, y1: float) -> bool:
+	var ax := a.x - x
+	var az := a.z - z
+	var ux := b.x - a.x
+	var uz := b.z - a.z
+	var uu := ux * ux + uz * uz
+	var cc := ax * ax + az * az - r * r
+	var t0 := 0.0
+	var t1 := 1.0
+	if uu < 0.000001:
+		if cc > 0.0:
+			return false
+	else:
+		var au := ax * ux + az * uz
+		var disc := au * au - uu * cc
+		if disc < 0.0:
+			return false
+		var sq := sqrt(disc)
+		t0 = maxf((-au - sq) / uu, 0.0)
+		t1 = minf((-au + sq) / uu, 1.0)
+		if t0 > t1:
+			return false
+	var ya := a.y + (b.y - a.y) * t0
+	var yb := a.y + (b.y - a.y) * t1
+	return maxf(ya, yb) > y0 and minf(ya, yb) < y1
+
+
+## How far the tree has faded out of the way, 0..1 (for the self-test).
+func sight_fade(i: int) -> float:
+	return _sight.get(i, 0.0)
+
+
+## The tree nearest a point, or -1 if none is within reach.
+func nearest_tree(p: Vector3, reach: float) -> int:
+	var best := -1
+	var best_d := reach
+	for i in _tree_xz.size():
+		var d := _tree_xz[i].distance_to(Vector2(p.x, p.z))
+		if d < best_d:
+			best_d = d
+			best = i
+	return best
+
+
+## Draw the tree or not, as its fades ask: not while it is faded out near the camera or out of the way.
+func _refresh_drawn(i: int) -> void:
+	var want := not (_skipped.has(i) or float(_sight.get(i, 0.0)) >= 1.0)
+	if want == (not _undrawn.has(i)):
+		return
+	if want:
+		_undrawn.erase(i)
+	else:
+		_undrawn[i] = true
+	_draw_tree(i, want)
 
 
 func _draw_tree(i: int, draw: bool) -> void:
@@ -114,12 +262,19 @@ func _draw_tree(i: int, draw: bool) -> void:
 
 func _unskip() -> void:
 	if _current != "":
-		for i: int in _skipped:
+		for i: int in _undrawn:
 			_draw_tree(i, true)
+		for i: int in _sight:
+			for rid: RID in _tree_sets[_current][i]["draw"]:
+				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_fade", 0.0)
 	_skipped.clear()
+	_undrawn.clear()
+	_sight.clear()
+	_clear_for.clear()
 
 
-## Change how the trees are drawn, now: any of trimmed, fewer, tree_shadows, lod_near, lod_far, fade_near_camera.
+## Change how the trees are drawn, now: any of trimmed, fewer, tree_shadows, lod_near, lod_far, fade_near_camera,
+## hide_in_sight.
 func set_trees(option: String, value: Variant) -> void:
 	_unskip()
 	set(option, value)
@@ -146,6 +301,12 @@ func set_ground_detail(level: int) -> void:
 	ground_detail = level
 	for mi in _ground_meshes:
 		mi.material_override = _ground_materials[level]
+
+
+## How far the paths' wear spreads into the grass, 0 (the mockups') to 1.
+func set_path_wear(spread: float) -> void:
+	path_wear = spread
+	set_ground_param("wear_spread", spread)
 
 
 func start_position() -> Vector3:
@@ -183,6 +344,7 @@ func _build_terrain() -> void:
 	set_ground_param("path_noise_tex", load("res://assets/ground/path_noise.png"))
 	set_ground_param("masks_tex", load("res://assets/ground/masks.png"))
 	set_ground_param("bounds", Vector4(b[0], b[1], b[2], b[3]))
+	set_ground_param("wear_spread", path_wear)
 	# the detailed ground, in strips so the camera can skip what it doesn't see
 	var strip := 64
 	for j0 in range(0, _size.y - 1, strip):
@@ -282,13 +444,16 @@ func _build_trees(which: String) -> Array:
 				_tree_cells[cell] = []
 			(_tree_cells[cell] as Array).append(_tree_xz.size())
 			_tree_xz.append(Vector2(p[0], p[2]))
+			_tree_y.append(p[1])
 		# old trees: one instance; portfolio trees: full, mid and far versions, and one more that casts the shadow;
 		# young spruces: the mid and far versions, which are fine for something that small
 		var kind := "old"
 		if Models.has(model + "_1"):
 			kind = "young" if t["kind"] == "YoungSpruce" else "full"
 		var count: int = {"old": 1, "young": 2, "full": 3}[kind]
-		var tree := {"model": model, "kind": kind, "draw": [], "shadow": RID()}
+		var scale := float(t["s_" + which])
+		var tree := {"model": model, "kind": kind, "draw": [], "shadow": RID(), "scale": scale, "crown": _crown(model) * scale}
+		_max_crown = maxf(_max_crown, (tree["crown"] as Vector3).x)
 		for i in count:
 			var rid := RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)
 			RenderingServer.instance_set_transform(rid, xf)
@@ -342,6 +507,28 @@ func _apply_trees() -> void:
 					RenderingServer.instance_geometry_set_cast_shadows_setting(draw[1], RenderingServer.SHADOW_CASTING_SETTING_OFF)
 					RenderingServer.instance_geometry_set_visibility_range(shadow, 0.0, lod_far, 0.0, LOD_MARGIN,
 						RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)
+
+
+## A tree model's crown: its radius (how far it reaches from the trunk), where it starts (the lowest point that
+## reaches out more than a third of that) and the top, from the model's vertices.
+func _crown(model: String) -> Vector3:
+	if _crowns.has(model):
+		return _crowns[model]
+	var mesh := Models.mesh(model)
+	var verts := PackedVector3Array()
+	for i in mesh.get_surface_count():
+		verts.append_array(mesh.surface_get_arrays(i)[Mesh.ARRAY_VERTEX])
+	var radius := 0.0
+	var top := 0.0
+	for v in verts:
+		radius = maxf(radius, Vector2(v.x, v.z).length())
+		top = maxf(top, v.y)
+	var base := top
+	for v in verts:
+		if v.y < base and Vector2(v.x, v.z).length() > radius / 3.0:
+			base = v.y
+	_crowns[model] = Vector3(radius, maxf(base, 0.0), top)
+	return _crowns[model]
 
 
 func _instances(tree: Dictionary) -> Array:

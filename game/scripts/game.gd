@@ -7,7 +7,7 @@ extends Node
 ## which trees the demo shows: "old" (the mockups' trees) or "new" (the tree portfolio's)
 var tree_set := "new"
 ## the paths' colour theme (scripts/path_themes.gd)
-var path_theme := "Light tan"
+var path_theme := "Forest earth"
 
 const KEYS := {
 	"move_forward": [KEY_W, KEY_UP], "move_back": [KEY_S, KEY_DOWN],

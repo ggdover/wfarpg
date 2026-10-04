@@ -1,6 +1,6 @@
 extends Node
 ## Dev: walks the trail (scripts/trail_walk.gd) and prints the frame times, then quits.
-## godot --path game --disable-vsync res://scenes/demo.tscn -- --walktest [--trees=old|new] [--treelod=1|2]
+## godot --path game res://scenes/demo.tscn -- --walktest [--trees=old|new] [--treelod=1|2]
 
 
 func run(demo: Node) -> void:

@@ -1,10 +1,10 @@
 extends Node
 ## Dev: presses every switch of the performance panel in turn, at the start, and prints what each costs against the
 ## defaults (the graphics card's time per frame and the frame rate), then quits.
-## godot --path game --disable-vsync res://scenes/demo.tscn -- --paneltest
+## godot --path game res://scenes/demo.tscn -- --paneltest [--quick]
 
 const TRIES := [["trimmed", true], ["fewer", true], ["tree_shadows", "full"], ["tree_shadows", "far"], ["tree_shadows", "off"],
-	["fade", false], ["scale", 0.75], ["scale", 0.5], ["aa", Viewport.SCREEN_SPACE_AA_FXAA], ["aa", Viewport.SCREEN_SPACE_AA_DISABLED],
+	["fade", false], ["sight", false], ["scale", 0.75], ["scale", 0.5], ["aa", Viewport.SCREEN_SPACE_AA_FXAA], ["aa", Viewport.SCREEN_SPACE_AA_DISABLED],
 	["shadows", false], ["shadow_fit", false], ["shadow_size", 4096], ["shadow_size", 1024], ["shadow_size", 512],
 	["shadow_soft", RenderingServer.SHADOW_QUALITY_HARD], ["shadow_soft", RenderingServer.SHADOW_QUALITY_SOFT_HIGH],
 	["cascades", DirectionalLight3D.SHADOW_ORTHOGONAL], ["cascades", DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS],
@@ -12,7 +12,7 @@ const TRIES := [["trimmed", true], ["fewer", true], ["tree_shadows", "full"], ["
 	["ssao", RenderingServer.ENV_SSAO_QUALITY_VERY_LOW], ["ssao", RenderingServer.ENV_SSAO_QUALITY_LOW],
 	["ssao", RenderingServer.ENV_SSAO_QUALITY_HIGH], ["ssao", -1], ["fog", false],
 	["trees", "old"]]
-const DEFAULTS := {"trimmed": false, "fewer": false, "tree_shadows": "mid", "fade": true, "scale": 1.0,
+const DEFAULTS := {"trimmed": false, "fewer": false, "tree_shadows": "mid", "fade": true, "sight": true, "scale": 1.0,
 	"aa": Viewport.SCREEN_SPACE_AA_SMAA, "shadows": true, "shadow_fit": true, "shadow_size": 2048,
 	"shadow_soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "cascades": DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS,
 	"details": 3, "ssao": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "fog": true, "trees": "new"}
@@ -35,6 +35,16 @@ func run(demo: Node) -> void:
 		await _frames(demo, 30)
 	base = await _measure(demo)
 	print("paneltest: defaults again: %.1f ms" % base.x)
+	# the frame rate limit slider: capped below what the defaults reach, then no limit
+	panel.slide("fps", 40.0)
+	var limit := Engine.max_fps
+	await _frames(demo, 30)
+	var capped := await _measure(demo)
+	panel.slide("fps", PerfPanel.NO_LIMIT)
+	await _frames(demo, 30)
+	var free := await _measure(demo)
+	print("paneltest: frame rate limit %d: %d fps; then %s: %d fps" % [limit, roundi(capped.y),
+		"no limit" if Engine.max_fps == 0 else "limit %d" % Engine.max_fps, roundi(free.y)])
 	if OS.get_cmdline_user_args().has("--quick"):
 		demo.get_tree().quit()
 		return

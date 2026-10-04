@@ -259,6 +259,7 @@ def mat_ground():
     # where d is the distance from the path's centre line in half-widths (1 at its nominal edge); 0 means no path.
     pd = math("MULTIPLY", math("SUBTRACT", 1.0, attr("pathw")), 4.0)
     e = math("ADD", pd, math("MULTIPLY", math("SUBTRACT", noise(0.35, 2.0, 0.5, 0, (41, 5, 0)), 0.5), 0.7))
+    e.node.name = "PathDist"  # d with the edges' wobble
     wear = sstep(e, 0.45, 1.9, 1.0, 0.0)
     wear.node.name = "Wear"  # named nodes are where the play demo's ground bake taps in (game/tools/build_demo.py)
     fine = math("SUBTRACT", noise(7.0, 2.0, 0.6, 0, (13, 3, 0)), 0.5)

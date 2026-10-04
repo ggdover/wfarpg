@@ -26,6 +26,7 @@ func start(d: Node) -> void:
 	var rig: CameraRig = demo.rig
 	hero.global_position = demo.world.start_position() + Vector3(0, 0.1, 0)
 	hero.velocity = Vector3.ZERO
+	hero.reset_physics_interpolation()
 	rig.pitch = 55.0
 	rig.distance = 20.0
 	rig.yaw = _yaw_towards(WAYPOINTS[0])

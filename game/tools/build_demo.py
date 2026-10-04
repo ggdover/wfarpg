@@ -720,7 +720,10 @@ def path_noise_socket(nt):
 
 
 def masks_socket(nt):
-    """Wear, worn and the tufts' noise as red, green and blue."""
+    """Where the paths wear the grass, for the game to work out the wear itself and spread it further than the
+    mockups do (shaders/ground.gdshaderinc): red is the distance from the path's centre line in half-widths, with
+    the edges' wobble (PathDist in mat_ground), stored as (d + 0.5) / 5; green a noise for patches of wear a metre or
+    two across; blue the tufts' noise + 0.5."""
     comb = nt.nodes.get("BakeMasks") or nt.nodes.new("ShaderNodeCombineColor")
     comb.name = "BakeMasks"
     add = nt.nodes.get("BakeTufts") or nt.nodes.new("ShaderNodeMath")
@@ -728,8 +731,25 @@ def masks_socket(nt):
     add.operation = "ADD"
     add.inputs[1].default_value = 0.5
     nt.links.new(nt.nodes["Tufts"].outputs[0], add.inputs[0])
-    nt.links.new(nt.nodes["Wear"].outputs[0], comb.inputs[0])
-    nt.links.new(nt.nodes["Worn"].outputs[0], comb.inputs[1])
+    dist = nt.nodes.get("BakeDist") or nt.nodes.new("ShaderNodeMath")
+    dist.name = "BakeDist"
+    dist.operation = "MULTIPLY_ADD"
+    dist.inputs[1].default_value = 0.2
+    dist.inputs[2].default_value = 0.1
+    nt.links.new(nt.nodes["PathDist"].outputs[0], dist.inputs[0])
+    patches = nt.nodes.get("BakePatches") or nt.nodes.new("ShaderNodeTexNoise")
+    patches.name = "BakePatches"
+    patches.inputs["Scale"].default_value = 0.55
+    patches.inputs["Detail"].default_value = 2.0
+    patches.inputs["Roughness"].default_value = 0.5
+    off = nt.nodes.get("BakePatchesOff") or nt.nodes.new("ShaderNodeVectorMath")
+    off.name = "BakePatchesOff"
+    off.operation = "ADD"
+    off.inputs[1].default_value = (53, 11, 0)
+    nt.links.new(nt.nodes.new("ShaderNodeNewGeometry").outputs["Position"], off.inputs[0])
+    nt.links.new(off.outputs[0], patches.inputs["Vector"])
+    nt.links.new(dist.outputs[0], comb.inputs[0])
+    nt.links.new(patches.outputs["Fac"], comb.inputs[1])
     nt.links.new(add.outputs[0], comb.inputs[2])
     return comb.outputs[0]
 
@@ -842,8 +862,8 @@ def canopy_map(trees, which, kernels, box, texel, radius=16.0, step=1.0):
     return vis
 
 
-def build_ground():
-    kit = load_kit()
+def bake_scene():
+    """Set the scene up for baking the ground from above: plain emission, no tone mapping, no dithering."""
     os.makedirs(GROUND_DIR, exist_ok=True)
     sc = bpy.context.scene
     sc.render.engine = "BLENDER_EEVEE"
@@ -857,6 +877,32 @@ def build_ground():
     sc.render.image_settings.file_format = "PNG"
     sc.render.image_settings.color_mode = "RGB"
     sc.render.image_settings.color_depth = "8"
+
+
+def bake_masks(kit):
+    """The masks: where the paths wear the grass (masks_socket), with the fallen leaves' drift noise in alpha."""
+    show(kit, masks_socket)
+    masks = bake_view(D.BAKE, MASK_TEXEL, None)
+    show(kit, drift_socket)
+    drift = bake_view(D.BAKE, MASK_TEXEL, None)
+    d = drift[..., 0]  # the leaves' drift noise, in alpha: a texture's alpha is never sRGB-decoded, so store it linear
+    masks[..., 3] = np.where(d <= 0.04045, d / 12.92, ((d + 0.055) / 1.055) ** 2.4)
+    save_pixels(masks, os.path.join(GROUND_DIR, "masks.png"), alpha=True)
+
+
+def build_masks():
+    """Only the masks, after changing how the paths wear the grass (the rest of the ground stays as it is)."""
+    kit = load_kit()
+    bake_scene()
+    inner = ground_mesh("Ground", D.BAKE, GRID, kit)
+    bake_masks(kit)
+    bpy.data.objects.remove(inner)
+
+
+def build_ground():
+    kit = load_kit()
+    bake_scene()
+    sc = bpy.context.scene
 
     # heights, rows running south (Godot's +Z), for the terrain mesh and its collider
     xs, ys = grid_axes(D.BAKE, GRID)
@@ -873,13 +919,7 @@ def build_ground():
     bake_view(D.BAKE, COLOUR_TEXEL, os.path.join(GROUND_DIR, "grass.jpg"), tiles=(4, 4), quality=92)
     show(kit, path_noise_socket)
     bake_view(D.BAKE, MASK_TEXEL, os.path.join(GROUND_DIR, "path_noise.png"))
-    show(kit, masks_socket)
-    masks = bake_view(D.BAKE, MASK_TEXEL, None)
-    show(kit, drift_socket)
-    drift = bake_view(D.BAKE, MASK_TEXEL, None)
-    d = drift[..., 0]  # the leaves' drift noise, in alpha: a texture's alpha is never sRGB-decoded, so store it linear
-    masks[..., 3] = np.where(d <= 0.04045, d / 12.92, ((d + 0.055) / 1.055) ** 2.4)
-    save_pixels(masks, os.path.join(GROUND_DIR, "masks.png"), alpha=True)
+    bake_masks(kit)
     bpy.data.objects.remove(inner)
     outer = ground_mesh("FarGround", (-FAR, FAR, -FAR, FAR), FAR_GRID, kit)
     show(kit, lambda nt: mix_input(nt.nodes["WornGrass"], "A"))
@@ -918,4 +958,4 @@ if __name__ == "__main__":
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     stages = argv or ["models", "layout", "ground"]
     for stage in stages:
-        {"models": build_models, "layout": build_layout, "ground": build_ground}[stage]()
+        {"models": build_models, "layout": build_layout, "ground": build_ground, "masks": build_masks}[stage]()

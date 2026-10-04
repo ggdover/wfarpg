@@ -9,7 +9,8 @@ extends Node3D
 ##   --fps=seconds    measure the frame rate first and print it                       --selftest  try the controls
 ##   --walktest       walk the trail and print the frame times                       --treelod=1|2  lighter trees
 ##   --panel          open the performance panel (F2)
-##   --set:option=value  a panel option, e.g. --set:shadow_size=1024 --set:details=2 --set:tree_shadows=far --set:shadow_cap=40
+##   --set:option=value  a panel option or slider, e.g. --set:shadow_size=1024 --set:details=2 --set:tree_shadows=far
+##                       --set:shadow_cap=40 --set:fps=60 (the frame rate limit) --set:path_wear=0
 ##   for measuring what costs what: --noshadow, --nofade, --flatground, --canopy=0..1, --bump=0..1,
 ##   --sun:property=value, --env:property=value, --vp:property=value
 
@@ -48,6 +49,7 @@ func _ready() -> void:
 	hero.global_position = world.start_position() + Vector3(0, 0.1, 0)
 	var f := deg_to_rad(float(world.layout["start"]["facing"]))  # degrees anticlockwise from east, Blender's way
 	hero.facing = atan2(-cos(f), sin(f))
+	hero.reset_physics_interpolation()
 	rig = CameraRig.new()
 	add_child(rig)
 	rig.hero = hero
@@ -194,11 +196,11 @@ func _read_args() -> void:
 		elif a.begins_with("--ground:"):  # --ground:parameter=value, the ground shader's
 			var kv := a.substr(9).split("=")
 			world.set_ground_param(kv[0], str_to_var(kv[1]))
-		elif a.begins_with("--set:"):  # --set:option=value, a performance panel option (see dev/paneltest.gd)
+		elif a.begins_with("--set:"):  # --set:option=value, a performance panel option or slider (see dev/paneltest.gd)
 			var kv := a.substr(6).split("=")
 			var v: Variant = str_to_var(kv[1])
-			if kv[0] == "shadow_cap":  # the panel's slider
-				shadow_cap = float(v)
+			if _panel.has_slider(kv[0]):
+				_panel.slide(kv[0], float(v))
 			else:
 				_panel.choose(kv[0], kv[1] if v == null else v)
 		elif a.begins_with("--bump="):
@@ -221,6 +223,7 @@ func _read_args() -> void:
 				var f := deg_to_rad(v[5])
 				hero.facing = atan2(-cos(f), sin(f))
 				hero.rotation.y = hero.facing
+			hero.reset_physics_interpolation()
 
 
 # ------------------------------------------------------------------ HUD

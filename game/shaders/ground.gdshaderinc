@@ -5,8 +5,9 @@
 uniform sampler2D grass_tex : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
 // the noises the path's colours come from: red the dirt's, green the trampled grass's (baked like the masks)
 uniform sampler2D path_noise_tex : source_color, filter_linear_mipmap, repeat_disable;
-// wear, worn and the tufts' noise + 0.5, baked as colours (so sRGB-encoded, and decoded by source_color), and the
-// fallen leaves' drift noise in alpha (linear)
+// where the paths wear the grass (tools/build_demo.py, masks_socket): the distance from the path's centre line in
+// half-widths, with the edges' wobble, as (d + 0.5) / 5; a noise for patches of wear; the tufts' noise + 0.5. All
+// baked as colours (so sRGB-encoded, and decoded by source_color), and the fallen leaves' drift noise in alpha (linear).
 uniform sampler2D masks_tex : source_color, filter_linear_mipmap, repeat_disable;
 uniform sampler2D canopy_tex : hint_default_white, filter_linear_mipmap, repeat_disable;
 uniform vec4 bounds = vec4(-112.0, -88.0, 224.0, 176.0);  // x, z, width, depth of the baked area
@@ -18,6 +19,11 @@ uniform float bump_strength = 0.5;
 // worked out at all beyond.
 uniform int detail_level : hint_range(0, 3) = 3;
 uniform float leaf_amount = 1.0;  // more or fewer fallen leaves
+// How far the paths' wear spreads into the grass: 0 is the mockups', where the dirt gives way to trampled grass
+// within about two half-widths of the path's centre line. Up to 1, the trampled grass, bare patches and stray stones
+// reach further out, the dirt and grass break up in patches a metre or two across, and more grass tufts grow in the
+// path, so it's less clear exactly where the path runs.
+uniform float wear_spread : hint_range(0.0, 1.0) = 0.0;
 const float DETAIL_FAR[4] = float[](0.0, 28.0, 38.0, 50.0);
 global uniform vec2 mood_grade;
 
@@ -30,6 +36,11 @@ uniform vec3 dirt0 : source_color = vec3(0.839, 0.631, 0.318);
 uniform vec3 dirt1 : source_color = vec3(0.867, 0.686, 0.392);
 uniform vec3 dirt2 : source_color = vec3(0.878, 0.733, 0.482);
 uniform vec3 verge : source_color = vec3(0.702, 0.643, 0.337);
+// a second soil for the dirt, in patches, more of it toward the edges: soil_mix 0 has none, 0.5 about half
+uniform vec3 soil0 : source_color = vec3(0.839, 0.631, 0.318);
+uniform vec3 soil1 : source_color = vec3(0.867, 0.686, 0.392);
+uniform vec3 soil2 : source_color = vec3(0.878, 0.733, 0.482);
+uniform float soil_mix = 0.0;
 uniform vec3 worn0 : source_color = vec3(0.576, 0.565, 0.310);
 uniform vec3 worn1 : source_color = vec3(0.671, 0.643, 0.384);
 uniform vec3 grit0 : source_color = vec3(0.780, 0.604, 0.341);
@@ -137,13 +148,22 @@ void fragment() {
 	vec2 uv = (world_pos.xz - bounds.xy) / bounds.zw;
 	vec3 col = texture(grass_tex, uv).rgb;
 	vec4 m = texture(masks_tex, uv);
-	float wear = m.r;
-	float worn = m.g;
+	float e = m.r * 5.0 - 0.5;  // half-widths from the path's centre line
+	float patches = m.g - 0.5;
 	float tufts = m.b - 0.5;
-	// feet trample the grass along the paths, and the path's dirt shows where they wear it away (mat_ground)
+	// feet trample the grass along the paths, and the path's dirt shows where they wear it away (mat_ground): wear
+	// and worn as the mockups have them at wear_spread 0, and with a long, thin tail of wear out into the grass
+	float sp = wear_spread;
+	float wear = max(map_s(e, 0.45, 1.9, 1.0 - 0.15 * sp, 0.0), 0.55 * sp * map_s(e, 1.0, 1.0 + 2.4 * max(sp, 0.01), 1.0, 0.0));
+	float worn = map_s(e, 0.7, 2.1 + 1.4 * sp, 1.0, 0.0);
 	vec2 pn = texture(path_noise_tex, uv).rg;
 	col = mix(col, ramp_seg(pn.g, 0.3, worn0, 0.7, worn1), worn * 0.5);
-	vec3 dirt = mix(ramp3(pn.r, 0.3, dirt0, 0.5, dirt1, 0.72, dirt2), verge, map_s(wear, 0.35, 0.85, 0.4, 0.0));
+	vec3 dirt = ramp3(pn.r, 0.3, dirt0, 0.5, dirt1, 0.72, dirt2);
+	if (soil_mix > 0.0) {
+		float soil = smoothstep(-0.06, 0.06, patches + 0.3 * (soil_mix - 0.5) + 0.05 * (e - 1.0));
+		dirt = mix(dirt, ramp3(pn.r, 0.3, soil0, 0.5, soil1, 0.72, soil2), soil);
+	}
+	dirt = mix(dirt, verge, map_s(wear, 0.35, 0.85, 0.4, 0.0));
 	vec2 p = vec2(world_pos.x, -world_pos.z);  // Blender's X, Y
 	float hgt = 0.0;
 
@@ -151,14 +171,14 @@ void fragment() {
 	// thinning out into the grass, and grit in the dirt
 	float level = float(detail_level);
 	float detail = detail_level > 0 ? 1.0 - smoothstep(0.7 * DETAIL_FAR[detail_level], DETAIL_FAR[detail_level], length(VERTEX)) : 0.0;
-	if (wear + worn > 0.0005) {
+	if (worn > 0.0005) {
 		float fine = detail > 0.0 ? noise_fbm2((p + vec2(13.0, 3.0)) * 7.0, level >= 3.0 ? 2.0 : 1.0, 0.6) - 0.5 : 0.0;
-		float bare = smoothstep(0.35, 0.7, wear + 2.0 * tufts + 0.5 * fine);
+		float bare = smoothstep(0.35, 0.7, wear + 2.0 * tufts + 0.5 * fine + 1.2 * sp * patches);
 		col = mix(col, dirt, bare);
-		float spread = wear + 0.3 * fine;
-		float small_d = (map_s(spread, 0.15, 0.75, 0.0, 0.6) + 0.08 * worn) * stones.x;
-		float big_d = (map_s(spread, 0.25, 0.85, 0.0, 0.45) + 0.05 * worn) * stones.y;
-		float flat_d = map_s(spread, 0.5, 0.9, 0.0, 0.06) * stones.z;
+		float strewn = wear + 0.3 * fine;
+		float small_d = (map_s(strewn, 0.15, 0.75, 0.0, 0.6) + 0.08 * worn) * stones.x;
+		float big_d = (map_s(strewn, 0.25, 0.85, 0.0, 0.45) + 0.05 * worn) * stones.y;
+		float flat_d = map_s(strewn, 0.5, 0.9, 0.0, 0.06) * stones.z;
 		vec2 warped = p;
 #if DETAIL >= 3
 		if (detail > 0.0) {

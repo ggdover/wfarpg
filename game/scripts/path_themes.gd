@@ -1,11 +1,12 @@
 class_name PathThemes
 extends RefCounted
-## Colour themes for the paths, from dark forest soil to light sand, for trying out in the play demo: the dirt, the
-## trampled grass along the paths, the grit, the gravel's contact shadow and the three sizes of stones, how much of
-## each there is, and the pebbles along the edges. The ground shader paints them (shaders/ground.gdshaderinc);
-## "Light tan" is the mockups' paths.
+## Colour themes for the paths, from dark forest soil to light sand, for trying out in the play demo: the dirt (and
+## optionally a second soil in patches through it), the trampled grass along the paths, the grit, the gravel's
+## contact shadow and the three sizes of stones, how much of each there is, and the pebbles along the edges. The
+## ground shader paints them (shaders/ground.gdshaderinc). "Forest earth", a mix of forest soil and brown earth, is the
+## one you liked best; "Light tan" is the mockups' paths.
 
-const ORDER := ["Forest soil", "Brown earth", "Iron soil", "Granite gravel", "Esker sand", "Sandy, mixed stones", "Light tan"]
+const ORDER := ["Forest soil", "Forest earth", "Brown earth", "Iron soil", "Granite gravel", "Esker sand", "Sandy, mixed stones", "Light tan"]
 
 const THEMES := {
 	"Forest soil": {
@@ -14,6 +15,13 @@ const THEMES := {
 		"grit": ["#6E5640", "#8E785F"], "shade": "#3A2A1C",
 		"small": ["#7E7364", "#92877A", "#A69B8C"], "big": ["#66625C", "#7B746C", "#8F867C", "#A39A8E", "#B8AFA2"],
 		"flat": ["#7D776E", "#958D82"], "stones": [0.7, 0.75, 1.0], "grit_amount": 0.9, "leaves": 1.3,
+	},
+	"Forest earth": {
+		"about": "Forest soil and brown earth mixed: patches of dark, packed soil in medium brown earth, with grey-brown and pale stones",
+		"dirt": ["#8C6B46", "#987752", "#A4845E"], "soil": ["#735639", "#806244", "#8D6F50"], "soil_mix": 0.5,
+		"verge": "#7A7640", "worn": ["#838A46", "#9B9F56"], "grit": ["#775D44", "#988064"], "shade": "#3F2D1C",
+		"small": ["#7E7364", "#9A8C78", "#C2B39C"], "big": ["#6E6860", "#8A8073", "#A39A8E", "#B4A690", "#CFC4B0"],
+		"flat": ["#857E74", "#ACA392"], "stones": [0.85, 0.85, 1.0], "grit_amount": 0.95, "leaves": 1.25,
 	},
 	"Brown earth": {
 		"about": "Medium brown earth with pale, sandy stones",
@@ -66,6 +74,10 @@ static func apply(world: DemoWorld, theme: String) -> void:
 		var colours: Array = t[key]
 		for i in colours.size():
 			world.set_ground_param("%s%d" % [key, i], Color(colours[i]))
+	var soil: Array = t.get("soil", t["dirt"])
+	for i in soil.size():
+		world.set_ground_param("soil%d" % i, Color(soil[i]))
+	world.set_ground_param("soil_mix", t.get("soil_mix", 0.0))
 	world.set_ground_param("verge", Color(t["verge"]))
 	world.set_ground_param("shade", Color(t["shade"]))
 	world.set_ground_param("stones", Vector3(t["stones"][0], t["stones"][1], t["stones"][2]))

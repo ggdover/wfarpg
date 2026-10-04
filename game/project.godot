@@ -24,11 +24,17 @@ Game="*res://scripts/game.gd"
 
 window/size/viewport_width=1600
 window/size/viewport_height=900
+window/vsync/vsync_mode=0
+
+[physics]
+
+common/physics_interpolation=true
 
 [rendering]
 
 anti_aliasing/quality/screen_space_aa=2
 lights_and_shadows/directional_shadow/size=2048
+limits/global_shader_variables/buffer_size=524288
 
 [importer_defaults]
 

@@ -2494,6 +2494,138 @@
     "The black specks left by trees fading near the camera came from the ambient occlusion: worked out at half resolution, it blackens the ground between single dithered pixels",
     "Under the forest's blue ambient light, grey paths read blue-grey, so the grey themes needed warmer stones"
    ]
+  },
+  {
+   "id": "forest-earth-sight",
+   "date": "2026-10-04",
+   "asked_at": "15:51",
+   "posted_at": "17:10",
+   "title": "Forest earth paths, trees out of the way, and the frame rate",
+   "section": "Play demo: worn paths, trees out of the way, frame rate",
+   "asked": "Of the path colours, a mix of forest soil and brown earth is the favourite. The path still looks a bit uniform, even with its uneven edges: spread the wear out more, so it's less clear exactly where the path goes, perhaps using the mix of forest soil and brown earth. Is the play demo held at 60 fps? Lowering the ground detail never takes it past 60: uncap the frame rate, or better, add a slider to set it. And instead of the round see-through hole, make any tree in the line of sight from the camera to the player invisible altogether, so the area round the player is easier to see through the trees",
+   "changed": [
+    "A new path colour theme, Forest earth: patches of dark forest soil a metre or two across in medium brown earth, more of it toward the edges, with grey-brown and pale stones. The demo starts with it",
+    "Path wear spread, in the performance panel: the ground bake now keeps each spot's distance from the trail's centre line, so the game works out the wear itself. At 1, the new default, the trampled grass, bare patches and stray stones reach about twice as far into the grass and break up in patches; at 0 the wear is the mockups'",
+    "Trees in the way of the line from the camera to the hero, or to the ground within 3 m of the hero, fade out whole in a fifth of a second and aren't drawn, their shadows kept, then come back once out of the way. The round hole is gone. Hide or Keep, and how much ground to keep clear, are in the panel",
+    "VSync starts off and there's no frame rate limit, so the frame rate goes past 60: 54 fps at the start with the default settings, 69 with Medium ground details, 68 on average along the trail. A frame rate limit slider in the panel goes from 30 to 250 fps, or none",
+    "Physics interpolation keeps the hero's movement smooth above the physics' 60 steps a second"
+   ],
+   "items": [
+    {
+     "id": "s-wearsight",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: worn paths, trees out of the way, frame rate",
+     "author": "claude"
+    },
+    {
+     "id": "sv-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Worn paths, trees out of the way, frame rate\nYou asked for:\n- the paths in a mix of forest soil and brown earth, with the wear spread further out, so it's less clear exactly where a path goes\n- the frame rate not held at 60, or a slider to set it\n- trees in the line of sight from the camera to the hero hidden altogether, instead of the round hole\n\nAll three are in the demo now; restart it to see them. Mark what you like with Want, Maybe or Avoid.",
+     "author": "claude"
+    },
+    {
+     "id": "sv-themes-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Forest earth (middle), the mix of the two you liked, between forest soil (left) and brown earth (right): patches of dark soil in brown earth, more of it toward the edges. A forest close-up, all three with the wider wear.",
+     "assetId": "26f04852ffeeee47ffa76290e0803dbc",
+     "file": "renders/play_demo_sight/themes_close.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sv-paths",
+     "type": "note",
+     "status": "new",
+     "text": "# Paths\n- **Forest earth** is a new colour theme, and the demo starts with it: patches of dark forest soil a metre or two across in medium brown earth, with more soil toward the edges. P still cycles through the others\n- **Path wear spread** in the F2 panel sets how far the wear reaches: 0 as before, 1 the furthest and the new default. The trampled grass, bare patches and stray stones reach about twice as far into the grass, and break up in patches\n- The middle stays a clear gravel path, so you can still follow it",
+     "author": "claude"
+    },
+    {
+     "id": "sv-themes-start",
+     "type": "image",
+     "status": "new",
+     "caption": "The same three from the default camera, where the demo starts.",
+     "assetId": "3dd0142bcb5a41526988421f698540f8",
+     "file": "renders/play_demo_sight/themes_start.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sv-trees",
+     "type": "note",
+     "status": "new",
+     "text": "# Trees in the way\n- A tree between the camera and the hero, or the ground within 3 m of the hero, fades out whole in a fifth of a second, and comes back once it's out of the way. Its shadow stays\n- From the default high camera that's rare; it matters when you orbit low\n- In the F2 panel: **Trees in the way** (Hide or Keep), and how much ground round the hero to keep clear, 0 to 8 m\n- Hidden trees aren't drawn, so hiding them costs the graphics card nothing; finding them takes 0.1 to 0.3 ms a frame",
+     "author": "claude"
+    },
+    {
+     "id": "sv-wear-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Path wear spread 0, as before (left), and 1, the new default (right): the trampled grass, bare patches and stray stones reach further into the grass, in patches. Forest earth in both.",
+     "assetId": "caf871d0366b809b41db7a4fc0c93491",
+     "file": "renders/play_demo_sight/wear_spread_close.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sv-wear-meadow",
+     "type": "image",
+     "status": "new",
+     "caption": "The same on the meadow, from a low camera.",
+     "assetId": "8d390ff53c14be0a2ce5b52e4bd22150",
+     "file": "renders/play_demo_sight/wear_spread_meadow.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sv-fps",
+     "type": "note",
+     "status": "new",
+     "text": "# Frame rate\n- VSync held it at 60, the screen's refresh rate. VSync now starts off, with no limit, so it goes as high as the graphics card manages\n- **Frame rate limit** in the F2 panel: 30 to 250 fps, or none at the slider's right end\n- At the start, on this laptop: 54 fps with the default settings, 69 with Medium ground details, 77 without shadows, 97 with the old trees. Walking the trail averages 68\n- The hero still moves 60 times a second and is drawn smoothly in between, so walking stays smooth at any frame rate",
+     "author": "claude"
+    },
+    {
+     "id": "sv-trees-dense",
+     "type": "image",
+     "status": "new",
+     "caption": "A low camera in the thicket. Before, a round hole (left). With nothing hidden (middle) you see the trees in the way; now they're hidden whole (right), their shadows kept. The paths are the same in all three, so only the trees differ.",
+     "assetId": "892e71543369f2d532bbb70854a337c9",
+     "file": "renders/play_demo_sight/trees_dense.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sv-panel",
+     "type": "image",
+     "status": "new",
+     "caption": "The performance panel (F2) with the new rows: Path wear spread, Trees in the way and how much ground round the hero to keep clear, VSync (now off) and the Frame rate limit.",
+     "assetId": "a8ee6f628006719a42b4e8098501c865",
+     "file": "renders/play_demo_sight/panel.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sv-trees-behind",
+     "type": "image",
+     "status": "new",
+     "caption": "Low behind the hero on the trail: the birch and the spruce in the way are gone, and their shadows stay.",
+     "assetId": "4f9db0a1aa9adbad9769091f569da71b",
+     "file": "renders/play_demo_sight/trees_behind.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sv-trees-low",
+     "type": "image",
+     "status": "new",
+     "caption": "At the start, with the camera lowered to 30 degrees.",
+     "assetId": "42c2a860c53f726bd5d4f3b7fd9c24b8",
+     "file": "renders/play_demo_sight/trees_low.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "The frame rate never passed 60 because VSync, on by default, holds it to the screen's refresh rate",
+    "The mockups' wear was baked into the ground masks with its falloff fixed at about two half-widths from a path's centre, so to spread it further the bake had to keep the distance from the centre instead",
+    "Each tree's fade is a value per drawn instance, and Godot's default buffer for those holds only about 4,000 instances; with both tree sets the demo has about 19,000, so the buffer is now 8 MB"
+   ],
+   "cover": "renders/play_demo_sight/trees_behind.jpg"
   }
  ]
 }

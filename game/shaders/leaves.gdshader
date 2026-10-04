@@ -1,5 +1,5 @@
 // The tree portfolio's leaf cards: the card's colour, cut out at alpha 0.5 like the leaf materials in
-// assets/trees/treegen.py, drawn on both sides. They fade out between the camera and the hero.
+// assets/trees/treegen.py, drawn on both sides. They fade out when they're in the way of the camera.
 shader_type spatial;
 render_mode cull_disabled, diffuse_lambert, specular_schlick_ggx;
 
@@ -7,6 +7,7 @@ render_mode cull_disabled, diffuse_lambert, specular_schlick_ggx;
 
 uniform sampler2D card : source_color, filter_linear_mipmap, repeat_disable;
 uniform float roughness = 0.75;
+instance uniform float sight_fade = 0.0;  // fading out of the way (tree_fade in shaders/common.gdshaderinc)
 uniform float specular_level = 0.25;
 // ambient occlusion baked in Blender, in UV2.x (see tools/build_demo.py, bake_ao)
 uniform float ao_light_affect = 0.2;
@@ -17,8 +18,7 @@ uniform bool crown_normals = false;
 global uniform vec2 mood_grade;
 
 void fragment() {
-	float fade = max(hero_fade(VERTEX, VIEW_MATRIX, PROJECTION_MATRIX, CAMERA_POSITION_WORLD, VIEWPORT_SIZE),
-			tree_fade(NODE_POSITION_WORLD, CAMERA_POSITION_WORLD));
+	float fade = tree_fade(sight_fade, VERTEX, VIEW_MATRIX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD);
 	if (faded_out(fade, (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz)) {
 		discard;
 	}

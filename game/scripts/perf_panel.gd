@@ -10,6 +10,7 @@ const GRAPH_MS := 50.0  ## frame time at the graph's top
 const INK := Color("#E6E0D2")
 const DIM := Color("#B7AE9A")
 const BRASS := Color("#C9A24A")
+const NO_LIMIT := 250.0  ## the frame rate limit slider's top end, which means no limit
 
 var demo: Node
 var _frames: Array[Vector2] = []  # (time in s, frame ms)
@@ -25,6 +26,7 @@ var _runs: Array[String] = []
 var _choices := {}  # setting -> label of the chosen option, for the run list
 var _groups := {}  # setting -> {value: Button}
 var _texts := {}  # setting -> its row's text
+var _sliders := {}  # setting -> a function that moves its slider and applies the value
 var _refresh := 0.0
 var _theme_box: OptionButton
 
@@ -80,13 +82,17 @@ func setup(d: Node) -> void:
 	_theme_box.item_selected.connect(func(i: int) -> void: demo.show_path_theme(PathThemes.ORDER[i]))
 	row0.add_child(_theme_box)
 	_choices["theme"] = "paths " + Game.path_theme.to_lower()
+	_slider(col, "path_wear", "Path wear spread", 0.0, 1.0, 0.1, w.path_wear, "%.1f", func(v: float) -> void: w.set_path_wear(v))
 	_choice(col, "trimmed", "Leaf cards", [["Square", false], ["Trimmed", true]], w.trimmed, func(v: bool) -> void: w.set_trees("trimmed", v))
 	_choice(col, "fewer", "Cards per clump", [["As tuned", false], ["Fewer", true]], w.fewer, func(v: bool) -> void: w.set_trees("fewer", v))
 	_choice(col, "tree_shadows", "Tree shadows from", [["Full", "full"], ["Mid", "mid"], ["Far", "far"], ["None", "off"]], w.tree_shadows,
 		func(v: String) -> void: w.set_trees("tree_shadows", v))
-	_slider(col, "Lighter trees from", 10.0, 110.0, 5.0, w.lod_near, "%d m", func(v: float) -> void: w.set_trees("lod_near", v))
+	_slider(col, "lod_near", "Lighter trees from", 10.0, 110.0, 5.0, w.lod_near, "%d m", func(v: float) -> void: w.set_trees("lod_near", v))
 	_choice(col, "fade", "Fade trees near camera", [["On", true], ["Off", false]], w.fade_near_camera,
 		func(v: bool) -> void: w.set_trees("fade_near_camera", v))
+	_choice(col, "sight", "Trees in the way", [["Hide", true], ["Keep", false]], w.hide_in_sight,
+		func(v: bool) -> void: w.set_trees("hide_in_sight", v))
+	_slider(col, "sight_clear", "  clear round the hero", 0.0, 8.0, 0.5, w.sight_clear, "%.1f m", func(v: float) -> void: w.sight_clear = v)
 	_rule(col)
 	_choice(col, "scale", "Render scale", [["100%", 1.0], ["75%", 0.75], ["50%", 0.5]], snappedf(vp.scaling_3d_scale, 0.05),
 		func(v: float) -> void:
@@ -96,11 +102,18 @@ func setup(d: Node) -> void:
 		vp.screen_space_aa, func(v: int) -> void: vp.screen_space_aa = v as Viewport.ScreenSpaceAA)
 	_choice(col, "vsync", "VSync", [["On", true], ["Off", false]], DisplayServer.window_get_vsync_mode() != DisplayServer.VSYNC_DISABLED,
 		func(v: bool) -> void: DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if v else DisplayServer.VSYNC_DISABLED))
+	# the frame rate limit: the slider's top end is none
+	var fps_text := func(v: float) -> String: return "none" if v > NO_LIMIT - 1.0 else "%d fps" % roundi(v)
+	_choices["fps"] = "limit " + fps_text.call(NO_LIMIT if Engine.max_fps == 0 else float(Engine.max_fps))
+	_slider(col, "fps", "Frame rate limit", 30.0, NO_LIMIT, 10.0, NO_LIMIT if Engine.max_fps == 0 else float(Engine.max_fps), fps_text,
+		func(v: float) -> void:
+			Engine.max_fps = 0 if v > NO_LIMIT - 1.0 else roundi(v)
+			_choices["fps"] = "limit " + fps_text.call(v))
 	_rule(col)
 	_choice(col, "shadows", "Shadows", [["On", true], ["Off", false]], sun.shadow_enabled, func(v: bool) -> void: sun.shadow_enabled = v)
 	_choice(col, "shadow_fit", "Shadow distance", [["Fit the view", true], ["Fixed", false]], demo.shadow_fit,
 		func(v: bool) -> void: demo.shadow_fit = v)
-	_slider(col, "  fixed, or at most", 20.0, 120.0, 5.0, demo.shadow_cap, "%d m", func(v: float) -> void: demo.shadow_cap = v)
+	_slider(col, "shadow_cap", "  fixed, or at most", 20.0, 120.0, 5.0, demo.shadow_cap, "%d m", func(v: float) -> void: demo.shadow_cap = v)
 	_choice(col, "shadow_size", "Shadow resolution", [["4096", 4096], ["2048", 2048], ["1024", 1024], ["512", 512]],
 		ProjectSettings.get_setting("rendering/lights_and_shadows/directional_shadow/size"),
 		func(v: int) -> void: RenderingServer.directional_shadow_atlas_set_size(v, true))
@@ -203,7 +216,7 @@ func _walk_done(r: Dictionary) -> void:
 	if r.is_empty():
 		return
 	var settings := []
-	for k in ["trees", "trimmed", "fewer", "tree_shadows", "scale", "shadows", "shadow_size", "details", "ssao", "vsync"]:
+	for k in ["trees", "trimmed", "fewer", "tree_shadows", "scale", "shadows", "shadow_size", "details", "ssao", "vsync", "fps"]:
 		settings.append(_choices[k])
 	_runs.push_front("%d · avg %d, 5%% low %d, 1%% low %d fps%s\n    %s" % [_runs.size() + 1, roundi(r["fps"]), roundi(r["low5"]),
 		roundi(r["low1"]), "" if r["completed"] else " (stopped early)", ", ".join(settings)])
@@ -211,7 +224,7 @@ func _walk_done(r: Dictionary) -> void:
 
 
 func _update_runs() -> void:
-	_runs_label.text = "\n".join(_runs.slice(0, 6)) if _runs else "Runs show here. VSync caps the frame rate at the screen's; turn it off to compare."
+	_runs_label.text = "\n".join(_runs.slice(0, 6)) if _runs else "Runs show here. VSync and the frame rate limit cap the frame rate; with both off, it goes as high as it can."
 
 
 # ------------------------------------------------------------------ building the rows
@@ -261,7 +274,17 @@ func show_choice(key: String, value: Variant) -> void:
 		_choices[key] = "%s %s" % [_texts[key].to_lower(), b.text.to_lower()]
 
 
-func _slider(parent: Control, text: String, lo: float, hi: float, step: float, value: float, fmt: String, apply: Callable) -> void:
+## Move a slider and apply its value, as letting go of it would (for --set and the dev panel test).
+func slide(key: String, value: float) -> void:
+	(_sliders[key] as Callable).call(value)
+
+
+func has_slider(key: String) -> bool:
+	return _sliders.has(key)
+
+
+## A slider row; fmt is a format string for the value, or a function that turns it into text.
+func _slider(parent: Control, key: String, text: String, lo: float, hi: float, step: float, value: float, fmt: Variant, apply: Callable) -> void:
 	var row := HBoxContainer.new()
 	parent.add_child(row)
 	var l := _label(row, text, 13, INK)
@@ -272,13 +295,18 @@ func _slider(parent: Control, text: String, lo: float, hi: float, step: float, v
 	s.step = step
 	s.value = value
 	s.focus_mode = Control.FOCUS_NONE
+	s.scrollable = false  # the wheel scrolls the panel instead: a slider applies its value only when let go
 	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	s.custom_minimum_size.y = 22
 	row.add_child(s)
-	var v := _label(row, fmt % value, 12, DIM)
+	var show := func(x: float) -> String: return (fmt as Callable).call(x) if fmt is Callable else (fmt as String) % x
+	var v := _label(row, show.call(value), 12, DIM)
 	v.custom_minimum_size.x = 48
-	s.value_changed.connect(func(x: float) -> void: v.text = fmt % x)
+	s.value_changed.connect(func(x: float) -> void: v.text = show.call(x))
 	s.drag_ended.connect(func(_changed: bool) -> void: apply.call(s.value))
+	_sliders[key] = func(x: float) -> void:
+		s.value = x
+		apply.call(s.value)
 
 
 func _button(parent: Control, text: String, on_press: Callable) -> Button:
@@ -325,7 +353,7 @@ func _rule(parent: Control) -> void:
 
 
 ## The frame-time graph: one bar per frame over the last few seconds, green under 60 fps' 16.7 ms, amber under
-## 30 fps' 33.3 ms, red above, with lines at both.
+## 30 fps' 33.3 ms, red above, with lines at 120, 60 and 30 fps.
 class FrameGraph extends Control:
 	var panel: PerfPanel
 
@@ -343,9 +371,9 @@ class FrameGraph extends Control:
 			var c := Color("#7FB069") if f.y < 17.5 else (Color("#E0B850") if f.y < 34.0 else Color("#D9534F"))
 			draw_line(Vector2(x, h), Vector2(x, h - bh), c, 2.0)
 		var font := get_theme_default_font()
-		for line in [[1000.0 / 60.0, "60 fps"], [1000.0 / 30.0, "30 fps"]]:
+		for line in [[1000.0 / 120.0, "120 fps"], [1000.0 / 60.0, "60 fps"], [1000.0 / 30.0, "30 fps"]]:
 			var y: float = h - h * float(line[0]) / PerfPanel.GRAPH_MS
 			draw_line(Vector2(0, y), Vector2(w, y), Color(1, 1, 1, 0.45), 1.0)
-			draw_rect(Rect2(2, y - 14, 44, 13), Color(0, 0, 0, 0.6))
+			draw_rect(Rect2(2, y - 14, 50, 13), Color(0, 0, 0, 0.6))
 			draw_string(font, Vector2(5, y - 4), line[1], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.85))
 		draw_string(font, Vector2(w - 76, 12), "last %d s" % PerfPanel.WINDOW, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.6))
