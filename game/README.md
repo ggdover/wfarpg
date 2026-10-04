@@ -71,13 +71,16 @@ place (`tools/reference_shots.py`).
   it instead.
   - Into each tree's vertices: how much of the sky each leaf and branch can see.
   - Into the ground: how much the trees shade each spot, separately for each tree set.
-- **Trees and the camera:** as in Path of Exile 2, the trees in the lower middle of the screen are cut down to their
-  stumps, so you see the hero and the ground round and in front of it (`update_sight` in `scripts/world.gd`).
-  - The area is the one in `ref_imgs/camera_disappearing_tree.png`: the middle 52% of the screen's width, from 30%
-    down to the bottom edge, and on past it, so the trees coming into view from below as the hero walks towards
-    the camera are stumps already. A tree goes once its trunk, from its foot to its top, crosses the area. Trees
-    beyond the hero go only up to 6 m past it, so a low camera, which sees far past the hero, doesn't clear a lane
-    to the horizon.
+- **Trees and the camera:** the trees in front of the hero are cut down to their stumps, so you see the hero and the
+  ground round and in front of it, while the trees ahead of it stay (`update_sight` in `scripts/world.gd`).
+  - In front of the hero, a tree goes once its trunk, from its foot to its top, crosses the lower middle of the
+    screen: the area in `ref_imgs/camera_disappearing_tree.png`, the middle 52% of the screen's width, from 30% down
+    to the bottom edge, and on past it, so the trees coming into view from below as the hero walks towards the
+    camera are stumps already, as Path of Exile 2 cuts its trees. Trees past the hero stay until it's about to pass
+    them (1 m), as cutting those too took too many of the trees ahead (`ref_imgs/tree_disappear/center_bottom.png`).
+  - Every tree whose leaves come within 40% of the way from the camera to the hero goes too, wherever it is on the
+    screen, so the branches round a low camera don't sweep in from its edges (`ref_imgs/tree_disappear/hero.png`);
+    a tree gone near the camera stays gone while it's on the screen, so it never comes back right in front of it.
   - Any other tree in the way of the hero goes too, once some part of it, a leaf card, a branch or the trunk, is
     between the camera and the hero: lines from the camera to a grid of points over the hero, as the camera sees it,
     are tested against the tree's own triangles, in the version that's drawn, with square leaf cards, which contain
@@ -118,7 +121,7 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Trees in the way | Which trees go: those in the screen's **Lower middle** and any in the way of the hero (the default), only those in the way of the hero (**Line to hero**, as before), or none. **Leave** their stumps (the default) or nothing. **A tree goes by** its trunk crossing the area (the default) or any part of it. The area's **width**, how far **from the top** it starts, and how far **past the hero** trees go are sliders. **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Trees in the way | Which trees go: those **In front** of the hero, near the camera and in the way of the hero (the default, above); those in the screen's **Lower middle** up to 6 m past the hero too (**past hero**), and any in the way of the hero; only those in the way of the hero (**Line to hero**); or none. **Leave** their stumps (the default) or nothing. **A tree goes by** its trunk crossing the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; for In front, how **near the camera** (a share of the way to the hero) and how far **ahead of the hero** trees go. **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
@@ -217,7 +220,7 @@ Also:
 - **Trimmed and fewer cards:** every version also comes with its cards cut to the outline round their leaves
   (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`).
 - **Hidden trees:** trees cut to their stumps, or faded out near the camera, aren't drawn at all, apart from their
-  shadows. Cutting the lower middle of the screen makes the start 2 ms faster than hiding only the trees in the way
+  shadows. Cutting the trees in front of the hero makes the start 2 ms faster than hiding only the trees in the way
   of the hero; with the camera low, up to 1 ms slower, as it shows more of the forest behind. Working out which trees
   go takes 0.2–0.7 ms a frame in the forest; the trees' shapes for it are worked out as they load (about 60 ms for
   both sets).

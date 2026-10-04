@@ -52,6 +52,9 @@ const AREA_KEEP := 0.04  # a tree that's gone comes back once it's this far out 
 const AREA_BELOW := 0.5  # the area reaches this far below the screen (a fraction of it), so trees coming into view
 		# from below as the hero walks towards the camera are stumps already
 const BANDS := 6  # slices up a tree, for finding whether any part of it is in the area (_profile)
+const NEAR_KEEP := 1.5  # a tree gone near the camera comes back once it's this much further off (metres)
+const HOLD_NEAR := 0.6  # with "front", a tree gone within this fraction of the way from the camera to the hero stays
+		# gone while any of it is on the screen, so it never comes back right in front of the camera
 
 var _ground_materials := {}  # detail level -> its material (shaders/ground*.gdshader)
 var _ground_meshes: Array[MeshInstance3D] = []
@@ -86,10 +89,12 @@ var _shadow_pictures_baking := false
 ## fade out trees near a high camera, as the mockups hide them, though never near the hero (scripts/camera_rig.gd);
 ## off, as trees should only go once they're in the way
 var fade_near_camera := false
-## which trees go, so that you can see past them (update_sight): "area", those in the lower middle of the screen
-## (cut_half_width, cut_top), as in Path of Exile 2, and any others in the way of the hero; "line", only those in the
-## way of the hero; or "off". Their shadows stay.
-var cut_trees := "area"
+## which trees go, so that you can see past them (update_sight): "front", those in front of the hero: in the lower
+## middle of the screen (cut_half_width, cut_top) between the camera and the hero, those whose leaves come near the
+## camera (cut_near), and any in the way of the hero, while those past the hero stay till it's about to reach them;
+## "area", those in the lower middle of the screen up to cut_behind past the hero too, as in Path of Exile 2, and any
+## in the way of the hero; "line", only those in the way of the hero; or "off". Their shadows stay.
+var cut_trees := "front"
 ## what's left of a tree that's gone: its stump (true), or nothing
 var stumps := true
 ## the lower middle of the screen, where trees go: half its width either side of the middle, and from how far down
@@ -98,9 +103,15 @@ var cut_half_width := 0.26
 var cut_top := 0.30
 ## which part of a tree in the area makes it go: "trunk" (where it stands, and up its trunk) or "any" (any part)
 var cut_by := "trunk"
-## trees beyond the hero go only this far beyond it (metres, along the ground away from the camera), so a low camera,
-## which sees far past the hero, doesn't clear a lane to the horizon
+## with "area", trees beyond the hero go only this far beyond it (metres, along the ground away from the camera), so a
+## low camera, which sees far past the hero, doesn't clear a lane to the horizon
 var cut_behind := 6.0
+## with "front", trees whose leaves come within this fraction of the way from the camera to the hero go wherever they
+## are on the screen, so that the branches round the camera don't sweep in from its edges (3 to 12 m from it)
+var cut_near := 0.4
+## with "front", trees ahead of the hero go once it's this close to passing them (metres, along the ground away from
+## the camera)
+var cut_ahead := 1.0
 ## also keep the ground this far round the hero clear of trees in the way (metres; 0 for the hero alone)
 var sight_clear := 0.0
 ## small plants and pebbles cast no shadows
@@ -161,11 +172,12 @@ func skip_faded(camera_pos: Vector3, radius: float) -> void:
 
 
 ## Fade out the trees that block the view, down to their stumps (stumps), and fade them back once they don't.
-## With cut_trees "area", those are the trees in the lower middle of the screen, where they would hide the hero and
-## the ground round and in front of it (_in_area), as Path of Exile 2 cuts its trees; with "line", or "area" too, any
-## tree in the way of the hero: once some part of it, a leaf card, a branch or the trunk, is on a line from the camera
-## to the hero (or to the ground sight_clear metres round them), and not before. Called every frame by the camera rig,
-## with how long the frame took.
+## With cut_trees "front", those are the trees in front of the hero in the lower middle of the screen (_in_area), and
+## those whose leaves come near the camera (_near_camera), so the view between the camera and the hero is clear, but
+## the trees ahead of the hero stay; with "area", those in the lower middle of the screen up to cut_behind past the
+## hero, as Path of Exile 2 cuts its trees. With every one of them, and with "line", any tree in the way of the hero:
+## once some part of it, a leaf card, a branch or the trunk, is on a line from the camera to the hero (or to the ground
+## sight_clear metres round them), and not before. Called every frame by the camera rig, with how long the frame took.
 func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	if _current == "":
 		return
@@ -175,6 +187,8 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	var area := []  # the planes round the area where trees go
 	var area_keep := []  # and round a wider one, for those already gone
 	var ahead := Vector2.ZERO  # along the ground, away from the camera
+	var past := cut_behind if cut_trees == "area" else cut_ahead  # how far past the hero trees in the area go
+	var near := clampf(cut_near * camera_pos.distance_to(hero_pos), 3.0, 12.0) if cut_trees == "front" and cut_near > 0.0 else 0.0
 	var check := {}
 	if cut_trees != "off":
 		points = _hero_points(camera_pos, hero_pos, HERO_HALF, HERO_PAD)
@@ -188,12 +202,15 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		var reach := _max_reach + KEEP_HALF + KEEP_PAD + sight_clear + 1.0
 		var lo := Vector2(minf(camera_pos.x, hero_pos.x) - reach, minf(camera_pos.z, hero_pos.z) - reach)
 		var hi := Vector2(maxf(camera_pos.x, hero_pos.x) + reach, maxf(camera_pos.z, hero_pos.z) + reach)
-		if cut_trees == "area":
+		if near > 0.0:
+			lo = lo.min(Vector2(camera_pos.x, camera_pos.z) - Vector2.ONE * (near + NEAR_KEEP + _max_reach))
+			hi = hi.max(Vector2(camera_pos.x, camera_pos.z) + Vector2.ONE * (near + NEAR_KEEP + _max_reach))
+		if cut_trees == "area" or cut_trees == "front":
 			area = _area_planes(camera, 0.0)
 			area_keep = _area_planes(camera, AREA_KEEP)
 			var b := camera.global_basis
 			ahead = Vector2(-b.z.x + b.y.x, -b.z.z + b.y.z).normalized()  # from above too, where the screen's up is
-			for g: Vector2 in _area_on_ground(camera, hero_pos):
+			for g: Vector2 in _area_on_ground(camera, hero_pos, past):
 				lo = lo.min(g - Vector2.ONE * (_max_reach + 1.0))
 				hi = hi.max(g + Vector2.ONE * (_max_reach + 1.0))
 		for cx in range(floori(lo.x / CELL), floori(hi.x / CELL) + 1):
@@ -208,8 +225,11 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		var tree: Dictionary = trees[i]
 		var in_way := false
 		if cut_trees != "off":
-			in_way = (not area.is_empty() and _in_area(tree, i, area_keep if f > 0.0 else area, hero_pos, ahead, 1.0 if f > 0.0 else 0.0)) \
+			in_way = (not area.is_empty() and _in_area(tree, i, area_keep if f > 0.0 else area, hero_pos, ahead, past + (1.0 if f > 0.0 else 0.0))) \
+				or (near > 0.0 and _near_camera(tree, i, camera_pos, near + (NEAR_KEEP if f > 0.0 else 0.0))) \
 				or _in_way(tree, i, camera_pos, hero_pos, keep if f > 0.0 else points)
+			if not in_way and f > 0.0 and cut_trees == "front":
+				in_way = _held(tree, i, camera, HOLD_NEAR * camera_pos.distance_to(hero_pos))
 		if not in_way and f == 0.0:
 			continue
 		var was := f
@@ -259,10 +279,10 @@ func _area_planes(camera: Camera3D, grow: float) -> Array:
 
 ## Where the area's corners meet the ground at the hero's height, or for those that look over it, a point well past
 ## the hero: the trees to test lie round these.
-func _area_on_ground(camera: Camera3D, hero_pos: Vector3) -> Array[Vector2]:
+func _area_on_ground(camera: Camera3D, hero_pos: Vector3, past: float) -> Array[Vector2]:
 	var size := camera.get_viewport().get_visible_rect().size
 	var origin := camera.global_position
-	var far := Vector2(hero_pos.x - origin.x, hero_pos.z - origin.z).length() + cut_behind + 2.0
+	var far := Vector2(hero_pos.x - origin.x, hero_pos.z - origin.z).length() + past + 2.0
 	var out: Array[Vector2] = []
 	for c: Vector2 in [Vector2(0.5 - cut_half_width, cut_top), Vector2(0.5 + cut_half_width, cut_top),
 			Vector2(0.5 + cut_half_width, 1.0 + AREA_BELOW), Vector2(0.5 - cut_half_width, 1.0 + AREA_BELOW)]:
@@ -276,10 +296,10 @@ func _area_on_ground(camera: Camera3D, hero_pos: Vector3) -> Array[Vector2]:
 
 ## Is the tree in the area? Its trunk, an upright line from its foot to its top as thick as its trunk, crosses the
 ## planes' area somewhere (cut_by "trunk"), or any of the BANDS slices up it, each a ball round the trunk as wide as
-## the tree there (cut_by "any"). Trees beyond the hero count only up to cut_behind (and extra) metres past it.
-func _in_area(tree: Dictionary, i: int, planes: Array, hero_pos: Vector3, ahead: Vector2, extra: float) -> bool:
+## the tree there (cut_by "any"). Trees beyond the hero count only up to past metres past it.
+func _in_area(tree: Dictionary, i: int, planes: Array, hero_pos: Vector3, ahead: Vector2, past: float) -> bool:
 	var c := _tree_xz[i]
-	if (c - Vector2(hero_pos.x, hero_pos.z)).dot(ahead) > cut_behind + extra:
+	if (c - Vector2(hero_pos.x, hero_pos.z)).dot(ahead) > past:
 		return false
 	var y := _tree_y[i]
 	var bound: Vector3 = tree["bound"]
@@ -288,6 +308,44 @@ func _in_area(tree: Dictionary, i: int, planes: Array, hero_pos: Vector3, ahead:
 	var s: float = tree["s"]
 	for band: Vector2 in _profile(tree["model"]):
 		if _sphere_in(planes, Vector3(c.x, y + band.x * s, c.y), band.y * s):
+			return true
+	return false
+
+
+## Do the tree's leaves or branches come within radius of the camera? Each of its BANDS slices is a ball round its
+## trunk that holds that slice of it (_profile).
+func _near_camera(tree: Dictionary, i: int, camera_pos: Vector3, radius: float) -> bool:
+	var c := _tree_xz[i]
+	var bound: Vector3 = tree["bound"]
+	if Vector2(camera_pos.x, camera_pos.z).distance_to(c) > radius + bound.x:
+		return false
+	var y := _tree_y[i]
+	var s: float = tree["s"]
+	for band: Vector2 in _profile(tree["model"]):
+		if camera_pos.distance_to(Vector3(c.x, y + band.x * s, c.y)) < radius + band.y * s:
+			return true
+	return false
+
+
+## Is any of the tree on the screen, within radius of the camera? Each of its BANDS slices is a ball round its trunk.
+func _held(tree: Dictionary, i: int, camera: Camera3D, radius: float) -> bool:
+	var c := _tree_xz[i]
+	var camera_pos := camera.global_position
+	if Vector2(camera_pos.x, camera_pos.z).distance_to(c) > radius + (tree["bound"] as Vector3).x:
+		return false
+	var y := _tree_y[i]
+	var s: float = tree["s"]
+	var frustum := camera.get_frustum()
+	for band: Vector2 in _profile(tree["model"]):
+		var p := Vector3(c.x, y + band.x * s, c.y)
+		if camera_pos.distance_to(p) - band.y * s > radius:
+			continue
+		var seen := true
+		for plane in frustum:
+			if plane.distance_to(p) > band.y * s:  # the planes face out
+				seen = false
+				break
+		if seen:
 			return true
 	return false
 
@@ -500,7 +558,7 @@ func _unskip() -> void:
 
 
 ## Change how the trees are drawn, now: any of trimmed, fewer, tree_shadows, shadow_reach, lod_near, lod_far,
-## impostors_from, fade_near_camera, cut_trees, stumps, cut_by.
+## impostors_from, fade_near_camera, cut_trees, stumps, cut_by, cut_near.
 func set_trees(option: String, value: Variant) -> void:
 	_unskip()
 	set(option, value)
@@ -513,8 +571,7 @@ func set_trees(option: String, value: Variant) -> void:
 func _build_occluders() -> void:
 	for tree: Dictionary in _tree_sets[_current]:
 		_occluder(tree)
-		if cut_by == "any":
-			_profile(tree["model"])
+		_profile(tree["model"])
 
 
 ## What casts the tree's shadow: the version drawn near the camera (names[0]) for "full", a lighter one for "mid" and

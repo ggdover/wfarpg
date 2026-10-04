@@ -2908,6 +2908,95 @@
     "The spruces' lowest needle sprays hang lower than their trunks, so the stump builder looks for the trunk among the bark only"
    ],
    "cover": "renders/play_demo_stumps/before_and_now.jpg"
+  },
+  {
+   "id": "play-demo-in-front",
+   "date": "2026-10-04",
+   "asked_at": "22:15",
+   "posted_at": "22:36",
+   "title": "Trees in front of the hero",
+   "section": "Play demo: trees in front of the hero",
+   "asked": "I'm still not entirely happy with how and when the trees disappear. In ref_imgs/tree_disappear I have two pictures with the exact same camera angle, comparing \"Line to hero\" (hero.png) with \"Lower middle\" (center_bottom.png). In center_bottom, I think too many of the trees ahead are removed before the player gets close to them, but in hero.png I don't like how certain branches, such as the pine tree branch in the top right, just pop into the screen, which is very distracting at that camera angle. What can be done to get the best of both? I'm curious what you can come up with yourself",
+   "changed": [
+    "A new way of cutting trees, \"In front\", now the default: it clears what stands between the camera and the hero and leaves what's past the hero alone",
+    "Trees in front of the hero in the lower middle of the screen go, to their stumps; trees past the hero stay until the hero is about to pass them (1 m)",
+    "Every tree whose leaves come near the camera goes too, wherever it is on the screen (within 40% of the way from the camera to the hero, 8 m at the default camera), so the branches round the camera don't sweep in from its edges",
+    "A tree gone near the camera stays gone while it's on the screen, so it never comes back right in front of the camera",
+    "Walking the trail low and high: In front cuts 0.02 trees past the hero a frame against Lower middle's 2.2, lets 0 to 1 trees near the camera come back into view against 4 to 7, and leaves no tree reaching into the camera against Line to hero's 0.16 a frame",
+    "In F2, In front sits beside Lower middle, Line to hero and Keep, with sliders for how near the camera and how far ahead of the hero; the self-test checks all three ways, with both tree sets"
+   ],
+   "items": [
+    {
+     "id": "s-infront",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: trees in front of the hero",
+     "author": "claude"
+    },
+    {
+     "id": "if-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Trees in front of the hero\nYou found that with **Lower middle** too many trees ahead were cut before the hero got close to them, and that with **Line to hero** branches, like the pine's in the top right of your shot, pop into the screen with a low camera. You asked for the best of both.\n\n**In front**, now the default, clears what stands between the camera and the hero, and leaves what's past the hero alone:\n- Trees in front of the hero in the lower middle of the screen go, to their stumps\n- So does every tree whose leaves come near the camera, wherever it is on the screen, so the branches round the camera don't sweep in from its edges\n- A tree gone near the camera stays gone while it's on the screen, so it never comes back right in front of you\n- Trees past the hero stay until the hero is about to pass them\n- Any other tree in the way of the hero still goes",
+     "author": "claude"
+    },
+    {
+     "id": "if-ref-hero",
+     "type": "image",
+     "status": "new",
+     "caption": "Your shot with Line to hero: the branches round the camera pop into the screen.",
+     "assetId": "1d9f9da35cd902ee192a7382e81f8343",
+     "file": "renders/reference_copies/tree_disappear_hero.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "if-ref-center",
+     "type": "image",
+     "status": "new",
+     "caption": "Your shot with Lower middle: too many of the trees ahead are gone.",
+     "assetId": "384c2d23c1c1f0e77db46a8109145919",
+     "file": "renders/reference_copies/tree_disappear_center_bottom.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "if-low",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking the trail with the camera low behind the hero, at three points: Line to hero, Lower middle, and In front (now). In front keeps the trees ahead and clears the view to the hero.",
+     "assetId": "03dd2a3ed1e5d1062902b22aaed0a2a2",
+     "file": "renders/play_demo_in_front/camera_low.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "if-numbers",
+     "type": "note",
+     "status": "new",
+     "text": "# Walking the trail, low and high\nThe same walk along the trail in each way, counting every frame:\n- **Trees cut past the hero:** Lower middle 2.2 a frame; In front and Line to hero 0.02\n- **Trees near the camera coming back into view:** Lower middle 4 to 7 on the walk; In front 0 to 1\n- **Trees reaching into the camera:** Line to hero 0.16 a frame; In front none\n\nIt runs as fast as Lower middle, 2 ms faster than Line to hero at the start.",
+     "author": "claude"
+    },
+    {
+     "id": "if-switches",
+     "type": "note",
+     "status": "new",
+     "text": "# To try in F2\nUnder **Trees in the way**: **In front**, **Lower middle**, **Line to hero** or **Keep**. For In front, two sliders:\n- **near camera:** trees whose leaves come within this share of the way from the camera to the hero go (40%, 8 m at the default camera)\n- **ahead of hero:** trees past the hero go once it's this close to passing them (1 m)",
+     "author": "claude"
+    },
+    {
+     "id": "if-high",
+     "type": "image",
+     "status": "new",
+     "caption": "The same with the default, high camera.",
+     "assetId": "576d7415171901d2a95f3dda155e32ef",
+     "file": "renders/play_demo_in_front/camera_high.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "With Line to hero, the trees round a low camera are never in the way of the hero, so their crowns stay, filling the screen's edges and sweeping across it as the camera moves",
+    "With Lower middle, about a fifth of the trees it cut were past the hero, up to 6 m beyond it"
+   ],
+   "cover": "renders/play_demo_in_front/camera_low.jpg"
   }
  ]
 }

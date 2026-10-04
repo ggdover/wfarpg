@@ -97,6 +97,7 @@ The final images shown on the board, by board section:
 | `renders/play_demo_in_the_way` | Play demo: trees go once they're in the way (walking up to a pine, low cameras) |
 | `renders/play_demo_speed` | Play demo: speed (all the speed-ups as before and on, and before and after each one) |
 | `renders/play_demo_stumps` | Play demo: trees cut to stumps (before and now, the stumps close up, by the trunk or by any part) |
+| `renders/play_demo_in_front` | Play demo: trees in front of the hero (the three ways of cutting trees on a walk, camera low and high) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History

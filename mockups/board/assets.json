@@ -125,5 +125,9 @@
  "4f3e1fa142fa73103d8e63804faac803": "renders/play_demo_stumps/before_and_now.jpg",
  "4049b47b2834177167f5c5a1f17b462d": "renders/play_demo_stumps/stumps.jpg",
  "2d0c71c8be5e5a5ec01ea23170ac7e77": "renders/play_demo_stumps/trunk_or_any.jpg",
- "f26aa34e62589fdd6aadf56793181e39": "renders/reference_copies/camera_disappearing_tree.jpg"
+ "f26aa34e62589fdd6aadf56793181e39": "renders/reference_copies/camera_disappearing_tree.jpg",
+ "03dd2a3ed1e5d1062902b22aaed0a2a2": "renders/play_demo_in_front/camera_low.jpg",
+ "576d7415171901d2a95f3dda155e32ef": "renders/play_demo_in_front/camera_high.jpg",
+ "1d9f9da35cd902ee192a7382e81f8343": "renders/reference_copies/tree_disappear_hero.jpg",
+ "384c2d23c1c1f0e77db46a8109145919": "renders/reference_copies/tree_disappear_center_bottom.jpg"
 }
