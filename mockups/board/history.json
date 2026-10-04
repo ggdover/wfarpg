@@ -3043,6 +3043,82 @@
     "The trunk's thickness came from the tree's footprint near the ground, which for pines and spruces takes in their low branches: 3 to 6 m across instead of half a metre, which made the area much wider for them"
    ],
    "cover": "renders/play_demo_beside/pine_beside_the_hero.jpg"
+  },
+  {
+   "id": "play-demo-trunks",
+   "date": "2026-10-04",
+   "asked_at": "23:16",
+   "posted_at": "23:46",
+   "title": "Trunks stay, and an x-ray to try",
+   "section": "Play demo: trunks stay, and an x-ray",
+   "asked": "It still looks the same: in front2.png the pine is still a stump though I'm that far away. One solution could be two parts to a tree disappearing: the crown goes, when zoomed in more, in case the branches get in the way of the camera too much, and the trunk stays as long as the player isn't behind it, and then it becomes a stump. Spruces are a bit special, though, as they don't really have a crown in the same way, since their branches go all the way down. An alternative could be to go back to the x-ray circle, which won't remove the whole tree as soon as the player is close to just the outermost parts of one branch, but instead of a circle round the player, a square that covers some distance round the player and also everything down to the bottom: the centre-bottom portion, where the player mainly needs to look to control their character",
+   "changed": [
+    "Trunks stay: a tree in front of the hero loses its crown and branches but leaves its bare trunk, until the trunk itself hides the hero, when it goes down to its stump; spruces go straight to their stumps (leave: Trunks, Stumps or Nothing in F2)",
+    "Near the camera, whatever of a tree comes close fades away pixel by pixel, from 60 to 100% of 40% of the way to the hero, its trunk kept, instead of whole trees going there; nothing near the camera goes or comes back whole",
+    "The x-ray to try (X-ray in F2): no tree goes whole; the shaders cut away whatever of a tree is in a window in the lower middle of the screen and nearer the camera than the hero's far side, the window's edges soft and patchy and its top corners round",
+    "The build makes every tree's bare trunk with its stump (stumps.glb); the self-test checks the trunks, the fade near the camera and the x-ray, with both tree sets"
+   ],
+   "items": [
+    {
+     "id": "s-trunks",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: trunks stay, and an x-ray",
+     "author": "claude"
+    },
+    {
+     "id": "tr-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Trunks stay, and an x-ray to try\nYour front2 shot still had the pine as a stump. That was the rule for trees near the camera: it measured a tree by balls round its trunk as wide as its crown, about 7 m across for this pine, so it seemed near the camera when its needles were 10 m off; and a tree gone near the camera stayed gone while it was on the screen.\n\nNow, from your two ideas:\n- **Trunks stay:** a tree in front of the hero loses its crown and branches but leaves its bare trunk, until the trunk itself hides the hero, when it goes down to its stump. Spruces, whose branches reach the ground, go straight to their stumps\n- **Near the camera**, whatever of a tree comes close fades away pixel by pixel, trunk kept, so no whole tree goes or comes back there\n- **The x-ray** (F2, X-ray): no tree goes whole; a soft-edged window in the lower middle of the screen cuts away what's in front of the hero",
+     "author": "claude"
+    },
+    {
+     "id": "tr-pine",
+     "type": "image",
+     "status": "new",
+     "caption": "Your front2 shot (left): the pine still a stump with the hero 9 m away. Now (right), from about there, it stands, at the left edge.",
+     "assetId": "46694982943cc0e357387d05c4fd2db8",
+     "file": "renders/play_demo_trunks/pine_back.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "tr-low",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking the trail with the camera low: Line to hero, In front with trunks left (now), and the X-ray. In front leaves bare trunks where trees went; the trees ahead and beside the hero stay.",
+     "assetId": "f13547c9836cceab831629469d131530",
+     "file": "renders/play_demo_trunks/walk_camera_low.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "tr-switches",
+     "type": "note",
+     "status": "new",
+     "text": "# To try in F2\nUnder **Trees in the way**: **In front** (now), **X-ray**, **Lower mid**, **Line** or **Keep**; and **leave**: **Trunks** (now), **Stumps** or **Nothing**. **near the camera** sets how far the fade near the camera reaches.\n\nIn front with trunks runs about 1 ms faster than Line at the start; the x-ray, which cuts no tree whole, 2.6 ms slower than In front.",
+     "author": "claude"
+    },
+    {
+     "id": "tr-high",
+     "type": "image",
+     "status": "new",
+     "caption": "The same with the default, high camera.",
+     "assetId": "331d71d632cb62b7fcae96c4e7f58772",
+     "file": "renders/play_demo_trunks/walk_camera_high.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/29_xray_first.jpg",
+     "caption": "The first x-ray: a hard-edged window through the trees, here at the meadow, the start, the thicket and low at the start"
+    }
+   ],
+   "found": [
+    "The pine stayed a stump because the rule for trees near the camera measured a tree by balls round its trunk as wide as its crown, about 7 m for this pine, so it seemed near the camera when its needles were 10 m off; and a tree gone near the camera stayed gone while it was on the screen",
+    "Seen from the side, the x-ray's window slices dense spruces at its edges and shows their dark insides, so whole trees going looks cleaner there"
+   ],
+   "cover": "renders/play_demo_trunks/walk_camera_low.jpg"
   }
  ]
 }

@@ -5,7 +5,8 @@
 models  the mockups' low-poly kit (the old trees, rocks, plants and props) and the tree portfolio's trees, built from
         assets/trees/tree_settings.json with two lighter versions each, as .glb files in assets/kit and assets/trees,
         with the leaf cards they use and ambient occlusion baked into them
-stumps  every tree's stump, which the game shows in place of a tree in the way, in assets/trees/stumps.glb
+stumps  every tree's stump, which the game shows in place of a tree in the way, and its bare trunk, which its x-ray
+        leaves standing, in assets/trees/stumps.glb
 layout  where every tree, rock and plant stands, in data/demo_layout.json
 ground  the terrain's heights, the mockups' ground shader baked into textures, and the trees' shade on the ground
         (from the layout), in assets/ground
@@ -478,15 +479,10 @@ def hex_linear(h):
     return tuple(v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in c) + (1.0,)
 
 
-def stump_mesh(src, name, seed):
-    """A tree cut down to its stump, which the game shows in place of a tree that's in the way: the tree's own trunk,
-    cut at about knee height (higher for a thick trunk; on a sapling, low on its short trunk), the cut tilted a little
-    and capped with pale wood in a ring of sapwood. The trunk is the part of the bark that reaches lowest, as each
-    part (trunk, branch, leaf clump) is its own piece of mesh. Its sides stand STUMP_PROUD out from the tree's trunk,
-    so that the two don't fight while the tree fades out round it. Returns (mesh, cut height, trunk radius)."""
+def trunk_bmesh(src):
+    """The tree's trunk alone, as a bmesh: the part of the bark that reaches lowest, as each part (trunk, branch, leaf
+    clump) is its own piece of mesh."""
     import bmesh
-    from mathutils import Vector
-    rng = random.Random(seed)
     bm = bmesh.new()
     bm.from_mesh(src)
     low = min((v for f in bm.faces if f.material_index == 0 for v in f.verts), key=lambda v: v.co.z)
@@ -500,6 +496,44 @@ def stump_mesh(src, name, seed):
                         seen.add(w)
                         stack.append(w)
     bmesh.ops.delete(bm, geom=[f for f in bm.faces if f not in trunk], context="FACES")
+    return bm
+
+
+def finish_part(bm, name, src):
+    """A mesh from the bmesh, flat-shaded in the tree's bark."""
+    for f in bm.faces:
+        f.smooth = False
+        f.material_index = 0
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    if me.has_custom_normals:
+        me.normals_split_custom_set([(0.0, 0.0, 0.0)] * len(me.loops))  # the faces' own, flat normals
+    bark = src.materials[0]
+    me.materials.clear()
+    me.materials.append(bark)
+    return me
+
+
+def trunk_mesh(src, name):
+    """The tree's trunk alone, without its branches, which the game's x-ray leaves standing (scripts/world.gd). Its
+    sides stand STUMP_PROUD out from the tree's own trunk, so that the two don't fight where both show."""
+    bm = trunk_bmesh(src)
+    bm.normal_update()
+    for v in bm.verts:
+        v.co += v.normal * STUMP_PROUD
+    return finish_part(bm, name, src)
+
+
+def stump_mesh(src, name, seed):
+    """A tree cut down to its stump, which the game shows in place of a tree that's in the way: the tree's own trunk,
+    cut at about knee height (higher for a thick trunk; on a sapling, low on its short trunk), the cut tilted a little
+    and capped with pale wood in a ring of sapwood. Its sides stand STUMP_PROUD out from the tree's trunk, so that the
+    two don't fight while the tree fades out round it. Returns (mesh, cut height, trunk radius)."""
+    import bmesh
+    from mathutils import Vector
+    rng = random.Random(seed)
+    bm = trunk_bmesh(src)
     top = max(v.co.z for v in bm.verts)
     near = [v.co.copy() for v in bm.verts if v.co.z <= 0.5] or [v.co.copy() for v in bm.verts]
     cx = sum(c.x for c in near) / len(near)
@@ -525,22 +559,12 @@ def stump_mesh(src, name, seed):
     for v in bm.verts:
         v.co.x = cx + (v.co.x - cx) * grow
         v.co.y = cy + (v.co.y - cy) * grow
-    for f in bm.faces:
-        f.smooth = False
-        f.material_index = 0
-    me = bpy.data.meshes.new(name)
-    bm.to_mesh(me)
-    bm.free()
-    if me.has_custom_normals:
-        me.normals_split_custom_set([(0.0, 0.0, 0.0)] * len(me.loops))  # the faces' own, flat normals
-    bark = src.materials[0]
-    me.materials.clear()
-    me.materials.append(bark)
-    return me, cut, radius
+    return finish_part(bm, name, src), cut, radius
 
 
 def build_stumps():
-    """A stump for every tree model, old and new (stump_mesh), in assets/trees/stumps.glb, listed in stumps.json."""
+    """A stump and a bare trunk for every tree model, old and new (stump_mesh, trunk_mesh), in assets/trees/stumps.glb,
+    listed in stumps.json."""
     kit = load_kit()
     meshes = {name: make() for items in kit_groups(kit).values() for name, make in items
               if name.startswith(("Pine", "TallSpruce", "Birch", "YoungSpruce"))}
@@ -555,6 +579,13 @@ def build_stumps():
         ao[name] = bake_ao(me)
         info[name] = dict(mesh_info(me, bark_slot=None), file="res://assets/trees/stumps.glb", tree=model, cut=round(cut, 3))
         print(name, "cut at %.2f m, trunk %.2f m across, %d faces" % (cut, 2 * radius, len(me.polygons)))
+        name = model + "_trunk"
+        me = trunk_mesh(src, name)
+        ob = bpy.data.objects.new(name, me)
+        bpy.context.scene.collection.objects.link(ob)
+        objs.append(ob)
+        ao[name] = bake_ao(me)
+        info[name] = dict(mesh_info(me, bark_slot=None), file="res://assets/trees/stumps.glb", tree=model)
     export_glb(objs, os.path.join(TREE_DIR, "stumps.glb"), ao)
     with open(os.path.join(TREE_DIR, "stumps.json"), "w") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)

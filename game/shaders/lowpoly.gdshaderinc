@@ -1,6 +1,7 @@
 // The mockups' low-poly material: faceted shapes coloured per face through the vertex colours, like LowPoly in
 // mockups/forest_cam.py and Bark in assets/trees/treegen.py. Define HERO_FADE before including it for things that
-// fade out when they're in the way of the camera, like trees. The including shader declares the shader type.
+// fade out when they're in the way of the camera, like trees, and NO_XRAY too for those the x-ray leaves alone. The
+// including shader declares the shader type.
 #include "res://shaders/common.gdshaderinc"
 
 uniform float roughness = 0.88;
@@ -20,6 +21,9 @@ global uniform vec3 pebble_colour;
 void fragment() {
 #ifdef HERO_FADE
 	float fade = tree_fade(sight_fade, VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD);
+#ifndef NO_XRAY
+	fade = max(fade, xray_fade(SCREEN_UV, VIEWPORT_SIZE, VERTEX, VIEW_MATRIX, CAMERA_POSITION_WORLD));
+#endif
 	if (faded_out(fade, (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz)) {
 		discard;
 	}

@@ -1933,6 +1933,19 @@
   "y": 8720,
   "z": 20
  },
+ "s-trunks": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791150352762,
+  "h": 3785,
+  "title": "Play demo: trunks stay, and an x-ray",
+  "type": "frame",
+  "updatedAt": 1791150352762,
+  "w": 2740,
+  "x": 0,
+  "y": 31784,
+  "z": 29
+ },
  "s-ui": {
   "author": "claude",
   "color": "frost",
@@ -2661,6 +2674,71 @@
   "x": 512,
   "y": 4588,
   "z": 132
+ },
+ "tr-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791150352762,
+  "h": 900,
+  "text": "# Trunks stay, and an x-ray to try\nYour front2 shot still had the pine as a stump. That was the rule for trees near the camera: it measured a tree by balls round its trunk as wide as its crown, about 7 m across for this pine, so it seemed near the camera when its needles were 10 m off; and a tree gone near the camera stayed gone while it was on the screen.\n\nNow, from your two ideas:\n- **Trunks stay:** a tree in front of the hero loses its crown and branches but leaves its bare trunk, until the trunk itself hides the hero, when it goes down to its stump. Spruces, whose branches reach the ground, go straight to their stumps\n- **Near the camera**, whatever of a tree comes close fades away pixel by pixel, trunk kept, so no whole tree goes or comes back there\n- **The x-ray** (F2, X-ray): no tree goes whole; a soft-edged window in the lower middle of the screen cuts away what's in front of the hero",
+  "type": "note",
+  "updatedAt": 1791150352762,
+  "w": 460,
+  "x": 28,
+  "y": 31812,
+  "z": 213
+ },
+ "tr-high": {
+  "ar": 1.624,
+  "assetId": "331d71d632cb62b7fcae96c4e7f58772",
+  "author": "claude",
+  "caption": "The same with the default, high camera.",
+  "createdAt": 1791150352762,
+  "type": "image",
+  "updatedAt": 1791150352762,
+  "w": 2200,
+  "x": 512,
+  "y": 34086,
+  "z": 217
+ },
+ "tr-low": {
+  "ar": 1.624,
+  "assetId": "f13547c9836cceab831629469d131530",
+  "author": "claude",
+  "caption": "Walking the trail with the camera low: Line to hero, In front with trunks left (now), and the X-ray. In front leaves bare trunks where trees went; the trees ahead and beside the hero stay.",
+  "createdAt": 1791150352762,
+  "type": "image",
+  "updatedAt": 1791150352762,
+  "w": 2200,
+  "x": 512,
+  "y": 32601,
+  "z": 216
+ },
+ "tr-pine": {
+  "ar": 3.338,
+  "assetId": "46694982943cc0e357387d05c4fd2db8",
+  "author": "claude",
+  "caption": "Your front2 shot (left): the pine still a stump with the hero 9 m away. Now (right), from about there, it stands, at the left edge.",
+  "createdAt": 1791150352762,
+  "type": "image",
+  "updatedAt": 1791150352762,
+  "w": 2200,
+  "x": 512,
+  "y": 31812,
+  "z": 215
+ },
+ "tr-switches": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791150352762,
+  "h": 390,
+  "text": "# To try in F2\nUnder **Trees in the way**: **In front** (now), **X-ray**, **Lower mid**, **Line** or **Keep**; and **leave**: **Trunks** (now), **Stumps** or **Nothing**. **near the camera** sets how far the fade near the camera reaches.\n\nIn front with trunks runs about 1 ms faster than Line at the start; the x-ray, which cuts no tree whole, 2.6 ms slower than In front.",
+  "type": "note",
+  "updatedAt": 1791150352762,
+  "w": 460,
+  "x": 28,
+  "y": 32740,
+  "z": 214
  },
  "welcome": {
   "author": "claude",

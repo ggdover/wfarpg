@@ -40,6 +40,37 @@ bool faded_out(float fade, vec3 world) {
 	return fade > clamp((n - 0.5) * 1.7 + 0.5, 0.001, 0.999);
 }
 
+// The x-ray (cut_trees "xray" in scripts/world.gd, with xray_on): in a window in the lower middle of the screen,
+// whatever of a tree is nearer the camera than the hero is cut away, and only that, so you see the hero and the ground
+// round and in front of it. The window, xray_rect: half its width, as a fraction of the screen's; how far down its top
+// is; how soft its edges are; and how round its top corners, as fractions of the screen's height. It reaches down past
+// the bottom of the screen. And with "front" too: whatever of a tree comes within xray_near of the camera (from and to,
+// metres; 0 for none) fades away, so its branches don't sweep across the screen.
+global uniform float xray_on;
+global uniform vec4 xray_rect;
+global uniform vec2 xray_near;
+
+// How much of a tree's pixel the x-ray cuts away, 0..1: in the window, softly at its edges, and nearer the camera
+// than the hero's far side, so the branches it stands in go too, softly over a metre beyond that; and near the
+// camera. Never in the shadow pass.
+float xray_fade(vec2 screen_uv, vec2 viewport, vec3 vertex_view, mat4 view, vec3 camera_world) {
+	if (distance(camera_world, main_camera_position) > 0.05) {
+		return 0.0;
+	}
+	float near = xray_near.y > 0.0 ? 1.0 - smoothstep(xray_near.x, xray_near.y, length(vertex_view)) : 0.0;
+	if (xray_on < 0.5) {
+		return near;
+	}
+	float aspect = viewport.x / viewport.y;
+	vec2 p = vec2((screen_uv.x - 0.5) * aspect, screen_uv.y);  // in screen heights, across from the middle and down
+	float r = xray_rect.w;
+	vec2 q = abs(p - vec2(0.0, (xray_rect.y + 4.0) * 0.5)) - vec2(xray_rect.x * aspect, (4.0 - xray_rect.y) * 0.5) + r;
+	float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;  // from the window's edge, below 0 inside
+	float inside = 1.0 - smoothstep(-xray_rect.z, xray_rect.z, d);
+	float hero = -(view * vec4(hero_position + vec3(0.0, 0.9, 0.0), 1.0)).z;
+	return max(inside * (1.0 - smoothstep(hero + 0.5, hero + 1.5, -vertex_view.z)), near);
+}
+
 // How much a pixel of a tree fades out, 0..1. A tree in the way between the camera and the hero fades out whole
 // (sight: the tree's instance uniform, which scripts/world.gd sets in update_sight), and so do trees standing near
 // a high camera, as the mockups hide them (within tree_fade_radius of it along the ground, which stops well short of

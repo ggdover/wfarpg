@@ -4,7 +4,8 @@ extends RefCounted
 ##
 ## kit.json, trees.json and stumps.json list every model with its file, size and footprint. A portfolio tree's
 ## surfaces are named after its Blender materials (Bark, Leaves <tree>, Berries Rowan); the kit's are LowPoly and
-## RuneDay. Every tree, old and new, has a stump, <model>_stump, shown in its place while it's in the way.
+## RuneDay. Every tree, old and new, has a stump, <model>_stump, shown in its place while it's in the way, and a bare
+## trunk, <model>_trunk, which the x-ray leaves standing.
 
 const INFO_FILES := ["res://assets/kit/kit.json", "res://assets/trees/trees.json", "res://assets/trees/stumps.json"]
 
@@ -67,6 +68,12 @@ static func _material_for(model: String, surface: String, imported: Material) ->
 		return _cached("pebble", func() -> Material:
 			var m := ShaderMaterial.new()
 			m.shader = load("res://shaders/lowpoly_pebble.gdshader")
+			return m)
+	if model.ends_with("_trunk"):  # a tree's bare trunk, which the x-ray leaves standing
+		return _cached("lowpoly_trunk", func() -> Material:
+			var m := ShaderMaterial.new()
+			m.shader = load("res://shaders/lowpoly_trunk.gdshader")
+			m.set_shader_parameter("roughness", 0.9)
 			return m)
 	var fade := is_tree(model)
 	return _cached("lowpoly_fade" if fade else "lowpoly", func() -> Material:

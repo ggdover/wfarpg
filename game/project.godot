@@ -76,3 +76,15 @@ mood_grade={
 "type": "vec2",
 "value": Vector2(1, 1)
 }
+xray_on={
+"type": "float",
+"value": 0.0
+}
+xray_rect={
+"type": "vec4",
+"value": Vector4(0.26, 0.3, 0.07, 0.12)
+}
+xray_near={
+"type": "vec2",
+"value": Vector2(0, 0)
+}

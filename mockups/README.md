@@ -99,6 +99,7 @@ The final images shown on the board, by board section:
 | `renders/play_demo_stumps` | Play demo: trees cut to stumps (before and now, the stumps close up, by the trunk or by any part) |
 | `renders/play_demo_in_front` | Play demo: trees in front of the hero (the three ways of cutting trees on a walk, camera low and high) |
 | `renders/play_demo_beside` | Play demo: trees beside the hero stay (the meadow pine, before and now) |
+| `renders/play_demo_trunks` | Play demo: trunks stay, and an x-ray (the meadow pine again; the ways of cutting trees on a walk, camera low and high) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History

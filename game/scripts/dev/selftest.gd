@@ -88,28 +88,44 @@ func run(d: Node) -> void:
 	demo.get_tree().quit(1 if failed.size() else 0)
 
 
-## Trees that block the view. In front of the hero (the default): a tree between the camera and the hero goes,
-## leaving its stump, and comes back once the hero has walked well past it; a tree just ahead of the hero stays, and
-## so does one well beyond it; a tall tree round a low camera goes, and comes back once it stands beside the hero. In the lower middle of the screen: the tree just
-## ahead of the hero goes too. Only those in the way of the hero ("line"): a tree 5 m ahead of the hero stays; with
-## the camera low behind the tree, it's in the way and fades out, and it comes back once it isn't.
+## Trees that block the view. In front of the hero (the default): a tree between the camera and the hero goes, leaving
+## its trunk or stump, and comes back once the hero has walked well past it; a tree just ahead of the hero stays, and
+## so does one well beyond it, and a tall one beside it; a tree round a low camera isn't cut whole, but its trunk
+## stands while the shaders fade the rest near the camera. The x-ray: a tree in front of the hero isn't cut whole, and
+## its trunk stands in the window; once the trunk hides the hero, it goes, to its stump. In the lower middle of the
+## screen: the tree just ahead of the hero goes too. Only those in the way of the hero ("line"): a tree 5 m ahead of
+## the hero stays; with the camera low behind the tree, it's in the way and fades out, and it comes back once it
+## isn't.
 func _sight_checks() -> void:
 	var hero: Hero = demo.hero
 	var rig: CameraRig = demo.rig
 	var w: DemoWorld = demo.world
+	var set := Game.tree_set
+	var trees: Array = w._tree_sets[w._current]
 	var tree := w.nearest_tree(hero.global_position, 15.0)
-	var record: Dictionary = w._tree_sets[w._current][tree]
+	var record: Dictionary = trees[tree]
 	var away := (Vector2(hero.global_position.x, hero.global_position.z) - w._tree_xz[tree]).normalized()
 	var yaw_beyond := rad_to_deg(atan2(-away.y, away.x))  # the camera beyond the hero, looking towards the tree
-	var set := Game.tree_set
+	# a tall tree with a trunk worth keeping (not a spruce), for the trunks
+	var pole := -1
+	var nearest := INF
+	for i in w._tree_xz.size():
+		var d := w._tree_xz[i].distance_to(Vector2(hero.global_position.x, hero.global_position.z))
+		var rec: Dictionary = trees[i]
+		if d < nearest and (rec["bound"] as Vector3).z > 8.0 and not DemoWorld._spruce(rec["model"]):
+			nearest = d
+			pole = i
+	var pole_away := (Vector2(hero.global_position.x, hero.global_position.z) - w._tree_xz[pole]).normalized()
+	var pole_side := Vector2(-pole_away.y, pole_away.x)
 	# in front of the hero
+	w.set_trees("cut_trees", "front")
 	_place_hero(w._tree_xz[tree] + away * 4.0)
 	rig.yaw = fposmod(yaw_beyond + 180.0, 360.0)  # beyond the tree: it stands between the camera and the hero
 	rig.pitch = 55.0
 	rig.distance = 20.0
 	await _seconds(0.6)
 	var cut := w.sight_fade(tree)
-	var stump := (record["stump"] as RID).is_valid()
+	var left := (record["pole"] as RID).is_valid() or (record["stump"] as RID).is_valid()
 	_place_hero(w._tree_xz[tree] - away * 14.0)  # well past the tree, which is now far below the hero on the screen
 	await _seconds(1.5)
 	var back := w.sight_fade(tree)
@@ -120,31 +136,42 @@ func _sight_checks() -> void:
 	_place_hero(w._tree_xz[tree] + away * 12.0)
 	await _seconds(0.6)
 	var beyond := w.sight_fade(tree)
-	_check("%s trees: a tree in front of the hero goes, to its stump, and comes back" % set, cut >= 1.0 and stump and back == 0.0,
-		"faded %.2f, %s, then %.2f" % [cut, "stump" if stump else "no stump", back])
+	_check("%s trees: a tree in front of the hero goes, leaving its trunk or stump, and comes back" % set, cut >= 1.0 and left and back == 0.0,
+		"faded %.2f, %s, then %.2f" % [cut, "left standing" if left else "nothing left", back])
 	_check("%s trees: a tree just ahead of the hero stays, and one well beyond it" % set, just_ahead == 0.0 and beyond == 0.0,
 		"faded %.2f and %.2f" % [just_ahead, beyond])
-	# a tall tree round a low camera: the camera 3 m beside its trunk, in its crown
-	var tall := tree
-	var best := INF
-	for i in w._tree_xz.size():
-		var d := w._tree_xz[i].distance_to(Vector2(hero.global_position.x, hero.global_position.z))
-		if d < best and (w._tree_sets[w._current][i]["bound"] as Vector3).z > 12.0:
-			best = d
-			tall = i
+	# the tall tree round a low camera, the camera 3 m beside its trunk, in its crown; then beside the hero
 	rig.pitch = 25.0
 	var to_camera := Vector2(cos(deg_to_rad(rig.yaw)), -sin(deg_to_rad(rig.yaw)))  # the camera's side of the hero, in X and Z
 	var side := Vector2(-to_camera.y, to_camera.x)
-	_place_hero(w._tree_xz[tall] - to_camera * (rig.distance * cos(deg_to_rad(rig.pitch))) + side * 3.0)
+	_place_hero(w._tree_xz[pole] - to_camera * (rig.distance * cos(deg_to_rad(rig.pitch))) + side * 3.0)
 	await _seconds(0.6)
-	var near := w.sight_fade(tall)
-	_check("%s trees: a tall tree round a low camera goes" % set, near >= 1.0, "faded %.2f" % near)
-	# the tall tree beside the hero, 7 m to its side and level with it, with the camera high: it stays
+	var whole := w.sight_fade(pole)
+	var stands: bool = w._trunks.has(pole) and w._trunks[pole] == 0.0
+	_check("%s trees: a tree round a low camera fades near it, and its trunk stands" % set, whole == 0.0 and stands,
+		"cut whole %.2f, trunk %s" % [whole, "standing" if stands else "not standing"])
 	rig.pitch = 40.0
-	_place_hero(w._tree_xz[tall] + side * 7.0 - to_camera * 0.5)
+	_place_hero(w._tree_xz[pole] + side * 7.0 - to_camera * 0.5)
 	await _seconds(1.5)
-	var beside := w.sight_fade(tall)
+	var beside := w.sight_fade(pole)
 	_check("%s trees: a tall tree beside the hero stays" % set, beside == 0.0, "faded %.2f" % beside)
+	# the x-ray
+	w.set_trees("cut_trees", "xray")
+	rig.yaw = fposmod(rad_to_deg(atan2(-pole_away.y, pole_away.x)) + 180.0, 360.0)  # the camera beyond the tree
+	rig.pitch = 55.0
+	_place_hero(w._tree_xz[pole] + pole_away * 5.0 + pole_side * 2.5)  # behind the tree, but not behind its trunk
+	await _seconds(0.6)
+	var window: float = w._xray  # what the shaders were given (xray_on)
+	var standing: bool = w._trunks.has(pole) and w._trunks[pole] == 0.0 and w.sight_fade(pole) == 0.0
+	rig.pitch = 15.0
+	_place_hero(w._tree_xz[pole] + pole_away * 5.0)  # right behind its trunk, the camera low
+	await _seconds(0.6)
+	var hidden: float = w._trunks.get(pole, 0.0)
+	var stump_too := (trees[pole]["stump"] as RID).is_valid()
+	_check("%s trees, x-ray: a tree in front of the hero isn't cut whole, and its trunk stands" % set, window == 1.0 and standing,
+		"window %s, trunk %s" % ["on" if window == 1.0 else "off", "standing" if standing else "not standing"])
+	_check("%s trees, x-ray: a trunk that hides the hero goes, to its stump" % set, hidden >= 1.0 and stump_too,
+		"faded %.2f, %s" % [hidden, "stump" if stump_too else "no stump"])
 	# the lower middle of the screen, as before: the tree just ahead of the hero goes too
 	w.set_trees("cut_trees", "area")
 	rig.pitch = 55.0

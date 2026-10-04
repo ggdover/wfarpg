@@ -76,7 +76,7 @@ func _run() -> void:
 	hero = demo.hero
 	var rig: CameraRig = demo.rig
 	var spots := 24
-	world.set_trees("stumps", false)
+	world.set_trees("leave", "nothing")
 	world.set_trees("cut_trees", "line")
 	for a in OS.get_cmdline_user_args():
 		if a == "--trimmed":
