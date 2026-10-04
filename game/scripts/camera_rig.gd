@@ -46,7 +46,7 @@ func snap() -> void:
 	_pivot = _hero_at() + Vector3(0, 1.4, 0)
 	_place()
 	if world:
-		world.update_sight(camera.global_position, _hero_at(), 10.0)
+		world.update_sight(camera, _hero_at(), 10.0)
 
 
 ## Where the hero is drawn this frame, between its last two physics ticks.
@@ -79,7 +79,7 @@ func _process(delta: float) -> void:
 	_pivot = _pivot.lerp(_hero_at() + Vector3(0, 1.4, 0), 1.0 - exp(-14.0 * delta))
 	_place()
 	if world:
-		world.update_sight(camera.global_position, _hero_at(), delta)
+		world.update_sight(camera, _hero_at(), delta)
 
 
 func _place() -> void:
@@ -94,7 +94,7 @@ func _place() -> void:
 	RenderingServer.global_shader_parameter_set("hero_position", _hero_at())
 	RenderingServer.global_shader_parameter_set("main_camera_position", pos)
 	# trees near a high camera fade out, as the mockups hide them; low behind the hero, only those right at the camera.
-	# Never near the hero, though: there trees only go once they're in the way (DemoWorld.update_sight)
+	# Never near the hero, though: there trees only go once they block the view (DemoWorld.update_sight)
 	var above := pos.y - (world.height_at(pos.x, pos.z) if world else 0.0)
 	var radius := clampf(above * 0.85, 2.5, 15.0) if (world == null or world.fade_near_camera) else 0.0
 	radius = maxf(0.0, minf(radius, Vector2(pos.x - _pivot.x, pos.z - _pivot.z).length() - HERO_GAP))

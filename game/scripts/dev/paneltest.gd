@@ -5,7 +5,7 @@ extends Node
 
 const TRIES := [["trimmed", false], ["fewer", true], ["tree_shadows", "full"], ["tree_shadows", "mid"], ["tree_shadows", "far"], ["tree_shadows", "off"],
 	["shadow_reach", 0.0], ["shadow_reach", 40.0], ["impostors", 0.0], ["impostors", 60.0], ["details", 3],
-	["fade", true], ["sight", false], ["scale", 0.75], ["scale", 0.5], ["aa", Viewport.SCREEN_SPACE_AA_FXAA], ["aa", Viewport.SCREEN_SPACE_AA_DISABLED],
+	["fade", true], ["sight", "line"], ["sight", "off"], ["stumps", false], ["cut_by", "any"], ["scale", 0.75], ["scale", 0.5], ["aa", Viewport.SCREEN_SPACE_AA_FXAA], ["aa", Viewport.SCREEN_SPACE_AA_DISABLED],
 	["shadows", false], ["shadow_fit", false], ["shadow_size", 4096], ["shadow_size", 1024], ["shadow_size", 512],
 	["shadow_soft", RenderingServer.SHADOW_QUALITY_HARD], ["shadow_soft", RenderingServer.SHADOW_QUALITY_SOFT_HIGH],
 	["cascades", DirectionalLight3D.SHADOW_ORTHOGONAL], ["cascades", DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS],
@@ -13,7 +13,7 @@ const TRIES := [["trimmed", false], ["fewer", true], ["tree_shadows", "full"], [
 	["ssao", RenderingServer.ENV_SSAO_QUALITY_VERY_LOW], ["ssao", RenderingServer.ENV_SSAO_QUALITY_LOW],
 	["ssao", RenderingServer.ENV_SSAO_QUALITY_HIGH], ["ssao", -1], ["fog", false],
 	["trees", "old"]]
-const DEFAULTS := {"trimmed": true, "fewer": false, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "fade": false, "sight": true, "scale": 1.0,
+const DEFAULTS := {"trimmed": true, "fewer": false, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "fade": false, "sight": "area", "stumps": true, "cut_by": "trunk", "scale": 1.0,
 	"aa": Viewport.SCREEN_SPACE_AA_SMAA, "shadows": true, "shadow_fit": true, "shadow_size": 2048,
 	"shadow_soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "cascades": DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS,
 	"details": 4, "ssao": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "fog": true, "trees": "new"}

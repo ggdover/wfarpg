@@ -71,15 +71,23 @@ place (`tools/reference_shots.py`).
   it instead.
   - Into each tree's vertices: how much of the sky each leaf and branch can see.
   - Into the ground: how much the trees shade each spot, separately for each tree set.
-- **Trees and the camera:**
-  - A tree fades out whole once some part of it, a leaf card, a branch or the trunk, is between the camera and the
-    hero, and comes back once it's out of the way; its shadow stays. Not before: the trees the hero walks towards
-    stay until they're actually in the way. Lines from the camera to a grid of points over the hero, as the camera
-    sees it, are tested against the tree's own triangles, in the version that's drawn, with square leaf cards, which
-    contain whatever of a card shows (`update_sight` in `scripts/world.gd`).
+- **Trees and the camera:** as in Path of Exile 2, the trees in the lower middle of the screen are cut down to their
+  stumps, so you see the hero and the ground round and in front of it (`update_sight` in `scripts/world.gd`).
+  - The area is the one in `ref_imgs/camera_disappearing_tree.png`: the middle 52% of the screen's width, from 30%
+    down to the bottom edge, and on past it, so the trees coming into view from below as the hero walks towards
+    the camera are stumps already. A tree goes once its trunk, from its foot to its top, crosses the area. Trees
+    beyond the hero go only up to 6 m past it, so a low camera, which sees far past the hero, doesn't clear a lane
+    to the horizon.
+  - Any other tree in the way of the hero goes too, once some part of it, a leaf card, a branch or the trunk, is
+    between the camera and the hero: lines from the camera to a grid of points over the hero, as the camera sees it,
+    are tested against the tree's own triangles, in the version that's drawn, with square leaf cards, which contain
+    whatever of a card shows.
+  - A tree fades out over its stump in a fifth of a second, and back in half a second once it's out of the area;
+    its shadow stays. The stumps are the trees' own trunks, cut at about knee height with the cut a little tilted,
+    pale wood ringed with sapwood (`stumps.glb`, built by `tools/build_demo.py`).
   - Whatever the camera is about to touch, within about 2.5 m of it, fades too.
   - The mockups also hide the trees near a high camera. The demo can, with the panel's "Fade trees near camera",
-    though never within 6 m of the hero; it's off, as trees should only go once they're in the way.
+    though never within 6 m of the hero; it's off, as trees should only go once they block the view.
   - Trees fade in patches a few tenths of a metre across rather than in a dither of single pixels, which the
     ambient occlusion turned into black specks.
 
@@ -109,8 +117,8 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | from trees within | Only the trees within this far of the camera cast shadows: all, 60 m (the default), 40 m or 25 m |
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
-| Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they're in the way |
-| Trees in the way | Hide the whole of every tree that's in the way between the camera and the hero (the default), or keep them. **Clear round the hero** also keeps the ground that far round the hero clear of trees; 0 m, the default, is the hero alone |
+| Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
+| Trees in the way | Which trees go: those in the screen's **Lower middle** and any in the way of the hero (the default), only those in the way of the hero (**Line to hero**, as before), or none. **Leave** their stumps (the default) or nothing. **A tree goes by** its trunk crossing the area (the default) or any part of it. The area's **width**, how far **from the top** it starts, and how far **past the hero** trees go are sliders. **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
@@ -208,9 +216,11 @@ Also:
   nearer saves at most 1 ms, as their bigger cards cover about as many pixels.
 - **Trimmed and fewer cards:** every version also comes with its cards cut to the outline round their leaves
   (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`).
-- **Hidden trees:** trees hidden because they're in the way, or faded out near the camera, aren't drawn at all,
-  apart from their shadows. Working out which trees are in the way takes 0.1–0.5 ms a frame in the forest; the
-  trees' shapes for it are worked out as they load (about 60 ms for both sets).
+- **Hidden trees:** trees cut to their stumps, or faded out near the camera, aren't drawn at all, apart from their
+  shadows. Cutting the lower middle of the screen makes the start 2 ms faster than hiding only the trees in the way
+  of the hero; with the camera low, up to 1 ms slower, as it shows more of the forest behind. Working out which trees
+  go takes 0.2–0.7 ms a frame in the forest; the trees' shapes for it are worked out as they load (about 60 ms for
+  both sets).
 - **The depth prepass** (Godot's own, on): without it, the forest takes twice as long.
 - **Tried, and not worth it:** a draw distance for the bushes and berries (under 1 ms with the camera low), skipping
   the shadows of trees behind the camera (Godot already does), and moving where the near shadow cascade ends (Godot's
@@ -234,10 +244,11 @@ changing the trees, the mockups' kit or the area. Run from `game/tools`, with Bl
 
 ```sh
 blender -b --factory-startup -P build_demo.py -- models   # the old kit and the portfolio trees (.glb), with baked occlusion
+blender -b --factory-startup -P build_demo.py -- stumps   # every tree's stump (stumps.glb), in a few seconds
 blender -b --factory-startup -P build_demo.py -- layout   # where every tree, rock and plant stands
 blender -b --factory-startup -P build_demo.py -- ground   # heights, ground textures and the trees' shade (after layout)
 blender -b --factory-startup -P build_demo.py -- masks    # only the paths' wear masks (masks.png), in a few seconds
-blender -b --factory-startup -P build_demo.py            # all three, in that order
+blender -b --factory-startup -P build_demo.py            # all four, in that order
 ```
 
 The area itself, with its outline, trails, meadow, rise and how thick the forest grows, is data in
@@ -256,7 +267,7 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 |---|---|
 | `scenes/start.tscn`, `scenes/demo.tscn` | The start screen and the demo |
 | `scripts/demo.gd` | The demo: builds the scene, the HUD, and the command-line options for checking it |
-| `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions), rocks and plants, colliders, walls |
+| `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions, and their stumps for when they're cut), rocks and plants, colliders, walls |
 | `scripts/ground_detail.gd` | Bakes the ground's details into tiling textures at startup, for the Baked level |
 | `scripts/tree_impostors.gd`, `scripts/tree_shadow_pictures.gd` | Picture the new trees at startup: from the side, for the far trees, and their leaves from the sun, for their shadows |
 | `scripts/hero.gd`, `scripts/camera_rig.gd` | The hero and the camera |

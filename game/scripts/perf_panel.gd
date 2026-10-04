@@ -106,8 +106,15 @@ func setup(d: Node) -> void:
 		func(v: float) -> void: w.set_trees("impostors_from", v))
 	_choice(col, "fade", "Fade trees near camera", [["On", true], ["Off", false]], w.fade_near_camera,
 		func(v: bool) -> void: w.set_trees("fade_near_camera", v))
-	_choice(col, "sight", "Trees in the way", [["Hide", true], ["Keep", false]], w.hide_in_sight,
-		func(v: bool) -> void: w.set_trees("hide_in_sight", v))
+	_choice(col, "sight", "Trees in the way", [["Lower middle", "area"], ["Line to hero", "line"], ["Keep", "off"]], w.cut_trees,
+		func(v: String) -> void: w.set_trees("cut_trees", v))
+	_choice(col, "stumps", "  leave", [["Stumps", true], ["Nothing", false]], w.stumps, func(v: bool) -> void: w.set_trees("stumps", v))
+	_choice(col, "cut_by", "  a tree goes by", [["Its trunk", "trunk"], ["Any part", "any"]], w.cut_by,
+		func(v: String) -> void: w.set_trees("cut_by", v))
+	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
+	_slider(col, "cut_width", "  area width", 0.2, 1.0, 0.02, w.cut_half_width * 2.0, percent, func(v: float) -> void: w.cut_half_width = v * 0.5)
+	_slider(col, "cut_top", "  area from the top", 0.0, 0.5, 0.02, w.cut_top, percent, func(v: float) -> void: w.cut_top = v)
+	_slider(col, "cut_behind", "  up to, past the hero", 0.0, 20.0, 1.0, w.cut_behind, "%d m", func(v: float) -> void: w.cut_behind = v)
 	_slider(col, "sight_clear", "  clear round the hero", 0.0, 8.0, 0.5, w.sight_clear, "%.1f m", func(v: float) -> void: w.sight_clear = v)
 	_rule(col)
 	_choice(col, "scale", "Render scale", [["100%", 1.0], ["75%", 0.75], ["50%", 0.5]], snappedf(vp.scaling_3d_scale, 0.05),
@@ -232,7 +239,7 @@ func _walk_done(r: Dictionary) -> void:
 	if r.is_empty():
 		return
 	var settings := []
-	for k in ["trees", "trimmed", "fewer", "tree_shadows", "shadow_reach", "impostors", "scale", "shadows", "shadow_size", "details", "ssao", "vsync", "fps"]:
+	for k in ["trees", "trimmed", "fewer", "tree_shadows", "shadow_reach", "impostors", "sight", "scale", "shadows", "shadow_size", "details", "ssao", "vsync", "fps"]:
 		settings.append(_choices[k])
 	_runs.push_front("%d · avg %d, 5%% low %d, 1%% low %d fps%s\n    %s" % [_runs.size() + 1, roundi(r["fps"]), roundi(r["low5"]),
 		roundi(r["low1"]), "" if r["completed"] else " (stopped early)", ", ".join(settings)])

@@ -2819,6 +2819,95 @@
     "With shadows only from the trees within 40 m, low over the meadow a big tree's shadow went, so it's 60 m"
    ],
    "cover": "renders/play_demo_speed/before_and_now.jpg"
+  },
+  {
+   "id": "play-demo-stumps",
+   "date": "2026-10-04",
+   "asked_at": "21:32",
+   "posted_at": "21:58",
+   "title": "Trees cut to stumps",
+   "section": "Play demo: trees cut to stumps",
+   "asked": "I love the performance improvement. I think we can improve how the trees go when they block the player's view. Compared to Path of Exile 2, which fixes this too, it seems they first have a version of every tree where you only see the bottom part of the trunk, so when a tree disappears you only see it as a tree stump. It also looks like the trees disappear (appear as a tree stump) whenever a tree is anywhere within the centre bottom part of the screen, because that's really only when a tree will block the player's view. I drew a picture, camera_disappearing_tree.png, to show the area: the outer rectangle is the screen; when any tree is inside the smaller square, it disappears (turns into a stump)",
+   "changed": [
+    "As in Path of Exile 2, a tree whose trunk crosses the lower middle of the screen is cut to its stump: the area in the drawing, the middle 52% of the screen's width from 30% down to the bottom, and on below it, so trees coming into view from below are stumps already",
+    "Every tree model, old and new, has a stump: its own trunk, cut at about knee height with the cut a little tilted, capped with pale wood ringed with sapwood, built in Blender with the other models (tools/build_demo.py, stage \"stumps\")",
+    "A tree fades out over its stump and back as before, and its shadow stays. Any other tree in the way of the hero still goes too",
+    "Trees beyond the hero go only up to 6 m past it, so a low camera, which sees far past the hero, doesn't clear a lane to the horizon",
+    "In F2: the lower middle, the line to the hero (as before) or keep; stumps or nothing; by the trunk or by any part; and sliders for the area's width, its top and how far past the hero",
+    "The start runs 2 ms faster, as more trees are cut; low over the forest up to 1 ms slower, as more of the forest behind shows. The self-test checks both ways of cutting trees, with both tree sets"
+   ],
+   "items": [
+    {
+     "id": "s-stumps",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: trees cut to stumps",
+     "author": "claude"
+    },
+    {
+     "id": "st-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Trees cut to stumps\nYou asked for the trees that block the view to go the way Path of Exile 2 does it: cut down to stumps, whenever they're in the lower middle of the screen, the area in your drawing.\n\nNow:\n- A tree goes once its trunk crosses that area: the middle 52% of the screen's width, from 30% down to the bottom, and on below it, so trees coming into view from below are stumps already\n- What's left is its stump: its own trunk, cut at about knee height, the cut a little tilted, pale wood ringed with sapwood. Its shadow stays\n- Any other tree in the way of the hero still goes too\n- Beyond the hero, trees go only up to 6 m past it, so a low camera doesn't clear a lane to the horizon",
+     "author": "claude"
+    },
+    {
+     "id": "st-before-now",
+     "type": "image",
+     "status": "new",
+     "caption": "Before (left): only the trees in the way of the hero went, whole. Now (right): every tree whose trunk crosses the lower middle of the screen (outlined) is cut to its stump. At the start, in the thicket, in the dense forest, and with the camera low.",
+     "assetId": "4f3e1fa142fa73103d8e63804faac803",
+     "file": "renders/play_demo_stumps/before_and_now.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "st-drawing",
+     "type": "image",
+     "status": "new",
+     "caption": "Your drawing: the screen, and the area where trees are cut to stumps.",
+     "assetId": "f26aa34e62589fdd6aadf56793181e39",
+     "file": "renders/reference_copies/camera_disappearing_tree.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "st-tune",
+     "type": "note",
+     "status": "new",
+     "text": "# Worth a look\n- **The stumps:** 0.5–0.8 m tall (lower on saplings), cut a little tilted. They could be lower or higher, cut flat, or broken off\n- **By its trunk or any part:** by its trunk, the crowns of trees beside the area still reach into it; by any part, the area is clear of leaves, but more trees go\n- **The area's top:** at 30% down, the default camera cuts trees up to about 4 m past the hero",
+     "author": "claude"
+    },
+    {
+     "id": "st-switches",
+     "type": "note",
+     "status": "new",
+     "text": "# To try in F2\nUnder **Trees in the way**:\n- **Lower middle** (now), **Line to hero** (before: only the trees in the way of the hero, gone whole) or **Keep**\n- **Leave:** stumps, or nothing\n- **A tree goes by:** its trunk, or any part of it, which also cuts the trees whose crowns reach into the area from the sides\n- Sliders for the area's width, how far from the top it starts, and how far past the hero trees go\n\nAt the start it runs 2 ms faster than before, as more trees are cut; low over the forest, up to 1 ms slower, as more of the forest behind shows.",
+     "author": "claude"
+    },
+    {
+     "id": "st-stumps",
+     "type": "image",
+     "status": "new",
+     "caption": "Stumps round the hero, close up, and the old trees' stumps.",
+     "assetId": "4049b47b2834177167f5c5a1f17b462d",
+     "file": "renders/play_demo_stumps/stumps.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "st-trunk-any",
+     "type": "image",
+     "status": "new",
+     "caption": "In the thicket: a tree goes once its trunk crosses the area (left, the default), or once any part of it does (right), which also cuts the spruce reaching in from the left.",
+     "assetId": "2d0c71c8be5e5a5ec01ea23170ac7e77",
+     "file": "renders/play_demo_stumps/trunk_or_any.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "With the default camera, the area's top edge at 30% down meets the ground about 4 m past the hero; with the camera low it would reach about 30 m past, hence the 6 m limit",
+    "The spruces' lowest needle sprays hang lower than their trunks, so the stump builder looks for the trunk among the bark only"
+   ],
+   "cover": "renders/play_demo_stumps/before_and_now.jpg"
   }
  ]
 }

@@ -1,6 +1,6 @@
 extends SceneTree
-## Dev: checks the hiding of trees in the way (DemoWorld.update_sight) by their pixels, at random spots in the forest
-## and camera angles from low to high, then quits. At each spot, with the camera held still and no shadows or ambient
+## Dev: checks the hiding of trees in the way of the hero (DemoWorld.update_sight, with cut_trees "line" and no
+## stumps) by their pixels, at random spots in the forest and camera angles from low to high, then quits. At each spot, with the camera held still and no shadows or ambient
 ## occlusion (so removing a tree changes only its own pixels):
 ##   covered  how much of the hero the trees still cover as the game draws it; should be none
 ##   hidden   each tree the game hides, with how much of the hero it would cover on its own; for one that would
@@ -76,6 +76,8 @@ func _run() -> void:
 	hero = demo.hero
 	var rig: CameraRig = demo.rig
 	var spots := 24
+	world.set_trees("stumps", false)
+	world.set_trees("cut_trees", "line")
 	for a in OS.get_cmdline_user_args():
 		if a == "--trimmed":
 			world.set_trees("trimmed", true)
@@ -113,7 +115,7 @@ func _run() -> void:
 		rig._place()
 		var cam := rig.camera
 		world._unskip()
-		world.update_sight(cam.global_position, hero.global_position, 10.0)
+		world.update_sight(cam, hero.global_position, 10.0)
 		var r := Rect2(cam.unproject_position(hero.global_position), Vector2.ZERO)
 		for c in 8:
 			r = r.expand(cam.unproject_position(hero.global_position
@@ -129,7 +131,7 @@ func _run() -> void:
 		for i in trees.size():
 			if world._tree_xz[i].distance_to(p) < 45.0:
 				nearby.append(i)
-		world.set_trees("hide_in_sight", false)
+		world.set_trees("cut_trees", "off")
 		for i in nearby:
 			_show(i, false)
 		var clear := await _picture()
@@ -157,7 +159,7 @@ func _run() -> void:
 				line += " (%.2f m off)" % gap
 		for i in nearby:
 			_show(i, true)
-		world.set_trees("hide_in_sight", true)
+		world.set_trees("cut_trees", "line")
 		worst = maxf(worst, covered)
 		print("spot %2d  pitch %2d, %2d m: trees cover %4.1f%% of the hero; hidden %2d:%s" % [n, roundi(rig.pitch),
 			roundi(rig.distance), covered, hidden.size(), line])

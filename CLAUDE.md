@@ -37,8 +37,9 @@ General knowledge, public documentation, and third-party libraries and engines a
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
-  (not yet confirmed by the user). A tree disappears whole, shadow kept, only once some part of it is between the
-  camera and the hero, not before, even when it's near the hero or the camera (the user's choice; no round hole).
+  (not yet confirmed by the user). As in Path of Exile 2, the trees in the lower middle of the screen are cut down to
+  stumps, shadows kept (the user's choice): the area in `ref_imgs/camera_disappearing_tree.png`, the middle 52% of
+  the screen's width from 30% down to the bottom. Any other tree in the way of the hero goes too; no round hole.
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
   hard edges and cut corners instead of rounded ones, fine texture instead of soft gradients, slim orb rims.

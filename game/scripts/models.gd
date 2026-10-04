@@ -2,10 +2,11 @@ class_name Models
 extends RefCounted
 ## The demo's models: the meshes in the .glb files that tools/build_demo.py exports, with the game's materials.
 ##
-## kit.json and trees.json list every model with its file, size and footprint. A portfolio tree's surfaces are named
-## after its Blender materials (Bark, Leaves <tree>, Berries Rowan); the kit's are LowPoly and RuneDay.
+## kit.json, trees.json and stumps.json list every model with its file, size and footprint. A portfolio tree's
+## surfaces are named after its Blender materials (Bark, Leaves <tree>, Berries Rowan); the kit's are LowPoly and
+## RuneDay. Every tree, old and new, has a stump, <model>_stump, shown in its place while it's in the way.
 
-const INFO_FILES := ["res://assets/kit/kit.json", "res://assets/trees/trees.json"]
+const INFO_FILES := ["res://assets/kit/kit.json", "res://assets/trees/trees.json", "res://assets/trees/stumps.json"]
 
 static var info := {}
 static var _meshes := {}  # model -> mesh with the game's materials

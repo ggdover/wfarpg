@@ -1,0 +1,560 @@
+{
+ "Alder_A_stump": {
+  "cut": 0.624,
+  "faces": 13,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.253,
+  "height": 0.667,
+  "max": [
+   0.126,
+   0.667,
+   0.327
+  ],
+  "min": [
+   -0.379,
+   -0.307,
+   -0.172
+  ],
+  "tree": "Alder_A"
+ },
+ "Alder_B_stump": {
+  "cut": 0.626,
+  "faces": 13,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.251,
+  "height": 0.648,
+  "max": [
+   0.388,
+   0.648,
+   0.105
+  ],
+  "min": [
+   -0.114,
+   -0.306,
+   -0.396
+  ],
+  "tree": "Alder_B"
+ },
+ "Aspen_A_stump": {
+  "cut": 0.658,
+  "faces": 13,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.333,
+  "height": 0.699,
+  "max": [
+   0.307,
+   0.699,
+   0.333
+  ],
+  "min": [
+   -0.307,
+   -0.302,
+   -0.333
+  ],
+  "tree": "Aspen_A"
+ },
+ "Aspen_B_stump": {
+  "cut": 0.656,
+  "faces": 13,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.325,
+  "height": 0.694,
+  "max": [
+   0.322,
+   0.694,
+   0.325
+  ],
+  "min": [
+   -0.322,
+   -0.301,
+   -0.325
+  ],
+  "tree": "Aspen_B"
+ },
+ "Birch0_stump": {
+  "cut": 0.528,
+  "faces": 14,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.195,
+  "height": 0.57,
+  "max": [
+   0.209,
+   0.57,
+   0.176
+  ],
+  "min": [
+   -0.181,
+   -0.208,
+   -0.176
+  ],
+  "tree": "Birch0"
+ },
+ "Birch1_stump": {
+  "cut": 0.534,
+  "faces": 14,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.2,
+  "height": 0.575,
+  "max": [
+   0.171,
+   0.575,
+   0.183
+  ],
+  "min": [
+   -0.171,
+   -0.209,
+   -0.217
+  ],
+  "tree": "Birch1"
+ },
+ "Birch2_stump": {
+  "cut": 0.521,
+  "faces": 14,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.192,
+  "height": 0.546,
+  "max": [
+   0.182,
+   0.546,
+   0.173
+  ],
+  "min": [
+   -0.201,
+   -0.21,
+   -0.197
+  ],
+  "tree": "Birch2"
+ },
+ "Birch3_stump": {
+  "cut": 0.572,
+  "faces": 14,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.188,
+  "height": 0.61,
+  "max": [
+   0.191,
+   0.61,
+   0.162
+  ],
+  "min": [
+   -0.185,
+   -0.207,
+   -0.182
+  ],
+  "tree": "Birch3"
+ },
+ "NorwaySpruce_A_stump": {
+  "cut": 0.722,
+  "faces": 15,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.403,
+  "height": 0.795,
+  "max": [
+   0.411,
+   0.795,
+   0.387
+  ],
+  "min": [
+   -0.396,
+   -0.301,
+   -0.414
+  ],
+  "tree": "NorwaySpruce_A"
+ },
+ "NorwaySpruce_B_stump": {
+  "cut": 0.688,
+  "faces": 15,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.405,
+  "height": 0.74,
+  "max": [
+   0.403,
+   0.74,
+   0.376
+  ],
+  "min": [
+   -0.406,
+   -0.301,
+   -0.415
+  ],
+  "tree": "NorwaySpruce_B"
+ },
+ "Pine0_stump": {
+  "cut": 0.689,
+  "faces": 15,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.345,
+  "height": 0.758,
+  "max": [
+   0.33,
+   0.758,
+   0.34
+  ],
+  "min": [
+   -0.354,
+   -0.4,
+   -0.351
+  ],
+  "tree": "Pine0"
+ },
+ "Pine1_stump": {
+  "cut": 0.659,
+  "faces": 23,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.346,
+  "height": 0.692,
+  "max": [
+   0.324,
+   0.692,
+   0.348
+  ],
+  "min": [
+   -0.355,
+   -0.4,
+   -0.344
+  ],
+  "tree": "Pine1"
+ },
+ "Pine2_stump": {
+  "cut": 0.656,
+  "faces": 15,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.345,
+  "height": 0.696,
+  "max": [
+   0.352,
+   0.696,
+   0.332
+  ],
+  "min": [
+   -0.338,
+   -0.4,
+   -0.354
+  ],
+  "tree": "Pine2"
+ },
+ "Pine3_stump": {
+  "cut": 0.713,
+  "faces": 23,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.344,
+  "height": 0.779,
+  "max": [
+   0.335,
+   0.779,
+   0.353
+  ],
+  "min": [
+   -0.353,
+   -0.4,
+   -0.336
+  ],
+  "tree": "Pine3"
+ },
+ "Pine4_stump": {
+  "cut": 0.674,
+  "faces": 21,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.346,
+  "height": 0.716,
+  "max": [
+   0.324,
+   0.716,
+   0.348
+  ],
+  "min": [
+   -0.355,
+   -0.4,
+   -0.343
+  ],
+  "tree": "Pine4"
+ },
+ "Pine5_stump": {
+  "cut": 0.632,
+  "faces": 15,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.345,
+  "height": 0.679,
+  "max": [
+   0.35,
+   0.679,
+   0.354
+  ],
+  "min": [
+   -0.34,
+   -0.4,
+   -0.329
+  ],
+  "tree": "Pine5"
+ },
+ "Rowan_A_stump": {
+  "cut": 0.589,
+  "faces": 19,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.232,
+  "height": 0.611,
+  "max": [
+   0.208,
+   0.611,
+   0.231
+  ],
+  "min": [
+   -0.21,
+   -0.307,
+   -0.234
+  ],
+  "tree": "Rowan_A"
+ },
+ "Rowan_B_stump": {
+  "cut": 0.574,
+  "faces": 19,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.234,
+  "height": 0.601,
+  "max": [
+   0.234,
+   0.601,
+   0.213
+  ],
+  "min": [
+   -0.234,
+   -0.305,
+   -0.213
+  ],
+  "tree": "Rowan_B"
+ },
+ "ScotsPine_A_stump": {
+  "cut": 0.805,
+  "faces": 22,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.52,
+  "height": 0.887,
+  "max": [
+   0.501,
+   0.887,
+   0.509
+  ],
+  "min": [
+   -0.533,
+   -0.308,
+   -0.53
+  ],
+  "tree": "ScotsPine_A"
+ },
+ "ScotsPine_B_stump": {
+  "cut": 0.769,
+  "faces": 22,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.521,
+  "height": 0.818,
+  "max": [
+   0.519,
+   0.818,
+   0.487
+  ],
+  "min": [
+   -0.524,
+   -0.315,
+   -0.535
+  ],
+  "tree": "ScotsPine_B"
+ },
+ "SilverBirch_A_stump": {
+  "cut": 0.593,
+  "faces": 19,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.297,
+  "height": 0.625,
+  "max": [
+   0.297,
+   0.625,
+   0.292
+  ],
+  "min": [
+   -0.297,
+   -0.305,
+   -0.292
+  ],
+  "tree": "SilverBirch_A"
+ },
+ "SilverBirch_B_stump": {
+  "cut": 0.635,
+  "faces": 19,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.304,
+  "height": 0.658,
+  "max": [
+   0.304,
+   0.658,
+   0.275
+  ],
+  "min": [
+   -0.304,
+   -0.307,
+   -0.275
+  ],
+  "tree": "SilverBirch_B"
+ },
+ "TallSpruce0_stump": {
+  "cut": 0.571,
+  "faces": 14,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.275,
+  "height": 0.626,
+  "max": [
+   0.238,
+   0.626,
+   0.275
+  ],
+  "min": [
+   -0.238,
+   -0.3,
+   -0.275
+  ],
+  "tree": "TallSpruce0"
+ },
+ "TallSpruce1_stump": {
+  "cut": 0.607,
+  "faces": 14,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.275,
+  "height": 0.643,
+  "max": [
+   0.238,
+   0.643,
+   0.275
+  ],
+  "min": [
+   -0.238,
+   -0.3,
+   -0.275
+  ],
+  "tree": "TallSpruce1"
+ },
+ "TallSpruce2_stump": {
+  "cut": 0.638,
+  "faces": 14,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.275,
+  "height": 0.679,
+  "max": [
+   0.238,
+   0.679,
+   0.275
+  ],
+  "min": [
+   -0.238,
+   -0.3,
+   -0.275
+  ],
+  "tree": "TallSpruce2"
+ },
+ "TallSpruce3_stump": {
+  "cut": 0.579,
+  "faces": 14,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.275,
+  "height": 0.603,
+  "max": [
+   0.238,
+   0.603,
+   0.275
+  ],
+  "min": [
+   -0.238,
+   -0.3,
+   -0.275
+  ],
+  "tree": "TallSpruce3"
+ },
+ "TallSpruce4_stump": {
+  "cut": 0.561,
+  "faces": 14,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.275,
+  "height": 0.601,
+  "max": [
+   0.238,
+   0.601,
+   0.275
+  ],
+  "min": [
+   -0.238,
+   -0.3,
+   -0.275
+  ],
+  "tree": "TallSpruce4"
+ },
+ "YoungSpruce0_stump": {
+  "cut": 0.189,
+  "faces": 12,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.062,
+  "height": 0.198,
+  "max": [
+   0.062,
+   0.198,
+   0.065
+  ],
+  "min": [
+   -0.062,
+   -0.1,
+   -0.053
+  ],
+  "tree": "YoungSpruce0"
+ },
+ "YoungSpruce1_stump": {
+  "cut": 0.307,
+  "faces": 12,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.062,
+  "height": 0.314,
+  "max": [
+   0.062,
+   0.314,
+   0.065
+  ],
+  "min": [
+   -0.062,
+   -0.1,
+   -0.053
+  ],
+  "tree": "YoungSpruce1"
+ },
+ "YoungSpruce2_stump": {
+  "cut": 0.19,
+  "faces": 12,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.062,
+  "height": 0.198,
+  "max": [
+   0.062,
+   0.198,
+   0.065
+  ],
+  "min": [
+   -0.062,
+   -0.1,
+   -0.053
+  ],
+  "tree": "YoungSpruce2"
+ },
+ "YoungSpruce3_stump": {
+  "cut": 0.414,
+  "faces": 12,
+  "file": "res://assets/trees/stumps.glb",
+  "foot": 0.062,
+  "height": 0.421,
+  "max": [
+   0.062,
+   0.421,
+   0.065
+  ],
+  "min": [
+   -0.062,
+   -0.1,
+   -0.053
+  ],
+  "tree": "YoungSpruce3"
+ }
+}

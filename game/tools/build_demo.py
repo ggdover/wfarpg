@@ -1,15 +1,16 @@
 """Builds the play demo's assets for the Godot project in game/. Run from this folder with Blender 5.2:
 
-    blender -b --factory-startup -P build_demo.py -- [models] [layout] [ground]
+    blender -b --factory-startup -P build_demo.py -- [models] [stumps] [layout] [ground]
 
 models  the mockups' low-poly kit (the old trees, rocks, plants and props) and the tree portfolio's trees, built from
         assets/trees/tree_settings.json with two lighter versions each, as .glb files in assets/kit and assets/trees,
         with the leaf cards they use and ambient occlusion baked into them
+stumps  every tree's stump, which the game shows in place of a tree in the way, in assets/trees/stumps.glb
 layout  where every tree, rock and plant stands, in data/demo_layout.json
 ground  the terrain's heights, the mockups' ground shader baked into textures, and the trees' shade on the ground
         (from the layout), in assets/ground
 
-With no stage named, all three run, in that order. The area itself is described in demo_area.py.
+With no stage named, all four run, in that order. The area itself is described in demo_area.py.
 """
 import json
 import math
@@ -463,6 +464,100 @@ def copy_card(name, cfg, tex_dir):
     img.filepath_raw = dst
     img.file_format = "PNG"
     img.save()
+
+
+# ------------------------------------------------------------------ stumps
+STUMP_WOOD = "#C9A676"  # the cut: pale, a little weathered wood
+STUMP_RING = "#94704C"  # round it, the sapwood under the bark
+STUMP_PROUD = 0.015  # how far a stump's sides stand out from its tree's trunk (m)
+
+
+def hex_linear(h):
+    h = h.lstrip("#")
+    c = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+    return tuple(v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in c) + (1.0,)
+
+
+def stump_mesh(src, name, seed):
+    """A tree cut down to its stump, which the game shows in place of a tree that's in the way: the tree's own trunk,
+    cut at about knee height (higher for a thick trunk; on a sapling, low on its short trunk), the cut tilted a little
+    and capped with pale wood in a ring of sapwood. The trunk is the part of the bark that reaches lowest, as each
+    part (trunk, branch, leaf clump) is its own piece of mesh. Its sides stand STUMP_PROUD out from the tree's trunk,
+    so that the two don't fight while the tree fades out round it. Returns (mesh, cut height, trunk radius)."""
+    import bmesh
+    from mathutils import Vector
+    rng = random.Random(seed)
+    bm = bmesh.new()
+    bm.from_mesh(src)
+    low = min((v for f in bm.faces if f.material_index == 0 for v in f.verts), key=lambda v: v.co.z)
+    trunk, stack, seen = set(), [low], {low}
+    while stack:
+        for f in stack.pop().link_faces:
+            if f not in trunk:
+                trunk.add(f)
+                for w in f.verts:
+                    if w not in seen:
+                        seen.add(w)
+                        stack.append(w)
+    bmesh.ops.delete(bm, geom=[f for f in bm.faces if f not in trunk], context="FACES")
+    top = max(v.co.z for v in bm.verts)
+    near = [v.co.copy() for v in bm.verts if v.co.z <= 0.5] or [v.co.copy() for v in bm.verts]
+    cx = sum(c.x for c in near) / len(near)
+    cy = sum(c.y for c in near) / len(near)
+    radius = max(math.hypot(c.x - cx, c.y - cy) for c in near)
+    cut = min(0.4 + 0.8 * radius + rng.uniform(-0.05, 0.05), 0.6 * top)
+    tilt, turn = math.radians(rng.uniform(6.0, 14.0)), rng.uniform(0.0, math.tau)
+    normal = Vector((math.sin(tilt) * math.cos(turn), math.sin(tilt) * math.sin(turn), math.cos(tilt)))
+    res = bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], plane_co=Vector((cx, cy, cut)),
+                                 plane_no=normal, clear_outer=True)
+    edges = [e for e in res["geom_cut"] if isinstance(e, bmesh.types.BMEdge)]
+    cap = bmesh.ops.contextual_create(bm, geom=edges)["faces"]
+    for f in cap:
+        if f.normal.dot(normal) < 0:
+            f.normal_flip()
+    ring = bmesh.ops.inset_region(bm, faces=cap, thickness=0.22 * radius, depth=0.0, use_even_offset=True)["faces"]
+    col = bm.loops.layers.float_color.get("Col")
+    for faces, colour in ((cap, STUMP_WOOD), (ring, STUMP_RING)):
+        for f in faces:
+            for loop in f.loops:
+                loop[col] = hex_linear(colour)
+    grow = 1.0 + STUMP_PROUD / max(radius, 0.02)
+    for v in bm.verts:
+        v.co.x = cx + (v.co.x - cx) * grow
+        v.co.y = cy + (v.co.y - cy) * grow
+    for f in bm.faces:
+        f.smooth = False
+        f.material_index = 0
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    if me.has_custom_normals:
+        me.normals_split_custom_set([(0.0, 0.0, 0.0)] * len(me.loops))  # the faces' own, flat normals
+    bark = src.materials[0]
+    me.materials.clear()
+    me.materials.append(bark)
+    return me, cut, radius
+
+
+def build_stumps():
+    """A stump for every tree model, old and new (stump_mesh), in assets/trees/stumps.glb, listed in stumps.json."""
+    kit = load_kit()
+    meshes = {name: make() for items in kit_groups(kit).values() for name, make in items
+              if name.startswith(("Pine", "TallSpruce", "Birch", "YoungSpruce"))}
+    meshes.update(tree_meshes())
+    objs, ao, info = [], {}, {}
+    for i, (model, src) in enumerate(sorted(meshes.items())):
+        name = model + "_stump"
+        me, cut, radius = stump_mesh(src, name, 1000 + i)
+        ob = bpy.data.objects.new(name, me)
+        bpy.context.scene.collection.objects.link(ob)
+        objs.append(ob)
+        ao[name] = bake_ao(me)
+        info[name] = dict(mesh_info(me, bark_slot=None), file="res://assets/trees/stumps.glb", tree=model, cut=round(cut, 3))
+        print(name, "cut at %.2f m, trunk %.2f m across, %d faces" % (cut, 2 * radius, len(me.polygons)))
+    export_glb(objs, os.path.join(TREE_DIR, "stumps.glb"), ao)
+    with open(os.path.join(TREE_DIR, "stumps.json"), "w") as fh:
+        json.dump(info, fh, indent=1, sort_keys=True)
 
 
 # ------------------------------------------------------------------ layout
@@ -956,6 +1051,6 @@ def build_ground():
 # ------------------------------------------------------------------ main
 if __name__ == "__main__":
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-    stages = argv or ["models", "layout", "ground"]
+    stages = argv or ["models", "stumps", "layout", "ground"]
     for stage in stages:
-        {"models": build_models, "layout": build_layout, "ground": build_ground, "masks": build_masks}[stage]()
+        {"models": build_models, "stumps": build_stumps, "layout": build_layout, "ground": build_ground, "masks": build_masks}[stage]()

@@ -88,20 +88,40 @@ func run(d: Node) -> void:
 	demo.get_tree().quit(1 if failed.size() else 0)
 
 
-## A tree 5 m ahead of the hero, with the camera behind the hero, stays; with the camera low behind the tree, it's in
-## the way and fades out, and it comes back once it isn't in the way.
+## Trees that block the view. In the lower middle of the screen (the default): a tree between the camera and the hero
+## goes, leaving its stump, and comes back once the hero has walked well past it; a tree well beyond the hero stays.
+## Only those in the way of the hero ("line"): a tree 5 m ahead of the hero stays; with the camera low behind the
+## tree, it's in the way and fades out, and it comes back once it isn't.
 func _sight_checks() -> void:
 	var hero: Hero = demo.hero
 	var rig: CameraRig = demo.rig
 	var w: DemoWorld = demo.world
 	var tree := w.nearest_tree(hero.global_position, 15.0)
+	var record: Dictionary = w._tree_sets[w._current][tree]
 	var away := (Vector2(hero.global_position.x, hero.global_position.z) - w._tree_xz[tree]).normalized()
-	var spot := w._tree_xz[tree] + away * 5.0
-	hero.global_position = Vector3(spot.x, w.height_at(spot.x, spot.y) + 0.05, spot.y)
-	hero.reset_physics_interpolation()
-	rig.yaw = rad_to_deg(atan2(-away.y, away.x))  # the camera beyond the hero, looking towards the tree
+	var yaw_beyond := rad_to_deg(atan2(-away.y, away.x))  # the camera beyond the hero, looking towards the tree
+	# the lower middle of the screen
+	_place_hero(w._tree_xz[tree] + away * 4.0)
+	rig.yaw = fposmod(yaw_beyond + 180.0, 360.0)  # beyond the tree: it stands between the camera and the hero
 	rig.pitch = 55.0
 	rig.distance = 20.0
+	await _seconds(0.6)
+	var cut := w.sight_fade(tree)
+	var stump := (record["stump"] as RID).is_valid()
+	_place_hero(w._tree_xz[tree] - away * 14.0)  # well past the tree, which is now far below the hero on the screen
+	await _seconds(1.5)
+	var back := w.sight_fade(tree)
+	_place_hero(w._tree_xz[tree] + away * 12.0)
+	rig.yaw = yaw_beyond
+	await _seconds(0.6)
+	var beyond := w.sight_fade(tree)
+	_check("%s trees: a tree in the lower middle of the screen goes, to its stump, and comes back" % Game.tree_set,
+		cut >= 1.0 and stump and back == 0.0, "faded %.2f, %s, then %.2f" % [cut, "stump" if stump else "no stump", back])
+	_check("%s trees: a tree well beyond the hero stays" % Game.tree_set, beyond == 0.0, "faded %.2f" % beyond)
+	# only the trees in the way of the hero
+	w.set_trees("cut_trees", "line")
+	_place_hero(w._tree_xz[tree] + away * 5.0)
+	rig.yaw = yaw_beyond
 	await _seconds(0.6)
 	var ahead := w.sight_fade(tree)
 	rig.yaw = fposmod(rig.yaw + 180.0, 360.0)  # beyond the tree, looking at the hero through it
@@ -111,10 +131,18 @@ func _sight_checks() -> void:
 	var gone := w.sight_fade(tree)
 	rig.yaw = fposmod(rig.yaw + 180.0, 360.0)
 	await _seconds(1.5)
-	_check("%s trees: a tree ahead of the hero stays" % Game.tree_set, ahead == 0.0, "faded %.2f" % ahead)
-	_check("%s trees: trees in the way fade out, and back" % Game.tree_set, gone >= 1.0 and w.sight_fade(tree) == 0.0, "faded %.2f, then %.2f" % [gone, w.sight_fade(tree)])
+	_check("%s trees, only those in the way: a tree ahead of the hero stays" % Game.tree_set, ahead == 0.0, "faded %.2f" % ahead)
+	_check("%s trees, only those in the way: they fade out, and back" % Game.tree_set, gone >= 1.0 and w.sight_fade(tree) == 0.0,
+		"faded %.2f, then %.2f" % [gone, w.sight_fade(tree)])
+	w.set_trees("cut_trees", "area")
 	rig.pitch = 55.0
 	rig.distance = 20.0
+
+
+func _place_hero(spot: Vector2) -> void:
+	var w: DemoWorld = demo.world
+	demo.hero.global_position = Vector3(spot.x, w.height_at(spot.x, spot.y) + 0.05, spot.y)
+	demo.hero.reset_physics_interpolation()
 
 
 func _check(what: String, ok: bool, detail: String) -> void:
