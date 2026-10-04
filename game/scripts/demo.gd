@@ -7,6 +7,7 @@ extends Node3D
 ##   --trees=old|new  which trees            --pose=x,z,yaw,pitch,distance[,facing]  where the hero and camera are
 ##   --shot=out.png   take a screenshot and quit (after --wait=frames, default 90)    --nohud  without the HUD
 ##   --fps=seconds    measure the frame rate first and print it                       --selftest  try the controls
+##   --walktest=s     walk the trail and print the frame times                       --treelod=1|2  lighter trees
 ##   for measuring what costs what: --noshadow, --nofade, --flatground, --canopy=0..1, --bump=0..1,
 ##   --sun:property=value, --env:property=value, --vp:property=value
 
@@ -48,6 +49,11 @@ func _ready() -> void:
 	_build_hud()
 	_read_args()
 	rig.snap()
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--walktest="):
+			var walk: Node = load("res://scripts/dev/walktest.gd").new()
+			add_child(walk)
+			walk.run(self, float(a.substr(11)))
 	if "--selftest" in OS.get_cmdline_user_args():
 		var test: Node = load("res://scripts/dev/selftest.gd").new()
 		add_child(test)

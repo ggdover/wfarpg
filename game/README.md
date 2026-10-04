@@ -125,6 +125,6 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
 | `shaders/` | Ground, leaves, the low-poly material, sky, Blender's noise |
-| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it) and `lineup.gd` (models in rows, for comparing with Blender) |
+| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest=40` walks the trail and prints the frame times; add `--disable-vsync` before the scene path, and `--treelod=1` or `2` to try the lighter trees) and `lineup.gd` (models in rows, for comparing with Blender) |
 | `tools/` | The Blender build scripts (Godot ignores this folder) |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

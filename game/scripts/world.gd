@@ -35,9 +35,14 @@ var _ground_material: ShaderMaterial
 var shadow_lod := true
 ## small plants and pebbles cast no shadows
 var plant_shadows := false
+## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
+var tree_lod := 0
 
 
 func build(tree_set: String) -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--treelod="):
+			tree_lod = int(a.substr(10))
 	layout = JSON.parse_string(FileAccess.get_file_as_string(LAYOUT))
 	ground = JSON.parse_string(FileAccess.get_file_as_string(GROUND))
 	_build_terrain()
@@ -219,6 +224,8 @@ func _build_trees(which: String) -> Array:
 		var lods := [model]
 		if Models.has(model + "_1"):  # a portfolio tree; young spruces are small enough for the lighter ones
 			lods = [model + "_1", model + "_2"] if t["kind"] == "YoungSpruce" else [model, model + "_1", model + "_2"]
+			if tree_lod > 0:
+				lods = [model + "_%d" % tree_lod]
 		var ranges := [0.0] + (LOD_RANGES.slice(1) if lods.size() == 2 else LOD_RANGES) + [0.0]
 		if first_set:
 			var cell := Vector2i(floori(p[0] / CELL), floori(p[2] / CELL))
