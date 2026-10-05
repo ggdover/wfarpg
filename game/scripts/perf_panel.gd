@@ -113,6 +113,8 @@ func setup(d: Node) -> void:
 	_slider(col, "veil_round", "  area round hero", 0.0, 2.0, 0.1, w.veil_round, "%.1f m", func(v: float) -> void: w.veil_round = v)
 	_slider(col, "veil_amount", "  see-through by", 0.0, 0.9, 0.05, w.veil_amount, percent, func(v: float) -> void: w.set_trees("veil_amount", v))
 	_choice(col, "show_area", "  show the area", [["On", true], ["Off", false]], w.show_area, func(v: bool) -> void: w.show_area = v)
+	_choice(col, "veil_lighter", "  see-through trees", [["Fewer cards", true], ["All cards", false]], w.veil_lighter,
+		func(v: bool) -> void: w.set_trees("veil_lighter", v))
 	_slider(col, "cone_soft", "  cone: soft share", 0.1, 1.0, 0.05, w.cone_soft, percent, func(v: float) -> void: w.cone_soft = v)
 	_choice(col, "cone_style", "  cone: fade in", [["Dither", "dither"], ["Patches", "patches"]], w.cone_style,
 		func(v: String) -> void: w.cone_style = v)

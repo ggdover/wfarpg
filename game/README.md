@@ -75,21 +75,26 @@ place (`tools/reference_shots.py`).
   evenly see-through, all but its stump (**See-through** in the panel; `update_sight`, `_cut_veil` and
   `_measure_area` in `scripts/world.gd`). No tree goes whole. Their shadows stay.
   - The area is the hero as the camera sees it, on a plane through its middle facing the camera (its width and height,
-    or from above its footprint), and 0.9 m round that, half the hero's height, its corners rounded. Lines from the
-    camera go to a grid of points across it (5 by 7, those inside its outline), and a point is covered if some tree's
-    shape as drawn, leaves, branches or trunk, is on its line. Once 30% of the points are covered, every tree that
-    covers any goes see-through over 0.15 s, and back as quickly once it no longer covers any (after a quarter of a
-    second) or the trees cover less than 80% of the 30% (after a tenth). It's measured 30 times a second.
+    or from above its footprint), and **area round hero** round that, its corners rounded: 0 m, the hero alone, as the
+    user set it. Lines from the camera go to a grid of points across it (5 by 7, those inside its outline), and a
+    point is covered if some tree's shape as drawn, leaves, branches or trunk, is on its line. Once 90% of the points
+    are covered (the user's setting), every tree that covers any goes see-through over 0.15 s, and back as quickly
+    once it no longer covers any (after a quarter of a second) or the trees cover less than 80% of the 90% (after a
+    tenth). It's measured 30 times a second.
   - See-through is the cone's dither (below) evenly over the whole tree: half its pixels let through what's behind it,
     however many layers of leaves there are, where blending at half opacity would stack up over the overlapping leaf
     cards and stay nearly solid; and as every see-through tree lets the same pixels through, two in a row are as
     see-through as one. The bark below where the tree's stump is cut stays solid (`sight_veil` and `veil_fade` in the
     shaders), so its stump stands.
-  - In the panel: **see-through at** (30%), **area round hero** (0.9 m), **see-through by** (50%; 0% for never), and
-    **show the area**, which draws it over the view with its points, red where a tree covers them, and how much of it
-    the trees cover (`scripts/sight_area.gd`).
-  - Walking the trail with the default camera, the trees covered none of the area two thirds of the time and 30% or
-    more a quarter of it; some were see-through a third of the time (with the camera low, 58%).
+  - A see-through tree is drawn near the camera with fewer leaf cards per clump (its `_f` version; **see-through
+    trees** in the panel, Fewer cards or All cards). Where it lets what's behind it through, each of its cards still
+    runs its shader before it's thrown away, layer on layer, and with nothing in front to stop them, every
+    see-through tree's do: deep in the forest with the camera low, 6 to 10 trees see-through cost 5 to 8 ms a frame,
+    more than drawing them solid or what's behind them. With half the cards they cost 0.5 to 3 ms, and look the same
+    at 50%, a touch more see-through.
+  - In the panel: **see-through at** (90%), **area round hero** (0 m), **see-through by** (50%; 0% for never), **show
+    the area**, which draws it over the view with its points, red where a tree covers them, and how much of it the
+    trees cover (`scripts/sight_area.gd`), and **see-through trees** (Fewer cards).
   - **The cone** (also on its own, **Cone** in the panel): whatever of a tree is inside a cone from the edges of the
     screen to the hero fades away, wholly in the cone's middle and gradually towards its edges
     (`ref_imgs/tree_disappear/camera_view.png`; `cone_fade` in `shaders/common.gdshaderinc`).
@@ -139,7 +144,7 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Trees in the way | How trees get out of the way (above): **See-through** (the default), with how much of the area round the hero the trees must cover (**see-through at**, 30%), how far round the hero the area reaches (**area round hero**, 0.9 m), how see-through they go (**see-through by**, 50%; 0% for never), and **show the area** on the screen; the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Trees in the way | How trees get out of the way (above): **See-through** (the default), with how much of the area round the hero the trees must cover (**see-through at**, 90%), how far round the hero the area reaches (**area round hero**, 0 m: the hero alone), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, and whether **see-through trees** are drawn with fewer cards (the default, much faster deep in the forest) or all of them; the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
@@ -238,9 +243,11 @@ Also:
 - **Trimmed and fewer cards:** every version also comes with its cards cut to the outline round their leaves
   (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`).
 - **Hidden trees:** with See-through, the start runs as fast as with no tree hidden (11.6 ms), as no tree covers the
-  area there. On the trail walk it's 0.2 ms a frame slower on average, and the slowest 5% of frames 60 fps instead of
-  70: the trees behind the see-through ones are drawn too. Measuring the area costs 0.3 ms, at most 2, 30 times a
-  second. The cone, which takes no tree whole, costs about 0.5 ms a frame more at the start, and 2 ms more than Front,
+  hero there. Walking the trail with the camera low (10°), it's 76 fps on average, 45 in the slowest 5% of frames and
+  42 in the slowest 1%; with the see-through trees on all their cards, 72, 38 and 35. The slowest views there, deep in
+  the forest looking through 6 to 10 see-through trees, take 22 ms a frame instead of 26 to 28; the rest is the
+  forest itself, where ambient occlusion and shadows cost 3 to 4 ms each, and the lighter trees from 30 m instead of
+  45 m would save at most 1.5. Measuring the area costs 0.3 ms, at most 2, 30 times a second. The cone, which takes no tree whole, costs about 0.5 ms a frame more at the start, and 2 ms more than Front,
   where the trees that go aren't drawn at all, apart from their shadows and what's left of them. Working out which
   trees go takes 0.2–0.7 ms a frame in the forest; the trees' shapes for it are worked out as they load (about 60 ms for
   both sets).

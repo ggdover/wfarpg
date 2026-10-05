@@ -128,22 +128,27 @@ func _sight_checks() -> void:
 	rig.yaw = fposmod(rad_to_deg(atan2(-pole_away.y, pole_away.x)) + 180.0, 360.0)
 	rig.pitch = 15.0
 	rig.distance = 20.0
+	var bar := w.veil_cover
 	w.veil_cover = 0.05
 	_place_hero(w._tree_xz[pole] + pole_away * 5.0)
 	await _seconds(0.6)
 	var cover := w._cover
 	var veil: float = w._veiled.get(pole, 0.0)
+	var light: bool = trees[pole].get("light", false) or trees[pole]["kind"] != "full"  # only portfolio trees have fewer cards
 	var none_whole := w._sight.is_empty() and w._stumped.is_empty()
 	var drawn := w.area_points.size() >= AREA_POINTS_AT_LEAST and w.area_outline.size() == 28
 	w.veil_cover = 2.0  # out of reach, even the 80% of it that keeps them see-through once they are
 	await _seconds(0.6)
 	var after: float = w._veiled.get(pole, 0.0)
-	w.veil_cover = 0.3
+	var heavy: bool = not trees[pole].get("light", false)
+	w.veil_cover = bar
 	_check("%s trees, see-through: the trees covering the area round the hero go see-through, all but their stumps, none whole" % set,
 		cover > 0.0 and veil >= w.veil_amount and none_whole and float(trees[pole]["cut"]) > 0.2 and drawn,
 		"they cover %d%% of it, the tree see-through %.2f, %s" % [roundi(cover * 100.0), veil, "none cut whole" if none_whole else "some cut whole"])
 	_check("%s trees, see-through: below the bar, they come back" % set, after == 0.0, "see-through %.2f" % after)
-	# deep in the forest, the camera low: somewhere the trees cover the bar's 30% of the area, and those go see-through
+	_check("%s trees, see-through: drawn with fewer cards while see-through, and all of them again after" % set, light and heavy,
+		"%s, then %s" % ["fewer" if light else "all", "all" if heavy else "fewer"])
+	# deep in the forest, the camera low: somewhere the trees cover enough of the area, and those go see-through
 	rig.pitch = 20.0
 	rig.distance = 25.0
 	var deep := 0.0

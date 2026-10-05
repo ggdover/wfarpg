@@ -129,14 +129,18 @@ var fade_near_camera := false
 ## "off". With "front" and "xray", whatever of a tree comes near the camera fades away too (cut_near). Their shadows
 ## stay.
 var cut_trees := "veil"
-## with "veil": the trees go see-through once they cover this share of the area round the hero
-var veil_cover := 0.3
-## the area: the hero and this far round it (m), as the camera sees it
-var veil_round := 0.9
+## with "veil": the trees go see-through once they cover this share of the area round the hero (the user's 90%)
+var veil_cover := 0.9
+## the area: the hero and this far round it (m), as the camera sees it (the user's: the hero alone)
+var veil_round := 0.0
 ## and how see-through they go: the share of what's behind them they let through (0 for never)
 var veil_amount := 0.5
 ## draw the area on the screen, with which of the points across it the trees cover (scripts/sight_area.gd)
 var show_area := false
+## draw the see-through trees near the camera with fewer leaf cards per clump (their "_f" version): where a tree lets
+## what's behind it through, each of its cards still runs its shader before it's thrown away, layer on layer, which
+## deep in the forest with the camera low cost 5-8 ms a frame; with half the cards, it costs half
+var veil_lighter := true
 ## what's left of a tree that goes: "trunks", its bare trunk, until that hides the hero, which takes it down to its
 ## stump (a spruce, whose branches reach the ground, goes to its stump straight away); "stumps"; or "nothing"
 var leave := "stumps"
@@ -374,6 +378,8 @@ func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		var v: float = _veiled.get(i, 0.0)
 		var was := v
 		v = move_toward(v, veil_amount if veiling and covers else 0.0, delta * maxf(veil_amount, 0.1) / VEIL_FADE)
+		if (v > 0.0) != (was > 0.0):
+			_lighten(trees[i], v > 0.0)
 		if v != was:
 			for rid: RID in trees[i]["draw"]:
 				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", Vector2(v, trees[i]["cut"]))
@@ -381,6 +387,17 @@ func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 			_veiled[i] = v
 		else:
 			_veiled.erase(i)
+
+
+## Draw a portfolio tree near the camera with fewer leaf cards per clump while it's see-through, and as _apply_trees
+## has it again once it isn't (veil_lighter).
+func _lighten(tree: Dictionary, on: bool) -> void:
+	if not veil_lighter or fewer or tree["kind"] != "full" or tree_lod > 0:
+		return
+	var m: String = tree["model"] + ("_f" if on else "") + ("_t" if trimmed else "")
+	if Models.has(m):
+		RenderingServer.instance_set_base(tree["draw"][0], Models.mesh(m).get_rid())
+		tree["light"] = on
 
 
 ## How much of the area round the hero the trees in front of it cover (_cover), and which of them cover some of it
@@ -865,6 +882,7 @@ func _unskip() -> void:
 		for i: int in _veiled:
 			for rid: RID in _tree_sets[_current][i]["draw"]:
 				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", Vector2.ZERO)
+			_tree_sets[_current][i]["light"] = false  # _apply_trees puts back what it draws
 	_trunks.clear()
 	_stumped.clear()
 	_skipped.clear()

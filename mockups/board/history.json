@@ -3459,6 +3459,53 @@
     "Measuring the area costs 0.3 ms, at most 2, 30 times a second; drawing what's behind the see-through trees takes the slowest 5% of the walk's frames from 70 fps to 60"
    ],
    "cover": "renders/play_demo_see_through/birch.jpg"
+  },
+  {
+   "id": "play-demo-faster-see-through",
+   "date": "2026-10-05",
+   "asked_at": "22:16",
+   "posted_at": "22:43",
+   "title": "Faster see-through",
+   "section": "Play demo: faster see-through",
+   "asked": "This is awesome; I think I'm actually satisfied with this version, and the default opacity is good. I shrank the area it checks to 0.0 m, so it just covers the player, and set it so 90% of it needs to be covered. Just one last thing: the fps drops a lot, especially with the camera really low looking through tons of trees in the thickest parts, to around 40 fps. Can you playtest, find what causes the biggest drop, and see if something can be done so it doesn't drop so heavily, but still looks quite similar?",
+   "changed": [
+    "The user's settings are the defaults: the area the hero alone, see-through at 90%, see-through by 50%",
+    "A see-through tree is drawn near the camera with half its leaf cards per clump, and looks the same at 50%, a touch more see-through; see-through trees in F2 switches between fewer cards and all of them",
+    "The slowest low-camera views went from 26 to 28 ms a frame to 22; walking the trail with the camera low, the slowest 5% of frames from 38 fps to 45, the slowest 1% from 35 to 42, the average from 72 to 76",
+    "The self-test checks that a tree is drawn with fewer cards while see-through, and with all of them again after"
+   ],
+   "items": [
+    {
+     "id": "s-faster",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: faster see-through",
+     "author": "claude"
+    },
+    {
+     "id": "fs-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Faster see-through\nYou saw 40 fps with the camera low, looking through the thickest forest. Measured there, the cost was the see-through trees themselves: where a tree lets what's behind it through, each of its leaf cards still runs before it's thrown away, layer on layer, and with nothing in front to stop them, every see-through tree's do. 6 to 10 of them cost 5 to 8 ms a frame, more than drawing them solid or what's behind them.\n\nNow a see-through tree is drawn near the camera with half its leaf cards per clump, and looks the same at 50%, a touch more see-through. The slowest views went from 26 to 28 ms a frame to 22; walking the trail with the camera low, the slowest 5% of frames from 38 fps to 45, the slowest 1% from 35 to 42, and the average from 72 to 76.\n\nWhat's left there is the forest itself: ambient occlusion and shadows cost 3 to 4 ms each in those views, both in F2 if you'd trade some of the look for speed. Your settings are the defaults now: the hero alone, 90%, 50%. **see-through trees** in F2: Fewer cards (now) or All cards.",
+     "author": "claude"
+    },
+    {
+     "id": "fs-cards",
+     "type": "image",
+     "status": "new",
+     "caption": "The three slowest low-camera views, the see-through trees with all their cards (left) and with fewer (right): 28.0 to 22.2, 27.5 to 22.2 and 25.9 to 22.1 ms a frame.",
+     "assetId": "f75494d18ab9a2cbe721e78c0f20f073",
+     "file": "renders/play_demo_see_through/fewer_cards.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "With the camera low deep in the forest, the see-through trees themselves cost the most: where they let what's behind them through, each of their leaf cards still runs its shader before it's thrown away, layer on layer, with nothing in front to stop them. 6 to 10 of them cost 5 to 8 ms a frame, more than drawing them solid (and more still at 95% see-through); what's behind them cost nothing extra",
+    "The lighter mid and far versions of the trees saved no more than fewer cards per clump, and look coarser up close; switching to the lighter trees from 30 m instead of 45 m saved at most 1.5 ms",
+    "What's left in those views is the forest itself: ambient occlusion and shadows cost 3 to 4 ms each"
+   ],
+   "cover": "renders/play_demo_see_through/fewer_cards.jpg"
   }
  ]
 }

@@ -37,10 +37,10 @@ General knowledge, public documentation, and third-party libraries and engines a
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
-  (not yet confirmed by the user). Trees in the way, the user's design, shadows kept: once the trees in front of the
-  hero cover a share of the area round it (the hero and half its height round it, as the camera sees it; F2 sliders
-  for the share, the area and how see-through), each of them goes evenly see-through, all but its stump. No tree goes
-  whole, no bare sticks, no hard x-ray edges. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`;
+  (not yet confirmed by the user). Trees in the way, the user's design, which they're satisfied with, shadows kept: once
+  the trees in front of the hero cover 90% of it as the camera sees it, each of them goes evenly half see-through, all
+  but its stump (the user's settings; F2 has sliders for the share, an area round the hero and how see-through). No
+  tree goes whole, no bare sticks, no hard x-ray edges. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`;
   the cone (`camera_view.png`) and the earlier ways of cutting trees are in F2 to compare.
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
