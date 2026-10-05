@@ -88,8 +88,11 @@ func run(d: Node) -> void:
 	demo.get_tree().quit(1 if failed.size() else 0)
 
 
-## Trees that block the view. The cone (the default): no tree is cut whole, and the shaders get the cone round the
-## hero. In front of the hero: a tree between the camera and the hero goes, leaving
+## Trees that block the view. Trunks (the default): a tree whose trunk is in front of the hero goes, to its stump, and
+## comes back once the hero is out from behind it; a tree whose leaves alone are in front of the hero stays, and the
+## cone stays off, until the hero is behind enough trees' leaves, when it comes on, and goes off once it isn't; and deep
+## in the forest, behind three trees' leaves, it comes on. The cone: no tree is cut whole, and the shaders get the
+## cone round the hero. In front of the hero: a tree between the camera and the hero goes, leaving
 ## its trunk or stump, and comes back once the hero has walked well past it; a tree just ahead of the hero stays, and
 ## so does one well beyond it, and a tall one beside it; a tree round a low camera isn't cut whole, but its trunk
 ## stands while the shaders fade the rest near the camera. The x-ray: a tree in front of the hero isn't cut whole, and
@@ -118,6 +121,66 @@ func _sight_checks() -> void:
 			pole = i
 	var pole_away := (Vector2(hero.global_position.x, hero.global_position.z) - w._tree_xz[pole]).normalized()
 	var pole_side := Vector2(-pole_away.y, pole_away.x)
+	var start := Vector2(hero.global_position.x, hero.global_position.z)
+	# trunks: right behind the tall tree's trunk, the camera low beyond the tree
+	w.set_trees("cut_trees", "trunk")
+	rig.yaw = fposmod(rad_to_deg(atan2(-pole_away.y, pole_away.x)) + 180.0, 360.0)
+	rig.pitch = 15.0
+	rig.distance = 20.0
+	_place_hero(w._tree_xz[pole] + pole_away * 5.0)
+	await _seconds(0.6)
+	var trunk_cut := w.sight_fade(pole)
+	var trunk_stump: bool = w._stumped.has(pole)
+	_place_hero(w._tree_xz[pole] + pole_away * 5.0 + pole_side * 4.0)  # out from behind it
+	await _seconds(1.5)
+	var trunk_back := w.sight_fade(pole)
+	_check("%s trees, trunks: a tree whose trunk is in front of the hero goes, to its stump, and comes back" % set,
+		trunk_cut >= 1.0 and trunk_stump and trunk_back == 0.0,
+		"faded %.2f, %s, then %.2f" % [trunk_cut, "stump" if trunk_stump else "no stump", trunk_back])
+	# a spot behind its leaves but not its trunk, the camera high
+	w.reveal_layers = 99
+	rig.pitch = 55.0
+	var leafy := Vector2.INF
+	for d: float in [4.0, 6.0, 3.0, 8.0]:
+		for sd: float in [2.0, 3.0, 1.5, 4.0, -2.0, -3.0]:
+			_place_hero(w._tree_xz[pole] + pole_away * d + pole_side * sd)
+			await _frames(3)
+			var cam := rig.camera.global_position
+			var at := hero.global_position
+			if w._in_way(trees[pole], pole, cam, at, DemoWorld._hero_points(cam, at, DemoWorld.TRUNK_HALF, 0.0)) \
+					and not w._trunk_in_way(trees[pole], pole, cam, DemoWorld._hero_points(cam, at, DemoWorld.HERO_HALF, DemoWorld.HERO_PAD)):
+				leafy = w._tree_xz[pole] + pole_away * d + pole_side * sd
+				break
+		if leafy != Vector2.INF:
+			break
+	await _seconds(1.2)  # long enough for the tree to come back, if a spot on the way cut it
+	var kept := w.sight_fade(pole) == 0.0 and not w._stumped.has(pole) and w._cone == 0.0
+	w.reveal_layers = 1  # one tree's leaves are enough
+	await _seconds(0.6)
+	var on := w._cone
+	w.reveal_layers = 99
+	await _seconds(1.5)
+	var off := w._cone
+	w.reveal_layers = 3
+	_check("%s trees, trunks: a tree whose leaves alone are in front of the hero stays, and the cone stays off" % set, leafy != Vector2.INF and kept,
+		("no spot behind its leaves alone" if leafy == Vector2.INF else "%s" % ("stays" if kept else "cut, or the cone on")))
+	_check("%s trees, trunks: behind enough trees' leaves, the cone comes on, and goes off once it isn't" % set,
+		on >= 1.0 and off == 0.0, "cone %.2f, then %.2f" % [on, off])
+	# deep in the forest, behind three trees' leaves or more, the camera low
+	rig.pitch = 20.0
+	rig.distance = 25.0
+	var layers := 0
+	var deep := 0.0
+	for k in 24:
+		_place_hero(start + Vector2(cos(k * 2.4), sin(k * 2.4)) * (4.0 + k * 1.5))
+		await _seconds(0.4)
+		if w._layers >= 3:
+			layers = w._layers
+			await _seconds(0.4)
+			deep = w._cone
+			break
+	_check("%s trees, trunks: deep in the forest, behind three trees' leaves, the cone comes on" % set, layers >= 3 and deep >= 1.0,
+		"behind %d trees' leaves, cone %.2f" % [layers, deep])
 	# the cone
 	w.set_trees("cut_trees", "cone")
 	_place_hero(w._tree_xz[tree] + away * 4.0)
@@ -127,8 +190,8 @@ func _sight_checks() -> void:
 	await _seconds(0.6)
 	var whole_cone := w.sight_fade(tree)
 	var nothing_left := not w._trunks.has(tree) and not w._stumped.has(tree)
-	_check("%s trees, the cone: no tree is cut whole, and the shaders get it" % set, w._cone and whole_cone == 0.0 and nothing_left,
-		"cone %s, cut whole %.2f" % ["on" if w._cone else "off", whole_cone])
+	_check("%s trees, the cone: no tree is cut whole, and the shaders get it" % set, w._cone == 1.0 and whole_cone == 0.0 and nothing_left,
+		"cone %s, cut whole %.2f" % ["on" if w._cone == 1.0 else "off", whole_cone])
 	# in front of the hero, leaving the trees' trunks
 	w.set_trees("cut_trees", "front")
 	w.set_trees("leave", "trunks")
@@ -210,7 +273,7 @@ func _sight_checks() -> void:
 	_check("%s trees, only those in the way: a tree ahead of the hero stays" % set, ahead == 0.0, "faded %.2f" % ahead)
 	_check("%s trees, only those in the way: they fade out, and back" % set, gone >= 1.0 and w.sight_fade(tree) == 0.0,
 		"faded %.2f, then %.2f" % [gone, w.sight_fade(tree)])
-	w.set_trees("cut_trees", "cone")
+	w.set_trees("cut_trees", "trunk")
 	rig.pitch = 55.0
 	rig.distance = 20.0
 

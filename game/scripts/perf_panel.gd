@@ -107,8 +107,11 @@ func setup(d: Node) -> void:
 	_choice(col, "fade", "Fade trees near camera", [["On", true], ["Off", false]], w.fade_near_camera,
 		func(v: bool) -> void: w.set_trees("fade_near_camera", v))
 	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
-	_choice(col, "sight", "Trees in the way", [["Cone", "cone"], ["Front", "front"], ["X-ray", "xray"], ["Area", "area"], ["Line", "line"], ["Keep", "off"]],
+	_choice(col, "sight", "Trees in the way", [["Trunk", "trunk"], ["Cone", "cone"], ["Front", "front"], ["X-ray", "xray"], ["Area", "area"], ["Line", "line"], ["Keep", "off"]],
 		w.cut_trees, func(v: String) -> void: w.set_trees("cut_trees", v))
+	_slider(col, "reveal", "  trunk: cone behind", 1.0, 6.0, 1.0, w.reveal_layers,
+		func(v: float) -> String: return "%d tree%s" % [roundi(v), "" if roundi(v) == 1 else "s"],
+		func(v: float) -> void: w.reveal_layers = roundi(v))
 	_slider(col, "cone_soft", "  cone: soft share", 0.1, 1.0, 0.05, w.cone_soft, percent, func(v: float) -> void: w.cone_soft = v)
 	_choice(col, "cone_style", "  cone: fade in", [["Dither", "dither"], ["Patches", "patches"]], w.cone_style,
 		func(v: String) -> void: w.cone_style = v)
@@ -264,6 +267,10 @@ func _choice(parent: Control, key: String, text: String, options: Array, current
 	parent.add_child(row)
 	var l := _label(row, text, 13, INK)
 	l.custom_minimum_size.x = 150
+	l.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	var buttons := HFlowContainer.new()  # a long row wraps
+	buttons.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(buttons)
 	var group := ButtonGroup.new()
 	_groups[key] = {}
 	_texts[key] = text
@@ -276,7 +283,7 @@ func _choice(parent: Control, key: String, text: String, options: Array, current
 		b.add_theme_font_size_override("font_size", 12)
 		b.custom_minimum_size = Vector2(46, 22)
 		_style(b)
-		row.add_child(b)
+		buttons.add_child(b)
 		_groups[key][o[1]] = b
 		if o[1] == current:
 			b.button_pressed = true

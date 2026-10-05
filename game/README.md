@@ -71,17 +71,29 @@ place (`tools/reference_shots.py`).
   it instead.
   - Into each tree's vertices: how much of the sky each leaf and branch can see.
   - Into the ground: how much the trees shade each spot, separately for each tree set.
-- **Trees and the camera:** whatever of a tree is inside a cone from the edges of the screen to the hero fades away,
-  wholly in the cone's middle and gradually towards its edges (`ref_imgs/tree_disappear/camera_view.png`;
-  `cone_fade` in `shaders/common.gdshaderinc`, `update_sight` in `scripts/world.gd`). Their shadows stay.
+- **Trees and the camera:** a tree goes to its stump only once its trunk is in front of the hero; its leaves and
+  branches stay, so the hero can hide in them, until it's deep in the forest, behind the leaves of three trees or more,
+  when the cone (below) shows it through them (**Trunk** in the panel; `update_sight` and `_cut_trunks` in
+  `scripts/world.gd`). Their shadows stay.
+  - The trunk is found as **Line** finds trees in the way of the hero, along lines from the camera to points over the
+    hero, but against each tree's own bare trunk (`<model>_trunk` in `stumps.glb`, up into the crown) rather than its
+    whole shape. The stump is built from the same trunk.
+  - The leaves are counted along the lines to the hero's middle: how many trees' shapes each line passes through.
+    Once one passes through three or more, the cone fades in over a quarter of a second, for every tree, and it fades
+    out half a second after none does (`reveal_layers`, **trunk: cone behind** in the panel). Walking the trail with
+    the default camera, the hero was behind one tree's leaves a quarter of the time and three or more 5% of it: the
+    cone came on once, for 3.5 s, and one tree went to its stump.
+  - **The cone** (also on its own, **Cone** in the panel): whatever of a tree is inside a cone from the edges of the
+    screen to the hero fades away, wholly in the cone's middle and gradually towards its edges
+    (`ref_imgs/tree_disappear/camera_view.png`; `cone_fade` in `shaders/common.gdshaderinc`).
   - On the screen the cone shrinks with depth: the whole screen at the camera, and round the hero, at 2.5 times its
     size, at the hero's depth; it stops just past the hero's far side. So trees near the camera fade wherever they are
     on the screen, and their branches don't sweep in from its edges; those in front of the hero fade only round the
     way to it, so a spruce whose outer branches cover the hero fades there, more the nearer the hero; and the trees
     beside and past the hero stay.
-  - No tree goes whole, so nothing pops, and nothing is left as a bare stick. The fade is a fine dither in blocks of
-    two pixels, which reads as the trees' opacity changing and which the ambient occlusion, worked out at half
-    resolution, leaves alone; the outer 30% of the cone fades gradually.
+  - The cone takes no tree whole, so nothing pops, and nothing is left as a bare stick. The fade is a fine dither in
+    blocks of two pixels, which reads as the trees' opacity changing and which the ambient occlusion, worked out at
+    half resolution, leaves alone; the outer 30% of the cone fades gradually.
   - The panel has the earlier ways too, to compare: **Front**, whole trees in front of the hero (where they stand, in
     the lower middle of the screen, at least 1 m in front of it) and any in the way of the hero go, leaving their
     stumps (built from each tree's own trunk, `stumps.glb`) or their bare trunks; **X-ray**, a soft-edged window in
@@ -120,7 +132,7 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Trees in the way | How trees get out of the way (above): the **Cone** (the default), with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Trees in the way | How trees get out of the way (above): **Trunk** (the default), with how many trees' leaves bring the cone in (**trunk: cone behind**, 3); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches, which work for Trunk's cone too; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Trunk and Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
@@ -218,17 +230,18 @@ Also:
   nearer saves at most 1 ms, as their bigger cards cover about as many pixels.
 - **Trimmed and fewer cards:** every version also comes with its cards cut to the outline round their leaves
   (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`).
-- **Hidden trees:** with the cone, no tree goes whole, so it costs about 0.5 ms a frame more than leaving every tree
-  standing, and 2 ms more than Front, where the trees that go aren't drawn at all, apart from their shadows and
-  what's left of them. Working out which trees
-  go takes 0.2–0.7 ms a frame in the forest; the trees' shapes for it are worked out as they load (about 60 ms for
+- **Hidden trees:** with Trunk, the start runs as fast as with no tree hidden (11.3 ms), as the cone is off there and
+  no trunk is in front of the hero. The cone, which takes no tree whole, costs about 0.7 ms a frame more, and 2 ms
+  more than Front, where the trees that go aren't drawn at all, apart from their shadows and what's left of them.
+  Working out which trees go takes 0.2–0.7 ms a frame in the forest; the trees' shapes for it are worked out as they load (about 60 ms for
   both sets).
 - **The depth prepass** (Godot's own, on): without it, the forest takes twice as long.
 - **Tried, and not worth it:** a draw distance for the bushes and berries (under 1 ms with the camera low), skipping
   the shadows of trees behind the camera (Godot already does), and moving where the near shadow cascade ends (Godot's
   10% is the fastest).
 
-What costs the most now, measured with the panel at the start (against the defaults' 10.4 ms):
+What costs the most, measured with the panel at the start (against the defaults' 10.4 ms then, when the trees in front
+of the hero went whole there; with Trunk, the defaults take 11.3 ms):
 
 - **Shadows:** off saves 2.7 ms (126 fps); the trees' shadows alone 2.2. A 1024 shadow map saves 1.0 ms against
   2048, and 4096 costs 2.4 ms more.

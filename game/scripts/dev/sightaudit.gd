@@ -5,9 +5,10 @@ extends SceneTree
 ##   covered  how much of the hero the trees still cover as the game draws it; should be none
 ##   hidden   each tree the game hides, with how much of the hero it would cover on its own; for one that would
 ##            cover none, how far its nearest pixel is from the hero's, in metres at the hero (hidden that early)
-## With --mode=cone (or front, xray...), that way of cutting trees instead, with its own fades and the trees left
-## standing; for those that cut no tree whole, only how much of the hero the trees cover.
-## godot --path game --script res://scripts/dev/sightaudit.gd [-- --trimmed] [--spots=24] [--mode=cone]
+## With --mode=trunk (or cone, front, xray...), that way of cutting trees instead, with its own fades and the trees left
+## standing; for those that cut no tree whole, only how much of the hero the trees cover. With "trunk", the trees whose
+## leaves alone hide the hero stay, so they may cover it.
+## godot --path game --script res://scripts/dev/sightaudit.gd [-- --trimmed] [--spots=24] [--mode=trunk]
 
 var demo: Node
 var world: DemoWorld

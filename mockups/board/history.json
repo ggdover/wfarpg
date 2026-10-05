@@ -3214,6 +3214,83 @@
     "Front cut a big spruce whole while the hero was still 4.5 m to its side, as it stood in the lower middle of the screen; the cone leaves it standing until its branches come round the hero"
    ],
    "cover": "renders/play_demo_cone/sketch_thicket.jpg"
+  },
+  {
+   "id": "play-demo-leaves",
+   "date": "2026-10-05",
+   "asked_at": "19:41",
+   "posted_at": "20:17",
+   "title": "Hiding in the leaves",
+   "section": "Play demo: hiding in the leaves",
+   "asked": "I want to try something new. Let's use something like the line method to check whether you are behind a tree trunk, and in that case turn the tree into a stump. But if the player is just blocked by branches or leaves, we leave those, so the player can be behind spruce leaves or other leaves without being seen. Maybe with one exception: when there's a thick forest of like three or more leaves overlapping between the player and the camera, we do the cone thing to reveal that the player is behind all of those leaves",
+   "changed": [
+    "Trunk (in F2, now the default): a tree goes to its stump only once its trunk is in front of the hero, tested along lines from the camera to the hero, as Line tests trees, but against each tree's own bare trunk rather than its whole shape",
+    "Leaves and branches in front of the hero stay, so the hero can stand hidden under a spruce or a crown",
+    "Once the hero is behind the leaves of three trees or more, counted along lines from the camera to its middle, the cone fades in over a quarter of a second and shows the hero through all of them, and fades out half a second after the hero is out of the thick of them; trunk: cone behind in F2 sets how many trees",
+    "The self-test checks that a trunk in front of the hero takes its tree to a stump and back, that leaves alone don't, and that the cone comes on behind enough trees' leaves, and goes off again; the sight audit takes --mode=trunk"
+   ],
+   "items": [
+    {
+     "id": "s-leaves",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: hiding in the leaves",
+     "author": "claude"
+    },
+    {
+     "id": "lv-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Hiding in the leaves\nYour idea, as the new default (Trunk in F2):\n- **Trunks:** a tree goes to its stump only once its trunk is in front of the hero, found the way Line finds trees in the way, but against each tree's own bare trunk instead of its whole shape\n- **Leaves stay:** leaves and branches in front of the hero don't take a tree, so the hero can stand hidden under a spruce or a crown\n- **Deep in the forest:** once the hero is behind the leaves of three trees or more, counted along lines from the camera to the hero's middle, the cone fades in over a quarter of a second and shows the hero through all of them; half a second after the hero is out of the thick of them, it fades out\n\nWalking the trail with the default camera, the hero was behind one tree's leaves a quarter of the time and three or more 5% of it: the cone came on once, for 3.5 s, and one tree went to its stump. With the camera low, three or more 17% of the time: the cone came on 4 times, and 11 trees went to stumps.",
+     "author": "claude"
+    },
+    {
+     "id": "lv-spruce",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking in behind a big spruce (2.5 m past its trunk), from 7 m to its side to straight behind it. Trunk (top): its leaves stay, and the hero hides under them, until the hero is straight behind its trunk, when it goes to its stump. The cone (bottom), for comparison, thins it round the hero all the way.",
+     "assetId": "1f46bb87142bfaf4a7210b9ca85c78b0",
+     "file": "renders/play_demo_trunk/spruce_walk.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "lv-high",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking the trail with the default, high camera: Line to hero, Cone, and Trunk (now). With Trunk, the leaves in front of the hero stay (top and bottom rows) until it's behind three trees' leaves (middle row), when the cone comes on.",
+     "assetId": "d36ce7a87341871cac0103e816143a4f",
+     "file": "renders/play_demo_trunk/walk_camera_high.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "lv-switches",
+     "type": "note",
+     "status": "new",
+     "text": "# To try in F2\nUnder **Trees in the way**: **Trunk** (now), or **Cone**, **Front**, **X-ray**, **Area**, **Line** and **Keep**. **trunk: cone behind** sets how many trees' leaves bring the cone in (3 now; 1 brings it in behind any leaves). The cone's sliders work here too.\n\nAt the start Trunk runs as fast as cutting nothing, 86 fps, 0.7 ms a frame faster than the cone, as the cone is off there. At 12 random spots, each tree that went to its stump would have covered 38 to 99% of the hero; where only leaves were in front of it, they covered up to 56% of it.",
+     "author": "claude"
+    },
+    {
+     "id": "lv-low",
+     "type": "image",
+     "status": "new",
+     "caption": "The same with the camera low, where the hero is behind three trees' leaves or more at all three spots. In the top row the cone is still fading in, a moment after the hero got behind the third.",
+     "assetId": "a667d415415fe1f60275e5ef7c0cda5a",
+     "file": "renders/play_demo_trunk/walk_camera_low.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/31_trunk_thinning_haze.jpg",
+     "caption": "The first try: the cone thinned only the trees in the way, each fading on its own, so as the hero walked, the trees joining were caught half faded, in a haze over it"
+    }
+   ],
+   "found": [
+    "With each tree in the way thinning on its own, trees kept joining as the hero walked, and were caught half faded; one cone for every tree, fading in and out as a whole, moves trees through its soft edge instead",
+    "Switching the way of cutting trees left the cone on until the next frame, which the sight audit's pictures caught; it now goes off at once",
+    "Walking the trail with the default camera, the hero was behind one tree's leaves a quarter of the time and three or more 5% of it; the cone came on once, for 3.5 s, and one tree went to its stump"
+   ],
+   "cover": "renders/play_demo_trunk/spruce_walk.jpg"
   }
  ]
 }

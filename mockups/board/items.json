@@ -1174,6 +1174,71 @@
   "y": 18774,
   "z": 186
  },
+ "lv-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791224248910,
+  "h": 1040,
+  "text": "# Hiding in the leaves\nYour idea, as the new default (Trunk in F2):\n- **Trunks:** a tree goes to its stump only once its trunk is in front of the hero, found the way Line finds trees in the way, but against each tree's own bare trunk instead of its whole shape\n- **Leaves stay:** leaves and branches in front of the hero don't take a tree, so the hero can stand hidden under a spruce or a crown\n- **Deep in the forest:** once the hero is behind the leaves of three trees or more, counted along lines from the camera to the hero's middle, the cone fades in over a quarter of a second and shows the hero through all of them; half a second after the hero is out of the thick of them, it fades out\n\nWalking the trail with the default camera, the hero was behind one tree's leaves a quarter of the time and three or more 5% of it: the cone came on once, for 3.5 s, and one tree went to its stump. With the camera low, three or more 17% of the time: the cone came on 4 times, and 11 trees went to stumps.",
+  "type": "note",
+  "updatedAt": 1791224248910,
+  "w": 460,
+  "x": 28,
+  "y": 41400,
+  "z": 223
+ },
+ "lv-high": {
+  "ar": 1.624,
+  "assetId": "d36ce7a87341871cac0103e816143a4f",
+  "author": "claude",
+  "caption": "Walking the trail with the default, high camera: Line to hero, Cone, and Trunk (now). With Trunk, the leaves in front of the hero stay (top and bottom rows) until it's behind three trees' leaves (middle row), when the cone comes on.",
+  "createdAt": 1791224248910,
+  "type": "image",
+  "updatedAt": 1791224248910,
+  "w": 2200,
+  "x": 512,
+  "y": 42210,
+  "z": 226
+ },
+ "lv-low": {
+  "ar": 1.624,
+  "assetId": "a667d415415fe1f60275e5ef7c0cda5a",
+  "author": "claude",
+  "caption": "The same with the camera low, where the hero is behind three trees' leaves or more at all three spots. In the top row the cone is still fading in, a moment after the hero got behind the third.",
+  "createdAt": 1791224248910,
+  "type": "image",
+  "updatedAt": 1791224248910,
+  "w": 2200,
+  "x": 512,
+  "y": 43695,
+  "z": 227
+ },
+ "lv-spruce": {
+  "ar": 3.235,
+  "assetId": "1f46bb87142bfaf4a7210b9ca85c78b0",
+  "author": "claude",
+  "caption": "Walking in behind a big spruce (2.5 m past its trunk), from 7 m to its side to straight behind it. Trunk (top): its leaves stay, and the hero hides under them, until the hero is straight behind its trunk, when it goes to its stump. The cone (bottom), for comparison, thins it round the hero all the way.",
+  "createdAt": 1791224248910,
+  "type": "image",
+  "updatedAt": 1791224248910,
+  "w": 2200,
+  "x": 512,
+  "y": 41400,
+  "z": 225
+ },
+ "lv-switches": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791224248910,
+  "h": 590,
+  "text": "# To try in F2\nUnder **Trees in the way**: **Trunk** (now), or **Cone**, **Front**, **X-ray**, **Area**, **Line** and **Keep**. **trunk: cone behind** sets how many trees' leaves bring the cone in (3 now; 1 brings it in behind any leaves). The cone's sliders work here too.\n\nAt the start Trunk runs as fast as cutting nothing, 86 fps, 0.7 ms a frame faster than the cone, as the cone is off there. At 12 random spots, each tree that went to its stump would have covered 38 to 99% of the hero; where only leaves were in front of it, they covered up to 56% of it.",
+  "type": "note",
+  "updatedAt": 1791224248910,
+  "w": 460,
+  "x": 28,
+  "y": 42468,
+  "z": 224
+ },
  "m-aim": {
   "author": "claude",
   "color": "gold",
@@ -1893,6 +1958,19 @@
   "x": 0,
   "y": 18746,
   "z": 24
+ },
+ "s-leaves": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791224248910,
+  "h": 3806,
+  "title": "Play demo: hiding in the leaves",
+  "type": "frame",
+  "updatedAt": 1791224248910,
+  "w": 2740,
+  "x": 0,
+  "y": 41372,
+  "z": 31
  },
  "s-loot": {
   "author": "claude",

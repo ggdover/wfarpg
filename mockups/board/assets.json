@@ -138,5 +138,8 @@
  "aa1226e48dd8392602dda6013824f55d": "renders/play_demo_cone/spruce_walk.jpg",
  "7c1dead1bfc81191d36bdf03d144e49e": "renders/play_demo_cone/walk_camera_low.jpg",
  "4c67910c0ebc62d0a4de3d377ae3723a": "renders/play_demo_cone/walk_camera_high.jpg",
- "42dfde0d7d5d6be382791bf00309eef9": "renders/play_demo_cone/dither_close.jpg"
+ "42dfde0d7d5d6be382791bf00309eef9": "renders/play_demo_cone/dither_close.jpg",
+ "1f46bb87142bfaf4a7210b9ca85c78b0": "renders/play_demo_trunk/spruce_walk.jpg",
+ "d36ce7a87341871cac0103e816143a4f": "renders/play_demo_trunk/walk_camera_high.jpg",
+ "a667d415415fe1f60275e5ef7c0cda5a": "renders/play_demo_trunk/walk_camera_low.jpg"
 }

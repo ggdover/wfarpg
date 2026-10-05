@@ -63,12 +63,13 @@ bool faded_fine(float fade, vec3 world, vec2 pixel) {
 // with depth, from the whole screen at the camera to round the hero at the hero's depth, and stops a little past the
 // hero. cone_hero: where it ends round the hero, its middle and half its size (screen UV); cone_shape: the hero's depth
 // from the camera (metres), the share of the cone, from its edge in, that fades gradually, how its size goes with depth
-// (1: evenly), and whether it's on.
+// (1: evenly), and how strongly it's on, 0..1 (1 with cut_trees "cone"; with "trunk", while the hero is deep in the
+// forest, fading in and out).
 global uniform vec4 cone_hero;
 global uniform vec4 cone_shape;
 
 float cone_fade(vec2 screen_uv, vec3 vertex_view, vec3 camera_world) {
-	if (cone_shape.w < 0.5 || distance(camera_world, main_camera_position) > 0.05) {
+	if (cone_shape.w <= 0.0 || distance(camera_world, main_camera_position) > 0.05) {
 		return 0.0;
 	}
 	float depth = -vertex_view.z;
@@ -76,7 +77,7 @@ float cone_fade(vec2 screen_uv, vec3 vertex_view, vec3 camera_world) {
 	vec2 d = abs(screen_uv - mix(vec2(0.5), cone_hero.xy, s)) / mix(vec2(0.5), cone_hero.zw, s);
 	float q = pow(pow(d.x, 4.0) + pow(d.y, 4.0), 0.25);  // 0 at the cone's middle, 1 at its edge; its corners round
 	float past = smoothstep(cone_shape.x + 0.5, cone_shape.x + 1.5, depth);  // past the hero's far side
-	return (1.0 - smoothstep(1.0 - cone_shape.y, 1.0, q)) * (1.0 - past);
+	return cone_shape.w * (1.0 - smoothstep(1.0 - cone_shape.y, 1.0, q)) * (1.0 - past);
 }
 
 // The x-ray (cut_trees "xray" in scripts/world.gd, with xray_on): in a window in the lower middle of the screen,
