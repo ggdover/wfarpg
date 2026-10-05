@@ -135,17 +135,21 @@ func _sight_checks() -> void:
 	var cover := w._cover
 	var veil: float = w._veiled.get(pole, 0.0)
 	var light: bool = trees[pole].get("light", false) or trees[pole]["kind"] != "full"  # only portfolio trees have fewer cards
-	var none_whole := w._sight.is_empty() and w._stumped.is_empty()
+	var none_whole := w._sight.is_empty()
+	var on_stump: bool = w._stumped.has(pole)
 	var drawn := w.area_points.size() >= AREA_POINTS_AT_LEAST and w.area_outline.size() == 28
 	w.veil_cover = 2.0  # out of reach, even the 80% of it that keeps them see-through once they are
 	await _seconds(0.6)
 	var after: float = w._veiled.get(pole, 0.0)
+	var stump_gone: bool = not w._stumped.has(pole)
 	var heavy: bool = not trees[pole].get("light", false)
 	w.veil_cover = bar
-	_check("%s trees, see-through: the trees covering the area round the hero go see-through, all but their stumps, none whole" % set,
-		cover > 0.0 and veil >= w.veil_amount and none_whole and float(trees[pole]["cut"]) > 0.2 and drawn,
-		"they cover %d%% of it, the tree see-through %.2f, %s" % [roundi(cover * 100.0), veil, "none cut whole" if none_whole else "some cut whole"])
-	_check("%s trees, see-through: below the bar, they come back" % set, after == 0.0, "see-through %.2f" % after)
+	_check("%s trees, see-through: the trees covering the area round the hero go see-through, on their stumps, none whole" % set,
+		cover > 0.0 and veil >= w.veil_amount and none_whole and on_stump and drawn,
+		"they cover %d%% of it, the tree see-through %.2f, %s, %s" % [roundi(cover * 100.0), veil, "on its stump" if on_stump else "no stump",
+			"none cut whole" if none_whole else "some cut whole"])
+	_check("%s trees, see-through: below the bar, they come back, their stumps gone" % set, after == 0.0 and stump_gone,
+		"see-through %.2f, %s" % [after, "stump gone" if stump_gone else "stump still there"])
 	_check("%s trees, see-through: drawn with fewer cards while see-through, and all of them again after" % set, light and heavy,
 		"%s, then %s" % ["fewer" if light else "all", "all" if heavy else "fewer"])
 	# deep in the forest, the camera low: somewhere the trees cover enough of the area, and those go see-through
@@ -164,21 +168,23 @@ func _sight_checks() -> void:
 				break
 	_check("%s trees, see-through: deep in the forest, the trees covering the area go see-through" % set, deep >= w.veil_cover and thinned > 0,
 		"they cover %d%%, %d see-through" % [roundi(deep * 100.0), thinned])
-	# there, keeping only the one nearest the hero see-through: the others go whole, leaving their stumps, and come back
+	# there, keeping only the one nearest the hero see-through, on its stump: the others go whole, leaving nothing, and come back
 	w.veil_keep = 1
 	await _seconds(0.6)
 	var hero2 := Vector2(hero.global_position.x, hero.global_position.z)
 	var kept_now: Array = w._veiled.keys().filter(func(i: int) -> bool: return not w._sight.has(i))
 	var hid: Array = w._sight.keys().filter(func(i: int) -> bool: return w._sight[i] >= 1.0)
-	var hid_stumps := hid.all(func(i: int) -> bool: return w._stumped.has(i))
+	var hid_bare := hid.all(func(i: int) -> bool: return not w._stumped.has(i) and not w._trunks.has(i)) \
+		and kept_now.all(func(i: int) -> bool: return w._stumped.has(i))
 	var nearest_kept := kept_now.size() == 1 and hid.all(func(i: int) -> bool:
 		return w._tree_xz[i].distance_to(hero2) + DemoWorld.KEEP_MARGIN >= w._tree_xz[kept_now[0]].distance_to(hero2))
 	w.veil_keep = 0
 	await _seconds(1.2)
 	var all_back := w._sight.is_empty()
-	_check("%s trees, see-through: keeping the nearest see-through, the others go, to their stumps, and come back" % set,
-		thinned < 2 or (hid.size() == thinned - 1 and hid_stumps and nearest_kept and all_back),
-		"%d see-through: %d kept, %d gone%s, then %s" % [thinned, kept_now.size(), hid.size(), " to stumps" if hid_stumps else "", "back" if all_back else "still gone"])
+	_check("%s trees, see-through: keeping the nearest see-through, the others go, leaving nothing, and come back" % set,
+		thinned < 2 or (hid.size() == thinned - 1 and hid_bare and nearest_kept and all_back),
+		"%d see-through: %d kept, %d gone%s, then %s" % [thinned, kept_now.size(), hid.size(), ", leaving nothing" if hid_bare else ", leaving something",
+			"back" if all_back else "still gone"])
 	# the cone
 	w.set_trees("cut_trees", "cone")
 	_place_hero(w._tree_xz[tree] + away * 4.0)

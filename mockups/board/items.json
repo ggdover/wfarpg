@@ -840,7 +840,7 @@
   "color": "paper",
   "createdAt": 1791237270516,
   "h": 950,
-  "text": "# Hide all but nearest\nYour question: would hiding some of the trees between the camera and the hero save more than keeping them see-through? Yes: a hidden tree costs nothing to draw, while a see-through one still runs its leaf cards wherever it lets through. So it's an option now (F2, **hide all but nearest**: Off, 1 or 2; off by default): deep in the forest, only the one or two see-through trees nearest the hero stay see-through, and the rest go whole over 0.15 s, leaving their stumps and shadows, until they no longer cover the hero.\n\nIn the slowest low-camera views: 16 to 17 ms a frame instead of 22 to 24 (keeping 2, about the same). Walking the trail with the camera low, keeping 1 takes the slowest 5% of frames from 44-46 fps to 50-51, the slowest 1% from 40-43 to 46. The stipple over most of the screen goes and the hero shows clearly; but the trees in the way vanish instead of staying half there.",
+  "text": "# Hide all but nearest\nYour question: would hiding some of the trees between the camera and the hero save more than keeping them see-through? Yes: a hidden tree costs nothing to draw, while a see-through one still runs its leaf cards wherever it lets through. So it's an option now (F2, **hide all but nearest**: Off, 1 or 2; off by default): deep in the forest, only the one or two see-through trees nearest the hero stay see-through, and the rest go whole over 0.15 s, leaving only their shadows, until they no longer cover the hero.\n\nIn the slowest low-camera views: 16 to 17 ms a frame instead of 22 to 24 (keeping 2, about the same). Walking the trail with the camera low, keeping 1 takes the slowest 5% of frames from 44-46 fps to 50-51, the slowest 1% from 40-43 to 46. The stipple over most of the screen goes and the hero shows clearly; but the trees in the way vanish instead of staying half there.",
   "type": "note",
   "updatedAt": 1791237270516,
   "w": 460,
@@ -2180,6 +2180,19 @@
   "y": 23465,
   "z": 26
  },
+ "s-stumps2": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791239491973,
+  "h": 2807,
+  "title": "Play demo: stumps under see-through trees",
+  "type": "frame",
+  "updatedAt": 1791239491973,
+  "w": 2740,
+  "x": 0,
+  "y": 54726,
+  "z": 36
+ },
  "s-trees": {
   "author": "claude",
   "color": "moss",
@@ -2289,7 +2302,7 @@
   "color": "paper",
   "createdAt": 1791230756233,
   "h": 1040,
-  "text": "# See-through\nYour new rule, as the default (See-through in F2), in place of Trunk and its cone:\n- **The area:** the hero as the camera sees it and 0.9 m round it (half its height), its corners rounded. Lines from the camera go to a grid of points across it; a point is covered if some tree's leaves, branches or trunk are on its line\n- **See-through:** once 30% of it is covered, every tree covering any of it goes evenly see-through, all but its stump: the bark below where its stump would be cut stays solid. Over 0.15 s, and back as quickly once it no longer covers any, or the trees cover less than 80% of the 30%\n- **No tree goes whole** any more, behind its trunk or not\n\nIt's the same dither as the spruces': half the pixels let through, and as every see-through tree lets the same ones through, two in a row are as see-through as one. Deep in the thicket with the camera low, that's most of the screen, and the hero shows faintly: more see-through, or a smaller area, may suit you better.",
+  "text": "# See-through\nYour new rule, as the default (See-through in F2), in place of Trunk and its cone:\n- **The area:** the hero as the camera sees it and 0.9 m round it (half its height), its corners rounded. Lines from the camera go to a grid of points across it; a point is covered if some tree's leaves, branches or trunk are on its line\n- **See-through:** once 30% of it is covered, every tree covering any of it goes evenly see-through, standing on its stump. Over 0.15 s, and back as quickly once it no longer covers any, or the trees cover less than 80% of the 30%\n- **No tree goes whole** any more, behind its trunk or not\n\nIt's the same dither as the spruces': half the pixels let through, and as every see-through tree lets the same ones through, two in a row are as see-through as one. Deep in the thicket with the camera low, that's most of the screen, and the hero shows faintly: more see-through, or a smaller area, may suit you better.",
   "type": "note",
   "updatedAt": 1791230756233,
   "w": 460,
@@ -2348,6 +2361,45 @@
   "x": 28,
   "y": 48120,
   "z": 231
+ },
+ "sn-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791239491973,
+  "h": 680,
+  "text": "# Stumps under see-through trees\nYou found the see-through trees' stumps hard to see: only their bark stayed solid up to where the stump would be cut, with no top to it. Now a see-through tree stands on its real stump, the same one the earlier ways of cutting trees left, pale cut top and all, and its own bark goes see-through right down to it. The stump stays solid; what's above it, the see-through branches included, lies over its top at half, so the top shows through them.\n\nWith **hide all but nearest**, the trees hidden whole now leave nothing but their shadows: no stump, no bare trunk. The one or two kept see-through stand on their stumps.",
+  "type": "note",
+  "updatedAt": 1791239491973,
+  "w": 460,
+  "x": 28,
+  "y": 54754,
+  "z": 239
+ },
+ "sn-feet": {
+  "ar": 4.045,
+  "assetId": "a350c2c718a62c945f89e901039f078e",
+  "author": "claude",
+  "caption": "See-through trees on their stumps: a pine, a birch and a spruce, the hero just behind each.",
+  "createdAt": 1791239491973,
+  "type": "image",
+  "updatedAt": 1791239491973,
+  "w": 2200,
+  "x": 512,
+  "y": 54754,
+  "z": 240
+ },
+ "sn-hidden": {
+  "ar": 1.113,
+  "assetId": "ee947a829ad83975040415ca28f00d92",
+  "author": "claude",
+  "caption": "The slowest low-camera views: all see-through, on their stumps (left); hide all but nearest, the hidden trees leaving nothing (right).",
+  "createdAt": 1791239491973,
+  "type": "image",
+  "updatedAt": 1791239491973,
+  "w": 2200,
+  "x": 512,
+  "y": 55428,
+  "z": 241
  },
  "sp-about": {
   "author": "claude",

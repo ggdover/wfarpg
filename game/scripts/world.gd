@@ -120,7 +120,7 @@ var _shadow_pictures_baking := false
 var fade_near_camera := false
 ## which trees go, so that you can see past them (update_sight): "veil", no tree whole, but once the trees in front of
 ## the hero cover veil_cover of the area round it (the hero and veil_round round it, as the camera sees it), each of
-## them goes evenly see-through, all but its stump (_cut_veil); "front",
+## them goes evenly see-through, standing on its stump (_cut_veil); "front",
 ## whole, those in front of the hero in the lower middle of the screen (cut_half_width, cut_top) and any in the way of
 ## the hero, while those beside it or past it stay; "area", whole, those in the lower middle of the screen up to
 ## cut_behind past the hero too, as in Path of Exile 2, and any in the way of the hero; "line", whole, only those in the
@@ -140,7 +140,7 @@ var veil_amount := 0.5
 ## draw the area on the screen, with which of the points across it the trees cover (scripts/sight_area.gd)
 var show_area := false
 ## with "veil", deep in the forest: keep only this many see-through trees, those nearest the hero, and hide the rest
-## whole, leaving their stumps and shadows, which costs nothing to draw (0: keep them all see-through)
+## whole, leaving only their shadows, which costs nothing to draw (0: keep them all see-through)
 var veil_keep := 0
 ## draw the see-through trees near the camera with fewer leaf cards per clump (their "_f" version): where a tree lets
 ## what's behind it through, each of its cards still runs its shader before it's thrown away, layer on layer, which
@@ -360,10 +360,10 @@ func _fade_whole(i: int, tree: Dictionary, f: float, in_way: bool, delta: float)
 
 
 ## With cut_trees "veil": measure how much of the area round the hero the trees in front of it cover, now and then
-## (_measure_area); while that's veil_cover or more, each tree covering some of it goes evenly see-through, all but its
-## stump, over VEIL_FADE, and back once it no longer does (after COVER_HOLD), or once they cover less than 80% of
-## veil_cover (after VEIL_HOLD). With veil_keep, only that many of them stay see-through, those nearest the hero, and
-## the rest go whole (_fade_whole), leaving their stumps (_leave); otherwise no tree goes whole.
+## (_measure_area); while that's veil_cover or more, each tree covering some of it goes evenly see-through, standing on
+## its stump (_leave), over VEIL_FADE, and back once it no longer does (after COVER_HOLD), or once they cover less than
+## 80% of veil_cover (after VEIL_HOLD). With veil_keep, only that many of them stay see-through, those nearest the hero,
+## and the rest go whole (_fade_whole), leaving nothing but their shadows; otherwise no tree goes whole.
 func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	_area_age += delta
 	for i: int in _covering:
@@ -390,8 +390,11 @@ func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		if (v > 0.0) != (was > 0.0):
 			_lighten(trees[i], v > 0.0)
 		if v != was:
+			# its stump (_leave) stands in for its foot, so all its bark goes see-through: kept solid up to the cut, it
+			# would stand above the stump's slanted top on its low side
+			var solid: float = 0.0 if Models.has(trees[i]["model"] + "_stump") else trees[i]["cut"]
 			for rid: RID in trees[i]["draw"]:
-				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", Vector2(v, trees[i]["cut"]))
+				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", Vector2(v, solid))
 		if v > 0.0:
 			_veiled[i] = v
 		else:
@@ -518,7 +521,8 @@ func _coverer(tree: Dictionary) -> TriangleMesh:
 ## stands in the x-ray's window (window, with "xray"), or that comes within reach of the camera, where the shaders
 ## fade it, gets its bare trunk drawn in its place (<model>_trunk), which neither the x-ray nor the fade near the
 ## camera touch; once that trunk hides the hero, it fades out over the tree's stump. A spruce, whose branches reach the
-## ground, goes to its stump straight away, as do they all with "stumps".
+## ground, goes to its stump straight away, as do they all with "stumps". With "veil", a see-through tree stands on its
+## stump, cut top and all, while one hidden whole (veil_keep) leaves nothing.
 func _leave(camera: Camera3D, hero_pos: Vector3, delta: float, reach: float, window: Array) -> void:
 	var camera_pos := camera.global_position
 	var check := {}
@@ -527,6 +531,8 @@ func _leave(camera: Camera3D, hero_pos: Vector3, delta: float, reach: float, win
 	for i: int in _trunks:
 		check[i] = true
 	for i: int in _stumped:
+		check[i] = true
+	for i: int in _veiled:
 		check[i] = true
 	if leave != "nothing" and (not window.is_empty() or (reach > 0.0 and leave == "trunks")):
 		var lo := Vector2(camera_pos.x, camera_pos.z) - Vector2.ONE * (reach + _max_reach)
@@ -559,6 +565,9 @@ func _leave(camera: Camera3D, hero_pos: Vector3, delta: float, reach: float, win
 		var pole := leave == "trunks" and bare and (gone or in_window
 			or (reach > 0.0 and _near_camera(tree, i, camera_pos, reach + (1.0 if _trunks.has(i) else 0.0))))
 		var stump := leave != "nothing" and (gone or in_window) and (leave == "stumps" or not bare)
+		if cut_trees == "veil":
+			pole = false
+			stump = _veiled.has(i) and not gone
 		if pole:
 			var f: float = _trunks.get(i, -1.0)
 			if f < 0.0:

@@ -72,7 +72,7 @@ place (`tools/reference_shots.py`).
   - Into each tree's vertices: how much of the sky each leaf and branch can see.
   - Into the ground: how much the trees shade each spot, separately for each tree set.
 - **Trees and the camera:** once the trees in front of the hero cover enough of the area round it, each of them goes
-  evenly see-through, all but its stump (**See-through** in the panel; `update_sight`, `_cut_veil` and
+  evenly see-through, standing on its stump (**See-through** in the panel; `update_sight`, `_cut_veil` and
   `_measure_area` in `scripts/world.gd`). No tree goes whole. Their shadows stay.
   - The area is the hero as the camera sees it, on a plane through its middle facing the camera (its width and height,
     or from above its footprint), and **area round hero** round that, its corners rounded: 0 m, the hero alone, as the
@@ -84,8 +84,9 @@ place (`tools/reference_shots.py`).
   - See-through is the cone's dither (below) evenly over the whole tree: half its pixels let through what's behind it,
     however many layers of leaves there are, where blending at half opacity would stack up over the overlapping leaf
     cards and stay nearly solid; and as every see-through tree lets the same pixels through, two in a row are as
-    see-through as one. The bark below where the tree's stump is cut stays solid (`sight_veil` and `veil_fade` in the
-    shaders), so its stump stands.
+    see-through as one. A see-through tree stands on its stump, the stump model with its pale cut top drawn at its foot
+    (`_leave`), and its own bark goes see-through right down (`sight_veil` and `veil_fade` in the shaders): kept solid
+    up to the cut, it would stand above the stump's slanted top on its low side.
   - A see-through tree is drawn near the camera with fewer leaf cards per clump (its `_f` version; **see-through
     trees** in the panel, Fewer cards or All cards). Where it lets what's behind it through, each of its cards still
     runs its shader before it's thrown away, layer on layer, and with nothing in front to stop them, every
@@ -93,7 +94,7 @@ place (`tools/reference_shots.py`).
     more than drawing them solid or what's behind them. With half the cards they cost 0.5 to 3 ms, and look the same
     at 50%, a touch more see-through.
   - **Hide all but nearest** (in the panel, off by default; `veil_keep`): keep only the one or two see-through trees
-    nearest the hero see-through, and the rest go whole over 0.15 s, leaving their stumps and shadows, until they no
+    nearest the hero see-through, and the rest go whole over 0.15 s, leaving only their shadows, no stump, until they no
     longer cover the hero. A hidden tree comes back as one of the nearest only once it's 1.5 m nearer the hero than
     one kept, so two about as near don't keep swapping. Hidden trees cost nothing to draw: in the slowest low-camera
     views, 16 to 17 ms a frame instead of 22 to 24 (keeping 2, about the same), and the stipple over most of the screen

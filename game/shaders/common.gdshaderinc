@@ -81,8 +81,8 @@ float cone_fade(vec2 screen_uv, vec3 vertex_view, vec3 camera_world) {
 
 // How see-through a tree is (sight_veil.x, which scripts/world.gd sets in _cut_veil while the trees in front of the
 // hero cover enough of the area round it): the share of its pixels that let what's behind it through, evenly over the
-// whole tree, with faded_fine; but not below height (metres above its foot: its stump, sight_veil.y), which stays
-// solid. Never in the shadow pass.
+// whole tree, with faded_fine; but not below height (metres above its foot, sight_veil.y), which stays solid, for a
+// tree without a stump to stand on (_leave; 0 for one with). Never in the shadow pass.
 float veil_fade(vec2 veil, float height, vec3 camera_world) {
 	return height < veil.y || distance(camera_world, main_camera_position) > 0.05 ? 0.0 : veil.x;
 }

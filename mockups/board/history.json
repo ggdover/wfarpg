@@ -3550,6 +3550,84 @@
     "Walking the trail with the camera low, keeping 1 takes the slowest 5% of frames from 44-46 fps to 50-51 and the slowest 1% from 40-43 to 46, hiding 2.8 trees a frame on average"
    ],
    "cover": "renders/play_demo_see_through/hide_all_but_nearest.jpg"
+  },
+  {
+   "id": "play-demo-stumps-see-through",
+   "date": "2026-10-06",
+   "asked_at": "00:23",
+   "posted_at": "00:32",
+   "title": "Stumps under see-through trees",
+   "section": "Play demo: stumps under see-through trees",
+   "asked": "On the trees that turn transparent, the stump isn't very noticeable: it looks as if it has no top surface, only the spruces seem to have one. And with hide all but nearest, the trees hidden completely shouldn't even show their stumps; but I do want the stumps on the trees that just turn transparent",
+   "changed": [
+    "A see-through tree stands on its real stump, the one the earlier ways of cutting trees left, pale cut top and all, and its own bark goes see-through right down to it (kept solid up to the cut, it would stand above the stump's slanted top on its low side)",
+    "With hide all but nearest, the trees hidden whole leave nothing but their shadows: no stump, no bare trunk",
+    "The self-test checks that a see-through tree stands on its stump, that the stump goes when it comes back, and that the hidden trees leave nothing"
+   ],
+   "items": [
+    {
+     "id": "see-about",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# See-through\nYour new rule, as the default (See-through in F2), in place of Trunk and its cone:\n- **The area:** the hero as the camera sees it and 0.9 m round it (half its height), its corners rounded. Lines from the camera go to a grid of points across it; a point is covered if some tree's leaves, branches or trunk are on its line\n- **See-through:** once 30% of it is covered, every tree covering any of it goes evenly see-through, standing on its stump. Over 0.15 s, and back as quickly once it no longer covers any, or the trees cover less than 80% of the 30%\n- **No tree goes whole** any more, behind its trunk or not\n\nIt's the same dither as the spruces': half the pixels let through, and as every see-through tree lets the same ones through, two in a row are as see-through as one. Deep in the thicket with the camera low, that's most of the screen, and the hero shows faintly: more see-through, or a smaller area, may suit you better.",
+     "author": "claude"
+    },
+    {
+     "id": "hn-about",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Hide all but nearest\nYour question: would hiding some of the trees between the camera and the hero save more than keeping them see-through? Yes: a hidden tree costs nothing to draw, while a see-through one still runs its leaf cards wherever it lets through. So it's an option now (F2, **hide all but nearest**: Off, 1 or 2; off by default): deep in the forest, only the one or two see-through trees nearest the hero stay see-through, and the rest go whole over 0.15 s, leaving only their shadows, until they no longer cover the hero.\n\nIn the slowest low-camera views: 16 to 17 ms a frame instead of 22 to 24 (keeping 2, about the same). Walking the trail with the camera low, keeping 1 takes the slowest 5% of frames from 44-46 fps to 50-51, the slowest 1% from 40-43 to 46. The stipple over most of the screen goes and the hero shows clearly; but the trees in the way vanish instead of staying half there.",
+     "author": "claude"
+    },
+    {
+     "id": "s-stumps2",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: stumps under see-through trees",
+     "author": "claude"
+    },
+    {
+     "id": "sn-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Stumps under see-through trees\nYou found the see-through trees' stumps hard to see: only their bark stayed solid up to where the stump would be cut, with no top to it. Now a see-through tree stands on its real stump, the same one the earlier ways of cutting trees left, pale cut top and all, and its own bark goes see-through right down to it. The stump stays solid; what's above it, the see-through branches included, lies over its top at half, so the top shows through them.\n\nWith **hide all but nearest**, the trees hidden whole now leave nothing but their shadows: no stump, no bare trunk. The one or two kept see-through stand on their stumps.",
+     "author": "claude"
+    },
+    {
+     "id": "sn-feet",
+     "type": "image",
+     "status": "new",
+     "caption": "See-through trees on their stumps: a pine, a birch and a spruce, the hero just behind each.",
+     "assetId": "a350c2c718a62c945f89e901039f078e",
+     "file": "renders/play_demo_see_through/stumps_under_see_through.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sn-hidden",
+     "type": "image",
+     "status": "new",
+     "caption": "The slowest low-camera views: all see-through, on their stumps (left); hide all but nearest, the hidden trees leaving nothing (right).",
+     "assetId": "ee947a829ad83975040415ca28f00d92",
+     "file": "renders/play_demo_see_through/hidden_leave_nothing.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/32_stump_trunk_rise.jpg",
+     "caption": "Tried and left out: the see-through trunk fading in over half a metre above the stump's cut (bottom), against evenly see-through (top), for a pine, a birch and a spruce; the branches above cover the cut top as much as the trunk did"
+    }
+   ],
+   "found": [
+    "Seen from above, what lies over a see-through tree's stump is mostly its see-through branches, so the stump's top shows through them at half. Fading the trunk in over half a metre above the cut, to show the top clearly, changed little, and was left out"
+   ],
+   "cover": "renders/play_demo_see_through/stumps_under_see_through.jpg"
   }
  ]
 }
