@@ -71,26 +71,25 @@ place (`tools/reference_shots.py`).
   it instead.
   - Into each tree's vertices: how much of the sky each leaf and branch can see.
   - Into the ground: how much the trees shade each spot, separately for each tree set.
-- **Trees and the camera:** a tree goes to its stump only once its trunk is in front of the hero; its leaves and
-  branches stay, so the hero can hide in them, until it's deep in the forest, behind the leaves of three trees or more,
-  when the cone (below) shows it through them (**Trunk** in the panel; `update_sight` and `_cut_trunks` in
-  `scripts/world.gd`). Their shadows stay.
-  - The trunk is found as **Line** finds trees in the way of the hero, along lines from the camera to points over the
-    hero, but against each tree's own bare trunk (`<model>_trunk` in `stumps.glb`, up into the crown) rather than its
-    whole shape. The stump is built from the same trunk.
-  - The leaves are counted along the lines to the hero's middle: how many trees' shapes each line passes through.
-    Once one has passed through three or more for a moment (0.08 s, so that a line brushing a third tree for a frame
-    doesn't flash it), the cone fades in over a quarter of a second, for every tree. A tenth of a second after none
-    does, it fades out, over a tenth of a second (`reveal_layers` and `reveal_out`, **trunk: cone behind** and
-    **trunk: cone fades out** in the panel). Walking the trail with the default camera, the hero was behind one tree's
-    leaves a quarter of the time and three or more 5% of it: the cone came on twice, for 0.9 and 1.9 s, and two trees
-    went to their stumps.
-  - **Spruces**, whose needles are thick, can hide the hero on their own, short of the cone. So while spruces' leaves
-    cover most of the hero (half the lines to its middle or more), those spruces go evenly see-through: the cone's
-    dither over the whole tree, half its pixels letting through what's behind it, so you see the hero and the spruce
-    at once (`sight_veil` and `veil_fade` in the shaders). Blending them at half opacity instead would stack up over
-    their overlapping needle cards and stay nearly solid. They go over 0.15 s, and back as quickly once the hero is
-    out from behind them (`spruce_cover`, `spruce_veil`). Other trees' leaves, thinner, still hide the hero.
+- **Trees and the camera:** once the trees in front of the hero cover enough of the area round it, each of them goes
+  evenly see-through, all but its stump (**See-through** in the panel; `update_sight`, `_cut_veil` and
+  `_measure_area` in `scripts/world.gd`). No tree goes whole. Their shadows stay.
+  - The area is the hero as the camera sees it, on a plane through its middle facing the camera (its width and height,
+    or from above its footprint), and 0.9 m round that, half the hero's height, its corners rounded. Lines from the
+    camera go to a grid of points across it (5 by 7, those inside its outline), and a point is covered if some tree's
+    shape as drawn, leaves, branches or trunk, is on its line. Once 30% of the points are covered, every tree that
+    covers any goes see-through over 0.15 s, and back as quickly once it no longer covers any (after a quarter of a
+    second) or the trees cover less than 80% of the 30% (after a tenth). It's measured 30 times a second.
+  - See-through is the cone's dither (below) evenly over the whole tree: half its pixels let through what's behind it,
+    however many layers of leaves there are, where blending at half opacity would stack up over the overlapping leaf
+    cards and stay nearly solid; and as every see-through tree lets the same pixels through, two in a row are as
+    see-through as one. The bark below where the tree's stump is cut stays solid (`sight_veil` and `veil_fade` in the
+    shaders), so its stump stands.
+  - In the panel: **see-through at** (30%), **area round hero** (0.9 m), **see-through by** (50%; 0% for never), and
+    **show the area**, which draws it over the view with its points, red where a tree covers them, and how much of it
+    the trees cover (`scripts/sight_area.gd`).
+  - Walking the trail with the default camera, the trees covered none of the area two thirds of the time and 30% or
+    more a quarter of it; some were see-through a third of the time (with the camera low, 58%).
   - **The cone** (also on its own, **Cone** in the panel): whatever of a tree is inside a cone from the edges of the
     screen to the hero fades away, wholly in the cone's middle and gradually towards its edges
     (`ref_imgs/tree_disappear/camera_view.png`; `cone_fade` in `shaders/common.gdshaderinc`).
@@ -140,7 +139,7 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Trees in the way | How trees get out of the way (above): **Trunk** (the default), with how many trees' leaves bring the cone in (**trunk: cone behind**, 3) and how long it takes to fade out once the hero is out of them (**trunk: cone fades out**, 0.1 s), and how much of the hero spruces must cover to go see-through (**spruce covers**, 50%) and how see-through they go (**spruce see-through**, 50%; 0% for never); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches, which work for Trunk's cone too; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Trunk and Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Trees in the way | How trees get out of the way (above): **See-through** (the default), with how much of the area round the hero the trees must cover (**see-through at**, 30%), how far round the hero the area reaches (**area round hero**, 0.9 m), how see-through they go (**see-through by**, 50%; 0% for never), and **show the area** on the screen; the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
@@ -238,10 +237,12 @@ Also:
   nearer saves at most 1 ms, as their bigger cards cover about as many pixels.
 - **Trimmed and fewer cards:** every version also comes with its cards cut to the outline round their leaves
   (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`).
-- **Hidden trees:** with Trunk, the start runs as fast as with no tree hidden (11.3 ms), as the cone is off there and
-  no trunk is in front of the hero. The cone, which takes no tree whole, costs about 0.7 ms a frame more, and 2 ms
-  more than Front, where the trees that go aren't drawn at all, apart from their shadows and what's left of them.
-  Working out which trees go takes 0.2–0.7 ms a frame in the forest; the trees' shapes for it are worked out as they load (about 60 ms for
+- **Hidden trees:** with See-through, the start runs as fast as with no tree hidden (11.6 ms), as no tree covers the
+  area there. On the trail walk it's 0.2 ms a frame slower on average, and the slowest 5% of frames 60 fps instead of
+  70: the trees behind the see-through ones are drawn too. Measuring the area costs 0.3 ms, at most 2, 30 times a
+  second. The cone, which takes no tree whole, costs about 0.5 ms a frame more at the start, and 2 ms more than Front,
+  where the trees that go aren't drawn at all, apart from their shadows and what's left of them. Working out which
+  trees go takes 0.2–0.7 ms a frame in the forest; the trees' shapes for it are worked out as they load (about 60 ms for
   both sets).
 - **The depth prepass** (Godot's own, on): without it, the forest takes twice as long.
 - **Tried, and not worth it:** a draw distance for the bushes and berries (under 1 ms with the camera low), skipping
@@ -249,7 +250,7 @@ Also:
   10% is the fastest).
 
 What costs the most, measured with the panel at the start (against the defaults' 10.4 ms then, when the trees in front
-of the hero went whole there; with Trunk, the defaults take 11.3 ms):
+of the hero went whole there; with See-through, the defaults take 11.6 ms):
 
 - **Shadows:** off saves 2.7 ms (126 fps); the trees' shadows alone 2.2. A 1024 shadow map saves 1.0 ms against
   2048, and 4096 costs 2.4 ms more.
@@ -299,6 +300,6 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
 | `shaders/` | Ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material (and `lowpoly_trunk` for the bare trunks trees leave, which neither the x-ray nor the fade near the camera touch), the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
-| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=cone` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender) |
+| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender) |
 | `tools/` | The Blender build scripts (Godot ignores this folder) |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

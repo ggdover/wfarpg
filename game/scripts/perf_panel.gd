@@ -107,14 +107,12 @@ func setup(d: Node) -> void:
 	_choice(col, "fade", "Fade trees near camera", [["On", true], ["Off", false]], w.fade_near_camera,
 		func(v: bool) -> void: w.set_trees("fade_near_camera", v))
 	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
-	_choice(col, "sight", "Trees in the way", [["Trunk", "trunk"], ["Cone", "cone"], ["Front", "front"], ["X-ray", "xray"], ["Area", "area"], ["Line", "line"], ["Keep", "off"]],
+	_choice(col, "sight", "Trees in the way", [["See-through", "veil"], ["Cone", "cone"], ["Front", "front"], ["X-ray", "xray"], ["Area", "area"], ["Line", "line"], ["Keep", "off"]],
 		w.cut_trees, func(v: String) -> void: w.set_trees("cut_trees", v))
-	_slider(col, "reveal", "  trunk: cone behind", 1.0, 6.0, 1.0, w.reveal_layers,
-		func(v: float) -> String: return "%d tree%s" % [roundi(v), "" if roundi(v) == 1 else "s"],
-		func(v: float) -> void: w.reveal_layers = roundi(v))
-	_slider(col, "reveal_out", "  trunk: cone fades out", 0.0, 1.0, 0.05, w.reveal_out, "%.2f s", func(v: float) -> void: w.reveal_out = v)
-	_slider(col, "spruce_cover", "  spruce covers", 0.2, 1.0, 0.05, w.spruce_cover, percent, func(v: float) -> void: w.spruce_cover = v)
-	_slider(col, "spruce_veil", "  spruce see-through", 0.0, 0.9, 0.05, w.spruce_veil, percent, func(v: float) -> void: w.set_trees("spruce_veil", v))
+	_slider(col, "veil_cover", "  see-through at", 0.05, 1.0, 0.05, w.veil_cover, percent, func(v: float) -> void: w.veil_cover = v)
+	_slider(col, "veil_round", "  area round hero", 0.0, 2.0, 0.1, w.veil_round, "%.1f m", func(v: float) -> void: w.veil_round = v)
+	_slider(col, "veil_amount", "  see-through by", 0.0, 0.9, 0.05, w.veil_amount, percent, func(v: float) -> void: w.set_trees("veil_amount", v))
+	_choice(col, "show_area", "  show the area", [["On", true], ["Off", false]], w.show_area, func(v: bool) -> void: w.show_area = v)
 	_slider(col, "cone_soft", "  cone: soft share", 0.1, 1.0, 0.05, w.cone_soft, percent, func(v: float) -> void: w.cone_soft = v)
 	_choice(col, "cone_style", "  cone: fade in", [["Dither", "dither"], ["Patches", "patches"]], w.cone_style,
 		func(v: String) -> void: w.cone_style = v)

@@ -63,8 +63,7 @@ bool faded_fine(float fade, vec3 world, vec2 pixel) {
 // with depth, from the whole screen at the camera to round the hero at the hero's depth, and stops a little past the
 // hero. cone_hero: where it ends round the hero, its middle and half its size (screen UV); cone_shape: the hero's depth
 // from the camera (metres), the share of the cone, from its edge in, that fades gradually, how its size goes with depth
-// (1: evenly), and how strongly it's on, 0..1 (1 with cut_trees "cone"; with "trunk", while the hero is deep in the
-// forest, fading in and out).
+// (1: evenly), and how strongly it's on, 0..1 (1 with cut_trees "cone", 0 otherwise).
 global uniform vec4 cone_hero;
 global uniform vec4 cone_shape;
 
@@ -80,11 +79,12 @@ float cone_fade(vec2 screen_uv, vec3 vertex_view, vec3 camera_world) {
 	return cone_shape.w * (1.0 - smoothstep(1.0 - cone_shape.y, 1.0, q)) * (1.0 - past);
 }
 
-// How see-through a spruce is (sight_veil, which scripts/world.gd sets in _cut_trunks while the hero is mostly behind
-// its leaves): the share of its pixels that let what's behind it through, evenly over the whole tree, with faded_fine.
-// Never in the shadow pass.
-float veil_fade(float veil, vec3 camera_world) {
-	return distance(camera_world, main_camera_position) > 0.05 ? 0.0 : veil;
+// How see-through a tree is (sight_veil.x, which scripts/world.gd sets in _cut_veil while the trees in front of the
+// hero cover enough of the area round it): the share of its pixels that let what's behind it through, evenly over the
+// whole tree, with faded_fine; but not below height (metres above its foot: its stump, sight_veil.y), which stays
+// solid. Never in the shadow pass.
+float veil_fade(vec2 veil, float height, vec3 camera_world) {
+	return height < veil.y || distance(camera_world, main_camera_position) > 0.05 ? 0.0 : veil.x;
 }
 
 // The x-ray (cut_trees "xray" in scripts/world.gd, with xray_on): in a window in the lower middle of the screen,

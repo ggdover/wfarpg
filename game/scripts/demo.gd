@@ -231,6 +231,10 @@ func _build_hud() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "Hud"
 	add_child(layer)
+	var area := SightArea.new()  # the area round the hero that decides when trees go see-through, if shown (F2)
+	area.world = world
+	area.camera = rig.camera
+	layer.add_child(area)
 	var font: Font = load("res://assets/fonts/Cinzel.ttf")
 	var box := PanelContainer.new()
 	box.position = Vector2(16, 14)

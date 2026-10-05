@@ -2037,6 +2037,19 @@
   "y": 5000,
   "z": 16
  },
+ "s-seethrough": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791230756233,
+  "h": 3661,
+  "title": "Play demo: see-through",
+  "type": "frame",
+  "updatedAt": 1791230756233,
+  "w": 2740,
+  "x": 0,
+  "y": 47024,
+  "z": 33
+ },
  "s-sound": {
   "author": "claude",
   "color": "dusk",
@@ -2192,6 +2205,71 @@
   "x": 1920,
   "y": 780,
   "z": 6
+ },
+ "see-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791230756233,
+  "h": 1040,
+  "text": "# See-through\nYour new rule, as the default (See-through in F2), in place of Trunk and its cone:\n- **The area:** the hero as the camera sees it and 0.9 m round it (half its height), its corners rounded. Lines from the camera go to a grid of points across it; a point is covered if some tree's leaves, branches or trunk are on its line\n- **See-through:** once 30% of it is covered, every tree covering any of it goes evenly see-through, all but its stump: the bark below where its stump would be cut stays solid. Over 0.15 s, and back as quickly once it no longer covers any, or the trees cover less than 80% of the 30%\n- **No tree goes whole** any more, behind its trunk or not\n\nIt's the same dither as the spruces': half the pixels let through, and as every see-through tree lets the same ones through, two in a row are as see-through as one. Deep in the thicket with the camera low, that's most of the screen, and the hero shows faintly: more see-through, or a smaller area, may suit you better.",
+  "type": "note",
+  "updatedAt": 1791230756233,
+  "w": 460,
+  "x": 28,
+  "y": 47052,
+  "z": 230
+ },
+ "see-area": {
+  "ar": 1.661,
+  "assetId": "09e2cb1b73fd3ccce2c5392c971ef561",
+  "author": "claude",
+  "caption": "Along the trail with the default camera and the area shown: its points red where a tree covers them, its outline red once 30% of them are. The trees covering it go see-through; the rest of the forest stays.",
+  "createdAt": 1791230756233,
+  "type": "image",
+  "updatedAt": 1791230756233,
+  "w": 2200,
+  "x": 512,
+  "y": 47832,
+  "z": 233
+ },
+ "see-birch": {
+  "ar": 3.387,
+  "assetId": "9a73ed74e32de23603dc3a1688af1d0e",
+  "author": "claude",
+  "caption": "The camera beyond a birch and a young pine, the hero behind them: see-through off (left) and on (right). The birch's stump stays solid at its foot.",
+  "createdAt": 1791230756233,
+  "type": "image",
+  "updatedAt": 1791230756233,
+  "w": 2200,
+  "x": 512,
+  "y": 47052,
+  "z": 232
+ },
+ "see-low": {
+  "ar": 1.731,
+  "assetId": "00beff047aab23415c635fe0316fdfdc",
+  "author": "claude",
+  "caption": "Camera low in the thicket: all of the area covered, and every tree round the hero see-through, the hero faint behind them.",
+  "createdAt": 1791230756233,
+  "type": "image",
+  "updatedAt": 1791230756233,
+  "w": 2200,
+  "x": 512,
+  "y": 49286,
+  "z": 234
+ },
+ "see-switches": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791230756233,
+  "h": 800,
+  "text": "# To try in F2\nUnder **Trees in the way**: **See-through** (now), or **Cone**, **Front**, **X-ray**, **Area**, **Line** and **Keep**. Then **see-through at** (30%: how much of the area must be covered), **area round hero** (0.9 m), **see-through by** (50%; 0% for never) and **show the area**, which draws it over the view with its points, red where a tree covers them, and how much of it is covered.\n\nWalking the trail with the default camera, the trees covered none of the area two thirds of the time and 30% or more a quarter of it; some were see-through a third of the time (58% with the camera low). The start runs as fast as with nothing hidden; the slowest 5% of the walk's frames 60 fps instead of 70, as what's behind the see-through trees gets drawn too.",
+  "type": "note",
+  "updatedAt": 1791230756233,
+  "w": 460,
+  "x": 28,
+  "y": 48120,
+  "z": 231
  },
  "sp-about": {
   "author": "claude",

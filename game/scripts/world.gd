@@ -41,14 +41,17 @@ var _trunks := {}  # tree index -> how far its bare trunk has faded out, 0..1, w
 var _stumped := {}  # tree index -> true while its stump is drawn
 var _reach := 0.0  # the fade near the camera as the shaders have it (xray_near)
 var _cone := 0.0  # how strongly the cone is on, as the shaders have it (cone_shape.w)
-var _layers := 0  # how many trees' leaves the hero is behind, with "trunk": the most on any line to its middle
-var _reveal_for := INF  # seconds since the hero was last behind reveal_layers trees' leaves, with the cone on
-var _thick_for := 0.0  # seconds the hero has been behind reveal_layers trees' leaves, on end
-var _reveal := 0.0  # how strongly the cone is on with "trunk", 0..1
-var _veiled := {}  # tree index -> how see-through the spruce is, 0..spruce_veil, with "trunk" (sight_veil in the shaders)
-var _spruce_cover := 0.0  # how much of the hero spruces' leaves cover, 0..1, with "trunk": a share of the lines to its middle
-var _veil_for := INF  # seconds since the hero was last mostly behind spruces' leaves
-var _trunk_shapes := {}  # model -> its bare trunk's shape as a TriangleMesh, or null (_trunk_shape)
+var _veiled := {}  # tree index -> how see-through it is, 0..veil_amount, with "veil" (sight_veil in the shaders)
+var _covering := {}  # tree index -> seconds since it last covered some of the area round the hero (_measure_area)
+var _cover := 0.0  # how much of the area round the hero the trees cover, 0..1, as last measured
+var _veil_for := INF  # seconds since the trees last covered veil_cover of the area
+var _area_age := INF  # seconds since the area was last measured
+var _coverers := {}  # model version -> its shape as drawn, as a TriangleMesh, for how much of the area it covers
+## the area round the hero, as last measured (for scripts/sight_area.gd): its outline, the points across it that lines
+## from the camera were tested to, and which of those some tree covers (1) or not (0)
+var area_outline := PackedVector3Array()
+var area_points := PackedVector3Array()
+var area_covered := PackedByteArray()
 var _max_reach := 0.0
 var _current := ""
 const CELL := 8.0
@@ -72,13 +75,13 @@ const XRAY_CORNER := 0.12  # how round its top corners
 const STANDS := 2.0  # where a tree stands, for the area: its foot and this much of its trunk (metres). Its whole
 		# trunk would count tall trees beside the area, as seen from above their trunks lean in towards the screen's
 		# middle as they rise
-const TRUNK_HALF := 0.3  # the hero's own half width, for finding whether a trunk is in front of it (_cut_trunks)
-const REVEAL_WAIT := 0.08  # seconds the hero must be in the thick of the trees before the cone comes on, so that a
-		# line brushing a third tree for a frame doesn't flash it
-const REVEAL_HOLD := 0.1  # seconds the cone stays on after the hero is out of the thick of the trees, over a gap in them
-const REVEAL_IN := 0.25  # seconds the cone takes to fade in
-const VEIL_HOLD := 0.1  # seconds the spruces stay see-through after the hero is no longer mostly behind them
-const VEIL_FADE := 0.15  # seconds a spruce takes to go see-through, and back
+const HERO_BODY := 0.3  # the hero's own half width (m)
+const VEIL_HOLD := 0.1  # seconds the trees stay see-through after they no longer cover enough of the area
+const VEIL_FADE := 0.15  # seconds a tree takes to go see-through, and back
+const COVER_HOLD := 0.25  # seconds a tree that's see-through stays so after it last covered some of the area
+const AREA_COLUMNS := 5  # the points across the area that lines from the camera are tested to: a grid this wide
+const AREA_ROWS := 7  # and this high, those inside its rounded outline
+const AREA_EVERY := 1.0 / 30.0  # seconds between measurements of the area
 
 var _ground_materials := {}  # detail level -> its material (shaders/ground*.gdshader)
 var _ground_meshes: Array[MeshInstance3D] = []
@@ -113,9 +116,9 @@ var _shadow_pictures_baking := false
 ## fade out trees near a high camera, as the mockups hide them, though never near the hero (scripts/camera_rig.gd);
 ## off, as trees should only go once they're in the way
 var fade_near_camera := false
-## which trees go, so that you can see past them (update_sight): "trunk", whole, leaving their stumps, only those whose
-## trunks are in the way of the hero; their leaves and branches stay, so the hero can hide in them, unless the hero is
-## behind the leaves of reveal_layers trees or more, when the cone comes on, as with "cone" (_cut_trunks); "front",
+## which trees go, so that you can see past them (update_sight): "veil", no tree whole, but once the trees in front of
+## the hero cover veil_cover of the area round it (the hero and veil_round round it, as the camera sees it), each of
+## them goes evenly see-through, all but its stump (_cut_veil); "front",
 ## whole, those in front of the hero in the lower middle of the screen (cut_half_width, cut_top) and any in the way of
 ## the hero, while those beside it or past it stay; "area", whole, those in the lower middle of the screen up to
 ## cut_behind past the hero too, as in Path of Exile 2, and any in the way of the hero; "line", whole, only those in the
@@ -125,16 +128,15 @@ var fade_near_camera := false
 ## gradually towards its edges (cone_fade in shaders/common.gdshaderinc), ref_imgs/tree_disappear/camera_view.png; or
 ## "off". With "front" and "xray", whatever of a tree comes near the camera fades away too (cut_near). Their shadows
 ## stay.
-var cut_trees := "trunk"
-## with "trunk": behind the leaves of this many trees or more, as deep in the forest, the hero is shown through them
-var reveal_layers := 3
-## and once it's out of the thick of them, the cone fades out over this long (seconds; 0 at once), after REVEAL_HOLD
-var reveal_out := 0.1
-## with "trunk": while spruces' leaves cover this much of the hero or more (a share of the lines to its middle), short
-## of the cone, those spruces go evenly see-through
-var spruce_cover := 0.5
-## and let this share of what's behind them through (0 for never)
-var spruce_veil := 0.5
+var cut_trees := "veil"
+## with "veil": the trees go see-through once they cover this share of the area round the hero
+var veil_cover := 0.3
+## the area: the hero and this far round it (m), as the camera sees it
+var veil_round := 0.9
+## and how see-through they go: the share of what's behind them they let through (0 for never)
+var veil_amount := 0.5
+## draw the area on the screen, with which of the points across it the trees cover (scripts/sight_area.gd)
+var show_area := false
 ## what's left of a tree that goes: "trunks", its bare trunk, until that hides the hero, which takes it down to its
 ## stump (a spruce, whose branches reach the ground, goes to its stump straight away); "stumps"; or "nothing"
 var leave := "stumps"
@@ -226,8 +228,8 @@ func skip_faded(camera_pos: Vector3, radius: float) -> void:
 
 
 ## Fade out the trees that block the view, and fade them back once they don't; leave their trunks or stumps (leave).
-## With cut_trees "trunk", whole trees go once their trunks are in the way, and deep in the forest the cone comes on
-## (_cut_trunks); with "front", "area" and "line", whole trees go (_cut_whole); with "xray", the shaders cut away
+## With cut_trees "veil", the trees covering enough of the area round the hero go see-through (_cut_veil); with
+## "front", "area" and "line", whole trees go (_cut_whole); with "xray", the shaders cut away
 ## whatever of a tree is in the lower middle of the screen in front of the hero; with "cone", whatever of a tree is in
 ## the cone. With "front" and "xray", the shaders also fade whatever of a tree comes near the camera. What's left of the
 ## trees is _leave's. Called every frame by the camera rig, with how long the frame took.
@@ -247,11 +249,11 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	if xray > 0.0:
 		RenderingServer.global_shader_parameter_set("xray_rect", Vector4(cut_half_width, cut_top, XRAY_EDGE, XRAY_CORNER))
 		window = _area_planes(camera, AREA_KEEP)
-	elif cut_trees == "trunk":
-		_cut_trunks(camera, hero_pos, delta)
+	elif cut_trees == "veil":
+		_cut_veil(camera, hero_pos, delta)
 	elif cut_trees != "off" and cut_trees != "cone":
 		_cut_whole(camera, hero_pos, delta)
-	var cone := 1.0 if cut_trees == "cone" else (_reveal if cut_trees == "trunk" else 0.0)
+	var cone := 1.0 if cut_trees == "cone" else 0.0
 	if cone > 0.0:
 		_update_cone(camera, hero_pos, cone)
 	elif _cone > 0.0:
@@ -260,8 +262,8 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	_leave(camera, hero_pos, delta, reach, window)
 
 
-## The cone (cut_trees "cone", or "trunk" deep in the forest): where the hero is on the screen, how big (cone_tip
-## times its size there), how far from the camera, and how strongly it's on, for cone_fade in the shaders.
+## The cone (cut_trees "cone"): where the hero is on the screen, how big (cone_tip times its size there), how far from
+## the camera, and how strongly it's on, for cone_fade in the shaders.
 func _update_cone(camera: Camera3D, hero_pos: Vector3, strength: float) -> void:
 	var size := camera.get_viewport().get_visible_rect().size
 	var r := Rect2(camera.unproject_position(hero_pos), Vector2.ZERO)
@@ -348,94 +350,129 @@ func _fade_whole(i: int, tree: Dictionary, f: float, in_way: bool, delta: float)
 	return f
 
 
-## With cut_trees "trunk": a tree goes whole, leaving its stump (leave), only once its trunk is in front of the hero,
-## on a line from the camera to it (_trunk_in_way); its leaves and branches stay, so the hero can stand hidden in them.
-## But once the lines to the hero's middle pass through the leaves of reveal_layers trees or more, deep in the forest,
-## the cone fades in (_reveal), as with cut_trees "cone", once that has lasted REVEAL_WAIT, and out (reveal_out) once
-## the hero has been out of the thick of them for REVEAL_HOLD. And while spruces' leaves, which are thick, cover most
-## of the hero (spruce_cover of the lines to its middle), those spruces go evenly see-through (spruce_veil), however
-## few they are.
-func _cut_trunks(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
-	var camera_pos := camera.global_position
-	var body := _hero_points(camera_pos, hero_pos, TRUNK_HALF, 0.0)  # the hero itself, for the trunks not yet gone
-	var points := _hero_points(camera_pos, hero_pos, HERO_HALF, HERO_PAD)  # a little round it, for those that are
-	var core := PackedVector3Array([points[4], points[5], points[8], points[9], points[12], points[13]])  # its middle
-	var cam2 := Vector2(camera_pos.x, camera_pos.z)
-	var hero2 := Vector2(hero_pos.x, hero_pos.z)
-	var reach := _max_reach + HERO_HALF + HERO_PAD + 1.0
-	var lo := cam2.min(hero2) - Vector2.ONE * reach
-	var hi := cam2.max(hero2) + Vector2.ONE * reach
-	var check := {}
-	for cx in range(floori(lo.x / CELL), floori(hi.x / CELL) + 1):
-		for cz in range(floori(lo.y / CELL), floori(hi.y / CELL) + 1):
-			for i: int in _tree_cells.get(Vector2i(cx, cz), []):
-				check[i] = true
-	for i: int in _sight:
-		check[i] = true
-	for i: int in _veiled:
-		check[i] = true
-	var trees: Array = _tree_sets[_current]
-	var counts := PackedInt32Array()
-	counts.resize(core.size())
-	var covered := 0  # the lines to the hero's middle that spruces' leaves are on, a bit each
-	var spruces := {}  # the spruces whose leaves are in front of the hero
-	for i: int in check:
-		var tree: Dictionary = trees[i]
-		var c := _tree_xz[i]
-		var off := Geometry2D.get_closest_point_to_segment(c, hero2, cam2).distance_to(c)  # from the line to the hero
-		var f: float = _sight.get(i, 0.0)
-		var behind := off < float(tree["trunk_reach"]) + HERO_HALF + HERO_PAD and _trunk_in_way(tree, i, camera_pos, points if f > 0.0 else body)
-		if _fade_whole(i, tree, f, behind, delta) > 0.0 or off > (tree["bound"] as Vector3).x + HERO_HALF + HERO_PAD + 0.5:
-			continue  # going to its stump, or nowhere near the way to the hero
-		var hits := _hits(tree, i, camera_pos, core)
-		for k in core.size():
-			if hits & (1 << k):
-				counts[k] += 1
-		if spruce_veil > 0.0 and _spruce(tree["model"]):
-			covered |= hits
-			if hits != 0 or (_veiled.has(i) and _in_way(tree, i, camera_pos, hero_pos, points)):
-				spruces[i] = true
-	_veil_spruces(spruces, covered, core.size(), delta)
-	_layers = 0
-	for n in counts:
-		_layers = maxi(_layers, n)
-	_thick_for = _thick_for + delta if _layers >= reveal_layers else 0.0
-	if _layers >= reveal_layers and (_reveal_for <= REVEAL_HOLD or _thick_for >= REVEAL_WAIT):
-		_reveal_for = 0.0
-	else:
-		_reveal_for += delta
-	if _reveal_for <= REVEAL_HOLD:
-		_reveal = minf(_reveal + delta / REVEAL_IN, 1.0)
-	else:
-		_reveal = maxf(_reveal - delta / reveal_out, 0.0) if reveal_out > 0.0 else 0.0
-
-
-## Make the spruces in front of the hero see-through while their leaves cover most of it (covered: a bit for each of
-## the n lines to its middle they're on), and the others solid again, each over VEIL_FADE.
-func _veil_spruces(spruces: Dictionary, covered: int, n: int, delta: float) -> void:
-	var on := 0
-	for k in n:
-		if covered & (1 << k):
-			on += 1
-	_spruce_cover = float(on) / n
+## With cut_trees "veil": measure how much of the area round the hero the trees in front of it cover, now and then
+## (_measure_area); while that's veil_cover or more, each tree covering some of it goes evenly see-through, all but its
+## stump, over VEIL_FADE, and back once it no longer does (after COVER_HOLD), or once they cover less than 80% of
+## veil_cover (after VEIL_HOLD). No tree goes whole.
+func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
+	_area_age += delta
+	for i: int in _covering:
+		_covering[i] += delta
+	if _area_age >= AREA_EVERY:
+		_area_age = 0.0
+		_measure_area(camera, hero_pos)
 	var veiling := _veil_for <= VEIL_HOLD
-	# once see-through, they stay so until the hero is well out from behind them
-	_veil_for = 0.0 if _spruce_cover >= spruce_cover * (0.8 if veiling else 1.0) else _veil_for + delta
-	veiling = _veil_for <= VEIL_HOLD and spruce_veil > 0.0
+	_veil_for = 0.0 if veil_amount > 0.0 and _cover >= veil_cover * (0.8 if veiling else 1.0) else _veil_for + delta
+	veiling = _veil_for <= VEIL_HOLD
 	var trees: Array = _tree_sets[_current]
-	var all := spruces.duplicate()
+	var all := _covering.duplicate()
 	all.merge(_veiled)
 	for i: int in all:
+		var covers: bool = _covering.get(i, INF) <= COVER_HOLD
+		if not covers:
+			_covering.erase(i)
 		var v: float = _veiled.get(i, 0.0)
 		var was := v
-		v = move_toward(v, spruce_veil if veiling and spruces.has(i) else 0.0, delta * maxf(spruce_veil, 0.1) / VEIL_FADE)
+		v = move_toward(v, veil_amount if veiling and covers else 0.0, delta * maxf(veil_amount, 0.1) / VEIL_FADE)
 		if v != was:
 			for rid: RID in trees[i]["draw"]:
-				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", v)
+				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", Vector2(v, trees[i]["cut"]))
 		if v > 0.0:
 			_veiled[i] = v
 		else:
 			_veiled.erase(i)
+
+
+## How much of the area round the hero the trees in front of it cover (_cover), and which of them cover some of it
+## (_covering). The area is the hero as the camera sees it, on a plane through its middle that faces the camera
+## (HERO_BODY either side of the middle, and its height, or from above its footprint), and veil_round round that, its
+## corners rounded; lines from the camera go to a grid of points across it (AREA_COLUMNS by AREA_ROWS), and a point is
+## covered if some tree's shape as drawn (_coverer), leaves, branches or trunk, is on its line. Each line stops at the
+## first tree on it, but each tree is tested till it's found on one, so that one behind another counts too.
+func _measure_area(camera: Camera3D, hero_pos: Vector3) -> void:
+	var camera_pos := camera.global_position
+	var centre := hero_pos + Vector3(0.0, 0.9, 0.0)
+	var view := (centre - camera_pos).normalized()
+	var side := view.cross(Vector3.UP)
+	side = side.normalized() if side.length() > 0.001 else Vector3.RIGHT
+	var up := side.cross(view)  # up the screen
+	var steep := absf(view.y)  # 0 looking along the ground, 1 straight down
+	var r := veil_round
+	var half := Vector2(HERO_BODY, 0.9 * sqrt(1.0 - steep * steep) + 0.36 * steep) + Vector2(r, r)
+	area_points.clear()
+	for row in AREA_ROWS:
+		for col in AREA_COLUMNS:
+			var a := (2.0 * (col + 0.5) / AREA_COLUMNS - 1.0) * half.x
+			var b := (2.0 * (row + 0.5) / AREA_ROWS - 1.0) * half.y
+			var q := Vector2(absf(a), absf(b)) - (half - Vector2(r, r))
+			if q.x > 0.0 and q.y > 0.0 and q.length() > r:
+				continue  # in a rounded-off corner
+			area_points.append(centre + side * a + up * b)
+	area_outline.clear()
+	for k in 4:  # round the corners, anticlockwise from the top right
+		var sx := 1.0 if k == 0 or k == 3 else -1.0
+		var sy := 1.0 if k < 2 else -1.0
+		for j in 7:
+			var t := (k + j / 6.0) * PI * 0.5
+			var o := Vector2(sx * (half.x - r), sy * (half.y - r)) + Vector2(cos(t), sin(t)) * r
+			area_outline.append(centre + side * o.x + up * o.y)
+	var n := area_points.size()
+	area_covered.resize(n)
+	area_covered.fill(0)
+	var cam2 := Vector2(camera_pos.x, camera_pos.z)
+	var hero2 := Vector2(hero_pos.x, hero_pos.z)
+	var reach := _max_reach + half.x + 1.0
+	var lo := cam2.min(hero2) - Vector2.ONE * reach
+	var hi := cam2.max(hero2) + Vector2.ONE * reach
+	var trees: Array = _tree_sets[_current]
+	for cx in range(floori(lo.x / CELL), floori(hi.x / CELL) + 1):
+		for cz in range(floori(lo.y / CELL), floori(hi.y / CELL) + 1):
+			for i: int in _tree_cells.get(Vector2i(cx, cz), []):
+				var tree: Dictionary = trees[i]
+				var c := _tree_xz[i]
+				var bound: Vector3 = tree["bound"]
+				if Geometry2D.get_closest_point_to_segment(c, hero2, cam2).distance_to(c) > bound.x + half.length() + 0.5:
+					continue
+				var y := _tree_y[i]
+				var inv: Transform3D = tree["inv"]
+				var shape: TriangleMesh = null
+				var found := false
+				for k in n:
+					if found and area_covered[k]:
+						continue  # nothing more to learn from this line
+					var p := area_points[k]
+					var from := camera_pos + (p - camera_pos).normalized() * NEAR_GONE
+					if not _through(p, from, c.x, c.y, bound.x, y + bound.y, y + bound.z):
+						continue
+					if shape == null:
+						shape = _coverer(tree)
+					if not shape.intersect_segment(inv * from, inv * p).is_empty():
+						area_covered[k] = 1
+						found = true
+				if found:
+					_covering[i] = 0.0
+	var on := 0
+	for k in n:
+		on += area_covered[k]
+	_cover = float(on) / maxf(n, 1.0)
+
+
+## A tree's shape as it's drawn near the camera (as _apply_trees picks it, with trimmed leaf cards if they are), for
+## how much of the area round the hero it covers.
+func _coverer(tree: Dictionary) -> TriangleMesh:
+	var m: String = tree["model"]
+	if tree["kind"] != "old":
+		if tree_lod > 0:
+			m += "_%d" % tree_lod
+		elif tree["kind"] == "young":
+			m += "_1"
+		elif fewer:
+			m += "_f"
+		if trimmed and Models.has(m + "_t"):
+			m += "_t"
+	if not _coverers.has(m):
+		_coverers[m] = Models.mesh(m).generate_triangle_mesh()
+	return _coverers[m]
 
 
 ## What's left of the trees that go (leave): with "trunks", every tree that's gone whole (_cut_whole), whose trunk
@@ -735,54 +772,6 @@ func _in_way(tree: Dictionary, i: int, camera_pos: Vector3, hero_pos: Vector3, p
 	return false
 
 
-## Which of the lines from the camera to the points some part of the tree is on, a bit for each: like _in_way, but
-## every line, for counting how many trees are in the way of each.
-func _hits(tree: Dictionary, i: int, camera_pos: Vector3, points: PackedVector3Array) -> int:
-	var x := _tree_xz[i].x
-	var z := _tree_xz[i].y
-	var y := _tree_y[i]
-	var bound: Vector3 = tree["bound"]
-	var inv: Transform3D = tree["inv"]
-	var shape: TriangleMesh = null
-	var out := 0
-	for k in points.size():
-		var p := points[k]
-		var from := camera_pos + (p - camera_pos).normalized() * NEAR_GONE
-		if not _through(p, from, x, z, bound.x, y + bound.y, y + bound.z):
-			continue
-		if shape == null:
-			shape = _occluder(tree)
-		if not shape.intersect_segment(inv * from, inv * p).is_empty():
-			out |= 1 << k
-	return out
-
-
-## Is the tree's trunk on a line from the camera to one of the points? Its bare trunk's own shape (<model>_trunk: the
-## trunk as drawn, up into the crown), in its own space; first the upright cylinder round it.
-func _trunk_in_way(tree: Dictionary, i: int, camera_pos: Vector3, points: PackedVector3Array) -> bool:
-	var shape := _trunk_shape(tree["model"])
-	if shape == null:
-		return false
-	var x := _tree_xz[i].x
-	var z := _tree_xz[i].y
-	var y := _tree_y[i]
-	var r: float = tree["trunk_reach"]
-	var top: float = tree["trunk_top"]
-	var inv: Transform3D = tree["inv"]
-	for p in points:
-		var from := camera_pos + (p - camera_pos).normalized() * NEAR_GONE
-		if _through(from, p, x, z, r, y - 0.5, y + top + 0.5) and not shape.intersect_segment(inv * from, inv * p).is_empty():
-			return true
-	return false
-
-
-## A model's bare trunk (<model>_trunk) as a TriangleMesh, for _trunk_in_way; null for a model without one.
-func _trunk_shape(model: String) -> TriangleMesh:
-	if not _trunk_shapes.has(model):
-		_trunk_shapes[model] = Models.mesh(model + "_trunk").generate_triangle_mesh() if Models.has(model + "_trunk") else null
-	return _trunk_shapes[model]
-
-
 ## A tree's shape, for finding whether some part of it is in the way: the version drawn near the camera, as
 ## _apply_trees picks it, always with square leaf cards. Whatever of a card shows is inside its square, even far
 ## off, where the cards' smaller mipmaps can show a little outside the trimmed outlines.
@@ -875,20 +864,21 @@ func _unskip() -> void:
 			_show_stump(_tree_sets[_current][i], false)
 		for i: int in _veiled:
 			for rid: RID in _tree_sets[_current][i]["draw"]:
-				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", 0.0)
+				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", Vector2.ZERO)
 	_trunks.clear()
 	_stumped.clear()
 	_skipped.clear()
 	_undrawn.clear()
 	_sight.clear()
 	_clear_for.clear()
-	_layers = 0
-	_reveal_for = INF
-	_thick_for = 0.0
-	_reveal = 0.0
 	_veiled.clear()
-	_spruce_cover = 0.0
+	_covering.clear()
+	_cover = 0.0
 	_veil_for = INF
+	_area_age = INF
+	area_outline.clear()
+	area_points.clear()
+	area_covered.clear()
 
 
 ## Change how the trees are drawn, now: any of trimmed, fewer, tree_shadows, shadow_reach, lod_near, lod_far,
@@ -908,7 +898,7 @@ func set_trees(option: String, value: Variant) -> void:
 func _build_occluders() -> void:
 	for tree: Dictionary in _tree_sets[_current]:
 		_occluder(tree)
-		_trunk_shape(tree["model"])
+		_coverer(tree)
 		_profile(tree["model"])
 		_samples_of(tree["model"])
 
@@ -1098,7 +1088,7 @@ func _build_trees(which: String) -> Array:
 		var tree := {"model": model, "kind": kind, "draw": [], "shadow": RID(), "impostor": RID(), "stump": RID(), "pole": RID(),
 			"bound": _bound(model) * s, "s": s, "trunk": _trunk(model) * s, "xf": xf, "inv": xf.affine_inverse(),
 			"trunk_top": float(Models.info[model + "_trunk"]["height"]) * s if Models.has(model + "_trunk") else 0.0,
-			"trunk_reach": _bound(model + "_trunk").x * s if Models.has(model + "_trunk") else 0.0}
+			"cut": float(Models.info[model + "_stump"]["cut"]) * s if Models.has(model + "_stump") else 0.5}
 		_max_reach = maxf(_max_reach, (tree["bound"] as Vector3).x)
 		for i in count:
 			var rid := RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)

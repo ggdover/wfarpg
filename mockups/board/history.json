@@ -3387,6 +3387,78 @@
     "Testing twenty lines to the hero's outline through every spruce in front of it cost up to 3.7 ms a frame deep in the forest with the camera low; the six lines to its middle, already tested for counting the leaves, cost nothing more"
    ],
    "cover": "renders/play_demo_veil/spruce_walk.jpg"
+  },
+  {
+   "id": "play-demo-see-through",
+   "date": "2026-10-05",
+   "asked_at": "21:45",
+   "posted_at": "22:06",
+   "title": "See-through",
+   "section": "Play demo: see-through",
+   "asked": "Let's try this now. Scrap the whole x-ray when three or more leaves. Instead: if leaves and/or trunks cover more than x% (with a slider) of an area that's the player plus a small radius round it (maybe half the player's length round it; a button to show what the area covers, and a slider to adjust it), make those trees transparent, just like the spruce leaves now (a slider for the transparency too). When making a tree transparent, make the whole tree, trunk and leaves, transparent except the very bottom part, which stays as a stump. So we no longer make the whole tree disappear and keep just the stump when the player is behind a trunk: all we have is this, making the whole tree but its stump transparent, set off by how much of the area round the player leaves and trunks cover",
+   "changed": [
+    "See-through (in F2, now the default) in place of Trunk, its cone and the spruces' rule: the area is the hero as the camera sees it and 0.9 m round it, its corners rounded, and lines from the camera go to a grid of points across it; once trees cover 30% of the points, every tree covering any goes evenly see-through, all but its stump",
+    "The see-through is the spruces' dither, over trunks and leaves alike; the bark below where each tree's stump is cut stays solid. No tree goes whole any more",
+    "In F2: see-through at (30%), area round hero (0.9 m), see-through by (50%), and show the area, which draws it over the view with its points, red where a tree covers them, and how much of it is covered",
+    "The self-test checks that the trees covering the area go see-through, none whole, and come back below the bar, and that deep in the forest the trees covering it go see-through"
+   ],
+   "items": [
+    {
+     "id": "s-seethrough",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: see-through",
+     "author": "claude"
+    },
+    {
+     "id": "see-about",
+     "type": "note",
+     "status": "new",
+     "text": "# See-through\nYour new rule, as the default (See-through in F2), in place of Trunk and its cone:\n- **The area:** the hero as the camera sees it and 0.9 m round it (half its height), its corners rounded. Lines from the camera go to a grid of points across it; a point is covered if some tree's leaves, branches or trunk are on its line\n- **See-through:** once 30% of it is covered, every tree covering any of it goes evenly see-through, all but its stump: the bark below where its stump would be cut stays solid. Over 0.15 s, and back as quickly once it no longer covers any, or the trees cover less than 80% of the 30%\n- **No tree goes whole** any more, behind its trunk or not\n\nIt's the same dither as the spruces': half the pixels let through, and as every see-through tree lets the same ones through, two in a row are as see-through as one. Deep in the thicket with the camera low, that's most of the screen, and the hero shows faintly: more see-through, or a smaller area, may suit you better.",
+     "author": "claude"
+    },
+    {
+     "id": "see-birch",
+     "type": "image",
+     "status": "new",
+     "caption": "The camera beyond a birch and a young pine, the hero behind them: see-through off (left) and on (right). The birch's stump stays solid at its foot.",
+     "assetId": "9a73ed74e32de23603dc3a1688af1d0e",
+     "file": "renders/play_demo_see_through/birch.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "see-area",
+     "type": "image",
+     "status": "new",
+     "caption": "Along the trail with the default camera and the area shown: its points red where a tree covers them, its outline red once 30% of them are. The trees covering it go see-through; the rest of the forest stays.",
+     "assetId": "09e2cb1b73fd3ccce2c5392c971ef561",
+     "file": "renders/play_demo_see_through/walk_area.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "see-switches",
+     "type": "note",
+     "status": "new",
+     "text": "# To try in F2\nUnder **Trees in the way**: **See-through** (now), or **Cone**, **Front**, **X-ray**, **Area**, **Line** and **Keep**. Then **see-through at** (30%: how much of the area must be covered), **area round hero** (0.9 m), **see-through by** (50%; 0% for never) and **show the area**, which draws it over the view with its points, red where a tree covers them, and how much of it is covered.\n\nWalking the trail with the default camera, the trees covered none of the area two thirds of the time and 30% or more a quarter of it; some were see-through a third of the time (58% with the camera low). The start runs as fast as with nothing hidden; the slowest 5% of the walk's frames 60 fps instead of 70, as what's behind the see-through trees gets drawn too.",
+     "author": "claude"
+    },
+    {
+     "id": "see-low",
+     "type": "image",
+     "status": "new",
+     "caption": "Camera low in the thicket: all of the area covered, and every tree round the hero see-through, the hero faint behind them.",
+     "assetId": "00beff047aab23415c635fe0316fdfdc",
+     "file": "renders/play_demo_see_through/thicket_low.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "Walking the trail with the default camera, the trees covered none of the area two thirds of the time and 30% or more a quarter of it; some were see-through a third of the time, 58% with the camera low",
+    "Deep in the thicket with the camera low, every tree round the hero goes see-through, most of the screen, and the hero shows only faintly through the half dither",
+    "Measuring the area costs 0.3 ms, at most 2, 30 times a second; drawing what's behind the see-through trees takes the slowest 5% of the walk's frames from 70 fps to 60"
+   ],
+   "cover": "renders/play_demo_see_through/birch.jpg"
   }
  ]
 }

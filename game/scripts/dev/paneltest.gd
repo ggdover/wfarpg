@@ -13,7 +13,7 @@ const TRIES := [["trimmed", false], ["fewer", true], ["tree_shadows", "full"], [
 	["ssao", RenderingServer.ENV_SSAO_QUALITY_VERY_LOW], ["ssao", RenderingServer.ENV_SSAO_QUALITY_LOW],
 	["ssao", RenderingServer.ENV_SSAO_QUALITY_HIGH], ["ssao", -1], ["fog", false],
 	["trees", "old"]]
-const DEFAULTS := {"trimmed": true, "fewer": false, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "fade": false, "sight": "trunk", "cone_style": "dither", "cut_by": "trunk", "scale": 1.0,
+const DEFAULTS := {"trimmed": true, "fewer": false, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "fade": false, "sight": "veil", "cone_style": "dither", "cut_by": "trunk", "scale": 1.0,
 	"aa": Viewport.SCREEN_SPACE_AA_SMAA, "shadows": true, "shadow_fit": true, "shadow_size": 2048,
 	"shadow_soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "cascades": DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS,
 	"details": 4, "ssao": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "fog": true, "trees": "new"}

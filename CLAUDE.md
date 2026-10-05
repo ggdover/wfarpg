@@ -37,14 +37,11 @@ General knowledge, public documentation, and third-party libraries and engines a
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
-  (not yet confirmed by the user). Trees in the way, the user's design, shadows kept: a tree goes to its stump only
-  once its trunk is in front of the hero; its leaves and branches stay, so the hero can hide in them, until the hero
-  is behind the leaves of three trees or more, when the cone fades in and shows it through them; and spruces, whose
-  needles are thick, go evenly half see-through while they cover most of the hero (the user's exception). The cone
-  (`ref_imgs/tree_disappear/camera_view.png`) fades whatever of a tree is inside it, wholly in its middle and
-  gradually, as a changing opacity, towards its edges: the whole screen at the camera, round the hero at its depth,
-  nothing past it. No bare sticks, no hard x-ray edges. The user's earlier ideas and complaints are in
-  `ref_imgs/tree_disappear/`; the earlier ways of cutting trees are in F2 to compare.
+  (not yet confirmed by the user). Trees in the way, the user's design, shadows kept: once the trees in front of the
+  hero cover a share of the area round it (the hero and half its height round it, as the camera sees it; F2 sliders
+  for the share, the area and how see-through), each of them goes evenly see-through, all but its stump. No tree goes
+  whole, no bare sticks, no hard x-ray edges. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`;
+  the cone (`camera_view.png`) and the earlier ways of cutting trees are in F2 to compare.
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
   hard edges and cut corners instead of rounded ones, fine texture instead of soft gradients, slim orb rims.

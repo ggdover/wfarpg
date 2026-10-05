@@ -143,5 +143,8 @@
  "d36ce7a87341871cac0103e816143a4f": "renders/play_demo_trunk/walk_camera_high.jpg",
  "a667d415415fe1f60275e5ef7c0cda5a": "renders/play_demo_trunk/walk_camera_low.jpg",
  "4033004e6732ba025015ff474d82cac7": "renders/play_demo_veil/spruce_walk.jpg",
- "55ad83888cab083a665f09456a51a7d5": "renders/play_demo_veil/close.jpg"
+ "55ad83888cab083a665f09456a51a7d5": "renders/play_demo_veil/close.jpg",
+ "9a73ed74e32de23603dc3a1688af1d0e": "renders/play_demo_see_through/birch.jpg",
+ "09e2cb1b73fd3ccce2c5392c971ef561": "renders/play_demo_see_through/walk_area.jpg",
+ "00beff047aab23415c635fe0316fdfdc": "renders/play_demo_see_through/thicket_low.jpg"
 }
