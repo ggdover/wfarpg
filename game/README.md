@@ -79,10 +79,12 @@ place (`tools/reference_shots.py`).
     hero, but against each tree's own bare trunk (`<model>_trunk` in `stumps.glb`, up into the crown) rather than its
     whole shape. The stump is built from the same trunk.
   - The leaves are counted along the lines to the hero's middle: how many trees' shapes each line passes through.
-    Once one passes through three or more, the cone fades in over a quarter of a second, for every tree, and it fades
-    out half a second after none does (`reveal_layers`, **trunk: cone behind** in the panel). Walking the trail with
-    the default camera, the hero was behind one tree's leaves a quarter of the time and three or more 5% of it: the
-    cone came on once, for 3.5 s, and one tree went to its stump.
+    Once one has passed through three or more for a moment (0.08 s, so that a line brushing a third tree for a frame
+    doesn't flash it), the cone fades in over a quarter of a second, for every tree. A tenth of a second after none
+    does, it fades out, over a tenth of a second (`reveal_layers` and `reveal_out`, **trunk: cone behind** and
+    **trunk: cone fades out** in the panel). Walking the trail with the default camera, the hero was behind one tree's
+    leaves a quarter of the time and three or more 5% of it: the cone came on twice, for 0.9 and 1.9 s, and two trees
+    went to their stumps.
   - **The cone** (also on its own, **Cone** in the panel): whatever of a tree is inside a cone from the edges of the
     screen to the hero fades away, wholly in the cone's middle and gradually towards its edges
     (`ref_imgs/tree_disappear/camera_view.png`; `cone_fade` in `shaders/common.gdshaderinc`).
@@ -132,7 +134,7 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Trees in the way | How trees get out of the way (above): **Trunk** (the default), with how many trees' leaves bring the cone in (**trunk: cone behind**, 3); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches, which work for Trunk's cone too; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Trunk and Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Trees in the way | How trees get out of the way (above): **Trunk** (the default), with how many trees' leaves bring the cone in (**trunk: cone behind**, 3) and how long it takes to fade out once the hero is out of them (**trunk: cone fades out**, 0.1 s); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches, which work for Trunk's cone too; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Trunk and Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |

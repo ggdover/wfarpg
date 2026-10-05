@@ -42,7 +42,8 @@ var _stumped := {}  # tree index -> true while its stump is drawn
 var _reach := 0.0  # the fade near the camera as the shaders have it (xray_near)
 var _cone := 0.0  # how strongly the cone is on, as the shaders have it (cone_shape.w)
 var _layers := 0  # how many trees' leaves the hero is behind, with "trunk": the most on any line to its middle
-var _reveal_for := INF  # seconds since the hero was last behind reveal_layers trees' leaves
+var _reveal_for := INF  # seconds since the hero was last behind reveal_layers trees' leaves, with the cone on
+var _thick_for := 0.0  # seconds the hero has been behind reveal_layers trees' leaves, on end
 var _reveal := 0.0  # how strongly the cone is on with "trunk", 0..1
 var _trunk_shapes := {}  # model -> its bare trunk's shape as a TriangleMesh, or null (_trunk_shape)
 var _max_reach := 0.0
@@ -69,9 +70,10 @@ const STANDS := 2.0  # where a tree stands, for the area: its foot and this much
 		# trunk would count tall trees beside the area, as seen from above their trunks lean in towards the screen's
 		# middle as they rise
 const TRUNK_HALF := 0.3  # the hero's own half width, for finding whether a trunk is in front of it (_cut_trunks)
-const REVEAL_HOLD := 0.6  # seconds the cone stays on after the hero is out of the thick of the trees
+const REVEAL_WAIT := 0.08  # seconds the hero must be in the thick of the trees before the cone comes on, so that a
+		# line brushing a third tree for a frame doesn't flash it
+const REVEAL_HOLD := 0.1  # seconds the cone stays on after the hero is out of the thick of the trees, over a gap in them
 const REVEAL_IN := 0.25  # seconds the cone takes to fade in
-const REVEAL_OUT := 0.5  # and out
 
 var _ground_materials := {}  # detail level -> its material (shaders/ground*.gdshader)
 var _ground_meshes: Array[MeshInstance3D] = []
@@ -121,6 +123,8 @@ var fade_near_camera := false
 var cut_trees := "trunk"
 ## with "trunk": behind the leaves of this many trees or more, as deep in the forest, the hero is shown through them
 var reveal_layers := 3
+## and once it's out of the thick of them, the cone fades out over this long (seconds; 0 at once), after REVEAL_HOLD
+var reveal_out := 0.1
 ## what's left of a tree that goes: "trunks", its bare trunk, until that hides the hero, which takes it down to its
 ## stump (a spruce, whose branches reach the ground, goes to its stump straight away); "stumps"; or "nothing"
 var leave := "stumps"
@@ -337,8 +341,8 @@ func _fade_whole(i: int, tree: Dictionary, f: float, in_way: bool, delta: float)
 ## With cut_trees "trunk": a tree goes whole, leaving its stump (leave), only once its trunk is in front of the hero,
 ## on a line from the camera to it (_trunk_in_way); its leaves and branches stay, so the hero can stand hidden in them.
 ## But once the lines to the hero's middle pass through the leaves of reveal_layers trees or more, deep in the forest,
-## the cone fades in (_reveal), as with cut_trees "cone", and out once the hero has been out of the thick of them for
-## REVEAL_HOLD.
+## the cone fades in (_reveal), as with cut_trees "cone", once that has lasted REVEAL_WAIT, and out (reveal_out) once
+## the hero has been out of the thick of them for REVEAL_HOLD.
 func _cut_trunks(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	var camera_pos := camera.global_position
 	var body := _hero_points(camera_pos, hero_pos, TRUNK_HALF, 0.0)  # the hero itself, for the trunks not yet gone
@@ -374,8 +378,15 @@ func _cut_trunks(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	_layers = 0
 	for n in counts:
 		_layers = maxi(_layers, n)
-	_reveal_for = 0.0 if _layers >= reveal_layers else _reveal_for + delta
-	_reveal = minf(_reveal + delta / REVEAL_IN, 1.0) if _reveal_for <= REVEAL_HOLD else maxf(_reveal - delta / REVEAL_OUT, 0.0)
+	_thick_for = _thick_for + delta if _layers >= reveal_layers else 0.0
+	if _layers >= reveal_layers and (_reveal_for <= REVEAL_HOLD or _thick_for >= REVEAL_WAIT):
+		_reveal_for = 0.0
+	else:
+		_reveal_for += delta
+	if _reveal_for <= REVEAL_HOLD:
+		_reveal = minf(_reveal + delta / REVEAL_IN, 1.0)
+	else:
+		_reveal = maxf(_reveal - delta / reveal_out, 0.0) if reveal_out > 0.0 else 0.0
 
 
 ## What's left of the trees that go (leave): with "trunks", every tree that's gone whole (_cut_whole), whose trunk
@@ -821,6 +832,7 @@ func _unskip() -> void:
 	_clear_for.clear()
 	_layers = 0
 	_reveal_for = INF
+	_thick_for = 0.0
 	_reveal = 0.0
 
 

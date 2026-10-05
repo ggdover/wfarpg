@@ -112,6 +112,7 @@ func setup(d: Node) -> void:
 	_slider(col, "reveal", "  trunk: cone behind", 1.0, 6.0, 1.0, w.reveal_layers,
 		func(v: float) -> String: return "%d tree%s" % [roundi(v), "" if roundi(v) == 1 else "s"],
 		func(v: float) -> void: w.reveal_layers = roundi(v))
+	_slider(col, "reveal_out", "  trunk: cone fades out", 0.0, 1.0, 0.05, w.reveal_out, "%.2f s", func(v: float) -> void: w.reveal_out = v)
 	_slider(col, "cone_soft", "  cone: soft share", 0.1, 1.0, 0.05, w.cone_soft, percent, func(v: float) -> void: w.cone_soft = v)
 	_choice(col, "cone_style", "  cone: fade in", [["Dither", "dither"], ["Patches", "patches"]], w.cone_style,
 		func(v: String) -> void: w.cone_style = v)

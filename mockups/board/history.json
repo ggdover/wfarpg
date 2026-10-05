@@ -3291,6 +3291,47 @@
     "Walking the trail with the default camera, the hero was behind one tree's leaves a quarter of the time and three or more 5% of it; the cone came on once, for 3.5 s, and one tree went to its stump"
    ],
    "cover": "renders/play_demo_trunk/spruce_walk.jpg"
+  },
+  {
+   "id": "play-demo-cone-out",
+   "date": "2026-10-05",
+   "asked_at": "20:27",
+   "posted_at": "20:32",
+   "title": "The cone goes almost at once",
+   "section": "Play demo: hiding in the leaves",
+   "asked": "This is getting super close to a result I'm satisfied with. Can we adjust the time the cone takes to fade out once the thick forest is no longer between the player and the camera? Instead of half a second, can we make it almost instant?",
+   "changed": [
+    "Once the hero is out of the thick of the trees, the cone goes in a fifth of a second: it stays on for a tenth of a second, over any gap in them, then fades out over a tenth (it was 0.6 s, then a fade of 0.5 s)",
+    "trunk: cone fades out in F2 sets how long it fades out over, from at once to a second",
+    "So that the cone doesn't flash when a line to the hero brushes a third tree for a frame, the hero must be in the thick of the trees for 0.08 s before it comes on"
+   ],
+   "items": [
+    {
+     "id": "lv-about",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# Hiding in the leaves\nYour idea, as the new default (Trunk in F2):\n- **Trunks:** a tree goes to its stump only once its trunk is in front of the hero, found the way Line finds trees in the way, but against each tree's own bare trunk instead of its whole shape\n- **Leaves stay:** leaves and branches in front of the hero don't take a tree, so the hero can stand hidden under a spruce or a crown\n- **Deep in the forest:** once the hero is behind the leaves of three trees or more, counted along lines from the camera to the hero's middle, the cone fades in over a quarter of a second and shows the hero through all of them; once the hero is out of the thick of them, it goes almost at once, in a fifth of a second\n\nWalking the trail with the default camera, the hero was behind one tree's leaves a quarter of the time and three or more 5% of it: the cone came on twice, for 0.9 and 1.9 s, and two trees went to their stumps. With the camera low, three or more 17% of the time: the cone came on 5 times, for 0.2 to 5.7 s, and 10 trees went to stumps.",
+     "author": "claude"
+    },
+    {
+     "id": "lv-switches",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# To try in F2\nUnder **Trees in the way**: **Trunk** (now), or **Cone**, **Front**, **X-ray**, **Area**, **Line** and **Keep**. **trunk: cone behind** sets how many trees' leaves bring the cone in (3 now; 1 brings it in behind any leaves), and **trunk: cone fades out** how long it takes to go once the hero is out of them (0.1 s now, after a tenth of a second). The cone's sliders work here too.\n\nAt the start Trunk runs as fast as cutting nothing, 86 fps, 0.7 ms a frame faster than the cone, as the cone is off there. At 12 random spots, each tree that went to its stump would have covered 38 to 99% of the hero; where only leaves were in front of it, they covered up to 56% of it.",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "With the cone letting go at once, a line to the hero brushing a third tree for a single frame flashed it on for a tenth of a second; waiting 0.08 s before it comes on stops that",
+    "Walking the trail, the cone now comes on twice with the default camera, for 0.9 and 1.9 s, and 5 times with the camera low, for 0.2 to 5.7 s"
+   ]
   }
  ]
 }
