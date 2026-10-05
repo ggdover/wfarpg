@@ -102,6 +102,7 @@ The final images shown on the board, by board section:
 | `renders/play_demo_trunks` | Play demo: trunks stay, and an x-ray (the meadow pine again; the ways of cutting trees on a walk, camera low and high) |
 | `renders/play_demo_cone` | Play demo: the cone (the camera_view sketch beside it in the thicket, walking in behind a spruce, the ways of cutting trees on a walk, camera low and high, the dither close up) |
 | `renders/play_demo_trunk` | Play demo: hiding in the leaves (walking in behind a spruce, Trunk and the cone; the ways of cutting trees on a walk, camera high and low) |
+| `renders/play_demo_veil` | Play demo: see-through spruces (walking in behind a spruce, before and now; close up) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History

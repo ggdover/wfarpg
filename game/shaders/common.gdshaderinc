@@ -80,6 +80,13 @@ float cone_fade(vec2 screen_uv, vec3 vertex_view, vec3 camera_world) {
 	return cone_shape.w * (1.0 - smoothstep(1.0 - cone_shape.y, 1.0, q)) * (1.0 - past);
 }
 
+// How see-through a spruce is (sight_veil, which scripts/world.gd sets in _cut_trunks while the hero is mostly behind
+// its leaves): the share of its pixels that let what's behind it through, evenly over the whole tree, with faded_fine.
+// Never in the shadow pass.
+float veil_fade(float veil, vec3 camera_world) {
+	return distance(camera_world, main_camera_position) > 0.05 ? 0.0 : veil;
+}
+
 // The x-ray (cut_trees "xray" in scripts/world.gd, with xray_on): in a window in the lower middle of the screen,
 // whatever of a tree is nearer the camera than the hero is cut away, and only that, so you see the hero and the ground
 // round and in front of it. The window, xray_rect: half its width, as a fraction of the screen's; how far down its top

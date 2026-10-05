@@ -45,6 +45,9 @@ var _layers := 0  # how many trees' leaves the hero is behind, with "trunk": the
 var _reveal_for := INF  # seconds since the hero was last behind reveal_layers trees' leaves, with the cone on
 var _thick_for := 0.0  # seconds the hero has been behind reveal_layers trees' leaves, on end
 var _reveal := 0.0  # how strongly the cone is on with "trunk", 0..1
+var _veiled := {}  # tree index -> how see-through the spruce is, 0..spruce_veil, with "trunk" (sight_veil in the shaders)
+var _spruce_cover := 0.0  # how much of the hero spruces' leaves cover, 0..1, with "trunk": a share of the lines to its middle
+var _veil_for := INF  # seconds since the hero was last mostly behind spruces' leaves
 var _trunk_shapes := {}  # model -> its bare trunk's shape as a TriangleMesh, or null (_trunk_shape)
 var _max_reach := 0.0
 var _current := ""
@@ -74,6 +77,8 @@ const REVEAL_WAIT := 0.08  # seconds the hero must be in the thick of the trees 
 		# line brushing a third tree for a frame doesn't flash it
 const REVEAL_HOLD := 0.1  # seconds the cone stays on after the hero is out of the thick of the trees, over a gap in them
 const REVEAL_IN := 0.25  # seconds the cone takes to fade in
+const VEIL_HOLD := 0.1  # seconds the spruces stay see-through after the hero is no longer mostly behind them
+const VEIL_FADE := 0.15  # seconds a spruce takes to go see-through, and back
 
 var _ground_materials := {}  # detail level -> its material (shaders/ground*.gdshader)
 var _ground_meshes: Array[MeshInstance3D] = []
@@ -125,6 +130,11 @@ var cut_trees := "trunk"
 var reveal_layers := 3
 ## and once it's out of the thick of them, the cone fades out over this long (seconds; 0 at once), after REVEAL_HOLD
 var reveal_out := 0.1
+## with "trunk": while spruces' leaves cover this much of the hero or more (a share of the lines to its middle), short
+## of the cone, those spruces go evenly see-through
+var spruce_cover := 0.5
+## and let this share of what's behind them through (0 for never)
+var spruce_veil := 0.5
 ## what's left of a tree that goes: "trunks", its bare trunk, until that hides the hero, which takes it down to its
 ## stump (a spruce, whose branches reach the ground, goes to its stump straight away); "stumps"; or "nothing"
 var leave := "stumps"
@@ -342,7 +352,9 @@ func _fade_whole(i: int, tree: Dictionary, f: float, in_way: bool, delta: float)
 ## on a line from the camera to it (_trunk_in_way); its leaves and branches stay, so the hero can stand hidden in them.
 ## But once the lines to the hero's middle pass through the leaves of reveal_layers trees or more, deep in the forest,
 ## the cone fades in (_reveal), as with cut_trees "cone", once that has lasted REVEAL_WAIT, and out (reveal_out) once
-## the hero has been out of the thick of them for REVEAL_HOLD.
+## the hero has been out of the thick of them for REVEAL_HOLD. And while spruces' leaves, which are thick, cover most
+## of the hero (spruce_cover of the lines to its middle), those spruces go evenly see-through (spruce_veil), however
+## few they are.
 func _cut_trunks(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	var camera_pos := camera.global_position
 	var body := _hero_points(camera_pos, hero_pos, TRUNK_HALF, 0.0)  # the hero itself, for the trunks not yet gone
@@ -360,9 +372,13 @@ func _cut_trunks(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 				check[i] = true
 	for i: int in _sight:
 		check[i] = true
+	for i: int in _veiled:
+		check[i] = true
 	var trees: Array = _tree_sets[_current]
 	var counts := PackedInt32Array()
 	counts.resize(core.size())
+	var covered := 0  # the lines to the hero's middle that spruces' leaves are on, a bit each
+	var spruces := {}  # the spruces whose leaves are in front of the hero
 	for i: int in check:
 		var tree: Dictionary = trees[i]
 		var c := _tree_xz[i]
@@ -375,6 +391,11 @@ func _cut_trunks(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		for k in core.size():
 			if hits & (1 << k):
 				counts[k] += 1
+		if spruce_veil > 0.0 and _spruce(tree["model"]):
+			covered |= hits
+			if hits != 0 or (_veiled.has(i) and _in_way(tree, i, camera_pos, hero_pos, points)):
+				spruces[i] = true
+	_veil_spruces(spruces, covered, core.size(), delta)
 	_layers = 0
 	for n in counts:
 		_layers = maxi(_layers, n)
@@ -387,6 +408,34 @@ func _cut_trunks(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		_reveal = minf(_reveal + delta / REVEAL_IN, 1.0)
 	else:
 		_reveal = maxf(_reveal - delta / reveal_out, 0.0) if reveal_out > 0.0 else 0.0
+
+
+## Make the spruces in front of the hero see-through while their leaves cover most of it (covered: a bit for each of
+## the n lines to its middle they're on), and the others solid again, each over VEIL_FADE.
+func _veil_spruces(spruces: Dictionary, covered: int, n: int, delta: float) -> void:
+	var on := 0
+	for k in n:
+		if covered & (1 << k):
+			on += 1
+	_spruce_cover = float(on) / n
+	var veiling := _veil_for <= VEIL_HOLD
+	# once see-through, they stay so until the hero is well out from behind them
+	_veil_for = 0.0 if _spruce_cover >= spruce_cover * (0.8 if veiling else 1.0) else _veil_for + delta
+	veiling = _veil_for <= VEIL_HOLD and spruce_veil > 0.0
+	var trees: Array = _tree_sets[_current]
+	var all := spruces.duplicate()
+	all.merge(_veiled)
+	for i: int in all:
+		var v: float = _veiled.get(i, 0.0)
+		var was := v
+		v = move_toward(v, spruce_veil if veiling and spruces.has(i) else 0.0, delta * maxf(spruce_veil, 0.1) / VEIL_FADE)
+		if v != was:
+			for rid: RID in trees[i]["draw"]:
+				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", v)
+		if v > 0.0:
+			_veiled[i] = v
+		else:
+			_veiled.erase(i)
 
 
 ## What's left of the trees that go (leave): with "trunks", every tree that's gone whole (_cut_whole), whose trunk
@@ -824,6 +873,9 @@ func _unskip() -> void:
 			_show_part(_tree_sets[_current][i], "pole", false)
 		for i: int in _stumped:
 			_show_stump(_tree_sets[_current][i], false)
+		for i: int in _veiled:
+			for rid: RID in _tree_sets[_current][i]["draw"]:
+				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", 0.0)
 	_trunks.clear()
 	_stumped.clear()
 	_skipped.clear()
@@ -834,6 +886,9 @@ func _unskip() -> void:
 	_reveal_for = INF
 	_thick_for = 0.0
 	_reveal = 0.0
+	_veiled.clear()
+	_spruce_cover = 0.0
+	_veil_for = INF
 
 
 ## Change how the trees are drawn, now: any of trimmed, fewer, tree_shadows, shadow_reach, lod_near, lod_far,

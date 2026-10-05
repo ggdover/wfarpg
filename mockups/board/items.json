@@ -2141,6 +2141,19 @@
   "y": 1560,
   "z": 8
  },
+ "s-veil": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791228704334,
+  "h": 1566,
+  "title": "Play demo: see-through spruces",
+  "type": "frame",
+  "updatedAt": 1791228704334,
+  "w": 2740,
+  "x": 0,
+  "y": 45318,
+  "z": 32
+ },
  "s-vibe": {
   "author": "claude",
   "color": "gold",
@@ -2921,6 +2934,45 @@
   "x": 28,
   "y": 32740,
   "z": 214
+ },
+ "vl-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791228704334,
+  "h": 1140,
+  "text": "# See-through spruces\nFor when a single spruce hides the hero, short of the three trees' leaves the cone needs: while spruces' needles cover most of the hero (half the lines from the camera to its middle or more), those spruces go evenly see-through, so you see the hero and the spruce at once. They go over 0.15 s, and come back as quickly once the hero is out from behind them. The trunk rule still comes first: straight behind a spruce's trunk, it goes to its stump.\n\nIt's the cone's fine dither, evenly over the whole tree: half its pixels let through what's behind it, however many layers of needles there are. Blending them instead would stack up over the overlapping needle cards and stay nearly solid in the middle.\n\nOther trees' leaves still hide the hero, as you asked: theirs are thinner, with gaps. Walking the trail, a spruce was see-through 16% of the time with the default camera, 31% with the camera low.\n\nIn F2, under Trees in the way: **spruce covers** (50%) sets how much of the hero spruces must cover, and **spruce see-through** (50%) how see-through they go; 0% turns it off.",
+  "type": "note",
+  "updatedAt": 1791228704334,
+  "w": 460,
+  "x": 28,
+  "y": 45346,
+  "z": 227
+ },
+ "vl-close": {
+  "ar": 1.667,
+  "assetId": "55ad83888cab083a665f09456a51a7d5",
+  "author": "claude",
+  "caption": "Close up, 1.5 m to its side: the hero and the ground through the see-through spruce.",
+  "createdAt": 1791228704334,
+  "type": "image",
+  "updatedAt": 1791228704334,
+  "w": 1000,
+  "x": 512,
+  "y": 46156,
+  "z": 229
+ },
+ "vl-walk": {
+  "ar": 3.235,
+  "assetId": "4033004e6732ba025015ff474d82cac7",
+  "author": "claude",
+  "caption": "Walking in behind a big spruce again, from 7 m to its side to straight behind it: before (top) and now (bottom). At 3 and 1.5 m its needles covered the hero; now it goes see-through. Straight behind its trunk, it goes to its stump, as before.",
+  "createdAt": 1791228704334,
+  "type": "image",
+  "updatedAt": 1791228704334,
+  "w": 2200,
+  "x": 512,
+  "y": 45346,
+  "z": 228
  },
  "welcome": {
   "author": "claude",

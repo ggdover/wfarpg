@@ -3332,6 +3332,61 @@
     "With the cone letting go at once, a line to the hero brushing a third tree for a single frame flashed it on for a tenth of a second; waiting 0.08 s before it comes on stops that",
     "Walking the trail, the cone now comes on twice with the default camera, for 0.9 and 1.9 s, and 5 times with the camera low, for 0.2 to 5.7 s"
    ]
+  },
+  {
+   "id": "play-demo-veil",
+   "date": "2026-10-05",
+   "asked_at": "21:15",
+   "posted_at": "21:32",
+   "title": "See-through spruces",
+   "section": "Play demo: see-through spruces",
+   "asked": "I like what we have right now, but can we make an exception for spruces: if the player is mostly behind spruce leaves, the spruce's leaves go transparent, all uniformly, to something like 50% opacity, so you can see the player through them but still see the spruce's leaves at the same time? Sometimes a single spruce between the player and the camera covers the player completely, but there aren't three leaves between, so the cone doesn't come on",
+   "changed": [
+    "While spruces' needles cover most of the hero (half the lines from the camera to its middle or more), short of the cone, those spruces go evenly see-through: the cone's fine dither over the whole tree, half its pixels letting through what's behind it. They go over 0.15 s, and back as quickly once the hero is out from behind them",
+    "The trunk rule still comes first: straight behind a spruce's trunk, it goes to its stump. Other trees' leaves still hide the hero",
+    "spruce covers and spruce see-through in F2 set how much of the hero spruces must cover and how see-through they go",
+    "The self-test checks that a spruce whose needles alone cover most of the hero goes see-through, uncut, and back"
+   ],
+   "items": [
+    {
+     "id": "s-veil",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: see-through spruces",
+     "author": "claude"
+    },
+    {
+     "id": "vl-about",
+     "type": "note",
+     "status": "new",
+     "text": "# See-through spruces\nFor when a single spruce hides the hero, short of the three trees' leaves the cone needs: while spruces' needles cover most of the hero (half the lines from the camera to its middle or more), those spruces go evenly see-through, so you see the hero and the spruce at once. They go over 0.15 s, and come back as quickly once the hero is out from behind them. The trunk rule still comes first: straight behind a spruce's trunk, it goes to its stump.\n\nIt's the cone's fine dither, evenly over the whole tree: half its pixels let through what's behind it, however many layers of needles there are. Blending them instead would stack up over the overlapping needle cards and stay nearly solid in the middle.\n\nOther trees' leaves still hide the hero, as you asked: theirs are thinner, with gaps. Walking the trail, a spruce was see-through 16% of the time with the default camera, 31% with the camera low.\n\nIn F2, under Trees in the way: **spruce covers** (50%) sets how much of the hero spruces must cover, and **spruce see-through** (50%) how see-through they go; 0% turns it off.",
+     "author": "claude"
+    },
+    {
+     "id": "vl-walk",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking in behind a big spruce again, from 7 m to its side to straight behind it: before (top) and now (bottom). At 3 and 1.5 m its needles covered the hero; now it goes see-through. Straight behind its trunk, it goes to its stump, as before.",
+     "assetId": "4033004e6732ba025015ff474d82cac7",
+     "file": "renders/play_demo_veil/spruce_walk.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "vl-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Close up, 1.5 m to its side: the hero and the ground through the see-through spruce.",
+     "assetId": "55ad83888cab083a665f09456a51a7d5",
+     "file": "renders/play_demo_veil/close.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "Blending the spruce at half opacity would stack up over its overlapping needle cards and stay nearly solid in the middle; a dither lets half the pixels through however many layers there are",
+    "Testing twenty lines to the hero's outline through every spruce in front of it cost up to 3.7 ms a frame deep in the forest with the camera low; the six lines to its middle, already tested for counting the leaves, cost nothing more"
+   ],
+   "cover": "renders/play_demo_veil/spruce_walk.jpg"
   }
  ]
 }

@@ -90,8 +90,9 @@ func run(d: Node) -> void:
 
 ## Trees that block the view. Trunks (the default): a tree whose trunk is in front of the hero goes, to its stump, and
 ## comes back once the hero is out from behind it; a tree whose leaves alone are in front of the hero stays, and the
-## cone stays off, until the hero is behind enough trees' leaves, when it comes on, and goes off once it isn't; and deep
-## in the forest, behind three trees' leaves, it comes on. The cone: no tree is cut whole, and the shaders get the
+## cone stays off, until the hero is behind enough trees' leaves, when it comes on, and goes off once it isn't; a spruce
+## whose leaves alone cover most of the hero goes see-through, uncut, and back once the hero is out from behind it; and
+## deep in the forest, behind three trees' leaves, the cone comes on. The cone: no tree is cut whole, and the shaders get the
 ## cone round the hero. In front of the hero: a tree between the camera and the hero goes, leaving
 ## its trunk or stump, and comes back once the hero has walked well past it; a tree just ahead of the hero stays, and
 ## so does one well beyond it, and a tall one beside it; a tree round a low camera isn't cut whole, but its trunk
@@ -166,6 +167,49 @@ func _sight_checks() -> void:
 		("no spot behind its leaves alone" if leafy == Vector2.INF else "%s" % ("stays" if kept else "cut, or the cone on")))
 	_check("%s trees, trunks: behind enough trees' leaves, the cone comes on, and goes off once it isn't" % set,
 		on >= 1.0 and off == 0.0, "cone %.2f, then %.2f" % [on, off])
+	# a spot where a tall spruce's leaves, not its trunk, cover most of the hero, the camera high beyond it, no cone
+	var spruce := -1
+	var nearest_spruce := INF
+	for i in w._tree_xz.size():
+		var rec: Dictionary = trees[i]
+		if DemoWorld._spruce(rec["model"]) and (rec["bound"] as Vector3).z > 10.0 and w._tree_xz[i].distance_to(start) < nearest_spruce:
+			nearest_spruce = w._tree_xz[i].distance_to(start)
+			spruce = i
+	var sp_away := (start - w._tree_xz[spruce]).normalized()
+	var sp_side := Vector2(-sp_away.y, sp_away.x)
+	w.reveal_layers = 99
+	rig.yaw = fposmod(rad_to_deg(atan2(-sp_away.y, sp_away.x)) + 180.0, 360.0)
+	rig.pitch = 55.0
+	rig.distance = 20.0
+	var veil_spot := Vector2.INF
+	for d: float in [2.5, 3.5, 2.0, 4.5]:
+		for sd: float in [1.0, 1.5, 0.6, 2.0, -1.0, -1.5]:
+			_place_hero(w._tree_xz[spruce] + sp_away * d + sp_side * sd)
+			await _frames(3)
+			var cam := rig.camera.global_position
+			var at := hero.global_position
+			var pts := DemoWorld._hero_points(cam, at, DemoWorld.HERO_HALF, DemoWorld.HERO_PAD)
+			var core := PackedVector3Array([pts[4], pts[5], pts[8], pts[9], pts[12], pts[13]])  # as _cut_trunks
+			var bits := w._hits(trees[spruce], spruce, cam, core)
+			var n := 0
+			for k in core.size():
+				if bits & (1 << k):
+					n += 1
+			if n >= core.size() * w.spruce_cover and not w._trunk_in_way(trees[spruce], spruce, cam, pts):
+				veil_spot = w._tree_xz[spruce] + sp_away * d + sp_side * sd
+				break
+		if veil_spot != Vector2.INF:
+			break
+	await _seconds(1.2)  # long enough for it to come back, if a spot on the way cut it, and go see-through
+	var veil: float = w._veiled.get(spruce, 0.0)
+	var uncut := w.sight_fade(spruce) == 0.0 and not w._stumped.has(spruce)
+	_place_hero(w._tree_xz[spruce] + sp_away * 3.0 + sp_side * 12.0)
+	await _seconds(0.6)
+	var veil_after: float = w._veiled.get(spruce, 0.0)
+	w.reveal_layers = 3
+	_check("%s trees, trunks: a spruce whose leaves cover most of the hero goes see-through, and back" % set,
+		veil_spot != Vector2.INF and veil >= w.spruce_veil and uncut and veil_after == 0.0,
+		"no spot behind its leaves" if veil_spot == Vector2.INF else "see-through %.2f, %s, then %.2f" % [veil, "uncut" if uncut else "cut", veil_after])
 	# deep in the forest, behind three trees' leaves or more, the camera low
 	rig.pitch = 20.0
 	rig.distance = 25.0

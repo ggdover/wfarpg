@@ -8,6 +8,7 @@ render_mode cull_disabled, diffuse_lambert, specular_schlick_ggx;
 uniform sampler2D card : source_color, filter_linear_mipmap, repeat_disable;
 uniform float roughness = 0.75;
 instance uniform float sight_fade = 0.0;  // fading out of the way (tree_fade in shaders/common.gdshaderinc)
+instance uniform float sight_veil = 0.0;  // how see-through, a spruce the hero is behind (veil_fade)
 uniform float specular_level = 0.25;
 // ambient occlusion baked in Blender, in UV2.x (see tools/build_demo.py, bake_ao)
 uniform float ao_light_affect = 0.2;
@@ -21,7 +22,8 @@ void fragment() {
 	float fade = max(tree_fade(sight_fade, VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD),
 			xray_fade(SCREEN_UV, VIEWPORT_SIZE, VERTEX, VIEW_MATRIX, CAMERA_POSITION_WORLD));
 	vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	if (faded_out(fade, world) || faded_fine(cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD), world, FRAGCOORD.xy)) {
+	float soft = max(cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD), veil_fade(sight_veil, CAMERA_POSITION_WORLD));
+	if (faded_out(fade, world) || faded_fine(soft, world, FRAGCOORD.xy)) {
 		discard;
 	}
 	vec4 c = texture(card, UV);

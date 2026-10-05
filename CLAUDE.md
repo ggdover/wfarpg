@@ -39,7 +39,8 @@ General knowledge, public documentation, and third-party libraries and engines a
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
   (not yet confirmed by the user). Trees in the way, the user's design, shadows kept: a tree goes to its stump only
   once its trunk is in front of the hero; its leaves and branches stay, so the hero can hide in them, until the hero
-  is behind the leaves of three trees or more, when the cone fades in and shows it through them. The cone
+  is behind the leaves of three trees or more, when the cone fades in and shows it through them; and spruces, whose
+  needles are thick, go evenly half see-through while they cover most of the hero (the user's exception). The cone
   (`ref_imgs/tree_disappear/camera_view.png`) fades whatever of a tree is inside it, wholly in its middle and
   gradually, as a changing opacity, towards its edges: the whole screen at the camera, round the hero at its depth,
   nothing past it. No bare sticks, no hard x-ray edges. The user's earlier ideas and complaints are in

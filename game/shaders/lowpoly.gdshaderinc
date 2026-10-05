@@ -13,6 +13,9 @@ uniform float ao_light_affect = 0.2;
 global uniform vec2 mood_grade;
 #ifdef HERO_FADE
 instance uniform float sight_fade = 0.0;  // fading out of the way (tree_fade in shaders/common.gdshaderinc)
+#ifndef NO_XRAY
+instance uniform float sight_veil = 0.0;  // how see-through, a spruce the hero is behind (veil_fade)
+#endif
 #endif
 #ifdef PEBBLE
 global uniform vec3 pebble_colour;
@@ -21,10 +24,10 @@ global uniform vec3 pebble_colour;
 void fragment() {
 #ifdef HERO_FADE
 	float fade = tree_fade(sight_fade, VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD);
-	float soft = 0.0;  // the cone's
+	float soft = 0.0;  // the cone's, or the spruce's veil
 #ifndef NO_XRAY
 	fade = max(fade, xray_fade(SCREEN_UV, VIEWPORT_SIZE, VERTEX, VIEW_MATRIX, CAMERA_POSITION_WORLD));
-	soft = cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD);
+	soft = max(cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD), veil_fade(sight_veil, CAMERA_POSITION_WORLD));
 #endif
 	vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	if (faded_out(fade, world) || faded_fine(soft, world, FRAGCOORD.xy)) {
