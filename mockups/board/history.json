@@ -3506,6 +3506,50 @@
     "What's left in those views is the forest itself: ambient occlusion and shadows cost 3 to 4 ms each"
    ],
    "cover": "renders/play_demo_see_through/fewer_cards.jpg"
+  },
+  {
+   "id": "play-demo-hide-all-but-nearest",
+   "date": "2026-10-05",
+   "asked_at": "23:29",
+   "posted_at": "23:54",
+   "title": "Hide all but nearest",
+   "section": "Play demo: hide all but nearest",
+   "asked": "Would it save even more fps if, with several overlapping trees covering the screen, like 3, 4 or 5 trees between the camera and the player when looking from inside the very thick forest, some of those trees didn't render at all, rather than still being transparent? (Then: yes, add it as an option.)",
+   "changed": [
+    "Hide all but nearest in F2 (Off, 1 or 2; off by default): only that many of the see-through trees, those nearest the hero, stay see-through, and the rest go whole over 0.15 s, leaving their stumps and shadows, until they no longer cover the hero; a hidden tree comes back as one of the nearest only once it's 1.5 m nearer the hero than one kept",
+    "The self-test checks that, keeping the nearest, the others go to their stumps, and come back when it's off"
+   ],
+   "items": [
+    {
+     "id": "s-hidenear",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: hide all but nearest",
+     "author": "claude"
+    },
+    {
+     "id": "hn-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Hide all but nearest\nYour question: would hiding some of the trees between the camera and the hero save more than keeping them see-through? Yes: a hidden tree costs nothing to draw, while a see-through one still runs its leaf cards wherever it lets through. So it's an option now (F2, **hide all but nearest**: Off, 1 or 2; off by default): deep in the forest, only the one or two see-through trees nearest the hero stay see-through, and the rest go whole over 0.15 s, leaving their stumps and shadows, until they no longer cover the hero.\n\nIn the slowest low-camera views: 16 to 17 ms a frame instead of 22 to 24 (keeping 2, about the same). Walking the trail with the camera low, keeping 1 takes the slowest 5% of frames from 44-46 fps to 50-51, the slowest 1% from 40-43 to 46. The stipple over most of the screen goes and the hero shows clearly; but the trees in the way vanish instead of staying half there.",
+     "author": "claude"
+    },
+    {
+     "id": "hn-shots",
+     "type": "image",
+     "status": "new",
+     "caption": "The slowest low-camera views: all the see-through trees kept (left), all but the nearest hidden (middle), all but the two nearest (right). The hidden trees leave their stumps.",
+     "assetId": "6cea3ac2a8fad2b45e67a84c0180a05d",
+     "file": "renders/play_demo_see_through/hide_all_but_nearest.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "A hidden tree costs nothing to draw, while a see-through one still runs its leaf cards wherever it lets through: in the slowest low-camera views, keeping the nearest see-through and hiding the rest takes 16 to 17 ms a frame instead of 22 to 24, as cheap as hiding them all; keeping the two nearest, about the same",
+    "Walking the trail with the camera low, keeping 1 takes the slowest 5% of frames from 44-46 fps to 50-51 and the slowest 1% from 40-43 to 46, hiding 2.8 trees a frame on average"
+   ],
+   "cover": "renders/play_demo_see_through/hide_all_but_nearest.jpg"
   }
  ]
 }

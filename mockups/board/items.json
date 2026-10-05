@@ -835,6 +835,32 @@
   "y": -1660,
   "z": 89
  },
+ "hn-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791237270516,
+  "h": 950,
+  "text": "# Hide all but nearest\nYour question: would hiding some of the trees between the camera and the hero save more than keeping them see-through? Yes: a hidden tree costs nothing to draw, while a see-through one still runs its leaf cards wherever it lets through. So it's an option now (F2, **hide all but nearest**: Off, 1 or 2; off by default): deep in the forest, only the one or two see-through trees nearest the hero stay see-through, and the rest go whole over 0.15 s, leaving their stumps and shadows, until they no longer cover the hero.\n\nIn the slowest low-camera views: 16 to 17 ms a frame instead of 22 to 24 (keeping 2, about the same). Walking the trail with the camera low, keeping 1 takes the slowest 5% of frames from 44-46 fps to 50-51, the slowest 1% from 40-43 to 46. The stipple over most of the screen goes and the hero shows clearly; but the trees in the way vanish instead of staying half there.",
+  "type": "note",
+  "updatedAt": 1791237270516,
+  "w": 460,
+  "x": 28,
+  "y": 53126,
+  "z": 237
+ },
+ "hn-shots": {
+  "ar": 1.652,
+  "assetId": "6cea3ac2a8fad2b45e67a84c0180a05d",
+  "author": "claude",
+  "caption": "The slowest low-camera views: all the see-through trees kept (left), all but the nearest hidden (middle), all but the two nearest (right). The hidden trees leave their stumps.",
+  "createdAt": 1791237270516,
+  "type": "image",
+  "updatedAt": 1791237270516,
+  "w": 2200,
+  "x": 512,
+  "y": 53126,
+  "z": 238
+ },
  "hud-about": {
   "author": "claude",
   "color": "paper",
@@ -1958,6 +1984,19 @@
   "x": 0,
   "y": 50825,
   "z": 34
+ },
+ "s-hidenear": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791237270516,
+  "h": 1488,
+  "title": "Play demo: hide all but nearest",
+  "type": "frame",
+  "updatedAt": 1791237270516,
+  "w": 2740,
+  "x": 0,
+  "y": 53098,
+  "z": 35
  },
  "s-hud": {
   "author": "claude",
