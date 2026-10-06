@@ -4,10 +4,12 @@ extends Node
 
 var demo: Node
 var results := []
+var marked_at_start := ""  # the F2 panel's preset marked at the start
 
 
 func run(d: Node) -> void:
 	demo = d
+	marked_at_start = (demo._panel as PerfPanel).preset_in_use()
 	var hero: Hero = demo.hero
 	var rig: CameraRig = demo.rig
 	await _frames(30)
@@ -62,9 +64,13 @@ func run(d: Node) -> void:
 	await _sight_checks()
 	# T swaps the trees
 	var set0: String = Game.tree_set
+	var marked: String = (demo._panel as PerfPanel).preset_in_use()
 	_key(KEY_T)
 	await _frames(3)
 	_check("T swaps the trees", Game.tree_set != set0, "%s -> %s" % [set0, Game.tree_set])
+	_check("T unmarks the F2 panel's preset: the trees are one of the settings under Advanced",
+		marked != "" and (demo._panel as PerfPanel).preset_in_use() == "", "%s, then %s" % [marked if marked else "none",
+			(demo._panel as PerfPanel).preset_in_use() if (demo._panel as PerfPanel).preset_in_use() else "none"])
 	# P changes the paths' colours
 	var theme0: String = Game.path_theme
 	_key(KEY_P)
@@ -212,16 +218,45 @@ func _sight_checks() -> void:
 	# forest, it's solid again
 	if set == "new":
 		var panel: PerfPanel = demo._panel
-		panel.choose_settings(PerfPanel.ONE_TREE)
+		var at_start := marked_at_start
+		panel.use_preset("one")
 		await _seconds(0.6)
 		var one_goes := not w._veiled.is_empty() and w.veil_by == "seen" and is_equal_approx(w.veil_round, 0.0) \
 			and is_equal_approx(w.veil_cover, 0.9) and is_equal_approx(w.veil_solid_below, 0.5)
-		panel.choose_settings(PerfPanel.THICK_FOREST)
+		var one_marked := panel.preset_in_use()
+		panel.use_preset("thick")
 		await _seconds(0.8)
 		var thick_back := w._veiled.is_empty() and w.veil_by == "two" and is_equal_approx(w.veil_round, 1.5) \
 			and is_equal_approx(w.veil_cover, 0.4) and is_equal_approx(w.veil_solid_below, 0.2)
 		_check("%s trees, see-through: the presets: one tree is enough, and the pine alone goes see-through; thick forest, and it's solid" % set,
 			one_goes and thick_back, "%s, then %s" % ["see-through" if one_goes else "solid", "solid" if thick_back else "see-through"])
+		# the preset in use is marked, thick forest at the start (the defaults are its settings), until a setting under
+		# Advanced changes; pressed again, it sets them back
+		var thick_marked := panel.preset_in_use()
+		panel.slide("veil_cover", 0.5)
+		var after_change := panel.preset_in_use()
+		panel.use_preset("thick")
+		_check("the F2 panel: the preset in use is marked, from the start; changing a setting under Advanced unmarks it",
+			at_start == "thick" and one_marked == "one" and thick_marked == "thick" and after_change == "" \
+				and panel.preset_in_use() == "thick" and is_equal_approx(w.veil_cover, 0.4),
+			"marked: at the start %s, then %s, %s, after a change %s, pressed again %s" % [at_start, one_marked, thick_marked, after_change,
+				panel.preset_in_use()].map(func(k: String) -> String: return k if k else "none"))
+		# the advanced settings are hidden at first, the panel short; shown, it's taller, and hidden again, as short
+		var shown := panel.visible
+		panel.visible = true
+		await _frames(3)
+		var closed := not panel._advanced.visible
+		var short := panel.size
+		panel.show_advanced(true)
+		await _frames(3)
+		var tall := panel.size
+		panel.show_advanced(false)
+		await _frames(3)
+		_check("the F2 panel: the advanced settings are hidden at first, and shown on a click", closed and tall.y > short.y * 2.0 \
+			and panel.size.is_equal_approx(short) and is_equal_approx(tall.x, short.x),
+			"%s at first; %d px tall, %d shown, %d hidden again; %d px wide, %d shown" % ["hidden" if closed else "shown", short.y, tall.y,
+				panel.size.y, short.x, tall.x])
+		panel.visible = shown
 	_check("%s trees, see-through: below the lower bar, they come back, their stumps gone" % set, after == 0.0 and stump_gone,
 		"see-through %.2f, %s" % [after, "stump gone" if stump_gone else "stump still there"])
 	_check("%s trees, see-through: drawn with fewer cards while see-through, and all of them again after" % set, light and heavy,

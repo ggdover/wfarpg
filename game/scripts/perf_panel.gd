@@ -1,9 +1,11 @@
 class_name PerfPanel
 extends PanelContainer
-## The performance panel (F2). At the top, a graph of every frame's time over the last few seconds, with the frame
-## rate now, on average, and in the slowest 5% and 1% of frames, and what the graphics card spends on a frame. Below,
-## switches for what costs time, which take effect at once, so you can flip back and forth and watch the numbers.
-## "Walk the trail" walks the same way every time (scripts/trail_walk.gd) and lists each run with its settings.
+## The performance panel (F2). At the top, two presets for when trees go see-through (Thick forest, One tree is enough),
+## the one in use marked. Then a graph of every frame's time over the last few seconds, with the frame rate now, on
+## average, and in the slowest 5% and 1% of frames, and what the graphics card spends on a frame. Under "Advanced
+## settings", hidden at first, switches for what costs time, which take effect at once, so you can flip back and forth
+## and watch the numbers; changing any of them unmarks the preset. "Walk the trail" walks the same way every time
+## (scripts/trail_walk.gd) and lists each run with its settings.
 
 const WINDOW := 3.0  ## seconds shown in the graph and counted in the numbers
 const GRAPH_MS := 50.0  ## frame time at the graph's top
@@ -16,8 +18,11 @@ const BEFORE := {"trimmed": false, "tree_shadows": "mid", "shadow_reach": 0.0, "
 const SPED_UP := {"trimmed": true, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "details": 4}
 ## when trees go see-through (DemoWorld, cut_trees "veil"): only where the forest is thick, two trees deep (the
 ## defaults, from the playtests, tools/veiltune.py), or as soon as one tree hides most of the hero
-const THICK_FOREST := {"sight": "veil", "veil_by": "two", "veil_round": 1.5, "veil_cover": 0.4, "veil_solid_below": 0.2}
-const ONE_TREE := {"sight": "veil", "veil_by": "seen", "veil_round": 0.0, "veil_cover": 0.9, "veil_solid_below": 0.5}
+const THICK_FOREST := {"sight": "veil", "veil_by": "two", "veil_round": 1.5, "veil_cover": 0.4, "veil_solid_below": 0.2,
+	"veil_amount": 0.5, "veil_keep": 0}
+const ONE_TREE := {"sight": "veil", "veil_by": "seen", "veil_round": 0.0, "veil_cover": 0.9, "veil_solid_below": 0.5,
+	"veil_amount": 0.5, "veil_keep": 0}
+const PRESETS := {"thick": THICK_FOREST, "one": ONE_TREE}
 
 var demo: Node
 var _frames: Array[Vector2] = []  # (time in s, frame ms)
@@ -36,6 +41,11 @@ var _texts := {}  # setting -> its row's text
 var _sliders := {}  # setting -> a function that moves its slider and applies the value
 var _refresh := 0.0
 var _theme_box: OptionButton
+var _scroll: ScrollContainer
+var _advanced: VBoxContainer  # every setting but the presets, hidden at first
+var _advanced_button: Button
+var _preset_buttons := {}  # preset -> its button at the top, pressed while it's the settings in use
+var _applying := false  # while a preset sets the settings under Advanced
 
 
 func setup(d: Node) -> void:
@@ -47,20 +57,33 @@ func setup(d: Node) -> void:
 	bg.set_content_margin_all(12)
 	add_theme_stylebox_override("panel", bg)
 	custom_minimum_size = Vector2(500, 0)
-	var scroll := ScrollContainer.new()  # in a small window, the panel scrolls
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.custom_minimum_size = Vector2(476, minf(get_viewport().get_visible_rect().size.y - 60.0, 900.0))
-	add_child(scroll)
+	_scroll = ScrollContainer.new()  # in a small window, the panel scrolls, with Advanced settings shown
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.custom_minimum_size.x = 476
+	add_child(_scroll)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 3)
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(col)
+	_scroll.add_child(col)
 	var title := Label.new()
 	title.text = "Performance  ·  F2 hides"
 	title.add_theme_font_override("font", load("res://assets/fonts/Cinzel.ttf"))
 	title.add_theme_font_size_override("font_size", 17)
 	title.add_theme_color_override("font_color", Color("#E8D9B0"))
 	col.add_child(title)
+	# the presets, at the very top
+	var row_p := HBoxContainer.new()
+	row_p.add_theme_constant_override("separation", 8)
+	col.add_child(row_p)
+	var lp := _label(row_p, "Trees go see-through when", 13, INK)
+	lp.custom_minimum_size.x = 150
+	for k: String in ["thick", "one"]:
+		var b := _button(row_p, {"thick": "Thick forest", "one": "One tree is enough"}[k], use_preset.bind(k))
+		b.toggle_mode = true
+		b.tooltip_text = {"thick": "Only where the forest is thick: two trees or more must hide 40% of the hero and 1.5 m round it; solid again below 20%. A tree standing alone stays solid",
+			"one": "As soon as one tree's leaves hide 90% of the hero; solid again below 50%"}[k]
+		_preset_buttons[k] = b
+	_rule(col)
 	_graph = FrameGraph.new()
 	_graph.panel = self
 	_graph.custom_minimum_size = Vector2(464, 90)
@@ -68,6 +91,11 @@ func setup(d: Node) -> void:
 	_now_label = _label(col, "", 15, INK)
 	_detail_label = _label(col, "", 12, DIM)
 	_rule(col)
+	_advanced_button = _button(col, "", func() -> void: show_advanced(not _advanced.visible))
+	_advanced = VBoxContainer.new()
+	_advanced.add_theme_constant_override("separation", 3)
+	col.add_child(_advanced)
+	col = _advanced  # everything below is under Advanced settings
 
 	var w: DemoWorld = demo.world
 	var vp := get_viewport()
@@ -95,7 +123,9 @@ func setup(d: Node) -> void:
 		_theme_box.add_item(t)
 		_theme_box.set_item_tooltip(_theme_box.item_count - 1, PathThemes.THEMES[t]["about"])
 	_theme_box.select(PathThemes.ORDER.find(Game.path_theme))
-	_theme_box.item_selected.connect(func(i: int) -> void: demo.show_path_theme(PathThemes.ORDER[i]))
+	_theme_box.item_selected.connect(func(i: int) -> void:
+		_changed()
+		demo.show_path_theme(PathThemes.ORDER[i]))
 	row0.add_child(_theme_box)
 	_choices["theme"] = "paths " + Game.path_theme.to_lower()
 	_slider(col, "path_wear", "Path wear spread", 0.0, 1.0, 0.1, w.path_wear, "%.1f", func(v: float) -> void: w.set_path_wear(v))
@@ -113,15 +143,6 @@ func setup(d: Node) -> void:
 	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
 	_choice(col, "sight", "Trees in the way", [["See-through", "veil"], ["Cone", "cone"], ["Front", "front"], ["X-ray", "xray"], ["Area", "area"], ["Line", "line"], ["Keep", "off"]],
 		w.cut_trees, func(v: String) -> void: w.set_trees("cut_trees", v))
-	var row_v := HBoxContainer.new()  # the see-through settings below, two ways at once
-	row_v.add_theme_constant_override("separation", 8)
-	col.add_child(row_v)
-	var lv := _label(row_v, "  see-through when", 13, INK)
-	lv.custom_minimum_size.x = 150
-	var thick := _button(row_v, "Thick forest", func() -> void: choose_settings(THICK_FOREST))
-	thick.tooltip_text = "Two trees or more must hide 40% of the hero and 1.5 m round it; solid again below 20%. A tree standing alone stays solid"
-	var one := _button(row_v, "One tree is enough", func() -> void: choose_settings(ONE_TREE))
-	one.tooltip_text = "One tree's leaves hiding 90% of the hero is enough; solid again below 50%"
 	_slider(col, "veil_cover", "  see-through at", 0.05, 1.0, 0.05, w.veil_cover, percent, func(v: float) -> void: w.veil_cover = v)
 	_slider(col, "veil_solid_below", "  solid again below", 0.05, 1.0, 0.01, w.veil_solid_below, percent,
 		func(v: float) -> void: w.veil_solid_below = v)
@@ -203,8 +224,65 @@ func setup(d: Node) -> void:
 	_runs_label = _label(col, "", 12, DIM)
 	_runs_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_update_runs()
+	show_advanced(false)
+	_mark_preset(_matching_preset())
 	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), true)
 	_last = Time.get_ticks_usec()
+
+
+## Show the advanced settings, or hide them, the panel then no taller than the presets and the numbers.
+func show_advanced(on: bool) -> void:
+	_advanced.visible = on
+	_advanced_button.text = "Hide advanced settings" if on else "Show advanced settings"
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if on else ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.custom_minimum_size.y = minf(get_viewport().get_visible_rect().size.y - 60.0, 900.0) if on else 0.0
+	size.y = 0.0  # as short as it can be
+
+
+## Set the see-through settings to a preset's (PRESETS), and mark it as the one in use.
+func use_preset(preset: String) -> void:
+	_applying = true
+	choose_settings(PRESETS[preset])
+	_applying = false
+	_mark_preset(preset)
+
+
+## Mark the preset in use, or none ("").
+func _mark_preset(preset: String) -> void:
+	for k: String in _preset_buttons:
+		(_preset_buttons[k] as Button).set_pressed_no_signal(k == preset)
+
+
+## The marked preset, or "" if none is.
+func preset_in_use() -> String:
+	for k: String in _preset_buttons:
+		if (_preset_buttons[k] as Button).button_pressed:
+			return k
+	return ""
+
+
+## The preset whose settings are the settings now, or "" (at the start: the defaults are Thick forest's).
+func _matching_preset() -> String:
+	var w: DemoWorld = demo.world
+	var now := {"sight": w.cut_trees, "veil_by": w.veil_by, "veil_round": w.veil_round, "veil_cover": w.veil_cover,
+		"veil_solid_below": w.veil_solid_below, "veil_amount": w.veil_amount, "veil_keep": w.veil_keep}
+	for k: String in PRESETS:
+		var same := true
+		for setting: String in PRESETS[k]:
+			var a: Variant = PRESETS[k][setting]
+			var b: Variant = now[setting]
+			if not (is_equal_approx(float(a), float(b)) if (a is float or a is int) else a == b):
+				same = false
+		if same:
+			return k
+	return ""
+
+
+## A setting under Advanced was changed, from the panel or by a key (T, P, F4): the settings may no longer be the
+## marked preset's.
+func _changed() -> void:
+	if not _applying:
+		_mark_preset("")
 
 
 ## The frames inside the graph's window: (seconds ago, frame ms).
@@ -312,6 +390,7 @@ func _choice(parent: Control, key: String, text: String, options: Array, current
 			_choices[key] = "%s %s" % [text.to_lower(), o[0].to_lower()]
 		b.toggled.connect(func(on: bool) -> void:
 			if on:
+				_changed()
 				_choices[key] = "%s %s" % [text.to_lower(), o[0].to_lower()]
 				apply.call(o[1]))
 
@@ -343,6 +422,8 @@ func choose_settings(settings: Dictionary) -> void:
 
 
 func show_theme(theme: String) -> void:
+	if _choices["theme"] != "paths " + theme.to_lower():
+		_changed()
 	_theme_box.select(PathThemes.ORDER.find(theme))
 	_choices["theme"] = "paths " + theme.to_lower()
 
@@ -351,6 +432,7 @@ func show_theme(theme: String) -> void:
 func show_choice(key: String, value: Variant) -> void:
 	var b: Button = _groups.get(key, {}).get(value)
 	if b and not b.button_pressed:
+		_changed()
 		b.set_pressed_no_signal(true)
 		_choices[key] = "%s %s" % [_texts[key].to_lower(), b.text.to_lower()]
 
@@ -384,8 +466,11 @@ func _slider(parent: Control, key: String, text: String, lo: float, hi: float, s
 	var v := _label(row, show.call(value), 12, DIM)
 	v.custom_minimum_size.x = 48
 	s.value_changed.connect(func(x: float) -> void: v.text = show.call(x))
-	s.drag_ended.connect(func(_changed: bool) -> void: apply.call(s.value))
+	s.drag_ended.connect(func(_moved: bool) -> void:
+		_changed()
+		apply.call(s.value))
 	_sliders[key] = func(x: float) -> void:
+		_changed()
 		s.value = x
 		apply.call(s.value)
 

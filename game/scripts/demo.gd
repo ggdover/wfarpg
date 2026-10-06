@@ -8,9 +8,10 @@ extends Node3D
 ##   --shot=out.png   take a screenshot and quit (after --wait=frames, default 90)    --nohud  without the HUD
 ##   --fps=seconds    measure the frame rate first and print it                       --selftest  try the controls
 ##   --walktest       walk the trail and print the frame times                       --treelod=1|2  lighter trees
-##   --panel          open the performance panel (F2)
+##   --panel          open the performance panel (F2); --panel=advanced with its advanced settings shown
 ##   --set:option=value  a panel option or slider, e.g. --set:shadow_size=1024 --set:details=2 --set:tree_shadows=far
 ##                       --set:shadow_cap=40 --set:fps=60 (the frame rate limit) --set:path_wear=0
+##                       --set:preset=thick|one (a preset at the panel's top)
 ##   for measuring what costs what: --noshadow, --nofade, --flatground, --canopy=0..1, --bump=0..1,
 ##   --sun:property=value, --env:property=value, --vp:property=value
 
@@ -63,8 +64,10 @@ func _ready() -> void:
 			var walk: Node = load("res://scripts/dev/walktest.gd").new()
 			add_child(walk)
 			walk.run(self)
-		elif a == "--panel":
+		elif a == "--panel" or a == "--panel=advanced":
 			_panel.visible = true
+			if a == "--panel=advanced":
+				_panel.show_advanced(true)
 		elif a == "--paneltest":
 			var test: Node = load("res://scripts/dev/paneltest.gd").new()
 			add_child(test)
@@ -199,7 +202,9 @@ func _read_args() -> void:
 		elif a.begins_with("--set:"):  # --set:option=value, a performance panel option or slider (see dev/paneltest.gd)
 			var kv := a.substr(6).split("=")
 			var v: Variant = str_to_var(kv[1])
-			if _panel.has_slider(kv[0]):
+			if kv[0] == "preset":
+				_panel.use_preset(kv[1])
+			elif _panel.has_slider(kv[0]):
 				_panel.slide(kv[0], float(v))
 			else:
 				_panel.choose(kv[0], kv[1] if v == null else v)

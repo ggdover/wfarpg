@@ -124,9 +124,10 @@ place (`tools/reference_shots.py`).
     goes, but the trees in the way vanish rather than stay half there. Walking the trail with the camera low, keeping 1
     takes the slowest 5% of frames from 44-46 fps to 50-51 and the slowest 1% from 40-43 to 46, hiding 2.8 trees a
     frame on average.
-  - In the panel: **see-through when** sets them all at once, **Thick forest** (these) or **One tree is enough** (one
-    tree's leaves hiding 90% of the hero alone; solid again below 50%: from the same playtests, one tree hiding the hero
-    goes see-through 98% of the time, and needlessly half as often as the way before), then **see-through at** (40%),
+  - At the top of the panel, **Trees go see-through when** sets them all at once, **Thick forest** (these) or **One
+    tree is enough** (one tree's leaves hiding 90% of the hero alone; solid again below 50%: from the same playtests, one
+    tree hiding the hero goes see-through 98% of the time, and needlessly half as often as the way before), the one in
+    use marked. Under its advanced settings, each on its own: **see-through at** (40%),
     **solid again below** (20%), **cover counts** (Two trees, Leaves or Whole cards), **area round hero** (1.5 m), **see-through by** (50%; 0% for never), **show the area**, which draws it over
     the view with its points, red where the trees cover them, and how much of it they cover, with how much they must
     cover to go see-through, or, once they are (its outline red), how little before they come back
@@ -163,9 +164,13 @@ Where it differs on purpose:
 
 ## The performance panel (F2)
 
-A frame-time graph of the last 3 seconds (one bar per frame: green is faster than 60 fps, amber than 30, red
-slower), with the frame rate now, on average, and in the slowest 5% and 1% of frames. Below the graph: how long the
-graphics card takes per frame, the triangles drawn and the draw calls. Every switch below takes effect at once:
+At the top, two presets for when trees go see-through: **Thick forest** (the defaults) and **One tree is enough**
+(under Trees in the way, above). The one in use is marked, from the start, until any setting under the advanced
+settings changes, from the panel or by T, P or F4: the settings are then no longer the preset's. Then a frame-time
+graph of the last 3 seconds (one bar per frame: green is faster than 60 fps, amber than 30, red slower), with the frame
+rate now, on average, and in the slowest 5% and 1% of frames, and below it how long the graphics card takes per frame,
+the triangles drawn and the draw calls. Every other setting is under **Show advanced settings**, hidden at first, and
+takes effect at once:
 
 | Switch | What it does |
 |---|---|
@@ -180,7 +185,7 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Trees in the way | How trees get out of the way (above): **See-through** (the default), with **see-through when** to set what follows at once (**Thick forest**, the defaults, or **One tree is enough**: Leaves, the hero alone, 90% and 50%), how much of the area round the hero the trees must cover (**see-through at**, 40%) and how little before see-through trees turn solid again (**solid again below**, 20%, so they don't flicker), what covers it (**cover counts**: two trees or more hiding a point through the gaps between their leaves, the default, so a tree alone never goes see-through; one tree; or any part of a leaf card, as before), how far round the hero the area reaches (**area round hero**, 1.5 m), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, whether **see-through trees** are drawn with half their cards, each where it was (Fewer cards, the default, much faster deep in the forest) or all of them, and whether to **hide all but** the 1 or 2 see-through trees **nearest** the hero (off by default); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Trees in the way | How trees get out of the way (above): **See-through** (the default), with the presets at the panel's top to set what follows at once (**Thick forest**, the defaults, or **One tree is enough**: Leaves, the hero alone, 90% and 50%; both see-through by 50%, none hidden), how much of the area round the hero the trees must cover (**see-through at**, 40%) and how little before see-through trees turn solid again (**solid again below**, 20%, so they don't flicker), what covers it (**cover counts**: two trees or more hiding a point through the gaps between their leaves, the default, so a tree alone never goes see-through; one tree; or any part of a leaf card, as before), how far round the hero the area reaches (**area round hero**, 1.5 m), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, whether **see-through trees** are drawn with half their cards, each where it was (Fewer cards, the default, much faster deep in the forest) or all of them, and whether to **hide all but** the 1 or 2 see-through trees **nearest** the hero (off by default); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
@@ -208,7 +213,9 @@ Each level also stops drawing details further from the camera (High and Baked at
 so runs compare fairly. With VSync off and no frame rate limit (the defaults), the frame rate goes as high as the
 graphics card allows. The hero moves in the physics' 60 steps a second and is drawn between them (physics
 interpolation, `project.godot`), so walking stays smooth at any frame rate. `--paneltest` presses every switch in turn
-and prints what each costs, then the speed-ups all as before and all on, and checks the frame rate limit.
+and prints what each costs, then the speed-ups all as before and all on, and checks the frame rate limit. For a
+screenshot of the panel, `--panel` opens it and `--panel=advanced` with its advanced settings shown; `--set:preset=one`
+presses a preset.
 
 ## Path colours
 
