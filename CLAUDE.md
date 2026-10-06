@@ -31,8 +31,9 @@ General knowledge, public documentation, and third-party libraries and engines a
 - Trees: Scots pine, silver birch, Norway spruce, aspen, rowan and alder (`ref_imgs/Trees of the Swedish Forest.png`;
   the user dropped the juniper). Low-poly trunks and branches; leaf clumps are crossed planes (copies of a leaf card
   with alpha, crossing at the clump's centre). The spruce instead has pinnate sprays: spray cards along each branch
-  on alternate sides, their twigs' bases on the branch. The user isn't happy with the mockups' current trees and
-  wants to swap them for these.
+  on alternate sides, their twigs' bases on the branch. Its top must end in a cone, a spire of short, upturned shoots
+  round the leader, not a spray lying loose on top (the user's request). The user isn't happy with the mockups'
+  current trees and wants to swap them for these.
 - Open trodden ground, like Tallmo's square, is worn the same way as the paths: an uneven, asymmetric outline (no clean
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
@@ -44,7 +45,7 @@ General knowledge, public documentation, and third-party libraries and engines a
   behind a tree with a very big crown, with much covered round the hero. So by default a point round the hero counts as
   covered only once two trees each hide it through the gaps between their leaves, over the hero and 1.5 m round it,
   see-through at 40%, solid again below 20%: from playtests (`game/scripts/dev/veiltune.gd`, `game/tools/veiltune.py`),
-  not yet confirmed by the user, who tunes them in F2 (it has sliders for both shares, the area and how see-through, the
+  which the user is happy with; they tune them in F2 (it has sliders for both shares, the area and how see-through, the
   way of counting, and two presets, "Thick forest" and "One tree is enough": one tree's leaves hiding 90% of the hero
   alone, solid again below 50%; the user's earlier settings: any part of a leaf card, the hero alone, 90% and 72%). No
   tree goes whole, no bare sticks, no hard x-ray edges. A tree's leaves must not move as it goes see-through: the user

@@ -19,17 +19,17 @@
   "name": "Norway spruce",
   "swedish": "Gran",
   "latin": "Picea abies",
-  "height": 16.9,
-  "faces": 4435,
-  "cards": 1646
+  "height": 17.3,
+  "faces": 5209,
+  "cards": 2420
  },
  "Aspen": {
   "name": "Aspen",
   "swedish": "Asp",
   "latin": "Populus tremula",
-  "height": 15.3,
-  "faces": 683,
-  "cards": 225
+  "height": 15.4,
+  "faces": 767,
+  "cards": 309
  },
  "Rowan": {
   "name": "Rowan",
@@ -43,8 +43,8 @@
   "name": "Alder",
   "swedish": "Klibbal",
   "latin": "Alnus glutinosa",
-  "height": 11.9,
-  "faces": 650,
-  "cards": 222
+  "height": 12.0,
+  "faces": 671,
+  "cards": 243
  }
 }

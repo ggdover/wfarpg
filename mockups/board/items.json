@@ -2219,6 +2219,19 @@
   "y": 20675,
   "z": 25
  },
+ "s-sprucetop": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791319935777,
+  "h": 3120,
+  "title": "Trees: the spruce's top",
+  "type": "frame",
+  "updatedAt": 1791319935777,
+  "w": 2740,
+  "x": 0,
+  "y": 64372,
+  "z": 39
+ },
  "s-square": {
   "author": "claude",
   "color": "moss",
@@ -2582,6 +2595,58 @@
   "x": 1626,
   "y": 20703,
   "z": 193
+ },
+ "spr-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791319935777,
+  "h": 1080,
+  "text": "# The spruce's top\nYou saw a spray lying loose on top of the spruces, and asked for the pinnate pattern to end in a cone.\n\nIt was two things: a crossed clump on the very top, one of its cards lying flat; and the top branches, half a metre long and pointing a little down, each carrying a spray of 1 m or more, so the top fanned out flat, 1.4 m from the trunk.\n\nNow the top is a spire, as in your reference sheet:\n- **A cone from the tip:** over the top 4 m or so, the branches and their sprays stay inside a cone from the leader's tip, 0.45 m out for every metre down, so they get shorter toward the top\n- **Turned up:** the highest branches turn up toward the leader, up to about 30°, and their sprays no longer droop; the shorter the branch, the smaller its sprays and the closer together\n- **The leader:** in place of the clump, sprays round the leader, each a little further round and steeper than the one below, and one carrying it on to the tip\n\nBelow the top, the tree is as you tuned it. From afar, the lighter versions keep the spire whole: a first try left the tip floating above the rest.\n\nThe spruce has 2,420 leaf cards instead of 2,184 (B: 2,640 instead of 2,392); walking the trail, the frame rate didn't change (92 fps on average, against 92 to 93).",
+  "type": "note",
+  "updatedAt": 1791319935777,
+  "w": 460,
+  "x": 28,
+  "y": 64400,
+  "z": 249
+ },
+ "spr-above": {
+  "ar": 1.956,
+  "assetId": "909af4f3b362156bcb812bd84f8ef247",
+  "author": "claude",
+  "caption": "The default camera, zoomed out at the start: the spruce left of the middle now ends in a point rather than a fan of sprays.",
+  "createdAt": 1791319935777,
+  "type": "image",
+  "updatedAt": 1791319935777,
+  "w": 1280,
+  "x": 1432,
+  "y": 65811,
+  "z": 252
+ },
+ "spr-sheet": {
+  "ar": 0.568,
+  "assetId": "ddd2811dde2b5e29eefed515ea3e89e4",
+  "author": "claude",
+  "caption": "The portfolio's spruce, before (left) and now (right): the whole tree, the top close up, and from the game camera's angle.",
+  "createdAt": 1791319935777,
+  "type": "image",
+  "updatedAt": 1791319935777,
+  "w": 880,
+  "x": 512,
+  "y": 65811,
+  "z": 251
+ },
+ "spr-skyline": {
+  "ar": 1.717,
+  "assetId": "ad3b8be24f02549dd276f93f9c1ec106",
+  "author": "claude",
+  "caption": "The forest's edge from the meadow, camera low. Before (top), the spruces end in loose crossed sprays over fans of long ones; now (bottom), in spires.",
+  "createdAt": 1791319935777,
+  "type": "image",
+  "updatedAt": 1791319935777,
+  "w": 2200,
+  "x": 512,
+  "y": 64400,
+  "z": 250
  },
  "sq-a": {
   "ar": 1.778,

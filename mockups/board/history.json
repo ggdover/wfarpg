@@ -3765,6 +3765,76 @@
     "Measuring two trees deep costs 3 to 4.5 ms deep in the forest, 30 times a second, against 1 ms before; the frame rate there didn't change, as the graphics card takes the time"
    ],
    "cover": "renders/play_demo_see_through/lone_pine_walk.jpg"
+  },
+  {
+   "id": "spruce-top-spire",
+   "date": "2026-10-06",
+   "asked_at": "22:17",
+   "posted_at": "22:53",
+   "title": "The spruce's top: a spire",
+   "section": "Trees: the spruce's top",
+   "asked": "Some of the spruces' leaves look oddly placed at the top. The spruce's leaves are special, set in a pinnate pattern, and it looks good in general, but at the very top it looks like some leaves, or even a single lonely one, are just lying on top. The pinnate pattern should make the top end in a cone, instead of a leaf laid sporadically on top",
+   "changed": [
+    "The spruce's top is a spire: over its top 4 m or so, the branches and their sprays stay inside a cone from the leader's tip, 0.45 m out for every metre down, so they get shorter toward the top",
+    "The highest branches turn up toward the leader, up to about 30°, and their sprays no longer droop; on short branches the sprays are smaller and closer together",
+    "In place of the crossed clump on top: sprays round the leader, each a little further round and steeper than the one below, and one carrying it on to the tip",
+    "Rebuilt the tree portfolio (tree_portfolio.blend and its previews) and the play demo's trees, with their lighter versions and the shade under them",
+    "Leaf cards: 2,420 instead of 2,184 (variant B: 2,640 instead of 2,392); walking the trail, the frame rate didn't change (92 fps on average, against 92 to 93)"
+   ],
+   "items": [
+    {
+     "id": "s-sprucetop",
+     "type": "frame",
+     "status": "new",
+     "title": "Trees: the spruce's top",
+     "author": "claude"
+    },
+    {
+     "id": "spr-about",
+     "type": "note",
+     "status": "new",
+     "text": "# The spruce's top\nYou saw a spray lying loose on top of the spruces, and asked for the pinnate pattern to end in a cone.\n\nIt was two things: a crossed clump on the very top, one of its cards lying flat; and the top branches, half a metre long and pointing a little down, each carrying a spray of 1 m or more, so the top fanned out flat, 1.4 m from the trunk.\n\nNow the top is a spire, as in your reference sheet:\n- **A cone from the tip:** over the top 4 m or so, the branches and their sprays stay inside a cone from the leader's tip, 0.45 m out for every metre down, so they get shorter toward the top\n- **Turned up:** the highest branches turn up toward the leader, up to about 30°, and their sprays no longer droop; the shorter the branch, the smaller its sprays and the closer together\n- **The leader:** in place of the clump, sprays round the leader, each a little further round and steeper than the one below, and one carrying it on to the tip\n\nBelow the top, the tree is as you tuned it. From afar, the lighter versions keep the spire whole: a first try left the tip floating above the rest.\n\nThe spruce has 2,420 leaf cards instead of 2,184 (B: 2,640 instead of 2,392); walking the trail, the frame rate didn't change (92 fps on average, against 92 to 93).",
+     "author": "claude"
+    },
+    {
+     "id": "spr-skyline",
+     "type": "image",
+     "status": "new",
+     "caption": "The forest's edge from the meadow, camera low. Before (top), the spruces end in loose crossed sprays over fans of long ones; now (bottom), in spires.",
+     "assetId": "ad3b8be24f02549dd276f93f9c1ec106",
+     "file": "renders/play_demo_spruce_top/skyline.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "spr-sheet",
+     "type": "image",
+     "status": "new",
+     "caption": "The portfolio's spruce, before (left) and now (right): the whole tree, the top close up, and from the game camera's angle.",
+     "assetId": "ddd2811dde2b5e29eefed515ea3e89e4",
+     "file": "../assets/trees/previews/v4/spruce_top_before_after.png",
+     "author": "claude"
+    },
+    {
+     "id": "spr-above",
+     "type": "image",
+     "status": "new",
+     "caption": "The default camera, zoomed out at the start: the spruce left of the middle now ends in a point rather than a fan of sprays.",
+     "assetId": "909af4f3b362156bcb812bd84f8ef247",
+     "file": "renders/play_demo_spruce_top/from_above.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/34_spruce_tip_floating.jpg",
+     "caption": "Distant spruces from the meadow: before (left), the first try, its tips floating above the spires (middle), and now (right)"
+    }
+   ],
+   "found": [
+    "The top was two things: a crossed clump left on the very top, one of its cards lying nearly flat; and the top branches, about half a metre long and pointing a little down, each carrying a spray of 1 m or more, so the top fanned out flat, 1.4 m from the trunk",
+    "A first try left the leader's tip floating above the spire from afar: the lighter versions put fewer sprays round the leader, and at a distance its thin trunk and small sprays vanish. A shorter tip, overlapping the sprays under it, and as many sprays round the leader in every version, fixed it"
+   ],
+   "cover": "renders/play_demo_spruce_top/skyline.jpg"
   }
  ]
 }

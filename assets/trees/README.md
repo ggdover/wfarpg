@@ -62,7 +62,10 @@ rebuild.
   leaf materials (`Leaves <tree>`) cut the card out at alpha 0.5, like alpha clip in a game engine, and draw both sides.
 - **Pinnate sprays** (the spruce): along every branch, spray cards on alternate sides, each with its twig's base on
   the branch and pointing out and forward, like a feather; where the twig starts on each card is in
-  `textures/cards.json`.
+  `textures/cards.json`. The top ends in a spire: over its last few metres everything stays inside a cone from the
+  leader's tip (`SPIRE` in `treegen.py`, 0.45 m out per metre down), so the branches there shorten and turn up, their
+  sprays smaller and closer together, and sprays round the leader, the trunk above the highest branches, lead up to
+  one carrying it on to the tip.
 - **Shading:** the cards' normals point out from the crown (custom normals), so a crown shades as one rounded volume
   instead of as many flat cards.
 
@@ -101,10 +104,10 @@ renders that are on the look & feel board are kept in `previews/v1/`, `v2/`, `v3
 |---|---|---|---|
 | Scots pine | about 13 m | 658 | 1299 |
 | Silver birch | about 11 m | 210 | 946 |
-| Norway spruce | about 17 m | 1646 | 4435 |
-| Aspen | about 15 m | 225 | 683 |
+| Norway spruce | about 17 m | 2420 | 5209 |
+| Aspen | about 15 m | 309 | 767 |
 | Rowan | about 10 m | 159 | 487 |
-| Alder | about 12 m | 222 | 650 |
+| Alder | about 12 m | 243 | 671 |
 
 Heights are about 70% of real trees, to suit the high game camera. The spruce and the pine are the heaviest; a large
 forest would need lighter versions of the trees far from the camera.

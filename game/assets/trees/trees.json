@@ -832,18 +832,18 @@
   "triangles": 2051
  },
  "NorwaySpruce_A": {
-  "cards": 2184,
-  "faces": 4973,
+  "cards": 2420,
+  "faces": 5209,
   "file": "res://assets/trees/trees.glb",
   "foot": 3.551,
-  "height": 16.338,
+  "height": 16.274,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.634,
-   16.338,
+   16.274,
    4.339
   ],
   "min": [
@@ -855,21 +855,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 9909
+  "triangles": 10381
  },
  "NorwaySpruce_A_1": {
-  "cards": 1092,
-  "faces": 1190,
+  "cards": 1218,
+  "faces": 1316,
   "file": "res://assets/trees/trees.glb",
   "foot": 0.4,
-  "height": 16.541,
+  "height": 16.274,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.796,
-   16.541,
+   16.274,
    4.674
   ],
   "min": [
@@ -881,21 +881,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 2373
+  "triangles": 2625
  },
  "NorwaySpruce_A_1_t": {
-  "cards": 1092,
-  "faces": 1190,
+  "cards": 1218,
+  "faces": 1316,
   "file": "res://assets/trees/trees_trim.glb",
   "foot": 0.4,
-  "height": 16.231,
+  "height": 16.274,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.512,
-   16.231,
+   16.274,
    4.546
   ],
   "min": [
@@ -907,21 +907,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 6741
+  "triangles": 7497
  },
  "NorwaySpruce_A_2": {
-  "cards": 476,
-  "faces": 574,
+  "cards": 526,
+  "faces": 624,
   "file": "res://assets/trees/trees.glb",
   "foot": 0.4,
-  "height": 16.948,
+  "height": 16.274,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    5.456,
-   16.948,
+   16.274,
    5.271
   ],
   "min": [
@@ -933,21 +933,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 1141
+  "triangles": 1241
  },
  "NorwaySpruce_A_2_t": {
-  "cards": 476,
-  "faces": 574,
+  "cards": 526,
+  "faces": 624,
   "file": "res://assets/trees/trees_trim.glb",
   "foot": 0.4,
-  "height": 16.54,
+  "height": 16.274,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    5.252,
-   16.54,
+   16.274,
    5.177
   ],
   "min": [
@@ -959,21 +959,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 3045
+  "triangles": 3345
  },
  "NorwaySpruce_A_f": {
-  "cards": 1086,
-  "faces": 3875,
+  "cards": 1188,
+  "faces": 3977,
   "file": "res://assets/trees/trees_few.glb",
   "foot": 3.551,
-  "height": 16.38,
+  "height": 16.274,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.449,
-   16.38,
+   16.274,
    4.331
   ],
   "min": [
@@ -985,21 +985,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 7713
+  "triangles": 7917
  },
  "NorwaySpruce_A_f_t": {
-  "cards": 1086,
-  "faces": 3875,
+  "cards": 1188,
+  "faces": 3977,
   "file": "res://assets/trees/trees_few.glb",
   "foot": 3.551,
-  "height": 16.135,
+  "height": 16.274,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.347,
-   16.135,
+   16.274,
    4.237
   ],
   "min": [
@@ -1011,21 +1011,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 12057
+  "triangles": 12669
  },
  "NorwaySpruce_A_t": {
-  "cards": 2184,
-  "faces": 4973,
+  "cards": 2420,
+  "faces": 5209,
   "file": "res://assets/trees/trees_trim.glb",
   "foot": 3.551,
-  "height": 16.176,
+  "height": 16.274,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.511,
-   16.176,
+   16.274,
    4.248
   ],
   "min": [
@@ -1037,21 +1037,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 18645
+  "triangles": 20061
  },
  "NorwaySpruce_B": {
-  "cards": 2392,
-  "faces": 5396,
+  "cards": 2640,
+  "faces": 5644,
   "file": "res://assets/trees/trees.glb",
   "foot": 3.418,
-  "height": 16.575,
+  "height": 16.536,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.481,
-   16.575,
+   16.536,
    4.466
   ],
   "min": [
@@ -1063,21 +1063,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 10740
+  "triangles": 11236
  },
  "NorwaySpruce_B_1": {
-  "cards": 1194,
-  "faces": 1292,
+  "cards": 1308,
+  "faces": 1406,
   "file": "res://assets/trees/trees.glb",
   "foot": 0.4,
-  "height": 16.693,
+  "height": 16.536,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.588,
-   16.693,
+   16.536,
    4.708
   ],
   "min": [
@@ -1089,21 +1089,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 2577
+  "triangles": 2805
  },
  "NorwaySpruce_B_1_t": {
-  "cards": 1194,
-  "faces": 1292,
+  "cards": 1308,
+  "faces": 1406,
   "file": "res://assets/trees/trees_trim.glb",
   "foot": 0.4,
-  "height": 16.531,
+  "height": 16.536,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.468,
-   16.531,
+   16.536,
    4.547
   ],
   "min": [
@@ -1115,21 +1115,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 7353
+  "triangles": 8037
  },
  "NorwaySpruce_B_2": {
-  "cards": 516,
-  "faces": 614,
+  "cards": 570,
+  "faces": 668,
   "file": "res://assets/trees/trees.glb",
   "foot": 0.4,
-  "height": 17.091,
+  "height": 16.536,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    5.209,
-   17.091,
+   16.536,
    5.327
   ],
   "min": [
@@ -1141,21 +1141,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 1221
+  "triangles": 1329
  },
  "NorwaySpruce_B_2_t": {
-  "cards": 516,
-  "faces": 614,
+  "cards": 570,
+  "faces": 668,
   "file": "res://assets/trees/trees_trim.glb",
   "foot": 0.4,
-  "height": 16.858,
+  "height": 16.536,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.979,
-   16.858,
+   16.536,
    4.921
   ],
   "min": [
@@ -1167,21 +1167,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 3285
+  "triangles": 3609
  },
  "NorwaySpruce_B_f": {
-  "cards": 1206,
-  "faces": 4210,
+  "cards": 1302,
+  "faces": 4306,
   "file": "res://assets/trees/trees_few.glb",
   "foot": 3.418,
-  "height": 16.57,
+  "height": 16.536,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.479,
-   16.57,
+   16.536,
    4.425
   ],
   "min": [
@@ -1193,21 +1193,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 8368
+  "triangles": 8560
  },
  "NorwaySpruce_B_f_t": {
-  "cards": 1206,
-  "faces": 4210,
+  "cards": 1302,
+  "faces": 4306,
   "file": "res://assets/trees/trees_few.glb",
   "foot": 3.418,
-  "height": 16.431,
+  "height": 16.536,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.346,
-   16.431,
+   16.536,
    4.299
   ],
   "min": [
@@ -1219,21 +1219,21 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 13192
+  "triangles": 13768
  },
  "NorwaySpruce_B_t": {
-  "cards": 2392,
-  "faces": 5396,
+  "cards": 2640,
+  "faces": 5644,
   "file": "res://assets/trees/trees_trim.glb",
   "foot": 3.418,
-  "height": 16.383,
+  "height": 16.536,
   "materials": [
    "Bark",
    "Leaves NorwaySpruce"
   ],
   "max": [
    4.349,
-   16.383,
+   16.536,
    4.338
   ],
   "min": [
@@ -1245,7 +1245,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
-  "triangles": 20308
+  "triangles": 21796
  },
  "Rowan_A": {
   "cards": 159,

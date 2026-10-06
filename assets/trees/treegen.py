@@ -22,6 +22,7 @@ TEXTURES = os.path.join(HERE, "textures")
 SETTINGS = os.path.join(HERE, "tree_settings.json")
 TAU = math.tau
 UP = Vector((0, 0, 1))
+SPIRE = 0.45  # the spruce's top stays inside a cone from the leader's tip this wide: metres out per metre down
 
 # what each setting does is described in tree_editor.py, next to its slider
 BASE = dict(card=1, size=1.0, planes=3, density=1.0, spread=1.0, upright=1.0, flat=True, tilt=1.0,
@@ -56,6 +57,11 @@ def direction(az, el):
     return Vector((math.cos(el) * math.cos(az), math.cos(el) * math.sin(az), math.sin(el)))
 
 
+def smoothstep(a, b, x):
+    x = max(0.0, min(1.0, (x - a) / (b - a)))
+    return x * x * (3 - 2 * x)
+
+
 def along(pts, f):
     f = max(0.0, min(1.0, f)) * (len(pts) - 1)
     i = min(int(f), len(pts) - 2)
@@ -80,6 +86,9 @@ class Tree:
         self.v, self.f, self.mat, self.col, self.uv, self.nrm = [], [], [], [], [], []
         self.clumps = []
         self.branches = []  # branch lines that can carry pinnate sprays
+        self.leader = None  # (foot, top): the trunk above the highest branches, which carries sprays round it
+        self.tip = None  # (apex, slope): the pinnate sprays at the top stay inside this cone, so the crown ends in a spire
+        self.axis = None  # the trunk line, which a tall, narrow crown's leaves face away from
         self.slots = ["bark"]
 
     def slot(self, name):
@@ -127,15 +136,45 @@ class Tree:
         if len(rings[-1]) > 1:
             self.face(rings[-1], col=colour(n - 2, 0))
 
-    def clump(self, c, size, card="leaves", squash=1.0, flat=1.0, hang=False, always=False):
+    def clump(self, c, size, card="leaves", squash=1.0, flat=1.0, hang=False):
         """Queue a leaf clump at c. squash scales the upright cards' height and flat the lying card; hang keeps the
-        texture's top up on the upright cards (for twigs that hang, like birch); always keeps the clump in the
-        pinnate layout too (for a tree's top, where a branch has no sides)."""
-        self.clumps.append((Vector(c), size, self.slot(card), squash, flat, hang, always))
+        texture's top up on the upright cards (for twigs that hang, like birch)."""
+        self.clumps.append((Vector(c), size, self.slot(card), squash, flat, hang))
 
-    def branch(self, pts, card="leaves"):
-        """Remember a branch line, for the pinnate layout."""
-        self.branches.append(([Vector(p) for p in pts], self.slot(card)))
+    def branch(self, pts, card="leaves", lift=0.0):
+        """Remember a branch line, for the pinnate layout. lift, 0 to 1, takes away the sprays' droop (a tree's top
+        shoots, which point up)."""
+        self.branches.append(([Vector(p) for p in pts], self.slot(card), lift))
+
+    def _axis_at(self, z):
+        """The point of the trunk line at height z."""
+        pts = self.axis
+        for a, b in zip(pts, pts[1:]):
+            if z <= b.z:
+                return a.lerp(b, max(0.0, min(1.0, (z - a.z) / max(b.z - a.z, 1e-6))))
+        return pts[-1]
+
+    def _facing(self, p, cen, crown):
+        """What a leaf card at p faces away from: the crown's centre, or for a tall, narrow crown its trunk."""
+        return self._axis_at(p.z) if crown == "axis" and self.axis else cen
+
+    def _fit_tip(self, p, aim, length):
+        """How long a spray from p along aim can be, up to length, and stay inside the cone at the top (tip)."""
+        if not self.tip:
+            return length
+        apex, slope = self.tip
+
+        def inside(d):
+            q = p + aim * d
+            return math.hypot(q.x - apex.x, q.y - apex.y) <= slope * (apex.z - q.z)
+
+        if inside(length):
+            return length
+        lo, hi = 0.0, length
+        for _ in range(16):
+            mid = (lo + hi) / 2
+            lo, hi = (mid, hi) if inside(mid) else (lo, mid)
+        return max(lo, min(length, 0.12))  # a spray whose foot is already outside stays a small one
 
     def emit_leaves(self, crown, cfg, key=None):
         """Turn the queued clumps into crossed cards, or the branches into pinnate sprays, by the settings. Uses its
@@ -143,13 +182,13 @@ class Tree:
         clumps = self.clumps
         if cfg.get("layout") == "pinnate" and self.branches:
             self._emit_sprays(crown, cfg, key)
-            clumps = [c for c in self.clumps if c[6]]
+            return
         if not clumps:
             return
         r = random.Random(self.seed * 7 + 3)
         cen = sum((c[0] for c in clumps), Vector()) / len(clumps)
         density, spread, tilt = cfg["density"], cfg["spread"], cfg["tilt"]
-        for c, size, mat, squash, flat, hang, _always in clumps:
+        for c, size, mat, squash, flat, hang in clumps:
             # a patch: the extra clumps fill the flattened volume the full-size clump would take up, scaled by spread
             n = int(density) + (1 if r.random() < density - int(density) else 0)
             rx, rz = size * flat * 0.5 * spread, size * squash * 0.5 * spread
@@ -161,20 +200,20 @@ class Tree:
                         u = Vector((r.uniform(-1, 1), r.uniform(-1, 1), r.uniform(-1, 1)))
                     p = c + Vector((u.x * rx, u.y * rx, u.z * rz))
                 s = size * cfg["size"] * (1.0 if k == 0 else r.uniform(0.8, 1.0))
-                self._clump_cards(r, p, s, mat, squash * cfg["upright"], flat, hang, cfg["planes"], cfg["flat"], tilt, cen, crown)
+                self._clump_cards(r, p, s, mat, squash * cfg["upright"], flat, hang, cfg["planes"], cfg["flat"], tilt,
+                                  self._facing(p, cen, crown), crown)
 
     def _emit_sprays(self, crown, cfg, key):
         """Pinnate sprays: along every branch, cards set on alternate sides, each with its twig's base on the branch
         and pointing out and forward at the spray angle, shorter toward the tip; extra copies roll around the
-        spray's own axis for volume, so the pattern stays."""
+        spray's own axis for volume, so the pattern stays. A tree with a leader has sprays round it too, and its top
+        sprays stay inside the cone at its top (tip), so the crown ends in a spire."""
         r = random.Random(self.seed * 7 + 5)
-        cen = sum((p for pts, _ in self.branches for p in pts), Vector()) / sum(len(pts) for pts, _ in self.branches)
+        cen = sum((p for pts, *_ in self.branches for p in pts), Vector()) / sum(len(pts) for pts, *_ in self.branches)
         anchor = card_anchor(BY_KEY[key][6], int(cfg["card"])) if key else (0.5, 0.5, 0.0)
-        ua, va, deg = anchor
-        tw = math.radians(deg)
         rolls = [0.0, 70.0, -70.0, 35.0, -35.0, 105.0, -105.0, 140.0, -140.0, 180.0][:max(1, int(cfg["planes"]))]
         angle = math.radians(cfg["spray_angle"])
-        for pts, mat in self.branches:
+        for pts, mat, lift in self.branches:
             lengths = [0.0]
             for a, b in zip(pts, pts[1:]):
                 lengths.append(lengths[-1] + (b - a).length)
@@ -182,24 +221,54 @@ class Tree:
             if total < 0.2:
                 continue
             k = 0
-            d = cfg["spacing"] * r.uniform(0.6, 1.0)
+            spacing = cfg["spacing"] * max(0.35, min(1.0, total / 1.4))  # on a short branch, near the top, closer together
+            d = min(spacing * r.uniform(0.6, 1.0), total)  # a branch shorter than that has one, at its tip
             while d < total + 1e-6:
                 f = d / total
                 p = along(pts, f)
                 t = (along(pts, min(1.0, f + 0.02)) - along(pts, max(0.0, f - 0.02))).normalized()
                 side = t.cross(UP)
                 side = side.normalized() if side.length > 1e-4 else Vector((1, 0, 0))
-                last = d + cfg["spacing"] > total
+                last = d + spacing > total
                 sgn = 0.0 if last else (1.0 if k % 2 else -1.0)  # the last spray carries the branch on at its tip
                 aim = (t * math.cos(angle * abs(sgn)) + side * sgn * math.sin(angle)).normalized()
-                aim = (aim - UP * cfg["droop"]).normalized()
-                length = cfg["size"] * 1.1 * (0.55 + 0.45 * (1 - f)) * r.uniform(0.85, 1.1)
-                lie = (UP - aim * UP.dot(aim)).normalized()  # the spray's face looks up
-                for roll in rolls:
-                    q = Quaternion(aim, math.radians(roll + r.uniform(-12, 12) * cfg["tilt"]))
-                    self._spray_card(p, aim, (q @ lie).cross(aim).normalized(), length, ua, va, tw, mat, cen, crown, r.random() < 0.5)
+                aim = (aim - UP * cfg["droop"] * (1 - lift)).normalized()
+                length = self._fit_tip(p, aim, cfg["size"] * 1.1 * (0.55 + 0.45 * (1 - f)) * r.uniform(0.85, 1.1))
+                self._spray(r, cfg, p, aim, (UP - aim * UP.dot(aim)).normalized(), length, rolls, anchor, mat,
+                            self._facing(p, cen, crown), crown)
                 k += 1
-                d += cfg["spacing"] * r.uniform(0.85, 1.15)
+                d += spacing * r.uniform(0.85, 1.15)
+        if self.leader:
+            self._leader_sprays(r, cfg, rolls, anchor, cen, crown)
+
+    def _leader_sprays(self, r, cfg, rolls, anchor, cen, crown):
+        """The spire: sprays round the leader, the trunk above the highest branches, each a little further round than
+        the one below, aimed up and out, as long as the cone at the top lets them be; and one carrying the leader on
+        to the tip."""
+        foot, top = self.leader
+        apex = self.tip[0]
+        mat = self.slot("leaves")
+        # as many in the lighter versions: they are few, and from afar they hold the spire together
+        n = max(2, round((top - foot).length / 0.15))
+        az = r.uniform(0, TAU)
+        for k in range(n):
+            f = (k + 0.5) / n
+            p = foot.lerp(top, f)
+            aim = direction(az, math.radians(40 + 30 * f))
+            length = self._fit_tip(p, aim, cfg["size"] * 1.1 * 0.55 * r.uniform(0.85, 1.1))
+            self._spray(r, cfg, p, aim, (UP - aim * UP.dot(aim)).normalized(), length, rolls, anchor, mat,
+                        self._facing(p, cen, crown), crown)
+            az += 2.39996
+        p = top - UP * 0.25
+        self._spray(r, cfg, p, UP, direction(az, 0), apex.z - p.z, rolls, anchor, mat, self._facing(p, cen, crown), crown)
+
+    def _spray(self, r, cfg, p, aim, lie, length, rolls, anchor, mat, cen, crown):
+        """One spray: its card, with copies rolled round its twig; lie is the way its face looks."""
+        ua, va, deg = anchor
+        for roll in rolls:
+            q = Quaternion(aim, math.radians(roll + r.uniform(-12, 12) * cfg["tilt"]))
+            self._spray_card(p, aim, (q @ lie).cross(aim).normalized(), length, ua, va, math.radians(deg), mat, cen, crown,
+                             r.random() < 0.5)
 
     def _spray_card(self, base, aim, across, length, ua, va, tw, mat, cen, crown, mirror):
         """A card placed so that its twig's base (ua, va) sits at base and its twig, which runs at tw on the card, points
@@ -398,27 +467,37 @@ def silver_birch(seed, cfg):
 
 
 def norway_spruce(seed, cfg):
-    """Straight and dark, with whorls of drooping, upturned branches all the way down: a dense cone."""
+    """Straight and dark, with whorls of drooping, upturned branches all the way down: a dense cone. Toward the top the
+    branches shorten and turn up round the leader, so the crown ends in a spire."""
     T = Tree(seed)
     r = T.r
     H = r.uniform(14.0, 17.0) * cfg["height"]
     pts = trunk_line(r, H, 14, r.uniform(0.05, 0.2), 0.05)
     radii = [0.32 * (1 - i / 14) ** 1.05 + (0.08 if i == 0 else 0) for i in range(15)]
     T.tube(pts, radii, 7, lambda i, k: pick(r, "#4A3F36", "#55493E", "#3F362F"))
+    T.axis = pts
+    apex = pts[-1] + UP * 0.3 * cfg["height"]  # the leader's tip
+    slope = SPIRE * cfg["width"] / cfg["height"]
+    T.tip = (apex, slope)
     z = 0.08 * H
     gap = r.uniform(0.5, 0.62)
     lmax = r.uniform(3.2, 3.8) * cfg["width"]
+    p = pts[0]
     while z < H - 0.7:
         t = z / H
         p = along(pts, (z + 0.3) / (H + 0.3))
         nbr = r.randint(4, 6)
         az0 = r.uniform(0, TAU)
         L = lmax * (1 - t) ** 0.95 + 0.3
+        lift = smoothstep(0.75, 1.0, t)  # the top whorls turn up toward the leader
+        room = 0.6 * slope * (apex.z - p.z)  # how far out a branch reaches in the spire, leaving its sprays the rest
         for j in range(nbr):
             az = az0 + j * TAU / nbr + r.uniform(-0.25, 0.25)
-            b = limb(r, p, direction(az, -0.12 - 0.25 * (1 - t) + r.uniform(-0.08, 0.08)), L * r.uniform(0.85, 1.1), 4, droop=0.12, upturn=0.35)
+            el = -0.12 - 0.25 * (1 - t) + r.uniform(-0.08, 0.08)
+            el += (0.55 - el) * lift
+            b = limb(r, p, direction(az, el), min(L * r.uniform(0.85, 1.1), room / math.cos(el)), 4, droop=0.12 * (1 - lift), upturn=0.35)
             T.tube(b, taper(0.05 * (1 - t) + 0.015, 0.006, 5), 4, lambda i, k: pick(r, "#4A3F36", "#3F362F"))
-            T.branch(b)
+            T.branch(b, lift=lift)
             n = max(2, int(L / 0.55))
             for s in range(n):
                 f = 1.0 - s * 0.8 / n
@@ -426,11 +505,14 @@ def norway_spruce(seed, cfg):
             if j % 2 == 0:
                 T.clump(along(b, 0.15), 1.0, squash=0.8)
         z += gap * (1 - 0.35 * t)
+    T.leader = (p, pts[-1])
     top = pts[-1]
-    T.clump(top - Vector((0, 0, 0.35)), 0.9, squash=1.2, always=True)
-    T.clump(top - Vector((0, 0, 0.9)), 1.1, squash=1.0, always=True)
-    for _ in range(r.randint(6, 10)):  # cones hanging near the top
-        p = along(pts, r.uniform(0.8, 0.95)) + direction(r.uniform(0, TAU), 0) * r.uniform(0.3, 0.9)
+    T.clump(top - Vector((0, 0, 0.35)), 0.9, squash=1.2)  # the top, with crossed clumps (pinnate: the leader's sprays)
+    T.clump(top - Vector((0, 0, 0.9)), 1.1, squash=1.0)
+    for _ in range(r.randint(6, 10)):  # cones hanging near the top, inside the spire
+        q = along(pts, r.uniform(0.8, 0.95))
+        out = direction(r.uniform(0, TAU), 0) * r.uniform(0.3, 0.9)
+        p = q + out * min(1.0, 0.7 * slope * (apex.z - q.z) / out.length)
         T.tube([p, p - Vector((0, 0, 0.08)), p - Vector((0, 0, 0.2)), p - Vector((0, 0, 0.26))], [0.025, 0.045, 0.035, 0.0], 5,
                lambda i, k: pick(r, "#7A4E2E", "#6A4428", "#8A5A34"))
     return T, "axis"
