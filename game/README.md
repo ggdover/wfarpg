@@ -87,12 +87,23 @@ place (`tools/reference_shots.py`).
     see-through as one. A see-through tree stands on its stump, the stump model with its pale cut top drawn at its foot
     (`_leave`), and its own bark goes see-through right down (`sight_veil` and `veil_fade` in the shaders): kept solid
     up to the cut, it would stand above the stump's slanted top on its low side.
-  - A see-through tree is drawn near the camera with fewer leaf cards per clump (its `_f` version; **see-through
-    trees** in the panel, Fewer cards or All cards). Where it lets what's behind it through, each of its cards still
-    runs its shader before it's thrown away, layer on layer, and with nothing in front to stop them, every
-    see-through tree's do: deep in the forest with the camera low, 6 to 10 trees see-through cost 5 to 8 ms a frame,
-    more than drawing them solid or what's behind them. With half the cards they cost 0.5 to 3 ms, and look the same
-    at 50%, a touch more see-through.
+  - A see-through tree is drawn near the camera with half its leaf cards (**see-through trees** in the panel, Fewer
+    cards or All cards): the same cards, each where it was, with every other one, picked at random, left out. This
+    thinned version is made as the models load, from the tree's own data byte for byte (`Models.thinned` in
+    `scripts/models.gd`), so not a vertex moves. As the tree goes see-through, the cards it leaves out go first, twice
+    as fast as the rest (`sight_thin` in `shaders/leaves.gdshader`; the full version marks them in UV2.y), so by the
+    time it's as see-through as it goes they've gone, and drawing it as the thinned version from then on changes no
+    pixel (`_thin_out` in `scripts/world.gd`); going back, the other way round. Its leaves never shift.
+  - Why fewer cards: where a tree lets what's behind it through, each of its cards still runs its shader before it's
+    thrown away, layer on layer, and with nothing in front to stop them, every see-through tree's do. Deep in the
+    forest with the camera low, 6 to 10 trees see-through cost 7 to 10 ms a frame with all their cards, 4 to 6 with
+    half (`scripts/dev/veilbench.gd`). It looks a touch more see-through than with all of them.
+  - Before, a see-through tree swapped to its `_f` version, built anew with fewer, bigger cards per clump, which all
+    stood in other places, so its leaves jumped as it went see-through. It cost the same. Leaving out the cards deepest
+    in the crown rather than random ones would cost 2 to 3 ms less still, but bares the branches a spruce's inner
+    sprays hide. And Godot's stencil, which could skip the let-through pixels before the cards' shaders run, can't be
+    read in its depth prepass, where that cost lies; drawing the see-through trees in the transparent pass to read it
+    cost as much as it saved.
   - **Hide all but nearest** (in the panel, off by default; `veil_keep`): keep only the one or two see-through trees
     nearest the hero see-through, and the rest go whole over 0.15 s, leaving only their shadows, no stump, until they no
     longer cover the hero. A hidden tree comes back as one of the nearest only once it's 1.5 m nearer the hero than
@@ -153,7 +164,7 @@ graphics card takes per frame, the triangles drawn and the draw calls. Every swi
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Trees in the way | How trees get out of the way (above): **See-through** (the default), with how much of the area round the hero the trees must cover (**see-through at**, 90%), how far round the hero the area reaches (**area round hero**, 0 m: the hero alone), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, whether **see-through trees** are drawn with fewer cards (the default, much faster deep in the forest) or all of them, and whether to **hide all but** the 1 or 2 see-through trees **nearest** the hero (off by default); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Trees in the way | How trees get out of the way (above): **See-through** (the default), with how much of the area round the hero the trees must cover (**see-through at**, 90%), how far round the hero the area reaches (**area round hero**, 0 m: the hero alone), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, whether **see-through trees** are drawn with half their cards, each where it was (Fewer cards, the default, much faster deep in the forest) or all of them, and whether to **hide all but** the 1 or 2 see-through trees **nearest** the hero (off by default); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
@@ -250,11 +261,15 @@ Also:
 - **Lighter versions:** each new tree has two, with fewer, bigger leaf cards, used from 45 m and 120 m. Using them
   nearer saves at most 1 ms, as their bigger cards cover about as many pixels.
 - **Trimmed and fewer cards:** every version also comes with its cards cut to the outline round their leaves
-  (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`).
+  (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`). As the models load, each full
+  tree also gets its thinned version, for while it's see-through (above), in about 65 ms for all of them.
 - **Hidden trees:** with See-through, the start runs as fast as with no tree hidden (11.6 ms), as no tree covers the
   hero there. Walking the trail with the camera low (10°), it's 76 fps on average, 45 in the slowest 5% of frames and
-  42 in the slowest 1%; with the see-through trees on all their cards, 72, 38 and 35. The slowest views there, deep in
-  the forest looking through 6 to 10 see-through trees, take 22 ms a frame instead of 26 to 28; the rest is the
+  42 in the slowest 1%; with the see-through trees on all their cards, 72, 38 and 35 (with the earlier fewer cards,
+  which cost the same as the thinned trees: measured back to back on a warmer day, all cards against thinned took
+  the slowest 5% from 33 fps to 38 and from 30 to 34, the slowest 1% from 30 to 34 and from 27 to 31). The slowest
+  views there, deep in the forest looking through 6 to 10 see-through trees, take 21 to 22 ms a frame instead of 25 to
+  28; the rest is the
   forest itself, where ambient occlusion and shadows cost 3 to 4 ms each, and the lighter trees from 30 m instead of
   45 m would save at most 1.5. Measuring the area costs 0.3 ms, at most 2, 30 times a second. The cone, which takes no tree whole, costs about 0.5 ms a frame more at the start, and 2 ms more than Front,
   where the trees that go aren't drawn at all, apart from their shadows and what's left of them. Working out which
@@ -313,9 +328,9 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/hero.gd`, `scripts/camera_rig.gd` | The hero and the camera |
 | `scripts/perf_panel.gd`, `scripts/trail_walk.gd` | The performance panel, and the walk along the trail it uses |
 | `scripts/path_themes.gd` | The paths' colour themes |
-| `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials; the light |
+| `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials, and the trees' thinned versions; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
 | `shaders/` | Ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material (and `lowpoly_trunk` for the bare trunks trees leave, which neither the x-ray nor the fade near the camera touch), the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
-| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender) |
+| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`), `veilbench.gd` (`godot --path game --script res://scripts/dev/veilbench.gd`: at random spots in the forest with the camera low, the slowest views, and what the see-through trees cost there with all their cards, half, or hidden; add `-- --poses=x,z,yaw,pitch,distance;...` for set views), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender) |
 | `tools/` | The Blender build scripts (Godot ignores this folder) |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

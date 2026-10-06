@@ -40,7 +40,9 @@ General knowledge, public documentation, and third-party libraries and engines a
   (not yet confirmed by the user). Trees in the way, the user's design, which they're satisfied with, shadows kept: once
   the trees in front of the hero cover 90% of it as the camera sees it, each of them goes evenly half see-through, all
   but its stump (the user's settings; F2 has sliders for the share, an area round the hero and how see-through). No
-  tree goes whole, no bare sticks, no hard x-ray edges. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`;
+  tree goes whole, no bare sticks, no hard x-ray edges. A tree's leaves must not move as it goes see-through: the user
+  saw them shift when it swapped to a model with other cards, so now it keeps half of its own cards where they are
+  and the rest dissolve as it fades. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`;
   the cone (`camera_view.png`) and the earlier ways of cutting trees are in F2 to compare.
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
@@ -83,7 +85,8 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   VSync off and no frame rate limit, as the user asked; its performance panel (F2) has a frame rate limit. The user
   wants a before and after switch in F2 for every optimization, to judge what it costs the look; the speed-ups (ground
   details baked into textures, tree shadows and far trees from pictures baked at startup, shadows only from trees
-  within 60 m, trimmed leaf cards) each have one, and "All as before" / "All on" flips them together. Its models,
+  within 60 m, trimmed leaf cards) each have one, and "All as before" / "All on" flips them together. The
+  see-through trees drawn with half their cards have one too (Fewer cards or All cards). Its models,
   ground textures and layout are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
   portfolio and `game/tools/demo_area.py`; rebuild them after changing any of those. See `game/README.md`.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building

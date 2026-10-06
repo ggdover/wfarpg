@@ -88,6 +88,35 @@ func run(d: Node) -> void:
 	demo.get_tree().quit(1 if failed.size() else 0)
 
 
+## Is a portfolio tree's thinned version (Models.thinned) the same tree with fewer leaf cards? Every surface's vertices
+## as its full version's, its triangles some of the full version's: THIN_KEEP of the leaf cards', and all the rest.
+## Returns what's wrong, or "" if nothing is.
+static func _thinned_in_place(model: String) -> String:
+	var full := Models.mesh(model) as ArrayMesh
+	var thin := Models.thinned(model) as ArrayMesh
+	if full.get_surface_count() != thin.get_surface_count():
+		return "%d surfaces, thinned %d" % [full.get_surface_count(), thin.get_surface_count()]
+	for s in full.get_surface_count():
+		var surface := full.surface_get_name(s)
+		var fa := full.surface_get_arrays(s)
+		var ta := thin.surface_get_arrays(s)
+		for k in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TEX_UV]:
+			if fa[k] != ta[k]:
+				return "%s: its vertices moved" % surface
+		var fi: PackedInt32Array = fa[Mesh.ARRAY_INDEX]
+		var ti: PackedInt32Array = ta[Mesh.ARRAY_INDEX]
+		var tris := {}
+		for t in range(0, fi.size(), 3):
+			tris[Vector3i(fi[t], fi[t + 1], fi[t + 2])] = true
+		for t in range(0, ti.size(), 3):
+			if not tris.has(Vector3i(ti[t], ti[t + 1], ti[t + 2])):
+				return "%s: a triangle the full tree hasn't" % surface
+		var share := float(ti.size()) / maxf(fi.size(), 1.0)
+		if absf(share - (Models.THIN_KEEP if surface.begins_with("Leaves") else 1.0)) > 0.02:
+			return "%s: keeps %d%% of its triangles" % [surface, roundi(share * 100.0)]
+	return ""
+
+
 ## Trees that block the view. See-through (the default): with the camera low behind a tall tree, the trees covering the
 ## area round the hero go see-through, all but their stumps, and none goes whole; below the bar, they come back; and
 ## deep in the forest, where the trees cover the bar's share of the area, they go see-through. The cone: no tree is cut
@@ -152,6 +181,10 @@ func _sight_checks() -> void:
 		"see-through %.2f, %s" % [after, "stump gone" if stump_gone else "stump still there"])
 	_check("%s trees, see-through: drawn with fewer cards while see-through, and all of them again after" % set, light and heavy,
 		"%s, then %s" % ["fewer" if light else "all", "all" if heavy else "fewer"])
+	if trees[pole]["kind"] == "full":  # the portfolio's trees: the fewer cards are some of its cards, each where it was
+		var moved := _thinned_in_place(trees[pole]["names"][0])
+		_check("%s trees, see-through: the cards a see-through tree keeps stay where they were" % set, moved == "",
+			moved if moved else "%s keeps %d%% of its leaf cards, none moved" % [trees[pole]["names"][0], roundi(Models.THIN_KEEP * 100.0)])
 	# deep in the forest, the camera low: somewhere the trees cover enough of the area, and those go see-through
 	rig.pitch = 20.0
 	rig.distance = 25.0

@@ -142,9 +142,11 @@ var show_area := false
 ## with "veil", deep in the forest: keep only this many see-through trees, those nearest the hero, and hide the rest
 ## whole, leaving only their shadows, which costs nothing to draw (0: keep them all see-through)
 var veil_keep := 0
-## draw the see-through trees near the camera with fewer leaf cards per clump (their "_f" version): where a tree lets
-## what's behind it through, each of its cards still runs its shader before it's thrown away, layer on layer, which
-## deep in the forest with the camera low cost 5-8 ms a frame; with half the cards, it costs half
+## draw the see-through trees near the camera with half their leaf cards (their thinned version, Models.thinned: the
+## same cards, each where it is, but every other one, picked at random, left out; those go first as the tree goes
+## see-through, so nothing shifts or pops, _thin_out): where a tree lets what's behind it through, each of its cards
+## still runs its shader before it's thrown away, layer on layer, which deep in the forest with the camera low costs
+## 5-10 ms a frame; with half the cards, about half
 var veil_lighter := true
 ## what's left of a tree that goes: "trunks", its bare trunk, until that hides the hero, which takes it down to its
 ## stump (a spruce, whose branches reach the ground, goes to its stump straight away); "stumps"; or "nothing"
@@ -387,14 +389,13 @@ func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		var v: float = _veiled.get(i, 0.0)
 		var was := v
 		v = move_toward(v, veil_amount if veiling and covers else 0.0, delta * maxf(veil_amount, 0.1) / VEIL_FADE)
-		if (v > 0.0) != (was > 0.0):
-			_lighten(trees[i], v > 0.0)
 		if v != was:
 			# its stump (_leave) stands in for its foot, so all its bark goes see-through: kept solid up to the cut, it
 			# would stand above the stump's slanted top on its low side
 			var solid: float = 0.0 if Models.has(trees[i]["model"] + "_stump") else trees[i]["cut"]
 			for rid: RID in trees[i]["draw"]:
 				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", Vector2(v, solid))
+			_thin_out(trees[i], v)
 		if v > 0.0:
 			_veiled[i] = v
 		else:
@@ -414,15 +415,20 @@ func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		_fade_whole(i, trees[i], _sight.get(i, 0.0), hide.has(i), delta)
 
 
-## Draw a portfolio tree near the camera with fewer leaf cards per clump while it's see-through, and as _apply_trees
-## has it again once it isn't (veil_lighter).
-func _lighten(tree: Dictionary, on: bool) -> void:
-	if not veil_lighter or fewer or tree["kind"] != "full" or tree_lod > 0:
+## With veil_lighter, thin out a portfolio tree's leaf cards near the camera as it goes see-through (v, 0..veil_amount):
+## the cards its thinned version leaves out (Models.thinned) go see-through faster than the rest (sight_thin in
+## shaders/leaves.gdshader), and once they've gone, as the tree is as see-through as it goes, it's drawn as that
+## version, which looks the same; going back, the other way round. Its other cards stay as they are.
+func _thin_out(tree: Dictionary, v: float) -> void:
+	var m: String = tree["names"][0]
+	if not veil_lighter or tree["kind"] != "full" or not Models.thinnable(m):
 		return
-	var m: String = tree["model"] + ("_f" if on else "") + ("_t" if trimmed else "")
-	if Models.has(m):
-		RenderingServer.instance_set_base(tree["draw"][0], Models.mesh(m).get_rid())
-		tree["light"] = on
+	var rid: RID = tree["draw"][0]
+	RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_thin", minf(v / maxf(veil_amount, 0.01), 1.0))
+	var thin := v > 0.0 and v >= veil_amount
+	if thin != tree.get("light", false):
+		tree["light"] = thin
+		RenderingServer.instance_set_base(rid, (Models.thinned(m) if thin else Models.mesh(m)).get_rid())
 
 
 ## How much of the area round the hero the trees in front of it cover (_cover), and which of them cover some of it
@@ -913,6 +919,7 @@ func _unskip() -> void:
 		for i: int in _veiled:
 			for rid: RID in _tree_sets[_current][i]["draw"]:
 				RenderingServer.instance_geometry_set_shader_parameter(rid, "sight_veil", Vector2.ZERO)
+			RenderingServer.instance_geometry_set_shader_parameter(_tree_sets[_current][i]["draw"][0], "sight_thin", 0.0)
 			_tree_sets[_current][i]["light"] = false  # _apply_trees puts back what it draws
 	_trunks.clear()
 	_stumped.clear()
@@ -1171,6 +1178,7 @@ func _apply_trees() -> void:
 				names = [m + ("_f" if fewer else "") + t_, m + "_1" + t_, m + "_2" + t_]
 		if tree_lod > 0 and tree["kind"] != "old":
 			names = names.map(func(_n: String) -> String: return m + "_%d" % tree_lod + t_)
+		tree["names"] = names
 		var ranges: Array = [[0.0, 0.0]] if names.size() == 1 else ([[0.0, lod_far], [lod_far, 0.0]] if names.size() == 2
 			else [[0.0, lod_near], [lod_near, lod_far], [lod_far, 0.0]])
 		var pictured: bool = pictures and _impostors != null and tree["kind"] != "old"
@@ -1178,7 +1186,9 @@ func _apply_trees() -> void:
 			ranges = [[0.0, far], [far, far]] if names.size() == 2 else [[0.0, lod_near], [lod_near, far], [far, far]]
 		for i in draw.size():
 			var rid: RID = draw[i]
-			RenderingServer.instance_set_base(rid, Models.mesh(names[i]).get_rid())
+			# a see-through tree thinned out (_thin_out) stays so
+			var thin: bool = i == 0 and tree.get("light", false) and Models.thinnable(names[0])
+			RenderingServer.instance_set_base(rid, (Models.thinned(names[0]) if thin else Models.mesh(names[i])).get_rid())
 			RenderingServer.instance_geometry_set_visibility_range(rid, ranges[i][0], ranges[i][1],
 				LOD_MARGIN if i > 0 else 0.0, LOD_MARGIN if i < draw.size() - 1 else 0.0,
 				RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)  # a dithered cross-fade leaves black holes with alpha-cut leaves

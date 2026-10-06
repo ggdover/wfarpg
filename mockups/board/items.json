@@ -801,7 +801,7 @@
   "color": "paper",
   "createdAt": 1791233016840,
   "h": 1100,
-  "text": "# Faster see-through\nYou saw 40 fps with the camera low, looking through the thickest forest. Measured there, the cost was the see-through trees themselves: where a tree lets what's behind it through, each of its leaf cards still runs before it's thrown away, layer on layer, and with nothing in front to stop them, every see-through tree's do. 6 to 10 of them cost 5 to 8 ms a frame, more than drawing them solid or what's behind them.\n\nNow a see-through tree is drawn near the camera with half its leaf cards per clump, and looks the same at 50%, a touch more see-through. The slowest views went from 26 to 28 ms a frame to 22; walking the trail with the camera low, the slowest 5% of frames from 38 fps to 45, the slowest 1% from 35 to 42, and the average from 72 to 76.\n\nWhat's left there is the forest itself: ambient occlusion and shadows cost 3 to 4 ms each in those views, both in F2 if you'd trade some of the look for speed. Your settings are the defaults now: the hero alone, 90%, 50%. **see-through trees** in F2: Fewer cards (now) or All cards.",
+  "text": "# Faster see-through\nYou saw 40 fps with the camera low, looking through the thickest forest. Measured there, the cost was the see-through trees themselves: where a tree lets what's behind it through, each of its leaf cards still runs before it's thrown away, layer on layer, and with nothing in front to stop them, every see-through tree's do. 6 to 10 of them cost 5 to 8 ms a frame, more than drawing them solid or what's behind them.\n\nNow a see-through tree is drawn near the camera with half its leaf cards (since **see-through without the shift**, half its own cards, each where it was), and looks much the same at 50%, a touch more see-through. The slowest views went from 26 to 28 ms a frame to 22; walking the trail with the camera low, the slowest 5% of frames from 38 fps to 45, the slowest 1% from 35 to 42, and the average from 72 to 76.\n\nWhat's left there is the forest itself: ambient occlusion and shadows cost 3 to 4 ms each in those views, both in F2 if you'd trade some of the look for speed. Your settings are the defaults now: the hero alone, 90%, 50%. **see-through trees** in F2: Fewer cards (now) or All cards.",
   "type": "note",
   "updatedAt": 1791233016840,
   "w": 460,
@@ -1412,6 +1412,58 @@
   "x": 1644,
   "y": -1272,
   "z": 18
+ },
+ "ns-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791307554721,
+  "h": 1000,
+  "text": "# See-through without the shift\nYou saw the trees shift as they went see-through, as if their leaves turned, spread or changed in number. They did: to be cheaper to draw, a see-through tree was swapped for a version of it built anew with fewer, bigger leaf cards, all in other places.\n\nNow a see-through tree keeps its own leaves. It drops half of them, picked at random, and the rest stay exactly where they were. As it goes see-through, the ones it drops dissolve first, so nothing jumps; once they've gone, it's drawn without them, which looks just the same. Solid trees haven't changed at all.\n\nIt's as fast as before: in the slowest low-camera views, 21 to 22 ms a frame, against 25 to 27 with every leaf. It looks a touch more see-through than with all of them. **see-through trees** in F2: Fewer cards (now) or All cards, to keep every leaf at some cost.\n\nI also tried keeping every leaf and skipping the pixels they let through before drawing them, but in Godot that cost as much as it saved.",
+  "type": "note",
+  "updatedAt": 1791307554721,
+  "w": 460,
+  "x": 28,
+  "y": 57701,
+  "z": 242
+ },
+ "ns-loop": {
+  "ar": 2.5,
+  "assetId": "f36546beabd5d1f2c45583bce075c5a0",
+  "author": "claude",
+  "caption": "A pine going see-through, slowed down, and back: before (left), its leaf clumps jump to other places as soon as it starts; now (right), every leaf stays where it was, and half of them dissolve on the way.",
+  "createdAt": 1791307554721,
+  "type": "image",
+  "updatedAt": 1791307554721,
+  "w": 2200,
+  "x": 512,
+  "y": 57701,
+  "z": 243
+ },
+ "ns-slow": {
+  "ar": 1.097,
+  "assetId": "46f1d38e9467485a730c468f3531746c",
+  "author": "claude",
+  "caption": "The three slowest low-camera views, the see-through trees with all their cards (left) and now with half, each where it was (right): 27.2 to 22.3, 26.6 to 22.0 and 24.7 to 21.2 ms a frame, as fast as the earlier fewer cards.",
+  "createdAt": 1791307554721,
+  "type": "image",
+  "updatedAt": 1791307554721,
+  "w": 2200,
+  "x": 512,
+  "y": 60014,
+  "z": 245
+ },
+ "ns-still": {
+  "ar": 1.876,
+  "assetId": "1677badad18bdd28c47e6e9c9fd6c75e",
+  "author": "claude",
+  "caption": "A pine and a birch: solid (left), see-through before (middle: other leaves, in other places) and now (right: half the same leaves, where they were).",
+  "createdAt": 1791307554721,
+  "type": "image",
+  "updatedAt": 1791307554721,
+  "w": 2200,
+  "x": 512,
+  "y": 58711,
+  "z": 244
  },
  "pc-about": {
   "author": "claude",
@@ -2075,6 +2127,19 @@
   "x": 0,
   "y": -1300,
   "z": 10
+ },
+ "s-noshift": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791307554721,
+  "h": 4474,
+  "title": "Play demo: see-through without the shift",
+  "type": "frame",
+  "updatedAt": 1791307554721,
+  "w": 2740,
+  "x": 0,
+  "y": 57673,
+  "z": 37
  },
  "s-pathcolours": {
   "author": "claude",

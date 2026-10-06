@@ -195,8 +195,8 @@ class Images:
             return path
         os.makedirs(os.path.join(self.web_dir, "img"), exist_ok=True)
         base = path.replace("../", "").replace("renders/", "").replace("/", "_").rsplit(".", 1)[0]
-        if path.endswith(".svg"):
-            dst = f"img/{base}.svg"
+        if path.endswith((".svg", ".webp", ".gif")):  # drawings, and animations, which a JPEG copy would freeze
+            dst = f"img/{base}.{path.rsplit('.', 1)[1]}"
             if dst not in self.done:
                 shutil.copy2(os.path.join(HERE, path), os.path.join(self.web_dir, dst))
                 self.done.add(dst)
