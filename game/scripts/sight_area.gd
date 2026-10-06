@@ -1,9 +1,10 @@
 class_name SightArea
 extends Control
 ## The area round the hero that decides when the trees in front of it go see-through (DemoWorld, cut_trees "veil"),
-## drawn over the view while the performance panel's "show the area" is on: its outline, red once the trees cover
-## enough of it, and the points across it that lines from the camera are tested to, red where some tree covers them;
-## with how much of it the trees cover.
+## drawn over the view while the performance panel's "show the area" is on: its outline, red while the trees covering it
+## are see-through, and the points across it that lines from the camera are tested to, red where some tree covers them;
+## with how much of it the trees cover, and how much they must cover to go see-through, or once they are, how little
+## before they come back (DemoWorld.VEIL_STAY of it, so that they don't flicker).
 
 const CLEAR := Color(1.0, 1.0, 1.0, 0.75)
 const COVERED := Color(1.0, 0.32, 0.2, 0.95)
@@ -32,7 +33,7 @@ func _draw() -> void:
 			return
 		outline.append(camera.unproject_position(p))
 	outline.append(outline[0])
-	var over := world._cover >= world.veil_cover
+	var over := world.veil_on()
 	draw_polyline(outline, COVERED if over else CLEAR, 2.0, true)
 	for k in world.area_points.size():
 		var covered := k < world.area_covered.size() and world.area_covered[k] == 1
@@ -41,7 +42,9 @@ func _draw() -> void:
 	for q in outline:
 		if q.y < top.y:
 			top = q
-	var text := "trees cover %d%%, see-through from %d%%" % [roundi(world._cover * 100.0), roundi(world.veil_cover * 100.0)]
+	var cover := roundi(world._cover * 100.0)
+	var text := ("trees cover %d%%: see-through until below %d%%" % [cover, roundi(world.veil_cover * DemoWorld.VEIL_STAY * 100.0)]) if over \
+		else ("trees cover %d%%, see-through from %d%%" % [cover, roundi(world.veil_cover * 100.0)])
 	var font := get_theme_default_font()
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
 	draw_string_outline(font, top + Vector2(-width * 0.5, -10.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, 4, Color(0, 0, 0, 0.7))

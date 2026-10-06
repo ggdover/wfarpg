@@ -79,8 +79,9 @@ place (`tools/reference_shots.py`).
     user set it. Lines from the camera go to a grid of points across it (5 by 7, those inside its outline), and a
     point is covered if some tree's shape as drawn, leaves, branches or trunk, is on its line. Once 90% of the points
     are covered (the user's setting), every tree that covers any goes see-through over 0.15 s, and back as quickly
-    once it no longer covers any (after a quarter of a second) or the trees cover less than 80% of the 90% (after a
-    tenth). It's measured 30 times a second.
+    once it no longer covers any (after a quarter of a second) or the trees cover less than 80% of the 90%, 72% (after a
+    tenth; `VEIL_STAY`). That margin keeps them from flickering while what they cover hovers round 90% as the hero
+    walks. It's measured 30 times a second.
   - See-through is the cone's dither (below) evenly over the whole tree: half its pixels let through what's behind it,
     however many layers of leaves there are, where blending at half opacity would stack up over the overlapping leaf
     cards and stay nearly solid; and as every see-through tree lets the same pixels through, two in a row are as
@@ -114,7 +115,8 @@ place (`tools/reference_shots.py`).
     frame on average.
   - In the panel: **see-through at** (90%), **area round hero** (0 m), **see-through by** (50%; 0% for never), **show
     the area**, which draws it over the view with its points, red where a tree covers them, and how much of it the
-    trees cover (`scripts/sight_area.gd`), and **see-through trees** (Fewer cards).
+    trees cover, with how much they must cover to go see-through, or, once they are (its outline red), how little before
+    they come back (`scripts/sight_area.gd`), and **see-through trees** (Fewer cards).
   - **The cone** (also on its own, **Cone** in the panel): whatever of a tree is inside a cone from the edges of the
     screen to the hero fades away, wholly in the cone's middle and gradually towards its edges
     (`ref_imgs/tree_disappear/camera_view.png`; `cone_fade` in `shaders/common.gdshaderinc`).
