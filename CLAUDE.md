@@ -44,11 +44,12 @@ General knowledge, public documentation, and third-party libraries and engines a
   behind a tree with a very big crown, with much covered round the hero. So by default a point round the hero counts as
   covered only once two trees each hide it through the gaps between their leaves, over the hero and 1.5 m round it,
   see-through at 40%, solid again below 20%: from playtests (`game/scripts/dev/veiltune.gd`, `game/tools/veiltune.py`),
-  not yet confirmed by the user, who tunes them in F2 (it has sliders for both shares, the area and how see-through, and
-  the way of counting; the user's earlier settings: any part of a leaf card, the hero alone, 90% and 72%). No tree goes
-  whole, no bare sticks, no hard x-ray edges. A tree's leaves must not move as it goes see-through: the user saw them
-  shift when it swapped to a model with other cards, so now it keeps half of its own cards where they are and the rest
-  dissolve as it fades. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`; the cone
+  not yet confirmed by the user, who tunes them in F2 (it has sliders for both shares, the area and how see-through, the
+  way of counting, and two presets, "Thick forest" and "One tree is enough": one tree's leaves hiding 90% of the hero
+  alone, solid again below 50%; the user's earlier settings: any part of a leaf card, the hero alone, 90% and 72%). No
+  tree goes whole, no bare sticks, no hard x-ray edges. A tree's leaves must not move as it goes see-through: the user
+  saw them shift when it swapped to a model with other cards, so now it keeps half of its own cards where they are and
+  the rest dissolve as it fades. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`; the cone
   (`camera_view.png`) and the earlier ways of cutting trees are in F2 to compare.
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
