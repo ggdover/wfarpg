@@ -208,6 +208,20 @@ func _sight_checks() -> void:
 	_check("%s trees, see-through: a tree alone stays solid, though it hides some of the area round the hero" % set,
 		alone_solid and alone_one > 0.1,
 		"it alone hides %d%% of the area, two trees %d%%; %s" % [roundi(alone_one * 100.0), roundi(alone_two * 100.0), "solid" if alone_solid else "see-through"])
+	# the panel's presets: with one tree is enough, the pine alone hides the hero and goes see-through; with thick
+	# forest, it's solid again
+	if set == "new":
+		var panel: PerfPanel = demo._panel
+		panel.choose_settings(PerfPanel.ONE_TREE)
+		await _seconds(0.6)
+		var one_goes := not w._veiled.is_empty() and w.veil_by == "seen" and is_equal_approx(w.veil_round, 0.0) \
+			and is_equal_approx(w.veil_cover, 0.9) and is_equal_approx(w.veil_solid_below, 0.5)
+		panel.choose_settings(PerfPanel.THICK_FOREST)
+		await _seconds(0.8)
+		var thick_back := w._veiled.is_empty() and w.veil_by == "two" and is_equal_approx(w.veil_round, 1.5) \
+			and is_equal_approx(w.veil_cover, 0.4) and is_equal_approx(w.veil_solid_below, 0.2)
+		_check("%s trees, see-through: the presets: one tree is enough, and the pine alone goes see-through; thick forest, and it's solid" % set,
+			one_goes and thick_back, "%s, then %s" % ["see-through" if one_goes else "solid", "solid" if thick_back else "see-through"])
 	_check("%s trees, see-through: below the lower bar, they come back, their stumps gone" % set, after == 0.0 and stump_gone,
 		"see-through %.2f, %s" % [after, "stump gone" if stump_gone else "stump still there"])
 	_check("%s trees, see-through: drawn with fewer cards while see-through, and all of them again after" % set, light and heavy,

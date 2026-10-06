@@ -14,6 +14,10 @@ const NO_LIMIT := 250.0  ## the frame rate limit slider's top end, which means n
 ## the speed-ups of the performance pass (README.md, Speed), each switch as it was before it and as it is now
 const BEFORE := {"trimmed": false, "tree_shadows": "mid", "shadow_reach": 0.0, "impostors": 0.0, "details": 3}
 const SPED_UP := {"trimmed": true, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "details": 4}
+## when trees go see-through (DemoWorld, cut_trees "veil"): only where the forest is thick, two trees deep (the
+## defaults, from the playtests, tools/veiltune.py), or as soon as one tree hides most of the hero
+const THICK_FOREST := {"sight": "veil", "veil_by": "two", "veil_round": 1.5, "veil_cover": 0.4, "veil_solid_below": 0.2}
+const ONE_TREE := {"sight": "veil", "veil_by": "seen", "veil_round": 0.0, "veil_cover": 0.9, "veil_solid_below": 0.5}
 
 var demo: Node
 var _frames: Array[Vector2] = []  # (time in s, frame ms)
@@ -109,6 +113,15 @@ func setup(d: Node) -> void:
 	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
 	_choice(col, "sight", "Trees in the way", [["See-through", "veil"], ["Cone", "cone"], ["Front", "front"], ["X-ray", "xray"], ["Area", "area"], ["Line", "line"], ["Keep", "off"]],
 		w.cut_trees, func(v: String) -> void: w.set_trees("cut_trees", v))
+	var row_v := HBoxContainer.new()  # the see-through settings below, two ways at once
+	row_v.add_theme_constant_override("separation", 8)
+	col.add_child(row_v)
+	var lv := _label(row_v, "  see-through when", 13, INK)
+	lv.custom_minimum_size.x = 150
+	var thick := _button(row_v, "Thick forest", func() -> void: choose_settings(THICK_FOREST))
+	thick.tooltip_text = "Two trees or more must hide 40% of the hero and 1.5 m round it; solid again below 20%. A tree standing alone stays solid"
+	var one := _button(row_v, "One tree is enough", func() -> void: choose_settings(ONE_TREE))
+	one.tooltip_text = "One tree's leaves hiding 90% of the hero is enough; solid again below 50%"
 	_slider(col, "veil_cover", "  see-through at", 0.05, 1.0, 0.05, w.veil_cover, percent, func(v: float) -> void: w.veil_cover = v)
 	_slider(col, "veil_solid_below", "  solid again below", 0.05, 1.0, 0.01, w.veil_solid_below, percent,
 		func(v: float) -> void: w.veil_solid_below = v)
@@ -318,6 +331,15 @@ func choose(key: String, value: Variant) -> void:
 func choose_all(settings: Dictionary) -> void:
 	for k: String in settings:
 		choose(k, settings[k])
+
+
+## Set several choices and sliders at once, {setting: value}.
+func choose_settings(settings: Dictionary) -> void:
+	for k: String in settings:
+		if _sliders.has(k):
+			slide(k, settings[k])
+		else:
+			choose(k, settings[k])
 
 
 func show_theme(theme: String) -> void:
