@@ -4,7 +4,7 @@ extends Control
 ## drawn over the view while the performance panel's "show the area" is on: its outline, red while the trees covering it
 ## are see-through, and the points across it that lines from the camera are tested to, red where some tree covers them;
 ## with how much of it the trees cover, and how much they must cover to go see-through, or once they are, how little
-## before they come back (DemoWorld.VEIL_STAY of it, so that they don't flicker).
+## before they come back (DemoWorld.solid_below, so that they don't flicker).
 
 const CLEAR := Color(1.0, 1.0, 1.0, 0.75)
 const COVERED := Color(1.0, 0.32, 0.2, 0.95)
@@ -43,7 +43,7 @@ func _draw() -> void:
 		if q.y < top.y:
 			top = q
 	var cover := roundi(world._cover * 100.0)
-	var text := ("trees cover %d%%: see-through until below %d%%" % [cover, roundi(world.veil_cover * DemoWorld.VEIL_STAY * 100.0)]) if over \
+	var text := ("trees cover %d%%: see-through until below %d%%" % [cover, roundi(world.solid_below() * 100.0)]) if over \
 		else ("trees cover %d%%, see-through from %d%%" % [cover, roundi(world.veil_cover * 100.0)])
 	var font := get_theme_default_font()
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x

@@ -118,7 +118,8 @@ static func _thinned_in_place(model: String) -> String:
 
 
 ## Trees that block the view. See-through (the default): with the camera low behind a tall tree, the trees covering the
-## area round the hero go see-through, all but their stumps, and none goes whole; below the bar, they come back; and
+## area round the hero go see-through, all but their stumps, and none goes whole; under the bar they stay see-through
+## until what they cover drops below the lower bar, and then they come back; and
 ## deep in the forest, where the trees cover the bar's share of the area, they go see-through. The cone: no tree is cut
 ## whole, and the shaders get the cone round the hero. In front of the hero: a tree between the camera and the hero
 ## goes, leaving its trunk or stump, and comes back once the hero has walked well past it; a tree just ahead of the hero
@@ -167,17 +168,26 @@ func _sight_checks() -> void:
 	var none_whole := w._sight.is_empty()
 	var on_stump: bool = w._stumped.has(pole)
 	var drawn := w.area_points.size() >= AREA_POINTS_AT_LEAST and w.area_outline.size() == 28
-	w.veil_cover = 2.0  # out of reach, even the 80% of it that keeps them see-through once they are
+	# the bar out of reach, but not the lower one for coming back: they stay see-through
+	var below := w.veil_solid_below
+	w.veil_cover = 2.0
+	w.veil_solid_below = 0.05
+	await _seconds(0.6)
+	var held: float = w._veiled.get(pole, 0.0)
+	w.veil_solid_below = 2.0  # and that out of reach too
 	await _seconds(0.6)
 	var after: float = w._veiled.get(pole, 0.0)
 	var stump_gone: bool = not w._stumped.has(pole)
 	var heavy: bool = not trees[pole].get("light", false)
 	w.veil_cover = bar
+	w.veil_solid_below = below
 	_check("%s trees, see-through: the trees covering the area round the hero go see-through, on their stumps, none whole" % set,
 		cover > 0.0 and veil >= w.veil_amount and none_whole and on_stump and drawn,
 		"they cover %d%% of it, the tree see-through %.2f, %s, %s" % [roundi(cover * 100.0), veil, "on its stump" if on_stump else "no stump",
 			"none cut whole" if none_whole else "some cut whole"])
-	_check("%s trees, see-through: below the bar, they come back, their stumps gone" % set, after == 0.0 and stump_gone,
+	_check("%s trees, see-through: under the bar but over the lower one, they stay see-through" % set, held >= w.veil_amount,
+		"see-through %.2f" % held)
+	_check("%s trees, see-through: below the lower bar, they come back, their stumps gone" % set, after == 0.0 and stump_gone,
 		"see-through %.2f, %s" % [after, "stump gone" if stump_gone else "stump still there"])
 	_check("%s trees, see-through: drawn with fewer cards while see-through, and all of them again after" % set, light and heavy,
 		"%s, then %s" % ["fewer" if light else "all", "all" if heavy else "fewer"])

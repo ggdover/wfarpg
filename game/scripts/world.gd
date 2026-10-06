@@ -77,8 +77,6 @@ const STANDS := 2.0  # where a tree stands, for the area: its foot and this much
 		# middle as they rise
 const HERO_BODY := 0.3  # the hero's own half width (m)
 const VEIL_HOLD := 0.1  # seconds the trees stay see-through after they no longer cover enough of the area
-const VEIL_STAY := 0.8  # once see-through, the trees stay so until they cover less than this share of veil_cover
-		# (72% of the area for the user's 90%), so that they don't flicker while what they cover hovers round veil_cover
 const VEIL_FADE := 0.15  # seconds a tree takes to go see-through, and back
 const COVER_HOLD := 0.25  # seconds a tree that's see-through stays so after it last covered some of the area
 const KEEP_MARGIN := 1.5  # with veil_keep, a hidden tree comes back as one of those nearest the hero only once it's
@@ -135,6 +133,9 @@ var fade_near_camera := false
 var cut_trees := "veil"
 ## with "veil": the trees go see-through once they cover this share of the area round the hero (the user's 90%)
 var veil_cover := 0.9
+## and once they have, they stay so until they cover less than this share of it (at most veil_cover: solid_below), so
+## that they don't flicker while what they cover hovers round veil_cover as the hero walks
+var veil_solid_below := 0.72
 ## the area: the hero and this far round it (m), as the camera sees it (the user's: the hero alone)
 var veil_round := 0.0
 ## and how see-through they go: the share of what's behind them they let through (0 for never)
@@ -366,7 +367,7 @@ func _fade_whole(i: int, tree: Dictionary, f: float, in_way: bool, delta: float)
 ## With cut_trees "veil": measure how much of the area round the hero the trees in front of it cover, now and then
 ## (_measure_area); while that's veil_cover or more, each tree covering some of it goes evenly see-through, standing on
 ## its stump (_leave), over VEIL_FADE, and back once it no longer does (after COVER_HOLD), or once they cover less than
-## VEIL_STAY of veil_cover (after VEIL_HOLD). With veil_keep, only that many of them stay see-through, those nearest the
+## solid_below() (after VEIL_HOLD). With veil_keep, only that many of them stay see-through, those nearest the
 ## hero, and the rest go whole (_fade_whole), leaving nothing but their shadows; otherwise no tree goes whole.
 func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	_area_age += delta
@@ -376,7 +377,7 @@ func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		_area_age = 0.0
 		_measure_area(camera, hero_pos)
 	var veiling := _veil_for <= VEIL_HOLD
-	_veil_for = 0.0 if veil_amount > 0.0 and _cover >= veil_cover * (VEIL_STAY if veiling else 1.0) else _veil_for + delta
+	_veil_for = 0.0 if veil_amount > 0.0 and _cover >= (solid_below() if veiling else veil_cover) else _veil_for + delta
 	veiling = _veil_for <= VEIL_HOLD
 	var trees: Array = _tree_sets[_current]
 	var all := _covering.duplicate()
@@ -418,9 +419,15 @@ func _cut_veil(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 
 
 ## Are the trees covering the area round the hero see-through (or going so) now? Then they stay so until they cover less
-## than VEIL_STAY of veil_cover (for scripts/sight_area.gd).
+## than solid_below() of it (for scripts/sight_area.gd).
 func veil_on() -> bool:
 	return _veil_for <= VEIL_HOLD
+
+
+## How little of the area round the hero the see-through trees must cover before they come back: veil_solid_below, at
+## most veil_cover.
+func solid_below() -> float:
+	return minf(veil_solid_below, veil_cover)
 
 
 ## With veil_lighter, thin out a portfolio tree's leaf cards near the camera as it goes see-through (v, 0..veil_amount):

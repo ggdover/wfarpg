@@ -39,7 +39,8 @@ General knowledge, public documentation, and third-party libraries and engines a
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
   (not yet confirmed by the user). Trees in the way, the user's design, which they're satisfied with, shadows kept: once
   the trees in front of the hero cover 90% of it as the camera sees it, each of them goes evenly half see-through, all
-  but its stump (the user's settings; F2 has sliders for the share, an area round the hero and how see-through). No
+  but its stump (the user's settings; F2 has sliders for the share, the share below which they turn solid again (72%,
+  so they don't flicker; for the user to fine-tune), an area round the hero and how see-through). No
   tree goes whole, no bare sticks, no hard x-ray edges. A tree's leaves must not move as it goes see-through: the user
   saw them shift when it swapped to a model with other cards, so now it keeps half of its own cards where they are
   and the rest dissolve as it fades. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`;
