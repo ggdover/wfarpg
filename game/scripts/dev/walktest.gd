@@ -1,6 +1,6 @@
 extends Node
 ## Dev: walks the trail (scripts/trail_walk.gd) and prints the frame times, then quits.
-## godot --path game res://scenes/demo.tscn -- --walktest [--trees=old|new] [--treelod=1|2]
+## godot --path game res://scenes/demo.tscn -- --walktest [--trees=old|new] [--treelod=1|2] [--pitch=degrees]
 
 
 func run(demo: Node) -> void:
@@ -8,6 +8,9 @@ func run(demo: Node) -> void:
 		await demo.get_tree().process_frame
 	print("walktest starts with the ", Game.tree_set, " trees")
 	var walk := TrailWalk.new()
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--pitch="):
+			walk.pitch = float(a.substr(8))
 	demo.add_child(walk)
 	walk.start(demo)
 	var r: Dictionary = await walk.finished

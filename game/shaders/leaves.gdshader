@@ -21,6 +21,10 @@ uniform bool crown_normals = false;
 global uniform vec2 mood_grade;
 
 void fragment() {
+	vec4 c = texture(card, UV);
+	if (c.a < 0.5) {  // most of a card is clear: let those pixels go before working out the fades
+		discard;
+	}
 	float fade = max(tree_fade(sight_fade, VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD),
 			xray_fade(SCREEN_UV, VIEWPORT_SIZE, VERTEX, VIEW_MATRIX, CAMERA_POSITION_WORLD));
 	vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -29,7 +33,6 @@ void fragment() {
 	if (faded_out(fade, world) || faded_fine(soft, world, FRAGCOORD.xy)) {
 		discard;
 	}
-	vec4 c = texture(card, UV);
 	float grey = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
 	ALBEDO = mix(vec3(grey), c.rgb, mood_grade.x) * mood_grade.y;
 	ALPHA = c.a;

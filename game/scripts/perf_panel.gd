@@ -131,6 +131,8 @@ func setup(d: Node) -> void:
 	_slider(col, "path_wear", "Path wear spread", 0.0, 1.0, 0.1, w.path_wear, "%.1f", func(v: float) -> void: w.set_path_wear(v))
 	_choice(col, "trimmed", "Leaf cards", [["Square", false], ["Trimmed", true]], w.trimmed, func(v: bool) -> void: w.set_trees("trimmed", v))
 	_choice(col, "fewer", "Cards per clump", [["As tuned", false], ["Fewer", true]], w.fewer, func(v: bool) -> void: w.set_trees("fewer", v))
+	_choice(col, "spruce_leaves", "Spruce leaves", [["As tuned", "tuned"], ["Light", "light"], ["Lighter", "lighter"]], w.spruce_leaves,
+		func(v: String) -> void: w.set_trees("spruce_leaves", v))
 	_choice(col, "tree_shadows", "Tree shadows from", [["Full", "full"], ["Mid", "mid"], ["Far", "far"], ["Pictures", "pictures"], ["None", "off"]], w.tree_shadows,
 		func(v: String) -> void: w.set_trees("tree_shadows", v))
 	_choice(col, "shadow_reach", "  from trees within", [["All", 0.0], ["60 m", 60.0], ["40 m", 40.0], ["25 m", 25.0]], w.shadow_reach,
@@ -350,7 +352,7 @@ func _walk_done(r: Dictionary) -> void:
 	if r.is_empty():
 		return
 	var settings := []
-	for k in ["trees", "trimmed", "fewer", "tree_shadows", "shadow_reach", "impostors", "sight", "scale", "shadows", "shadow_size", "details", "ssao", "vsync", "fps"]:
+	for k in ["trees", "trimmed", "fewer", "spruce_leaves", "tree_shadows", "shadow_reach", "impostors", "sight", "scale", "shadows", "shadow_size", "details", "ssao", "vsync", "fps"]:
 		settings.append(_choices[k])
 	_runs.push_front("%d · avg %d, 5%% low %d, 1%% low %d fps%s\n    %s" % [_runs.size() + 1, roundi(r["fps"]), roundi(r["low5"]),
 		roundi(r["low1"]), "" if r["completed"] else " (stopped early)", ", ".join(settings)])

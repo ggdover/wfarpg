@@ -2219,6 +2219,19 @@
   "y": 20675,
   "z": 25
  },
+ "s-sprucelight": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791325430996,
+  "h": 2270,
+  "title": "Play demo: lighter spruces",
+  "type": "frame",
+  "updatedAt": 1791325430996,
+  "w": 2740,
+  "x": 0,
+  "y": 67632,
+  "z": 40
+ },
  "s-sprucetop": {
   "author": "claude",
   "color": "moss",
@@ -2452,6 +2465,45 @@
   "x": 28,
   "y": 48120,
   "z": 231
+ },
+ "sl-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791325430996,
+  "h": 1240,
+  "text": "# Lighter spruces\nYou asked for more frames in the forest, just under 60 fps from above and down to 40 with the camera low, by giving up some quality in the trees' leaves, as a new setting.\n\nI measured what the trees cost. The spruces cost more than every other tree together: hidden, the forest with the camera low takes 9.7 ms a frame instead of 21; hiding the pines or the rest changes nothing. Most of it is the area of their leaf cards, layer behind layer: even trimmed, two thirds of a spray card is clear, and the graphics card still tests every pixel of it.\n- **Always, and it looks the same:** the leaf shader lets a card's clear pixels go first, before it works out the fades: 1.4 ms less in the forest with the camera low\n- **Spruce leaves** in F2, under Advanced settings, off by default: **Light**, two copies of each spray instead of four, near and in the first lighter version, the shadow from the trunk alone with the picture of the leaves; **Lighter**, the sprays half as far again apart too\n\nBack to back, as tuned, Light, Lighter:\n- The forest, camera low: 49, 65, 72 fps\n- The forest, default camera: 65, 88, 98 fps\n- Walking the trail, the slowest 1% of frames: 39, 50, 53 fps; with the camera low, 28, 38, 41\n\nIn the game's views the crowns look much the same; close up, Lighter shows more of a spruce's branches. In the very worst moments it isn't quite 40 to 70: there the rest of the forest, shadows, ambient occlusion and the ground, still takes about 9 ms.",
+  "type": "note",
+  "updatedAt": 1791325430996,
+  "w": 460,
+  "x": 28,
+  "y": 67660,
+  "z": 253
+ },
+ "sl-game": {
+  "ar": 2.435,
+  "assetId": "ba84109f3ed3b8bbaedbb924d66bc6a9",
+  "author": "claude",
+  "caption": "In the forest, as tuned, Light and Lighter: from the default camera (top), and with the camera low behind the hero, the spruces in front of it see-through (bottom).",
+  "createdAt": 1791325430996,
+  "type": "image",
+  "updatedAt": 1791325430996,
+  "w": 2200,
+  "x": 512,
+  "y": 67660,
+  "z": 254
+ },
+ "sl-trees": {
+  "ar": 0.931,
+  "assetId": "b0746cadc30a284df77c2ffd3f73bdb5",
+  "author": "claude",
+  "caption": "Spruce A as tuned, Light and Lighter, from the side and from the game camera's angle.",
+  "createdAt": 1791325430996,
+  "type": "image",
+  "updatedAt": 1791325430996,
+  "w": 1000,
+  "x": 512,
+  "y": 68693,
+  "z": 255
  },
  "sn-about": {
   "author": "claude",

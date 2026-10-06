@@ -12,12 +12,14 @@ const PX_PER_M := 24.0  ## the pictures' detail, in pixels a metre (the shadow m
 const MAX_PX := 16384
 
 var meshes := {}  ## model -> what casts its shadow: its trunk and branches and the quad, in the model's units
+var bare_meshes := {}  ## model -> the same with its trunk alone, for the models given a version without branches
 var _bake_materials := {}
 
 
 ## Picture the given models' leaves (each in the version in versions[model]) as the sun sees them, to_light being the
-## direction towards it, and make their shadow casters. A frame.
-func bake(parent: Node, models: Array, versions: Dictionary, to_light: Vector3) -> void:
+## direction towards it, and make their shadow casters; for those in bare, also one with the trunk alone, from the
+## version bare[model], which has no branches (bare_meshes). A frame.
+func bake(parent: Node, models: Array, versions: Dictionary, to_light: Vector3, bare := {}) -> void:
 	var el := asin(to_light.y)
 	var rows := []
 	var tall := 0.0  # metres
@@ -87,6 +89,8 @@ func bake(parent: Node, models: Array, versions: Dictionary, to_light: Vector3) 
 		mat.set_shader_parameter("crown_mid", r["mid"])
 		var half := Vector2(r["fw"], r["fh"]) * 0.5 / ppm
 		meshes[r["model"]] = _caster(r["mesh"], mat, half, (r["y0"] + r["y1"]) * 0.5, r["mid"], to_light)
+		if bare.has(r["model"]):
+			bare_meshes[r["model"]] = _caster(Models.mesh(bare[r["model"]]), mat, half, (r["y0"] + r["y1"]) * 0.5, r["mid"], to_light)
 
 
 ## How far a model's leaves reach from its trunk, and their lowest and highest points.

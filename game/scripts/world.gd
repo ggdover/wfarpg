@@ -106,6 +106,11 @@ var _baked_ready := false
 var trimmed := true
 ## about half the leaf cards per clump (changes the look)
 var fewer := false
+## the spruces, which cost more to draw than every other tree together: "tuned", or "light", with two copies of each
+## spray instead of four, near and in the first lighter version, and their shadows cast by their trunks alone (with
+## the picture of their leaves), or "lighter", with the sprays further apart too (tools/build_demo.py, LIGHT)
+var spruce_leaves := "tuned"
+const LIGHT := {"tuned": "", "light": "_l", "lighter": "_ll"}
 ## what casts a tree's shadow: a version of it, "full", "mid" (the first lighter one) or "far" (the lightest), or
 ## "pictures" (its trunk and branches, and a picture of its leaves as the sun sees them: TreeShadowPictures), or "off"
 var tree_shadows := "pictures"
@@ -202,12 +207,16 @@ var sight_clear := 0.0
 var plant_shadows := false
 ## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
 var tree_lod := 0
+## for measuring: kinds of tree not drawn at all (--hide=NorwaySpruce,ScotsPine; the layout's kinds)
+var hidden_kinds := PackedStringArray()
 
 
 func build(tree_set: String) -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--treelod="):
 			tree_lod = int(a.substr(10))
+		elif a.begins_with("--hide="):
+			hidden_kinds = a.substr(7).split(",")
 	layout = JSON.parse_string(FileAccess.get_file_as_string(LAYOUT))
 	ground = JSON.parse_string(FileAccess.get_file_as_string(GROUND))
 	_build_terrain()
@@ -555,17 +564,30 @@ func _coverer(tree: Dictionary) -> TriangleMesh:
 
 ## The version of a tree drawn near the camera, as _apply_trees picks it.
 func _cover_model(tree: Dictionary) -> String:
-	var m: String = tree["model"]
-	if tree["kind"] != "old":
-		if tree_lod > 0:
-			m += "_%d" % tree_lod
-		elif tree["kind"] == "young":
-			m += "_1"
-		elif fewer:
-			m += "_f"
-		if trimmed and Models.has(m + "_t"):
-			m += "_t"
+	var m := _near_version(tree)
+	if trimmed and Models.has(m + "_t"):
+		m += "_t"
 	return m
+
+
+## The version of a tree drawn near the camera, with square leaf cards: a portfolio tree's full version, with fewer
+## cards or lighter spruce leaves as the settings ask (_light), or a young spruce's first lighter one.
+func _near_version(tree: Dictionary) -> String:
+	var m: String = tree["model"]
+	if tree["kind"] == "old":
+		return m
+	if tree_lod > 0:
+		return m + "_%d" % tree_lod
+	var light := _light(m)
+	if tree["kind"] == "young":
+		return m + "_1" + light
+	return m + (light if light else ("_f" if fewer else ""))
+
+
+## The suffix of the model's lighter leaves, as spruce_leaves asks, if it has them (only spruces do), or "".
+func _light(model: String) -> String:
+	var l: String = LIGHT[spruce_leaves]
+	return l if l and Models.has(model + l) else ""
 
 
 ## Does the tree, as it's drawn, hide b from a (both in its own space)? hit is where the line first meets its shape
@@ -964,14 +986,7 @@ func _in_way(tree: Dictionary, i: int, camera_pos: Vector3, hero_pos: Vector3, p
 ## _apply_trees picks it, always with square leaf cards. Whatever of a card shows is inside its square, even far
 ## off, where the cards' smaller mipmaps can show a little outside the trimmed outlines.
 func _occluder(tree: Dictionary) -> TriangleMesh:
-	var m: String = tree["model"]
-	if tree["kind"] != "old":
-		if tree_lod > 0:
-			m += "_%d" % tree_lod
-		elif tree["kind"] == "young":
-			m += "_1"
-		elif fewer:
-			m += "_f"
+	var m := _near_version(tree)
 	if not _occluders.has(m):
 		_occluders[m] = Models.mesh(m).generate_triangle_mesh()
 	return _occluders[m]
@@ -1071,8 +1086,8 @@ func _unskip() -> void:
 	area_covered.clear()
 
 
-## Change how the trees are drawn, now: any of trimmed, fewer, tree_shadows, shadow_reach, lod_near, lod_far,
-## impostors_from, fade_near_camera, cut_trees, leave, cut_by, cut_near.
+## Change how the trees are drawn, now: any of trimmed, fewer, spruce_leaves, tree_shadows, shadow_reach, lod_near,
+## lod_far, impostors_from, fade_near_camera, cut_trees, leave, cut_by, cut_near.
 func set_trees(option: String, value: Variant) -> void:
 	_unskip()
 	set(option, value)
@@ -1102,7 +1117,8 @@ func _shadow_caster(tree: Dictionary, names: Array) -> Mesh:
 	if tree_shadows == "full" or tree["kind"] == "old":
 		return Models.mesh(names[0])
 	if tree_shadows == "pictures" and _shadow_pictures != null:
-		return _shadow_pictures.meshes[tree["model"]]
+		var m: String = tree["model"]
+		return _shadow_pictures.bare_meshes[m] if _light(m) and _shadow_pictures.bare_meshes.has(m) else _shadow_pictures.meshes[m]
 	return Models.mesh(tree["model"] + ("_2" if tree_shadows == "far" else "_1") + ("_t" if trimmed else ""))
 
 
@@ -1275,7 +1291,7 @@ func _build_trees(which: String) -> Array:
 			kind = "young" if t["kind"] == "YoungSpruce" else "full"
 		var count: int = {"old": 1, "young": 2, "full": 3}[kind]
 		var s := float(t["s_" + which])
-		var tree := {"model": model, "kind": kind, "draw": [], "shadow": RID(), "impostor": RID(), "stump": RID(), "pole": RID(),
+		var tree := {"model": model, "kind": kind, "species": t["kind"], "draw": [], "shadow": RID(), "impostor": RID(), "stump": RID(), "pole": RID(),
 			"bound": _bound(model) * s, "s": s, "trunk": _trunk(model) * s, "xf": xf, "inv": xf.affine_inverse(),
 			"trunk_top": float(Models.info[model + "_trunk"]["height"]) * s if Models.has(model + "_trunk") else 0.0,
 			"cut": float(Models.info[model + "_stump"]["cut"]) * s if Models.has(model + "_stump") else 0.5}
@@ -1303,13 +1319,14 @@ func _apply_trees() -> void:
 		var draw: Array = tree["draw"]
 		var m: String = tree["model"]
 		var names: Array
+		var leaves := _light(m)
 		match tree["kind"]:
 			"old":
 				names = [m]
 			"young":
-				names = [m + "_1" + t_, m + "_2" + t_]
+				names = [m + "_1" + leaves + t_, m + "_2" + t_]
 			_:
-				names = [m + ("_f" if fewer else "") + t_, m + "_1" + t_, m + "_2" + t_]
+				names = [_near_version(tree) + t_, m + "_1" + leaves + t_, m + "_2" + t_]
 		if tree_lod > 0 and tree["kind"] != "old":
 			names = names.map(func(_n: String) -> String: return m + "_%d" % tree_lod + t_)
 		tree["names"] = names
@@ -1352,6 +1369,12 @@ func _apply_trees() -> void:
 			RenderingServer.instance_geometry_set_cast_shadows_setting(shadow, RenderingServer.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
 	for i: int in _undrawn:  # those faded out near the camera or out of the way stay undrawn
 		_draw_tree(i, false)
+	if not hidden_kinds.is_empty():  # for measuring
+		for tree: Dictionary in _tree_sets[_current]:
+			if tree["species"] in hidden_kinds:
+				for rid: RID in tree["draw"] + [tree["impostor"], tree["shadow"]]:
+					if rid.is_valid():
+						RenderingServer.instance_set_visible(rid, false)
 
 
 ## How thick a tree model's trunk is at the ground (its radius, unscaled), from its stump: the model's own footprint
@@ -1411,16 +1434,19 @@ func _bake_shadow_pictures() -> void:
 	_shadow_pictures_baking = true
 	var models := []
 	var versions := {}
+	var bare := {}
 	for tree: Dictionary in _tree_sets[_current]:
 		var m: String = tree["model"]
 		if tree["kind"] != "old" and not versions.has(m):
 			models.append(m)
 			versions[m] = m
+			if Models.has(m + LIGHT["light"]):  # a spruce: with lighter leaves, its shadow from the trunk of its first
+				bare[m] = m + "_1"  # lighter version, which has no branches
 	if models.is_empty():
 		_shadow_pictures_baking = false
 		return
 	var pics := TreeShadowPictures.new()
-	await pics.bake(self, models, versions, -Mood.sun_direction(Mood.SUN_ROTATION.x, Mood.SUN_ROTATION.y))
+	await pics.bake(self, models, versions, -Mood.sun_direction(Mood.SUN_ROTATION.x, Mood.SUN_ROTATION.y), bare)
 	_shadow_pictures = pics
 	_shadow_pictures_baking = false
 	_apply_trees()

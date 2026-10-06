@@ -108,11 +108,11 @@ static func _cached(key: String, make: Callable) -> Material:
 	return _materials[key]
 
 
-## Has the model a thinned version? A portfolio tree's full version has, with square or trimmed leaf cards.
+## Has the model a thinned version? A portfolio tree's full version has, with square or trimmed leaf cards, its lighter
+## spruce leaves too (trees.json says which: tools/build_demo.py).
 static func thinnable(model: String) -> bool:
 	load_info()
-	return info.has(model) and info.has(model.trim_suffix("_t") + "_1") \
-		and (info[model]["file"] as String).get_file() in ["trees.glb", "trees_trim.glb"]
+	return info.has(model) and info[model].get("thinnable", false)
 
 
 ## A portfolio tree's full version with its leaf cards thinned out, for drawing it see-through near the camera

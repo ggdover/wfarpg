@@ -228,6 +228,19 @@ def lod_settings(cfg, level):
     return c
 
 
+# lighter spruces, for the performance panel's "Spruce leaves", as the spruce costs more to draw than every other tree
+# together: two copies of each spray instead of the tuned four, and with "lighter" (2) the sprays further apart along
+# the branches too
+LIGHT = {1: dict(planes=2, spacing=1.0), 2: dict(planes=2, spacing=1.5)}
+
+
+def light_settings(cfg, light):
+    c = dict(cfg)
+    c["planes"] = min(int(cfg["planes"]), LIGHT[light]["planes"])
+    c["spacing"] = cfg["spacing"] * LIGHT[light]["spacing"]
+    return c
+
+
 # for trying out in the demo's performance panel: about half the leaf cards per clump, a little bigger
 def fewer_settings(cfg):
     c = dict(cfg)
@@ -313,14 +326,16 @@ def trim_cards(tree, outlines):
     tree.v, tree.f, tree.mat, tree.col, tree.uv, tree.nrm = nv, nf, nmat, ncol, nuv, nnrm
 
 
-def build_tree(key, variant, cfg, me, level=0, outlines=None, fewer=False):
-    """treegen.build_into, at a level of detail, optionally with fewer cards per clump and with the cards trimmed to
-    their leaves (outlines from card_outline, by material slot). Returns (leaf cards, faces)."""
+def build_tree(key, variant, cfg, me, level=0, outlines=None, fewer=False, light=0):
+    """treegen.build_into, at a level of detail, optionally with fewer cards per clump or lighter spruce leaves, and with
+    the cards trimmed to their leaves (outlines from card_outline, by material slot). Returns (leaf cards, faces)."""
     import treegen
     if fewer:
         cfg = fewer_settings(cfg)
     if level:
         cfg = lod_settings(cfg, level)
+    if light:
+        cfg = light_settings(cfg, light)
     marks = []
     orig = treegen.Tree.tube
 
@@ -356,12 +371,14 @@ def tree_meshes():
     return out
 
 
-# the trees' versions, by .glb file: (name suffix, level of detail, trimmed cards, fewer cards). In the game, the
-# performance panel switches between them (scripts/world.gd).
+# the trees' versions, by .glb file: (name suffix, level of detail, trimmed cards, fewer cards, lighter spruce leaves,
+# which only the spruce has: LIGHT). In the game, the performance panel switches between them (scripts/world.gd).
 TREE_VERSIONS = {
-    "trees": [("", 0, False, False), ("_1", 1, False, False), ("_2", 2, False, False)],
-    "trees_trim": [("_t", 0, True, False), ("_1_t", 1, True, False), ("_2_t", 2, True, False)],
-    "trees_few": [("_f", 0, False, True), ("_f_t", 0, True, True)],
+    "trees": [("", 0, False, False, 0), ("_1", 1, False, False, 0), ("_2", 2, False, False, 0)],
+    "trees_trim": [("_t", 0, True, False, 0), ("_1_t", 1, True, False, 0), ("_2_t", 2, True, False, 0)],
+    "trees_few": [("_f", 0, False, True, 0), ("_f_t", 0, True, True, 0)],
+    "trees_light": [("_l", 0, False, False, 1), ("_l_t", 0, True, False, 1), ("_1_l", 1, False, False, 1), ("_1_l_t", 1, True, False, 1),
+                    ("_ll", 0, False, False, 2), ("_ll_t", 0, True, False, 2), ("_1_ll", 1, False, False, 2), ("_1_ll_t", 1, True, False, 2)],
 }
 
 
@@ -387,7 +404,7 @@ def transfer_ao(me_square, ao_square, me_trimmed):
 def build_trees():
     """The tree portfolio's trees, as tuned in assets/trees/tree_settings.json, two variants of each, each in a full
     and two lighter versions, and each of those with square or trimmed leaf cards; and for trying out, the full
-    trees with fewer cards per clump."""
+    trees with fewer cards per clump, and the spruce's full and first lighter versions with lighter leaves."""
     import treegen
     settings = treegen.load_settings()
     tex_dir = os.path.join(TREE_DIR, "textures")
@@ -404,30 +421,32 @@ def build_trees():
             copy_card(name, cfg, tex_dir)
         outlines = {slot: card_outline(os.path.join(tex_dir, t + ".png")) for slot, t in textures.items()}
         for variant in "AB":
-            square = {}  # (level, fewer) -> (mesh, ao) of the square-card version, for its trimmed twin
+            square = {}  # (level, fewer, light) -> (mesh, ao) of the square-card version, for its trimmed twin
             for group, versions in TREE_VERSIONS.items():
                 objs, ao = files[group]
-                for suffix, level, trimmed, fewer in versions:
+                for suffix, level, trimmed, fewer, light in versions:
+                    if light and cfg["layout"] != "pinnate":
+                        continue
                     name = f"{key}_{variant}{suffix}"
                     me = bpy.data.meshes.new(name)
-                    cards, faces = build_tree(key, variant, cfg, me, level, outlines if trimmed else None, fewer)
+                    cards, faces = build_tree(key, variant, cfg, me, level, outlines if trimmed else None, fewer, light)
                     ob = bpy.data.objects.new(name, me)
                     bpy.context.scene.collection.objects.link(ob)
                     objs.append(ob)
                     info[name] = dict(mesh_info(me, bark_slot=0), cards=cards, faces=faces, species=key,
                                       file=f"res://assets/trees/{group}.glb", triangles=sum(len(f.vertices) - 2 for f in me.polygons),
                                       textures={slot: f"res://assets/trees/textures/{t}.png" for slot, t in textures.items()},
-                                      materials=[m.name for m in me.materials])
+                                      materials=[m.name for m in me.materials], thinnable=level == 0 and not fewer)
                     if trimmed:
-                        sq_me, sq_ao = square.get((level, fewer)) or (None, None)
+                        sq_me, sq_ao = square.get((level, fewer, light)) or (None, None)
                         if sq_me is None:  # the square version of the fewer-card tree is built just for this
                             sq_me = bpy.data.meshes.new(name + "_square")
-                            build_tree(key, variant, cfg, sq_me, level, None, fewer)
+                            build_tree(key, variant, cfg, sq_me, level, None, fewer, light)
                             sq_ao = bake_ao(sq_me, see_through={i for i, m in enumerate(sq_me.materials) if m.name != "Bark"})
                         ao[name] = transfer_ao(sq_me, sq_ao, me)
                     else:
                         ao[name] = bake_ao(me, see_through={i for i, m in enumerate(me.materials) if m.name != "Bark"})
-                        square[(level, fewer)] = (me, ao[name])
+                        square[(level, fewer, light)] = (me, ao[name])
                     print(name, "cards", cards, "triangles", info[name]["triangles"], "mean ao %.2f" % ao[name].mean())
     for group, (objs, ao) in files.items():
         export_glb(objs, os.path.join(TREE_DIR, group + ".glb"), ao)

@@ -12,8 +12,8 @@ extends Node3D
 ##   --set:option=value  a panel option or slider, e.g. --set:shadow_size=1024 --set:details=2 --set:tree_shadows=far
 ##                       --set:shadow_cap=40 --set:fps=60 (the frame rate limit) --set:path_wear=0
 ##                       --set:preset=thick|one (a preset at the panel's top)
-##   for measuring what costs what: --noshadow, --nofade, --flatground, --canopy=0..1, --bump=0..1,
-##   --sun:property=value, --env:property=value, --vp:property=value
+##   for measuring what costs what: --hide=NorwaySpruce,ScotsPine (kinds of tree not drawn), --noshadow, --nofade,
+##   --flatground, --canopy=0..1, --bump=0..1, --sun:property=value, --env:property=value, --vp:property=value
 
 var world: DemoWorld
 var hero: Hero

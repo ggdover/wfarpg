@@ -13,6 +13,7 @@ const WARM_UP := 30  # frames to let the view settle after moving the hero to th
 const MAX_SECONDS := 40.0
 
 var demo: Node
+var pitch := 55.0  ## the camera's, the default; low, the forest costs more
 var times := PackedFloat32Array()
 var _next := 0
 var _warm := 0
@@ -27,7 +28,7 @@ func start(d: Node) -> void:
 	hero.global_position = demo.world.start_position() + Vector3(0, 0.1, 0)
 	hero.velocity = Vector3.ZERO
 	hero.reset_physics_interpolation()
-	rig.pitch = 55.0
+	rig.pitch = pitch
 	rig.distance = 20.0
 	rig.yaw = _yaw_towards(WAYPOINTS[0])
 	rig.snap()

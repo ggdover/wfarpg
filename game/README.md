@@ -180,6 +180,7 @@ takes effect at once:
 | Path wear spread | How far the paths' wear spreads into the grass: 0 as in the mockups, up to 1 (the default), where the trampled grass, bare patches and stray stones reach further out and break up in patches, so it's less clear exactly where a path runs |
 | Leaf cards | Square cards, or cards trimmed to an outline round their leaves (the default): the same look, fewer pixels to draw |
 | Cards per clump | As tuned, or about half as many (a little bigger): sparser crowns |
+| Spruce leaves | **As tuned** (the default), **Light** or **Lighter**: the spruces with two copies of each spray instead of four, near and in their first lighter version, and their shadows cast by their trunks alone, with the picture of their leaves; Lighter also sets the sprays half as far again apart along the branches. The spruce costs more to draw than every other tree together (below, under Speed) |
 | Tree shadows from | What casts a new tree's shadow: one of its versions (the full, mid or far one), its trunk and branches with a picture of its leaves as the sun sees them (**Pictures**, the default; under Speed), or nothing |
 | from trees within | Only the trees within this far of the camera cast shadows: all, 60 m (the default), 40 m or 25 m |
 | Lighter trees from | Where the new trees switch to their lighter versions |
@@ -281,11 +282,14 @@ The speed-ups, each with its switch in the panel, so you can flip back and forth
 
 Also:
 
-- **Lighter versions:** each new tree has two, with fewer, bigger leaf cards, used from 45 m and 120 m. Using them
-  nearer saves at most 1 ms, as their bigger cards cover about as many pixels.
+- **Lighter versions:** each new tree has two, with fewer, bigger leaf cards, used from 45 m and 120 m. At the start,
+  using them nearer saves at most 1 ms, as their bigger cards cover about as many pixels; in the forest with the
+  camera low, from 20 m it saves 2.7 ms and from 10 m 5.2, as the spruce's first lighter version has no branches and
+  its sprays further apart.
 - **Trimmed and fewer cards:** every version also comes with its cards cut to the outline round their leaves
-  (`trees_trim.glb`), and the full trees with fewer cards per clump (`trees_few.glb`). As the models load, each full
-  tree also gets its thinned version, for while it's see-through (above), in about 65 ms for all of them.
+  (`trees_trim.glb`), the full trees with fewer cards per clump (`trees_few.glb`), and the spruce's full and first
+  lighter versions with lighter leaves (`trees_light.glb`). As the models load, each full tree also gets its thinned
+  version, for while it's see-through (above), in about 65 ms for all of them.
 - **Hidden trees:** with See-through, the start runs as fast as with no tree hidden (11.6 ms), as no tree covers the
   hero there. Walking the trail with the camera low (10°), it's 76 fps on average, 45 in the slowest 5% of frames and
   42 in the slowest 1%; with the see-through trees on all their cards, 72, 38 and 35 (with the earlier fewer cards,
@@ -300,6 +304,27 @@ Also:
   trees go takes 0.2–0.7 ms a frame in the forest; the trees' shapes for it are worked out as they load (about 60 ms for
   both sets).
 - **The depth prepass** (Godot's own, on): without it, the forest takes twice as long.
+- **What the trees cost:** the spruces cost more to draw than every other tree together. Hidden (with `--hide=NorwaySpruce,YoungSpruce`,
+  one of the options for measuring listed in `scripts/demo.gd`), the forest with the camera low takes 9.7 ms a frame instead of 21, and from above 7.2 instead of 14.6; hiding the
+  pines or the other trees changes nothing, as the spruces behind them fill in. Most of it is the area of their leaf
+  cards, layer behind layer, which the depth prepass tests pixel by pixel (half the frame with the camera low): even
+  trimmed, two thirds of a spray card is clear. So:
+  - **A card's clear pixels go first** (always; it looks the same): the leaf shader lets them go before it works out
+    the fades (`shaders/leaves.gdshader`), which saves 1.4 ms in the forest with the camera low and 0.3 to 0.6 from
+    above.
+  - **Spruce leaves** (the panel; off by default): Light and Lighter, against As tuned, measured back to back:
+
+    | View | As tuned | Light | Lighter |
+    |---|---|---|---|
+    | The forest, camera low | 19.5 ms (49 fps) | 14.7 ms (65 fps) | 13.4 ms (72 fps) |
+    | The forest, camera low, further west | 16.3 ms (60 fps) | 13.2 ms (74 fps) | 11.7 ms (83 fps) |
+    | The forest from the default camera | 14.5 ms (65 fps) | 10.8 ms (88 fps) | 9.8 ms (98 fps) |
+    | The same, zoomed out | 17.8 ms (54 fps) | 14.1 ms (67 fps) | 13.1 ms (73 fps) |
+    | Walking the trail: slowest 5% and 1% of frames | 47–49, 39 fps | 58–59, 49–51 fps | 62, 53–54 fps |
+    | The same with the camera low (12°) | 31, 28 fps | 41, 38 fps | 45, 41 fps |
+
+    In the game's views the crowns look much the same; close up, Lighter shows more of a spruce's branches. Fewer
+    copies of each spray save more than fewer sprays, and the branches cost nothing (they were tried without).
 - **Tried, and not worth it:** a draw distance for the bushes and berries (under 1 ms with the camera low), skipping
   the shadows of trees behind the camera (Godot already does), and moving where the near shadow cascade ends (Godot's
   10% is the fastest).
@@ -310,7 +335,8 @@ of the hero went whole there; with See-through, the defaults take 11.6 ms):
 - **Shadows:** off saves 2.7 ms (126 fps); the trees' shadows alone 2.2. A 1024 shadow map saves 1.0 ms against
   2048, and 4096 costs 2.4 ms more.
 - **Render scale:** 75% saves 2.2 ms (119 fps), 50% 4.2 (156 fps).
-- **Leaf cards:** fewer cards per clump save 2.0 ms (116 fps).
+- **Leaf cards:** fewer cards per clump save 2.0 ms (116 fps). Spruce leaves Light saves 2.4 ms and Lighter 3.0
+  (measured on 7 October, against the defaults' 12.8 ms then).
 - **Ambient occlusion:** off saves 1.9 ms (115 fps), with the camera low up to 3.7; very low saves 0.4; high costs
   1.8 ms more.
 - **Fade trees near camera:** on, it costs 1.1 ms, from the trees half faded near the camera.
@@ -355,6 +381,6 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials, and the trees' thinned versions; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
 | `shaders/` | Ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material (and `lowpoly_trunk` for the bare trunks trees leave, which neither the x-ray nor the fade near the camera touch), the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
-| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees), `paneltest.gd` (`--paneltest`), `veilbench.gd` (`godot --path game --script res://scripts/dev/veilbench.gd`: at random spots in the forest with the camera low, the slowest views, and what the see-through trees cost there with all their cards, half, or hidden; add `-- --poses=x,z,yaw,pitch,distance;...` for set views), `veiltune.gd` (`godot --headless --path game --script res://scripts/dev/veiltune.gd -- --out=rows.csv`: playtests for when trees go see-through, walking the hero under every tree standing alone, along the trail and to random forest spots, writing for each step how much of the area round the hero each way of measuring covers, and how much of the hero shows; `python3 tools/veiltune.py rows.csv` plays the settings over them), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender) |
+| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees, `--pitch=12` for the camera low), `paneltest.gd` (`--paneltest`), `veilbench.gd` (`godot --path game --script res://scripts/dev/veilbench.gd`: at random spots in the forest with the camera low, the slowest views, and what the see-through trees cost there with all their cards, half, or hidden; add `-- --poses=x,z,yaw,pitch,distance;...` for set views), `veiltune.gd` (`godot --headless --path game --script res://scripts/dev/veiltune.gd -- --out=rows.csv`: playtests for when trees go see-through, walking the hero under every tree standing alone, along the trail and to random forest spots, writing for each step how much of the area round the hero each way of measuring covers, and how much of the hero shows; `python3 tools/veiltune.py rows.csv` plays the settings over them), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender) |
 | `tools/` | The Blender build scripts, and `veiltune.py` (above) (Godot ignores this folder) |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

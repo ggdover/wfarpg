@@ -23,6 +23,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": true,
   "triangles": 1346
  },
  "Alder_A_1": {
@@ -49,6 +50,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 1304
  },
  "Alder_A_1_t": {
@@ -75,6 +77,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 2192
  },
  "Alder_A_2": {
@@ -101,6 +104,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 420
  },
  "Alder_A_2_t": {
@@ -127,6 +131,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 1012
  },
  "Alder_A_f": {
@@ -153,6 +158,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 1156
  },
  "Alder_A_f_t": {
@@ -179,6 +185,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 1748
  },
  "Alder_A_t": {
@@ -205,6 +212,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": true,
   "triangles": 2318
  },
  "Alder_B": {
@@ -231,6 +239,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": true,
   "triangles": 1404
  },
  "Alder_B_1": {
@@ -257,6 +266,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 1362
  },
  "Alder_B_1_t": {
@@ -283,6 +293,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 2298
  },
  "Alder_B_2": {
@@ -309,6 +320,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 436
  },
  "Alder_B_2_t": {
@@ -335,6 +347,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 1060
  },
  "Alder_B_f": {
@@ -361,6 +374,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 1206
  },
  "Alder_B_f_t": {
@@ -387,6 +401,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": false,
   "triangles": 1830
  },
  "Alder_B_t": {
@@ -413,6 +428,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
+  "thinnable": true,
   "triangles": 2424
  },
  "Aspen_A": {
@@ -439,6 +455,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": true,
   "triangles": 1523
  },
  "Aspen_A_1": {
@@ -465,6 +482,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 1355
  },
  "Aspen_A_1_t": {
@@ -491,6 +509,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 2255
  },
  "Aspen_A_2": {
@@ -517,6 +536,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 448
  },
  "Aspen_A_2_t": {
@@ -543,6 +563,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 1048
  },
  "Aspen_A_f": {
@@ -569,6 +590,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 1221
  },
  "Aspen_A_f_t": {
@@ -595,6 +617,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 1853
  },
  "Aspen_A_t": {
@@ -621,6 +644,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": true,
   "triangles": 2759
  },
  "Aspen_B": {
@@ -647,6 +671,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": true,
   "triangles": 1115
  },
  "Aspen_B_1": {
@@ -673,6 +698,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 989
  },
  "Aspen_B_1_t": {
@@ -699,6 +725,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 1673
  },
  "Aspen_B_2": {
@@ -725,6 +752,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 376
  },
  "Aspen_B_2_t": {
@@ -751,6 +779,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 832
  },
  "Aspen_B_f": {
@@ -777,6 +806,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 895
  },
  "Aspen_B_f_t": {
@@ -803,6 +833,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": false,
   "triangles": 1391
  },
  "Aspen_B_t": {
@@ -829,6 +860,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
+  "thinnable": true,
   "triangles": 2051
  },
  "NorwaySpruce_A": {
@@ -855,6 +887,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": true,
   "triangles": 10381
  },
  "NorwaySpruce_A_1": {
@@ -881,7 +914,116 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 2625
+ },
+ "NorwaySpruce_A_1_l": {
+  "cards": 814,
+  "faces": 912,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 0.4,
+  "height": 16.274,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.974,
+   16.274,
+   4.48
+  ],
+  "min": [
+   -4.322,
+   -1.515,
+   -4.136
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": false,
+  "triangles": 1817
+ },
+ "NorwaySpruce_A_1_l_t": {
+  "cards": 814,
+  "faces": 912,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 0.4,
+  "height": 16.274,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.744,
+   16.274,
+   4.33
+  ],
+  "min": [
+   -4.127,
+   -1.105,
+   -4.074
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": false,
+  "triangles": 5073
+ },
+ "NorwaySpruce_A_1_ll": {
+  "cards": 506,
+  "faces": 604,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 0.4,
+  "height": 16.274,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.375,
+   16.274,
+   4.31
+  ],
+  "min": [
+   -4.268,
+   -1.472,
+   -4.266
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": false,
+  "triangles": 1201
+ },
+ "NorwaySpruce_A_1_ll_t": {
+  "cards": 506,
+  "faces": 604,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 0.4,
+  "height": 16.274,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.164,
+   16.274,
+   4.187
+  ],
+  "min": [
+   -4.032,
+   -0.988,
+   -4.084
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": false,
+  "triangles": 3225
  },
  "NorwaySpruce_A_1_t": {
   "cards": 1218,
@@ -907,6 +1049,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 7497
  },
  "NorwaySpruce_A_2": {
@@ -933,6 +1076,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 1241
  },
  "NorwaySpruce_A_2_t": {
@@ -959,6 +1103,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 3345
  },
  "NorwaySpruce_A_f": {
@@ -985,6 +1130,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 7917
  },
  "NorwaySpruce_A_f_t": {
@@ -1011,7 +1157,116 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 12669
+ },
+ "NorwaySpruce_A_l": {
+  "cards": 1188,
+  "faces": 3977,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 3.551,
+  "height": 16.274,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.368,
+   16.274,
+   4.238
+  ],
+  "min": [
+   -4.157,
+   -1.095,
+   -4.029
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": true,
+  "triangles": 7917
+ },
+ "NorwaySpruce_A_l_t": {
+  "cards": 1188,
+  "faces": 3977,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 3.551,
+  "height": 16.274,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.274,
+   16.274,
+   4.157
+  ],
+  "min": [
+   -3.897,
+   -0.744,
+   -3.835
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": true,
+  "triangles": 12669
+ },
+ "NorwaySpruce_A_ll": {
+  "cards": 764,
+  "faces": 3553,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 3.551,
+  "height": 16.274,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.032,
+   16.274,
+   4.226
+  ],
+  "min": [
+   -4.018,
+   -1.187,
+   -3.827
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": true,
+  "triangles": 7069
+ },
+ "NorwaySpruce_A_ll_t": {
+  "cards": 764,
+  "faces": 3553,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 3.551,
+  "height": 16.274,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   3.893,
+   16.274,
+   4.13
+  ],
+  "min": [
+   -3.75,
+   -0.864,
+   -3.716
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": true,
+  "triangles": 10125
  },
  "NorwaySpruce_A_t": {
   "cards": 2420,
@@ -1037,6 +1292,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": true,
   "triangles": 20061
  },
  "NorwaySpruce_B": {
@@ -1063,6 +1319,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": true,
   "triangles": 11236
  },
  "NorwaySpruce_B_1": {
@@ -1089,7 +1346,116 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 2805
+ },
+ "NorwaySpruce_B_1_l": {
+  "cards": 866,
+  "faces": 964,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 0.4,
+  "height": 16.536,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.895,
+   16.536,
+   4.722
+  ],
+  "min": [
+   -4.534,
+   -1.557,
+   -4.125
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": false,
+  "triangles": 1921
+ },
+ "NorwaySpruce_B_1_l_t": {
+  "cards": 866,
+  "faces": 964,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 0.4,
+  "height": 16.536,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.637,
+   16.536,
+   4.586
+  ],
+  "min": [
+   -4.375,
+   -0.913,
+   -3.997
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": false,
+  "triangles": 5385
+ },
+ "NorwaySpruce_B_1_ll": {
+  "cards": 546,
+  "faces": 644,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 0.4,
+  "height": 16.536,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.548,
+   16.536,
+   4.596
+  ],
+  "min": [
+   -4.796,
+   -1.374,
+   -4.207
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": false,
+  "triangles": 1281
+ },
+ "NorwaySpruce_B_1_ll_t": {
+  "cards": 546,
+  "faces": 644,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 0.4,
+  "height": 16.536,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.392,
+   16.536,
+   4.405
+  ],
+  "min": [
+   -4.557,
+   -0.83,
+   -4.125
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": false,
+  "triangles": 3465
  },
  "NorwaySpruce_B_1_t": {
   "cards": 1308,
@@ -1115,6 +1481,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 8037
  },
  "NorwaySpruce_B_2": {
@@ -1141,6 +1508,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 1329
  },
  "NorwaySpruce_B_2_t": {
@@ -1167,6 +1535,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 3609
  },
  "NorwaySpruce_B_f": {
@@ -1193,6 +1562,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 8560
  },
  "NorwaySpruce_B_f_t": {
@@ -1219,7 +1589,116 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": false,
   "triangles": 13768
+ },
+ "NorwaySpruce_B_l": {
+  "cards": 1302,
+  "faces": 4306,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 3.418,
+  "height": 16.536,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.374,
+   16.536,
+   4.336
+  ],
+  "min": [
+   -4.65,
+   -1.176,
+   -3.938
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": true,
+  "triangles": 8560
+ },
+ "NorwaySpruce_B_l_t": {
+  "cards": 1302,
+  "faces": 4306,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 3.418,
+  "height": 16.536,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.251,
+   16.536,
+   4.218
+  ],
+  "min": [
+   -4.436,
+   -0.803,
+   -3.833
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": true,
+  "triangles": 13768
+ },
+ "NorwaySpruce_B_ll": {
+  "cards": 840,
+  "faces": 3844,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 3.418,
+  "height": 16.536,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.647,
+   16.536,
+   4.142
+  ],
+  "min": [
+   -4.319,
+   -1.168,
+   -4.063
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": true,
+  "triangles": 7636
+ },
+ "NorwaySpruce_B_ll_t": {
+  "cards": 840,
+  "faces": 3844,
+  "file": "res://assets/trees/trees_light.glb",
+  "foot": 3.418,
+  "height": 16.536,
+  "materials": [
+   "Bark",
+   "Leaves NorwaySpruce"
+  ],
+  "max": [
+   4.445,
+   16.536,
+   3.989
+  ],
+  "min": [
+   -4.194,
+   -0.669,
+   -3.975
+  ],
+  "species": "NorwaySpruce",
+  "textures": {
+   "leaves": "res://assets/trees/textures/spruce_2.png"
+  },
+  "thinnable": true,
+  "triangles": 10996
  },
  "NorwaySpruce_B_t": {
   "cards": 2640,
@@ -1245,6 +1724,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
+  "thinnable": true,
   "triangles": 21796
  },
  "Rowan_A": {
@@ -1273,6 +1753,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": true,
   "triangles": 968
  },
  "Rowan_A_1": {
@@ -1301,6 +1782,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 968
  },
  "Rowan_A_1_t": {
@@ -1329,6 +1811,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 1604
  },
  "Rowan_A_2": {
@@ -1357,6 +1840,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 336
  },
  "Rowan_A_2_t": {
@@ -1385,6 +1869,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 760
  },
  "Rowan_A_f": {
@@ -1413,6 +1898,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 862
  },
  "Rowan_A_f_t": {
@@ -1441,6 +1927,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 1286
  },
  "Rowan_A_t": {
@@ -1469,6 +1956,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": true,
   "triangles": 1604
  },
  "Rowan_B": {
@@ -1497,6 +1985,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": true,
   "triangles": 976
  },
  "Rowan_B_1": {
@@ -1525,6 +2014,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 976
  },
  "Rowan_B_1_t": {
@@ -1553,6 +2043,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 1636
  },
  "Rowan_B_2": {
@@ -1581,6 +2072,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 344
  },
  "Rowan_B_2_t": {
@@ -1609,6 +2101,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 784
  },
  "Rowan_B_f": {
@@ -1637,6 +2130,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 866
  },
  "Rowan_B_f_t": {
@@ -1665,6 +2159,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": false,
   "triangles": 1306
  },
  "Rowan_B_t": {
@@ -1693,6 +2188,7 @@
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
+  "thinnable": true,
   "triangles": 1636
  },
  "ScotsPine_A": {
@@ -1719,6 +2215,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": true,
   "triangles": 2614
  },
  "ScotsPine_A_1": {
@@ -1745,6 +2242,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 1738
  },
  "ScotsPine_A_1_t": {
@@ -1771,6 +2269,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 2618
  },
  "ScotsPine_A_2": {
@@ -1797,6 +2296,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 407
  },
  "ScotsPine_A_2_t": {
@@ -1823,6 +2323,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 875
  },
  "ScotsPine_A_f": {
@@ -1849,6 +2350,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 1850
  },
  "ScotsPine_A_f_t": {
@@ -1875,6 +2377,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 2954
  },
  "ScotsPine_A_t": {
@@ -1901,6 +2404,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": true,
   "triangles": 5246
  },
  "ScotsPine_B": {
@@ -1927,6 +2431,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": true,
   "triangles": 2409
  },
  "ScotsPine_B_1": {
@@ -1953,6 +2458,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 1585
  },
  "ScotsPine_B_1_t": {
@@ -1979,6 +2485,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 2485
  },
  "ScotsPine_B_2": {
@@ -2005,6 +2512,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 395
  },
  "ScotsPine_B_2_t": {
@@ -2031,6 +2539,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 839
  },
  "ScotsPine_B_f": {
@@ -2057,6 +2566,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 1655
  },
  "ScotsPine_B_f_t": {
@@ -2083,6 +2593,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": false,
   "triangles": 2695
  },
  "ScotsPine_B_t": {
@@ -2109,6 +2620,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
+  "thinnable": true,
   "triangles": 4957
  },
  "SilverBirch_A": {
@@ -2135,6 +2647,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": true,
   "triangles": 1741
  },
  "SilverBirch_A_1": {
@@ -2161,6 +2674,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 1741
  },
  "SilverBirch_A_1_t": {
@@ -2187,6 +2701,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 2581
  },
  "SilverBirch_A_2": {
@@ -2213,6 +2728,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 428
  },
  "SilverBirch_A_2_t": {
@@ -2239,6 +2755,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 988
  },
  "SilverBirch_A_f": {
@@ -2265,6 +2782,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 1601
  },
  "SilverBirch_A_f_t": {
@@ -2291,6 +2809,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 2161
  },
  "SilverBirch_A_t": {
@@ -2317,6 +2836,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": true,
   "triangles": 2581
  },
  "SilverBirch_B": {
@@ -2343,6 +2863,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": true,
   "triangles": 2020
  },
  "SilverBirch_B_1": {
@@ -2369,6 +2890,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 2020
  },
  "SilverBirch_B_1_t": {
@@ -2395,6 +2917,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 3004
  },
  "SilverBirch_B_2": {
@@ -2421,6 +2944,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 476
  },
  "SilverBirch_B_2_t": {
@@ -2447,6 +2971,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 1132
  },
  "SilverBirch_B_f": {
@@ -2473,6 +2998,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 1856
  },
  "SilverBirch_B_f_t": {
@@ -2499,6 +3025,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": false,
   "triangles": 2512
  },
  "SilverBirch_B_t": {
@@ -2525,6 +3052,7 @@
   "textures": {
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
+  "thinnable": true,
   "triangles": 3004
  }
 }
