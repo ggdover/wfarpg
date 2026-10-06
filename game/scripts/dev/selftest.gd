@@ -153,13 +153,16 @@ func _sight_checks() -> void:
 	var pole_away := (Vector2(hero.global_position.x, hero.global_position.z) - w._tree_xz[pole]).normalized()
 	var pole_side := Vector2(-pole_away.y, pole_away.x)
 	var start := Vector2(hero.global_position.x, hero.global_position.z)
-	# see-through: right behind the tall tree, the camera low beyond it, the bar low so that it alone is enough
+	# see-through: right behind the tall tree, the camera low beyond it, the bar low so that it alone is enough, as one
+	# tree hiding a point counts
 	w.set_trees("cut_trees", "veil")
 	rig.yaw = fposmod(rad_to_deg(atan2(-pole_away.y, pole_away.x)) + 180.0, 360.0)
 	rig.pitch = 15.0
 	rig.distance = 20.0
 	var bar := w.veil_cover
+	var by := w.veil_by
 	w.veil_cover = 0.05
+	w.veil_by = "seen"
 	_place_hero(w._tree_xz[pole] + pole_away * 5.0)
 	await _seconds(0.6)
 	var cover := w._cover
@@ -181,12 +184,30 @@ func _sight_checks() -> void:
 	var heavy: bool = not trees[pole].get("light", false)
 	w.veil_cover = bar
 	w.veil_solid_below = below
+	w.veil_by = by
 	_check("%s trees, see-through: the trees covering the area round the hero go see-through, on their stumps, none whole" % set,
 		cover > 0.0 and veil >= w.veil_amount and none_whole and on_stump and drawn,
 		"they cover %d%% of it, the tree see-through %.2f, %s, %s" % [roundi(cover * 100.0), veil, "on its stump" if on_stump else "no stump",
 			"none cut whole" if none_whole else "some cut whole"])
 	_check("%s trees, see-through: under the bar but over the lower one, they stay see-through" % set, held >= w.veil_amount,
 		"see-through %.2f" % held)
+	# a tree standing alone stays solid, as the defaults count only what two trees or more hide: the big pine on the
+	# meadow, the camera high beyond it, the hero right behind it
+	rig.yaw = 200.0
+	rig.pitch = 55.0
+	rig.distance = 20.0
+	_place_hero(Vector2(31.9, -18.7))
+	await _seconds(0.6)
+	var alone_solid := w._veiled.is_empty()
+	var alone_two := w._cover
+	w.veil_by = "seen"  # what it hides alone
+	w._measure_area(rig.camera, demo.hero.global_position)
+	var alone_one := w._cover
+	w.veil_by = by
+	await _seconds(0.3)
+	_check("%s trees, see-through: a tree alone stays solid, though it hides some of the area round the hero" % set,
+		alone_solid and alone_one > 0.1,
+		"it alone hides %d%% of the area, two trees %d%%; %s" % [roundi(alone_one * 100.0), roundi(alone_two * 100.0), "solid" if alone_solid else "see-through"])
 	_check("%s trees, see-through: below the lower bar, they come back, their stumps gone" % set, after == 0.0 and stump_gone,
 		"see-through %.2f, %s" % [after, "stump gone" if stump_gone else "stump still there"])
 	_check("%s trees, see-through: drawn with fewer cards while see-through, and all of them again after" % set, light and heavy,

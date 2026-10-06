@@ -36,15 +36,20 @@ General knowledge, public documentation, and third-party libraries and engines a
 - Open trodden ground, like Tallmo's square, is worn the same way as the paths: an uneven, asymmetric outline (no clean
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
-  sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera
-  (not yet confirmed by the user). Trees in the way, the user's design, which they're satisfied with, shadows kept: once
-  the trees in front of the hero cover 90% of it as the camera sees it, each of them goes evenly half see-through, all
-  but its stump (the user's settings; F2 has sliders for the share, the share below which they turn solid again (72%,
-  so they don't flicker; for the user to fine-tune), an area round the hero and how see-through). No
-  tree goes whole, no bare sticks, no hard x-ray edges. A tree's leaves must not move as it goes see-through: the user
-  saw them shift when it swapped to a model with other cards, so now it keeps half of its own cards where they are
-  and the rest dissolve as it fades. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`;
-  the cone (`camera_view.png`) and the earlier ways of cutting trees are in F2 to compare.
+  sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera (not
+  yet confirmed by the user). Trees in the way, the user's design, which they're satisfied with, shadows kept: once the
+  trees in front of the hero cover enough of it as the camera sees it, each of them goes evenly half see-through, all
+  but its stump. The user wants a tree standing alone to stay solid, even if it hides the hero, and no flipping back and
+  forth as the hero walks past one; thick forest, layer behind layer of trees, should go see-through, as should being
+  behind a tree with a very big crown, with much covered round the hero. So by default a point round the hero counts as
+  covered only once two trees each hide it through the gaps between their leaves, over the hero and 1.5 m round it,
+  see-through at 40%, solid again below 20%: from playtests (`game/scripts/dev/veiltune.gd`, `game/tools/veiltune.py`),
+  not yet confirmed by the user, who tunes them in F2 (it has sliders for both shares, the area and how see-through, and
+  the way of counting; the user's earlier settings: any part of a leaf card, the hero alone, 90% and 72%). No tree goes
+  whole, no bare sticks, no hard x-ray edges. A tree's leaves must not move as it goes see-through: the user saw them
+  shift when it swapped to a model with other cards, so now it keeps half of its own cards where they are and the rest
+  dissolve as it fades. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`; the cone
+  (`camera_view.png`) and the earlier ways of cutting trees are in F2 to compare.
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
   hard edges and cut corners instead of rounded ones, fine texture instead of soft gradients, slim orb rims.

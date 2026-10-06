@@ -2297,6 +2297,19 @@
   "y": 31784,
   "z": 29
  },
+ "s-twotrees": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791316016865,
+  "h": 1945,
+  "title": "Play demo: see-through only where the forest is thick",
+  "type": "frame",
+  "updatedAt": 1791316016865,
+  "w": 2740,
+  "x": 0,
+  "y": 62287,
+  "z": 38
+ },
  "s-ui": {
   "author": "claude",
   "color": "frost",
@@ -3207,6 +3220,45 @@
   "x": 28,
   "y": 32740,
   "z": 214
+ },
+ "tt-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791316016865,
+  "h": 1150,
+  "text": "# See-through only where the forest is thick\nYou asked for trees to stay solid when it's just one tree, even if it hides the hero, without flipping back and forth as you walk past one; and to go see-through in thick forest, layer behind layer, or behind a very big crown.\n\nI playtested it: the hero walked under every tree standing alone (160 walks, the camera from four sides at two heights), along the trail at three heights, and to 240 spots in the forest.\n\nThe old way counted any part of a leaf card, the gaps between the leaves too, so one crown read as a wall. And walking past a lone pine, its crown passes close to the camera and hides the hero and much round it for a moment, which flipped it see-through and back.\n\nNow a point round the hero counts only once **two trees or more** each hide it with their leaves or bark, not the gaps between the leaves; over the hero and 1.5 m round it; see-through at 40%, solid again below 20%:\n- Under trees alone: see-through in 7 of 160 walks, all with the camera lower (before: 154, flipping 269 times)\n- Along the trail: see-through about as long as the hero was really hidden, switching 11 times instead of 22\n- Where two trees or more hid the hero: see-through 98% of the time\n\nA big crown standing alone now stays solid too; in the forest, big crowns have other trees behind them. In F2: the sliders, and **cover counts**: Two trees, Leaves (one tree, gaps not counted) or Whole cards (as before).",
+  "type": "note",
+  "updatedAt": 1791316016865,
+  "w": 460,
+  "x": 28,
+  "y": 62315,
+  "z": 246
+ },
+ "tt-forest": {
+  "ar": 1.075,
+  "assetId": "90719292eb990243ca51c0c95d1a0632",
+  "author": "claude",
+  "caption": "Thick forest, before (left) and now (right): with the camera low, at 30° and at the default height, the trees in front of the hero still go see-through; with the larger area, a few more round it do.",
+  "createdAt": 1791316016865,
+  "type": "image",
+  "updatedAt": 1791316016865,
+  "w": 1400,
+  "x": 512,
+  "y": 62802,
+  "z": 248
+ },
+ "tt-pine": {
+  "ar": 6.163,
+  "assetId": "7b41ac6baad12010b292a4731da0f46d",
+  "author": "claude",
+  "caption": "Walking past the big pine on the meadow, a frame every half second, the default camera. Before (top), it flips see-through and back as its crown passes the camera; now (bottom), it stays solid.",
+  "createdAt": 1791316016865,
+  "type": "image",
+  "updatedAt": 1791316016865,
+  "w": 2200,
+  "x": 512,
+  "y": 62315,
+  "z": 247
  },
  "vl-about": {
   "author": "claude",

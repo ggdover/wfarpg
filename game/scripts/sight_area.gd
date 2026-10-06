@@ -2,7 +2,8 @@ class_name SightArea
 extends Control
 ## The area round the hero that decides when the trees in front of it go see-through (DemoWorld, cut_trees "veil"),
 ## drawn over the view while the performance panel's "show the area" is on: its outline, red while the trees covering it
-## are see-through, and the points across it that lines from the camera are tested to, red where some tree covers them;
+## are see-through, and the points across it that lines from the camera are tested to, red where the trees cover them
+## (DemoWorld.veil_by: two trees deep, by default);
 ## with how much of it the trees cover, and how much they must cover to go see-through, or once they are, how little
 ## before they come back (DemoWorld.solid_below, so that they don't flicker).
 
@@ -42,9 +43,10 @@ func _draw() -> void:
 	for q in outline:
 		if q.y < top.y:
 			top = q
+	var what: String = {"two": "two trees hide", "seen": "trees hide"}.get(world.veil_by, "trees cover")
 	var cover := roundi(world._cover * 100.0)
-	var text := ("trees cover %d%%: see-through until below %d%%" % [cover, roundi(world.solid_below() * 100.0)]) if over \
-		else ("trees cover %d%%, see-through from %d%%" % [cover, roundi(world.veil_cover * 100.0)])
+	var text := ("%s %d%%: see-through until below %d%%" % [what, cover, roundi(world.solid_below() * 100.0)]) if over \
+		else ("%s %d%%, see-through from %d%%" % [what, cover, roundi(world.veil_cover * 100.0)])
 	var font := get_theme_default_font()
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
 	draw_string_outline(font, top + Vector2(-width * 0.5, -10.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, 4, Color(0, 0, 0, 0.7))

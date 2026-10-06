@@ -103,7 +103,7 @@ The final images shown on the board, by board section:
 | `renders/play_demo_cone` | Play demo: the cone (the camera_view sketch beside it in the thicket, walking in behind a spruce, the ways of cutting trees on a walk, camera low and high, the dither close up) |
 | `renders/play_demo_trunk` | Play demo: hiding in the leaves (walking in behind a spruce, Trunk and the cone; the ways of cutting trees on a walk, camera high and low) |
 | `renders/play_demo_veil` | Play demo: see-through spruces (walking in behind a spruce, before and now; close up) |
-| `renders/play_demo_see_through` | Play demo: see-through, and faster see-through (a birch and a pine before and after; the trail with the area shown; the thicket with the camera low; the slowest low-camera views, all cards and fewer, and all see-through or all but the nearest hidden; see-through trees on their stumps) |
+| `renders/play_demo_see_through` | Play demo: see-through, faster see-through, without the shift, and only where the forest is thick (a birch and a pine before and after; the trail with the area shown; the thicket with the camera low; the slowest low-camera views, all cards and fewer, and all see-through or all but the nearest hidden; see-through trees on their stumps; a pine going see-through before and now, `no_shift.webp` animated; the slowest views with half the cards; walking past the lone pine, and thick forest, before and now) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History

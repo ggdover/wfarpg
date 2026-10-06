@@ -3707,6 +3707,64 @@
     "Leaving out the cards deepest in the crown costs 2 to 3 ms less than a random half, but bares the branches that a spruce's inner sprays hide"
    ],
    "cover": "renders/play_demo_see_through/no_shift_still.jpg"
+  },
+  {
+   "id": "play-demo-see-through-thick-forest",
+   "date": "2026-10-06",
+   "asked_at": "21:11",
+   "posted_at": "21:47",
+   "title": "See-through only where the forest is thick",
+   "section": "Play demo: see-through only where the forest is thick",
+   "asked": "Can you do playtests for me and try to find good settings for this? I want trees not to go see-through when it's just one tree, even if it covers the player and it's easy to tell the guy is still there, but still go see-through when there are many layers of trees and it's really thick, or when you're behind a tree with a very big crown: not when something just barely covers 95% of the player, but when a lot covers the player and quite a lot around it. When I walk under a standalone tree, I don't want it to go see-through and back, back and forth, as I walk past the trunk and then past the crown",
+   "changed": [
+    "A point round the hero now counts as covered only once two trees or more each hide it, by their bark or their leaves, not the gaps between the leaves (tested against each leaf card's picture); over the hero and 1.5 m round it; see-through at 40%, solid again below 20%",
+    "So a tree standing alone stays solid, however much of the hero it hides: under the trees alone, see-through in 7 of 160 walks, all with the camera lower (before: 154, flipping 269 times)",
+    "Along the trail, the trees are see-through about as long as the hero is really hidden, switching 11 times instead of 22; where two trees or more hide the hero, they're see-through 98% of the time",
+    "Cover counts in F2: Two trees, Leaves (one tree, gaps not counted) or Whole cards (as before); the area overlay names what it counts",
+    "Playtests kept as tools: scripts/dev/veiltune.gd walks the hero under every lone tree, along the trail and to forest spots, recording each way of counting; tools/veiltune.py plays the settings over them",
+    "The self-test checks that a lone tree stays solid though it hides the hero"
+   ],
+   "items": [
+    {
+     "id": "s-twotrees",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: see-through only where the forest is thick",
+     "author": "claude"
+    },
+    {
+     "id": "tt-about",
+     "type": "note",
+     "status": "new",
+     "text": "# See-through only where the forest is thick\nYou asked for trees to stay solid when it's just one tree, even if it hides the hero, without flipping back and forth as you walk past one; and to go see-through in thick forest, layer behind layer, or behind a very big crown.\n\nI playtested it: the hero walked under every tree standing alone (160 walks, the camera from four sides at two heights), along the trail at three heights, and to 240 spots in the forest.\n\nThe old way counted any part of a leaf card, the gaps between the leaves too, so one crown read as a wall. And walking past a lone pine, its crown passes close to the camera and hides the hero and much round it for a moment, which flipped it see-through and back.\n\nNow a point round the hero counts only once **two trees or more** each hide it with their leaves or bark, not the gaps between the leaves; over the hero and 1.5 m round it; see-through at 40%, solid again below 20%:\n- Under trees alone: see-through in 7 of 160 walks, all with the camera lower (before: 154, flipping 269 times)\n- Along the trail: see-through about as long as the hero was really hidden, switching 11 times instead of 22\n- Where two trees or more hid the hero: see-through 98% of the time\n\nA big crown standing alone now stays solid too; in the forest, big crowns have other trees behind them. In F2: the sliders, and **cover counts**: Two trees, Leaves (one tree, gaps not counted) or Whole cards (as before).",
+     "author": "claude"
+    },
+    {
+     "id": "tt-pine",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking past the big pine on the meadow, a frame every half second, the default camera. Before (top), it flips see-through and back as its crown passes the camera; now (bottom), it stays solid.",
+     "assetId": "7b41ac6baad12010b292a4731da0f46d",
+     "file": "renders/play_demo_see_through/lone_pine_walk.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "tt-forest",
+     "type": "image",
+     "status": "new",
+     "caption": "Thick forest, before (left) and now (right): with the camera low, at 30° and at the default height, the trees in front of the hero still go see-through; with the larger area, a few more round it do.",
+     "assetId": "90719292eb990243ca51c0c95d1a0632",
+     "file": "renders/play_demo_see_through/two_trees_forest.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "The old way counted any part of a leaf card, the gaps between the leaves too, so one crown read as a wall; and with the default camera, a lone pine's crown passes close to the camera as the hero walks past, hiding the hero and much round it for a moment, which flipped it see-through and back",
+    "Counting only the leaves themselves, over a larger area, still flipped lone trees in 68 of 160 walks, as a crown near the camera really does hide everything; counting layers of leaves caught too little of the thick forest; two trees deep told them apart best",
+    "Measuring two trees deep costs 3 to 4.5 ms deep in the forest, 30 times a second, against 1 ms before; the frame rate there didn't change, as the graphics card takes the time"
+   ],
+   "cover": "renders/play_demo_see_through/lone_pine_walk.jpg"
   }
  ]
 }

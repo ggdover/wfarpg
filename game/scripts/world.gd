@@ -47,6 +47,12 @@ var _cover := 0.0  # how much of the area round the hero the trees cover, 0..1, 
 var _veil_for := INF  # seconds since the trees last covered veil_cover of the area
 var _area_age := INF  # seconds since the area was last measured
 var _coverers := {}  # model version -> its shape as drawn, as a TriangleMesh, for how much of the area it covers
+var _seers := {}  # model version -> what each face of its shape (_coverers) shows: [the faces' UVs, a PackedVector2Array
+		# of three per face; each face's leaf card, a PackedInt32Array of indices into _card_leaves, -1 for bark]
+var _card_leaves := []  # each leaf card's picture as a CARD_SIZE square of bytes, 1 where it has a leaf (alpha >= 0.5)
+var _card_index := {}  # a leaf card's texture -> its index in _card_leaves
+const CARD_SIZE := 128  # about how big the cards' pictures are drawn, a few metres off
+const SEE_THROUGH_CARDS := 24  # a line through the gaps of this many cards in one tree counts as covered anyway
 ## the area round the hero, as last measured (for scripts/sight_area.gd): its outline, the points across it that lines
 ## from the camera were tested to, and which of those some tree covers (1) or not (0)
 var area_outline := PackedVector3Array()
@@ -131,13 +137,21 @@ var fade_near_camera := false
 ## "off". With "front" and "xray", whatever of a tree comes near the camera fades away too (cut_near). Their shadows
 ## stay.
 var cut_trees := "veil"
-## with "veil": the trees go see-through once they cover this share of the area round the hero (the user's 90%)
-var veil_cover := 0.9
+## with "veil": the trees go see-through once they cover this share of the area round the hero (40%, two trees deep
+## with veil_by "two", 1.5 m round the hero: the playtests' choice, tools/veiltune.py; the user had 90% of the hero
+## alone, by "cards", before)
+var veil_cover := 0.4
 ## and once they have, they stay so until they cover less than this share of it (at most veil_cover: solid_below), so
 ## that they don't flicker while what they cover hovers round veil_cover as the hero walks
-var veil_solid_below := 0.72
-## the area: the hero and this far round it (m), as the camera sees it (the user's: the hero alone)
-var veil_round := 0.0
+var veil_solid_below := 0.2
+## what covers a point of the area: "two", two trees or more that each hide it, by their bark or by a leaf card where
+## the card's picture has a leaf, so that one tree alone, however near the camera, never counts (the playtests'
+## choice, tools/veiltune.py); "seen", one such tree; or "cards", any part of a leaf card, its gaps between the leaves
+## too, as before
+var veil_by := "two"
+## the area: the hero and this far round it (m), as the camera sees it (1.5 m, from the playtests; the user had the
+## hero alone before)
+var veil_round := 1.5
 ## and how see-through they go: the share of what's behind them they let through (0 for never)
 var veil_amount := 0.5
 ## draw the area on the screen, with which of the points across it the trees cover (scripts/sight_area.gd)
@@ -449,9 +463,11 @@ func _thin_out(tree: Dictionary, v: float) -> void:
 ## How much of the area round the hero the trees in front of it cover (_cover), and which of them cover some of it
 ## (_covering). The area is the hero as the camera sees it, on a plane through its middle that faces the camera
 ## (HERO_BODY either side of the middle, and its height, or from above its footprint), and veil_round round that, its
-## corners rounded; lines from the camera go to a grid of points across it (AREA_COLUMNS by AREA_ROWS), and a point is
-## covered if some tree's shape as drawn (_coverer), leaves, branches or trunk, is on its line. Each line stops at the
-## first tree on it, but each tree is tested till it's found on one, so that one behind another counts too.
+## corners rounded; lines from the camera go to a grid of points across it (AREA_COLUMNS by AREA_ROWS). A point is
+## covered (veil_by) if two trees or more each hide it, by their bark or by their leaves, not the gaps between them
+## (_blocks); or one; or if some tree's shape as drawn (_coverer), any part of a leaf card, is on its line. A tree
+## covers some of the area if its shape is on any of the lines. Each line stops once it's covered, but each tree is
+## tested till it's found on one, so that one behind another counts too.
 func _measure_area(camera: Camera3D, hero_pos: Vector3) -> void:
 	var camera_pos := camera.global_position
 	var centre := hero_pos + Vector3(0.0, 0.9, 0.0)
@@ -482,6 +498,9 @@ func _measure_area(camera: Camera3D, hero_pos: Vector3) -> void:
 	var n := area_points.size()
 	area_covered.resize(n)
 	area_covered.fill(0)
+	var need := 2 if veil_by == "two" else 1  # trees that must hide a point
+	var hiding := PackedInt32Array()  # how many do, as far as they're counted
+	hiding.resize(n)
 	var cam2 := Vector2(camera_pos.x, camera_pos.z)
 	var hero2 := Vector2(hero_pos.x, hero_pos.z)
 	var reach := _max_reach + half.x + 1.0
@@ -509,9 +528,14 @@ func _measure_area(camera: Camera3D, hero_pos: Vector3) -> void:
 						continue
 					if shape == null:
 						shape = _coverer(tree)
-					if not shape.intersect_segment(inv * from, inv * p).is_empty():
-						area_covered[k] = 1
-						found = true
+					var hit := shape.intersect_segment(inv * from, inv * p)
+					if hit.is_empty():
+						continue
+					found = true  # some of it is on the line: it goes see-through with the rest, if they do
+					if not area_covered[k] and (veil_by == "cards" or _blocks(_cover_model(tree), shape, hit, inv * from, inv * p)):
+						hiding[k] += 1
+						if hiding[k] >= need:
+							area_covered[k] = 1
 				if found:
 					_covering[i] = 0.0
 	var on := 0
@@ -523,6 +547,14 @@ func _measure_area(camera: Camera3D, hero_pos: Vector3) -> void:
 ## A tree's shape as it's drawn near the camera (as _apply_trees picks it, with trimmed leaf cards if they are), for
 ## how much of the area round the hero it covers.
 func _coverer(tree: Dictionary) -> TriangleMesh:
+	var m := _cover_model(tree)
+	if not _coverers.has(m):
+		_coverers[m] = Models.mesh(m).generate_triangle_mesh()
+	return _coverers[m]
+
+
+## The version of a tree drawn near the camera, as _apply_trees picks it.
+func _cover_model(tree: Dictionary) -> String:
 	var m: String = tree["model"]
 	if tree["kind"] != "old":
 		if tree_lod > 0:
@@ -533,9 +565,96 @@ func _coverer(tree: Dictionary) -> TriangleMesh:
 			m += "_f"
 		if trimmed and Models.has(m + "_t"):
 			m += "_t"
-	if not _coverers.has(m):
-		_coverers[m] = Models.mesh(m).generate_triangle_mesh()
-	return _coverers[m]
+	return m
+
+
+## Does the tree, as it's drawn, hide b from a (both in its own space)? hit is where the line first meets its shape
+## (shape, from _coverer; model, its version). Bark hides it; a leaf card only where the card's picture has a leaf, so
+## the line goes on through the gaps between the leaves, card after card, until something hides b or nothing more is
+## on the line (veil_by "seen").
+func _blocks(model: String, shape: TriangleMesh, hit: Dictionary, a: Vector3, b: Vector3) -> bool:
+	var seer := _seer(model, shape)
+	var uvs: PackedVector2Array = seer[0]
+	var cards: PackedInt32Array = seer[1]
+	var corners: PackedVector3Array = seer[2]
+	var step := (b - a).normalized() * 0.002
+	for n in SEE_THROUGH_CARDS:
+		var f: int = hit["face_index"]
+		var card := cards[f]
+		if card < 0:
+			return true  # bark
+		var q: Vector3 = hit["position"]
+		var w := _barycentric(q, corners[f * 3], corners[f * 3 + 1], corners[f * 3 + 2])
+		var uv := uvs[f * 3] * w.x + uvs[f * 3 + 1] * w.y + uvs[f * 3 + 2] * w.z
+		var x := clampi(int(uv.x * CARD_SIZE), 0, CARD_SIZE - 1)
+		var y := clampi(int(uv.y * CARD_SIZE), 0, CARD_SIZE - 1)
+		if (_card_leaves[card] as PackedByteArray)[y * CARD_SIZE + x]:
+			return true  # a leaf
+		hit = shape.intersect_segment(q + step, b)
+		if hit.is_empty():
+			return false
+	return true
+
+
+## What each face of a model version's shape shows (_seers): its UVs and its leaf card, or bark; and the faces'
+## corners, as the shape has them.
+func _seer(model: String, shape: TriangleMesh) -> Array:
+	if not _seers.has(model):
+		var mesh := Models.mesh(model) as ArrayMesh
+		var uvs := PackedVector2Array()
+		var cards := PackedInt32Array()
+		for s in mesh.get_surface_count():
+			var a := mesh.surface_get_arrays(s)
+			var name := mesh.surface_get_name(s)
+			var card := -1
+			if name.begins_with("Leaves") or name.begins_with("Berries"):
+				card = _card_of(Models.info[model]["textures"]["berries" if name.begins_with("Berries") else "leaves"])
+			var uv: PackedVector2Array = a[Mesh.ARRAY_TEX_UV] if card >= 0 else PackedVector2Array()
+			var idx: PackedInt32Array = a[Mesh.ARRAY_INDEX]
+			for t in range(0, idx.size(), 3):
+				for c in 3:
+					uvs.append(uv[idx[t + c]] if card >= 0 else Vector2.ZERO)
+				cards.append(card)
+		_seers[model] = [uvs, cards, shape.get_faces()]
+	return _seers[model]
+
+
+## A leaf card's picture as bytes, 1 where it has a leaf, CARD_SIZE across (_card_leaves); returns its index there.
+func _card_of(texture: String) -> int:
+	if not _card_index.has(texture):
+		var img := (load(texture) as Texture2D).get_image()
+		if img == null:  # without a graphics card to keep it on, as with --headless
+			img = Image.load_from_file(ProjectSettings.globalize_path(texture))
+		if img.is_compressed():
+			img.decompress()
+		img.convert(Image.FORMAT_RGBA8)
+		img.resize(CARD_SIZE, CARD_SIZE, Image.INTERPOLATE_BILINEAR)
+		var data := img.get_data()
+		var leaves := PackedByteArray()
+		leaves.resize(CARD_SIZE * CARD_SIZE)
+		for k in leaves.size():
+			leaves[k] = 1 if data[k * 4 + 3] >= 128 else 0
+		_card_index[texture] = _card_leaves.size()
+		_card_leaves.append(leaves)
+	return _card_index[texture]
+
+
+## Where p lies in the triangle abc, as the weights of its corners.
+static func _barycentric(p: Vector3, a: Vector3, b: Vector3, c: Vector3) -> Vector3:
+	var v0 := b - a
+	var v1 := c - a
+	var v2 := p - a
+	var d00 := v0.dot(v0)
+	var d01 := v0.dot(v1)
+	var d11 := v1.dot(v1)
+	var d20 := v2.dot(v0)
+	var d21 := v2.dot(v1)
+	var den := d00 * d11 - d01 * d01
+	if absf(den) < 1e-12:
+		return Vector3(1.0, 0.0, 0.0)
+	var v := (d11 * d20 - d01 * d21) / den
+	var w := (d00 * d21 - d01 * d20) / den
+	return Vector3(1.0 - v - w, v, w)
 
 
 ## What's left of the trees that go (leave): with "trunks", every tree that's gone whole (_cut_whole), whose trunk
@@ -969,7 +1088,7 @@ func set_trees(option: String, value: Variant) -> void:
 func _build_occluders() -> void:
 	for tree: Dictionary in _tree_sets[_current]:
 		_occluder(tree)
-		_coverer(tree)
+		_seer(_cover_model(tree), _coverer(tree))
 		_profile(tree["model"])
 		_samples_of(tree["model"])
 

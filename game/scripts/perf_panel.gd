@@ -112,6 +112,8 @@ func setup(d: Node) -> void:
 	_slider(col, "veil_cover", "  see-through at", 0.05, 1.0, 0.05, w.veil_cover, percent, func(v: float) -> void: w.veil_cover = v)
 	_slider(col, "veil_solid_below", "  solid again below", 0.05, 1.0, 0.01, w.veil_solid_below, percent,
 		func(v: float) -> void: w.veil_solid_below = v)
+	_choice(col, "veil_by", "  cover counts", [["Two trees", "two"], ["Leaves", "seen"], ["Whole cards", "cards"]], w.veil_by,
+		func(v: String) -> void: w.veil_by = v)
 	_slider(col, "veil_round", "  area round hero", 0.0, 2.0, 0.1, w.veil_round, "%.1f m", func(v: float) -> void: w.veil_round = v)
 	_slider(col, "veil_amount", "  see-through by", 0.0, 0.9, 0.05, w.veil_amount, percent, func(v: float) -> void: w.set_trees("veil_amount", v))
 	_choice(col, "show_area", "  show the area", [["On", true], ["Off", false]], w.show_area, func(v: bool) -> void: w.show_area = v)
