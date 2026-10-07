@@ -97,7 +97,8 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   see-through trees drawn with half their cards have one too (Fewer cards or All cards). The spruce costs more to draw
   than every other tree together; for more frames in the forest, which the user asked for as a new setting that leaves
   the others as they are, F2's "Spruce leaves" has Light and Lighter (two copies of each spray instead of four, and
-  further apart), off by default. At the top of F2 are the
+  further apart). The user found the spruces look really good with Lighter, so it's the default, and both see-through
+  presets and "All on" set it. At the top of F2 are the
   see-through presets, the one in use marked until a setting changes; the user wants every other setting hidden under
   "Advanced settings", so new ones go there. Its models,
   ground textures and layout are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree

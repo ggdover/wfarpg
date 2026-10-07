@@ -257,23 +257,29 @@ func _sight_checks() -> void:
 			"%s at first; %d px tall, %d shown, %d hidden again; %d px wide, %d shown" % ["hidden" if closed else "shown", short.y, tall.y,
 				panel.size.y, short.x, tall.x])
 		panel.visible = shown
-		# the panel's spruce leaves: light and lighter draw the spruces with fewer cards, near and further off, their
-		# shadows from their trunks alone; as tuned, as before
+		# the panel's spruce leaves: lighter, the default and the presets', and light draw the spruces with fewer cards
+		# than as tuned, near and further off, their shadows from their trunks alone
 		var spruce: Dictionary = trees[trees.find_custom(func(t: Dictionary) -> bool: return t["model"].begins_with("NorwaySpruce") and t["kind"] == "full")]
 		var counts := []
 		var bare := []
-		for leaves: String in ["tuned", "light", "lighter", "tuned"]:
-			panel.choose("spruce_leaves", leaves)
-			await _frames(2)
+		var note_leaves := func() -> void:
 			var names: Array = spruce["names"]
 			counts.append([int(Models.info[names[0]]["cards"]), int(Models.info[names[1]]["cards"])])
 			bare.append(w._shadow_caster(spruce, names) == w._shadow_pictures.bare_meshes.get(spruce["model"]))
-		panel.use_preset("thick")  # marked again, as it was
-		_check("the F2 panel: lighter spruce leaves draw the spruces with fewer cards, their shadows from their trunks",
-			counts[1][0] < counts[0][0] * 0.6 and counts[2][0] < counts[1][0] and counts[1][1] < counts[0][1] and counts[2][1] < counts[1][1] \
-				and counts[3] == counts[0] and bare == [false, true, true, false],
-			"cards near and further off: as tuned %s, light %s, lighter %s, as tuned again %s; shadows from the trunk %s" % [counts[0], counts[1],
-				counts[2], counts[3], bare])
+		note_leaves.call()  # as the demo starts
+		for leaves: String in ["tuned", "light", "lighter"]:
+			panel.choose("spruce_leaves", leaves)
+			await _frames(2)
+			note_leaves.call()
+		panel.choose("spruce_leaves", "tuned")
+		panel.use_preset("thick")  # marked again, as it was, and with it lighter again
+		await _frames(2)
+		note_leaves.call()
+		_check("the F2 panel: lighter spruce leaves, the default and the presets', and light draw the spruces with fewer cards, their shadows from their trunks",
+			counts[0] == counts[3] and counts[4] == counts[3] and counts[2][0] < counts[1][0] * 0.6 and counts[3][0] < counts[2][0] \
+				and counts[2][1] < counts[1][1] and counts[3][1] < counts[2][1] and bare == [true, false, true, true, true],
+			"cards near and further off: at the start %s; as tuned %s, light %s, lighter %s; with thick forest %s; shadows from the trunk %s" % [
+				counts[0], counts[1], counts[2], counts[3], counts[4], bare])
 	_check("%s trees, see-through: below the lower bar, they come back, their stumps gone" % set, after == 0.0 and stump_gone,
 		"see-through %.2f, %s" % [after, "stump gone" if stump_gone else "stump still there"])
 	_check("%s trees, see-through: drawn with fewer cards while see-through, and all of them again after" % set, light and heavy,

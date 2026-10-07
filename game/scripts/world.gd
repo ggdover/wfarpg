@@ -108,8 +108,9 @@ var trimmed := true
 var fewer := false
 ## the spruces, which cost more to draw than every other tree together: "tuned", or "light", with two copies of each
 ## spray instead of four, near and in the first lighter version, and their shadows cast by their trunks alone (with
-## the picture of their leaves), or "lighter", with the sprays further apart too (tools/build_demo.py, LIGHT)
-var spruce_leaves := "tuned"
+## the picture of their leaves), or "lighter", with the sprays further apart too (tools/build_demo.py, LIGHT): the
+## default, as the user found the spruces look really good so
+var spruce_leaves := "lighter"
 const LIGHT := {"tuned": "", "light": "_l", "lighter": "_ll"}
 ## what casts a tree's shadow: a version of it, "full", "mid" (the first lighter one) or "far" (the lightest), or
 ## "pictures" (its trunk and branches, and a picture of its leaves as the sun sees them: TreeShadowPictures), or "off"

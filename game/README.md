@@ -165,7 +165,7 @@ Where it differs on purpose:
 ## The performance panel (F2)
 
 At the top, two presets for when trees go see-through: **Thick forest** (the defaults) and **One tree is enough**
-(under Trees in the way, above). The one in use is marked, from the start, until any setting under the advanced
+(under Trees in the way, above), both with the spruces' leaves Lighter (below). The one in use is marked, from the start, until any setting under the advanced
 settings changes, from the panel or by T, P or F4: the settings are then no longer the preset's. Then a frame-time
 graph of the last 3 seconds (one bar per frame: green is faster than 60 fps, amber than 30, red slower), with the frame
 rate now, on average, and in the slowest 5% and 1% of frames, and below it how long the graphics card takes per frame,
@@ -180,7 +180,7 @@ takes effect at once:
 | Path wear spread | How far the paths' wear spreads into the grass: 0 as in the mockups, up to 1 (the default), where the trampled grass, bare patches and stray stones reach further out and break up in patches, so it's less clear exactly where a path runs |
 | Leaf cards | Square cards, or cards trimmed to an outline round their leaves (the default): the same look, fewer pixels to draw |
 | Cards per clump | As tuned, or about half as many (a little bigger): sparser crowns |
-| Spruce leaves | **As tuned** (the default), **Light** or **Lighter**: the spruces with two copies of each spray instead of four, near and in their first lighter version, and their shadows cast by their trunks alone, with the picture of their leaves; Lighter also sets the sprays half as far again apart along the branches. The spruce costs more to draw than every other tree together (below, under Speed) |
+| Spruce leaves | **As tuned**, **Light** or **Lighter** (the default, chosen as the spruces still look really good so; also with the presets, and among the speed-ups): the spruces with two copies of each spray instead of four, near and in their first lighter version, and their shadows cast by their trunks alone, with the picture of their leaves; Lighter also sets the sprays half as far again apart along the branches. The spruce costs more to draw than every other tree together (below, under Speed) |
 | Tree shadows from | What casts a new tree's shadow: one of its versions (the full, mid or far one), its trunk and branches with a picture of its leaves as the sun sees them (**Pictures**, the default; under Speed), or nothing |
 | from trees within | Only the trees within this far of the camera cast shadows: all, 60 m (the default), 40 m or 25 m |
 | Lighter trees from | Where the new trees switch to their lighter versions |
@@ -312,7 +312,8 @@ Also:
   - **A card's clear pixels go first** (always; it looks the same): the leaf shader lets them go before it works out
     the fades (`shaders/leaves.gdshader`), which saves 1.4 ms in the forest with the camera low and 0.3 to 0.6 from
     above.
-  - **Spruce leaves** (the panel; off by default): Light and Lighter, against As tuned, measured back to back:
+  - **Spruce leaves** (the panel; Lighter by default since 7 October, the user's choice, and among the speed-ups, so
+    All as before puts them back as tuned): Light and Lighter, against As tuned, measured back to back:
 
     | View | As tuned | Light | Lighter |
     |---|---|---|---|
@@ -336,7 +337,7 @@ of the hero went whole there; with See-through, the defaults take 11.6 ms):
   2048, and 4096 costs 2.4 ms more.
 - **Render scale:** 75% saves 2.2 ms (119 fps), 50% 4.2 (156 fps).
 - **Leaf cards:** fewer cards per clump save 2.0 ms (116 fps). Spruce leaves Light saves 2.4 ms and Lighter 3.0
-  (measured on 7 October, against the defaults' 12.8 ms then).
+  (measured on 7 October, against the defaults' 12.8 ms then); with Lighter the default, the start takes 9.8 ms.
 - **Ambient occlusion:** off saves 1.9 ms (115 fps), with the camera low up to 3.7; very low saves 0.4; high costs
   1.8 ms more.
 - **Fade trees near camera:** on, it costs 1.1 ms, from the trees half faded near the camera.

@@ -14,14 +14,16 @@ const DIM := Color("#B7AE9A")
 const BRASS := Color("#C9A24A")
 const NO_LIMIT := 250.0  ## the frame rate limit slider's top end, which means no limit
 ## the speed-ups of the performance pass (README.md, Speed), each switch as it was before it and as it is now
-const BEFORE := {"trimmed": false, "tree_shadows": "mid", "shadow_reach": 0.0, "impostors": 0.0, "details": 3}
-const SPED_UP := {"trimmed": true, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "details": 4}
+const BEFORE := {"trimmed": false, "tree_shadows": "mid", "shadow_reach": 0.0, "impostors": 0.0, "details": 3, "spruce_leaves": "tuned"}
+const SPED_UP := {"trimmed": true, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "details": 4,
+	"spruce_leaves": "lighter"}
 ## when trees go see-through (DemoWorld, cut_trees "veil"): only where the forest is thick, two trees deep (the
-## defaults, from the playtests, tools/veiltune.py), or as soon as one tree hides most of the hero
+## defaults, from the playtests, tools/veiltune.py), or as soon as one tree hides most of the hero; both with the
+## spruces' lighter leaves, which the user chose as the default
 const THICK_FOREST := {"sight": "veil", "veil_by": "two", "veil_round": 1.5, "veil_cover": 0.4, "veil_solid_below": 0.2,
-	"veil_amount": 0.5, "veil_keep": 0}
+	"veil_amount": 0.5, "veil_keep": 0, "spruce_leaves": "lighter"}
 const ONE_TREE := {"sight": "veil", "veil_by": "seen", "veil_round": 0.0, "veil_cover": 0.9, "veil_solid_below": 0.5,
-	"veil_amount": 0.5, "veil_keep": 0}
+	"veil_amount": 0.5, "veil_keep": 0, "spruce_leaves": "lighter"}
 const PRESETS := {"thick": THICK_FOREST, "one": ONE_TREE}
 
 var demo: Node
@@ -80,8 +82,8 @@ func setup(d: Node) -> void:
 	for k: String in ["thick", "one"]:
 		var b := _button(row_p, {"thick": "Thick forest", "one": "One tree is enough"}[k], use_preset.bind(k))
 		b.toggle_mode = true
-		b.tooltip_text = {"thick": "Only where the forest is thick: two trees or more must hide 40% of the hero and 1.5 m round it; solid again below 20%. A tree standing alone stays solid",
-			"one": "As soon as one tree's leaves hide 90% of the hero; solid again below 50%"}[k]
+		b.tooltip_text = {"thick": "Only where the forest is thick: two trees or more must hide 40% of the hero and 1.5 m round it; solid again below 20%. A tree standing alone stays solid. Spruce leaves: Lighter",
+			"one": "As soon as one tree's leaves hide 90% of the hero; solid again below 50%. Spruce leaves: Lighter"}[k]
 		_preset_buttons[k] = b
 	_rule(col)
 	_graph = FrameGraph.new()
@@ -267,7 +269,7 @@ func preset_in_use() -> String:
 func _matching_preset() -> String:
 	var w: DemoWorld = demo.world
 	var now := {"sight": w.cut_trees, "veil_by": w.veil_by, "veil_round": w.veil_round, "veil_cover": w.veil_cover,
-		"veil_solid_below": w.veil_solid_below, "veil_amount": w.veil_amount, "veil_keep": w.veil_keep}
+		"veil_solid_below": w.veil_solid_below, "veil_amount": w.veil_amount, "veil_keep": w.veil_keep, "spruce_leaves": w.spruce_leaves}
 	for k: String in PRESETS:
 		var same := true
 		for setting: String in PRESETS[k]:
