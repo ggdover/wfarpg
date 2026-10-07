@@ -3992,6 +3992,79 @@
     "The new scenes first started where their water, cliffs and autumn trees were out of sight; they now start where these are in view, and the mood scenes with the camera low"
    ],
    "cover": "renders/play_demo_scenes/start_views.jpg"
+  },
+  {
+   "id": "play-demo-clear-view",
+   "date": "2026-10-08",
+   "asked_at": "00:05",
+   "posted_at": "00:49",
+   "title": "Trees out of the way",
+   "section": "Play demo: trees out of the way",
+   "asked": "A thick forest you walk through on a path is very cinematic and nice as it is now. But for most of the game, no more than one or two trees on the screen at a time, seen from above; that's how spaced out they should be. Tree crowns should never be just in front of the camera. In Path of Exile 2 most of a tree's crown is always gone; with the isometric camera angle, maybe cut away some metres of the top of all trees, as trees anywhere near the camera are no good for gameplay. And when the player walks behind a tree that's not close to the camera, it should go completely invisible, with only its stump showing. It's an ARPG: trees disturbing the view are unacceptable",
+   "changed": [
+    "Clear view, the new default in every scene but the thick forest's: any tree in the way of the hero goes, down to its stump",
+    "The crown cut: with the camera high, the trees near it end lower the nearer they stand, none tall in front of the hero; one cut below its leaves goes to its stump; lower, the trees grow back",
+    "All trees cut at one height, the user's idea, in F2 to compare; the thick forest's scenes keep the see-through",
+    "A new scene, the open forest: the trees about 14 m apart, one or two on the screen"
+   ],
+   "items": [
+    {
+     "id": "s-clearview",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: trees out of the way",
+     "author": "claude"
+    },
+    {
+     "id": "cv-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Trees out of the way\nYou said most of the game shouldn't have more than one or two trees on the screen at once, seen from above; that tree crowns should never be just in front of the camera; that maybe the top of every tree could be cut off at the isometric angle, as in Path of Exile 2; and that a tree the hero walks behind should go completely, all but its stump. It's an ARPG: trees must not get in the way of the view. A path through thick forest is cinematic as it is.\n- **Clear view**, now the default in every scene but the thick forest's: any tree in the way of the hero goes, down to its stump, and comes back once it's out of the way. Shadows stay\n- **Crown cut**, with the camera high: the trees near the camera end lower the nearer they stand, so none stands tall in front of the hero; a few metres past it they stand whole. A tree cut below its leaves goes to its stump rather than stand there a bare pole. As the camera comes down below 45° the trees grow back, and below 30° they're whole\n- Cutting the top off every tree, your idea, is in F2 to compare: Crown cut, All trees, at a height you choose\n- **Thick forest** and **Misty forest** keep the see-through, with the crown cut too\n- **Open forest**, a new scene: the trees about 14 m apart, one or two on the screen, the thick forest only past the edges\n\nFrame rates at the start: the thick forest 71 → 89 fps and the autumn hollow 82 → 109, as the crown cut draws fewer leaves; the open forest 151.\n\nNot decided yet: how far the cut reaches (now 80% of the camera's distance to the hero; F2), and whether the other scenes should be thinned to the open forest's spacing.",
+     "author": "claude"
+    },
+    {
+     "id": "cv-starts",
+     "type": "image",
+     "status": "new",
+     "caption": "Four scenes as they open, before and now: the crowns near the camera gone, the hero in the clear.",
+     "assetId": "ee54da86028659a3334042552c59223e",
+     "file": "renders/play_demo_clear_view/start_views.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "cv-pine",
+     "type": "image",
+     "status": "new",
+     "caption": "Standing behind a pine on the heath: before, it went see-through, or stood solid; now it goes to its stump. The default camera (top) and low (bottom).",
+     "assetId": "340b73a9a4abba2be168da78574146db",
+     "file": "renders/play_demo_clear_view/behind_a_pine.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "cv-open",
+     "type": "image",
+     "status": "new",
+     "caption": "The open forest: one or two trees on the screen from the usual camera, and low.",
+     "assetId": "b7d1d401e3aa30da76a3bba15edb4c33",
+     "file": "renders/play_demo_clear_view/open_forest.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/39_crown_cut_options.jpg",
+     "caption": "The crown cut at Storskogen's start: off, near the camera reaching 80% and 65% of the way to the hero, and all trees cut at 8 m"
+    },
+    {
+     "file": "renders/wip/40_crown_cut_bare_poles.jpg",
+     "caption": "Behind a pine, the first try: see-through and clear view, the camera high and low; the pines near the camera left as bare poles"
+    }
+   ],
+   "found": [
+    "Cut near the camera, pines were left bare poles, their crowns being high; a tree cut below its lowest leaves now goes to its stump instead",
+    "With the crown cut the thick forest runs at 89 fps rather than 71, and the autumn hollow at 109 rather than 82: fewer leaves near the camera"
+   ],
+   "cover": "renders/play_demo_clear_view/behind_a_pine.jpg"
   }
  ]
 }

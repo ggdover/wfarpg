@@ -238,14 +238,14 @@ func _sight_checks() -> void:
 			and is_equal_approx(w.veil_cover, 0.4) and is_equal_approx(w.veil_solid_below, 0.2)
 		_check("%s trees, see-through: the presets: one tree is enough, and the pine alone goes see-through; thick forest, and it's solid" % set,
 			one_goes and thick_back, "%s, then %s" % ["see-through" if one_goes else "solid", "solid" if thick_back else "see-through"])
-		# the preset in use is marked, thick forest at the start (the defaults are its settings), until a setting under
+		# the preset in use is marked, the scene's from the start (Storskogen's is Clear view), until a setting under
 		# Advanced changes; pressed again, it sets them back
 		var thick_marked := panel.preset_in_use()
 		panel.slide("veil_cover", 0.5)
 		var after_change := panel.preset_in_use()
 		panel.use_preset("thick")
 		_check("the F2 panel: the preset in use is marked, from the start; changing a setting under Advanced unmarks it",
-			at_start == "thick" and one_marked == "one" and thick_marked == "thick" and after_change == "" \
+			at_start == "clear" and one_marked == "one" and thick_marked == "thick" and after_change == "" \
 				and panel.preset_in_use() == "thick" and is_equal_approx(w.veil_cover, 0.4),
 			"marked: at the start %s, then %s, %s, after a change %s, pressed again %s" % [at_start, one_marked, thick_marked, after_change,
 				panel.preset_in_use()].map(func(k: String) -> String: return k if k else "none"))
@@ -280,7 +280,7 @@ func _sight_checks() -> void:
 			await _frames(2)
 			note_leaves.call()
 		panel.choose("spruce_leaves", "tuned")
-		panel.use_preset("thick")  # marked again, as it was, and with it lighter again
+		panel.use_preset("thick")  # marked again, and with it lighter again (and see-through, for the checks below)
 		await _frames(2)
 		note_leaves.call()
 		_check("the F2 panel: lighter spruce leaves, the default and the presets', and light draw the spruces with fewer cards, their shadows from their trunks",
@@ -416,14 +416,49 @@ func _sight_checks() -> void:
 	rig.distance = 25.0
 	await _seconds(0.6)
 	var gone := w.sight_fade(tree)
+	var gone_stump := w._stumped.has(tree)
 	rig.yaw = fposmod(rig.yaw + 180.0, 360.0)
 	await _seconds(1.5)
 	_check("%s trees, only those in the way: a tree ahead of the hero stays" % set, ahead == 0.0, "faded %.2f" % ahead)
-	_check("%s trees, only those in the way: they fade out, and back" % set, gone >= 1.0 and w.sight_fade(tree) == 0.0,
-		"faded %.2f, then %.2f" % [gone, w.sight_fade(tree)])
-	w.set_trees("cut_trees", "veil")
+	_check("%s trees, only those in the way (Clear view): they go, down to their stumps, and come back" % set,
+		gone >= 1.0 and gone_stump and w.sight_fade(tree) == 0.0 and not w._stumped.has(tree),
+		"faded %.2f %s, then %.2f" % [gone, "on its stump" if gone_stump else "without its stump", w.sight_fade(tree)])
+	# the crown cut: with the camera high, the trees near it end lower the nearer they stand, and those that would be
+	# left bare poles go to their stumps; as the camera comes down, they grow back
+	(demo._panel as PerfPanel).use_preset("clear")
+	_place_hero(start)
 	rig.pitch = 55.0
 	rig.distance = 20.0
+	await _seconds(0.6)
+	var crown: Vector4 = w._crown  # as the shaders have it
+	var camera_pos := rig.camera.global_position
+	var near_low := INF  # the cut of the tree nearest the camera, and of one further off, above the ground
+	var far_low := INF
+	var near_d := INF
+	var far_d := 0.0
+	for i: int in w._tree_xz.size():
+		var d := w._tree_xz[i].distance_to(Vector2(camera_pos.x, camera_pos.z))
+		if d < crown.x:
+			if d < near_d:
+				near_d = d
+				near_low = w._cut_at(i, camera_pos) - w._tree_y[i]
+			if d > far_d:
+				far_d = d
+				far_low = w._cut_at(i, camera_pos) - w._tree_y[i]
+	var cut_low := w._cut_low.size()
+	var stumps_for_all := w._cut_low.keys().all(func(i: int) -> bool: return w._stumped.has(i) and w._undrawn.has(i))
+	rig.pitch = 15.0
+	await _seconds(0.6)
+	var crown_low: Vector4 = w._crown
+	_check("%s trees, the crown cut: the camera high, the trees near it end lower the nearer they stand, those left bare go to their stumps; low, they grow back" % set,
+		is_equal_approx(crown.w, 1.0) and absf(crown.x - 0.8 * 20.0) < 0.5 and near_low < far_low and cut_low > 0 and stumps_for_all \
+			and crown_low.w == 0.0 and w._cut_low.is_empty(),
+		"reach %.1f m; cut %.1f m up at %.1f m from the camera, %.1f m at %.1f m; %d to their stumps%s; low, cut %s, %d to stumps" % [crown.x,
+			near_low, near_d, far_low, far_d, cut_low, "" if stumps_for_all else " (not all on stumps)", "off" if crown_low.w == 0.0 else "on",
+			w._cut_low.size()])
+	rig.pitch = 55.0
+	rig.distance = 20.0
+	_place_hero(start)
 
 
 ## Put the hero there, and the camera straight over to it, rather than gliding there past other trees.

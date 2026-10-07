@@ -162,5 +162,8 @@
  "ba84109f3ed3b8bbaedbb924d66bc6a9": "renders/play_demo_spruce_light/in_game.jpg",
  "b0746cadc30a284df77c2ffd3f73bdb5": "renders/play_demo_spruce_light/trees.jpg",
  "c293e1f59ce0e058a0bcee9bfc01fee1": "renders/play_demo_scenes/start_views.jpg",
- "55654e45f6d77d22f262319a320a87f5": "renders/play_demo_scenes/close_ups.jpg"
+ "55654e45f6d77d22f262319a320a87f5": "renders/play_demo_scenes/close_ups.jpg",
+ "ee54da86028659a3334042552c59223e": "renders/play_demo_clear_view/start_views.jpg",
+ "340b73a9a4abba2be168da78574146db": "renders/play_demo_clear_view/behind_a_pine.jpg",
+ "b7d1d401e3aa30da76a3bba15edb4c33": "renders/play_demo_clear_view/open_forest.jpg"
 }

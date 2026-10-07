@@ -31,6 +31,7 @@ void fragment() {
 	vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	vec2 veil = vec2(UV2.y > 0.5 ? max(sight_veil.x, sight_thin) : sight_veil.x, sight_veil.y);
 	float soft = max(cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD), veil_fade(veil, 1e6, CAMERA_POSITION_WORLD));  // leaves all the way down
+	soft = max(soft, crown_fade(world, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD));
 	if (faded_out(fade, world) || faded_fine(soft, world, FRAGCOORD.xy)) {
 		discard;
 	}

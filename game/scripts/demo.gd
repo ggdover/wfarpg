@@ -68,6 +68,7 @@ func _ready() -> void:
 	rig.world = world
 	hero.camera_rig = rig
 	_build_hud()
+	_panel.use_preset(scene.get("view", "clear"))  # what happens to the trees in the way, in this scene
 	if scene.has("pose"):  # a scene that starts somewhere of its own, or with the camera low
 		_pose(scene["pose"])
 	_read_args()

@@ -52,6 +52,10 @@ texture={
 
 [shader_globals]
 
+crown_cut={
+"type": "vec4",
+"value": Vector4(0, 0, 1.5, 0)
+}
 hero_position={
 "type": "vec3",
 "value": Vector3(0, 0, 0)

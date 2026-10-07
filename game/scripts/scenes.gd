@@ -5,14 +5,19 @@ extends RefCounted
 ## the Scenes button switches between them (Game.scene).
 ##
 ## A scene: id, title, area, mood, about (a line for the lists), and optionally reflections (screen-space
-## reflections, for water), ground (the ground shader's parameters for it, such as leaf_amount) and pose (where it
+## reflections, for water), ground (the ground shader's parameters for it, such as leaf_amount), pose (where it
 ## starts, if not at its area's start with the camera high: the hero's X and Z, the camera's yaw, pitch and distance,
-## as the demo's --pose; for a mood seen best from low down).
+## as the demo's --pose; for a mood seen best from low down) and view (what happens to the trees in the way: one of the
+## F2 panel's presets, scripts/perf_panel.gd; "clear" if not given, as the user wants for most of the game: any tree in
+## the way goes, down to its stump; the thick forest's scenes keep "thick", its trees going see-through, which the user
+## found cinematic there).
 
 const LIST := [
 	{"id": "storskogen", "title": "Storskogen", "area": "storskogen", "mood": "day",
 		"about": "The first demo: pine and spruce, a winding trail, a meadow"},
-	{"id": "thick_forest", "title": "Thick forest", "area": "thick_forest", "mood": "day",
+	{"id": "open_forest", "title": "Open forest", "area": "open_forest", "mood": "day",
+		"about": "The forest for most of the game: one or two trees on the screen"},
+	{"id": "thick_forest", "title": "Thick forest", "area": "thick_forest", "mood": "day", "view": "thick",
 		"about": "Dense spruce and pine, one winding path cleared through"},
 	{"id": "open_field", "title": "Open field", "area": "open_field", "mood": "day",
 		"about": "A big, rolling meadow: copses, lone trees and boulders"},
@@ -26,7 +31,7 @@ const LIST := [
 		"about": "Golden tussocks between dark pools, a boardwalk across"},
 	{"id": "pine_heath", "title": "Pine heath", "area": "pine_heath", "mood": "day",
 		"about": "Tall pines standing apart over moss, heather and granite"},
-	{"id": "misty_forest", "title": "Misty forest", "area": "thick_forest", "mood": "fog", "pose": "-46,-2,180,12,10",
+	{"id": "misty_forest", "title": "Misty forest", "area": "thick_forest", "mood": "fog", "pose": "-46,-2,180,12,10", "view": "thick",
 		"about": "The thick forest with fog rolling in"},
 	{"id": "misty_ravine", "title": "Misty ravine", "area": "river_cliffs", "mood": "fog", "reflections": true,
 		"pose": "10,12,270,15,14", "about": "The river and the cliffs in grey, damp mist"},

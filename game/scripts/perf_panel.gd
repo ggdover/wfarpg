@@ -17,14 +17,17 @@ const NO_LIMIT := 250.0  ## the frame rate limit slider's top end, which means n
 const BEFORE := {"trimmed": false, "tree_shadows": "mid", "shadow_reach": 0.0, "impostors": 0.0, "details": 3, "spruce_leaves": "tuned"}
 const SPED_UP := {"trimmed": true, "tree_shadows": "pictures", "shadow_reach": 60.0, "impostors": 90.0, "details": 4,
 	"spruce_leaves": "lighter"}
-## when trees go see-through (DemoWorld, cut_trees "veil"): only where the forest is thick, two trees deep (the
-## defaults, from the playtests, tools/veiltune.py), or as soon as one tree hides most of the hero; both with the
-## spruces' lighter leaves, which the user chose as the default
+## what happens to the trees in the way (DemoWorld): a clear view, for most of the game, as the user wants for an ARPG:
+## any tree in the way of the hero goes, down to its stump (cut_trees "line"); trees go see-through only where the
+## forest is thick, two trees deep (from the playtests, tools/veiltune.py), as in the thick forest's scenes; or as
+## soon as one tree hides most of the hero. With all of them, the crown cut keeps trees from the camera, and the
+## spruces have their lighter leaves, which the user chose as the default.
+const CLEAR_VIEW := {"sight": "line", "leave": "stumps", "crown": "near", "crown_reach": 0.8, "spruce_leaves": "lighter"}
 const THICK_FOREST := {"sight": "veil", "veil_by": "two", "veil_round": 1.5, "veil_cover": 0.4, "veil_solid_below": 0.2,
-	"veil_amount": 0.5, "veil_keep": 0, "spruce_leaves": "lighter"}
+	"veil_amount": 0.5, "veil_keep": 0, "crown": "near", "crown_reach": 0.8, "spruce_leaves": "lighter"}
 const ONE_TREE := {"sight": "veil", "veil_by": "seen", "veil_round": 0.0, "veil_cover": 0.9, "veil_solid_below": 0.5,
-	"veil_amount": 0.5, "veil_keep": 0, "spruce_leaves": "lighter"}
-const PRESETS := {"thick": THICK_FOREST, "one": ONE_TREE}
+	"veil_amount": 0.5, "veil_keep": 0, "crown": "near", "crown_reach": 0.8, "spruce_leaves": "lighter"}
+const PRESETS := {"clear": CLEAR_VIEW, "thick": THICK_FOREST, "one": ONE_TREE}
 
 var demo: Node
 var _frames: Array[Vector2] = []  # (time in s, frame ms)
@@ -77,13 +80,14 @@ func setup(d: Node) -> void:
 	var row_p := HBoxContainer.new()
 	row_p.add_theme_constant_override("separation", 8)
 	col.add_child(row_p)
-	var lp := _label(row_p, "Trees go see-through when", 13, INK)
-	lp.custom_minimum_size.x = 150
-	for k: String in ["thick", "one"]:
-		var b := _button(row_p, {"thick": "Thick forest", "one": "One tree is enough"}[k], use_preset.bind(k))
+	var lp := _label(row_p, "Trees in the way", 13, INK)
+	lp.custom_minimum_size.x = 110
+	for k: String in ["clear", "thick", "one"]:
+		var b := _button(row_p, {"clear": "Clear view", "thick": "Thick forest", "one": "One tree is enough"}[k], use_preset.bind(k))
 		b.toggle_mode = true
-		b.tooltip_text = {"thick": "Only where the forest is thick: two trees or more must hide 40% of the hero and 1.5 m round it; solid again below 20%. A tree standing alone stays solid. Spruce leaves: Lighter",
-			"one": "As soon as one tree's leaves hide 90% of the hero; solid again below 50%. Spruce leaves: Lighter"}[k]
+		b.tooltip_text = {"clear": "Any tree in the way of the hero goes, down to its stump. With the camera high, the trees near it end lower the nearer they stand, so none stands tall in front of the hero. Spruce leaves: Lighter",
+			"thick": "They go see-through only where the forest is thick: two trees or more must hide 40% of the hero and 1.5 m round it; solid again below 20%. A tree standing alone stays solid. The trees near a high camera cut as with Clear view. Spruce leaves: Lighter",
+			"one": "They go see-through as soon as one tree's leaves hide 90% of the hero; solid again below 50%. The trees near a high camera cut as with Clear view. Spruce leaves: Lighter"}[k]
 		_preset_buttons[k] = b
 	_rule(col)
 	_graph = FrameGraph.new()
@@ -145,6 +149,10 @@ func setup(d: Node) -> void:
 	_choice(col, "fade", "Fade trees near camera", [["On", true], ["Off", false]], w.fade_near_camera,
 		func(v: bool) -> void: w.set_trees("fade_near_camera", v))
 	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
+	_choice(col, "crown", "Crown cut, camera high", [["Near camera", "near"], ["All trees", "all"], ["Off", "off"]], w.crown_cut,
+		func(v: String) -> void: w.set_trees("crown_cut", v))
+	_slider(col, "crown_reach", "  near: reach", 0.4, 1.0, 0.05, w.crown_reach, percent, func(v: float) -> void: w.crown_reach = v)
+	_slider(col, "crown_height", "  all: trees end at", 3.0, 16.0, 0.5, w.crown_height, "%.1f m", func(v: float) -> void: w.crown_height = v)
 	_choice(col, "sight", "Trees in the way", [["See-through", "veil"], ["Cone", "cone"], ["Front", "front"], ["X-ray", "xray"], ["Area", "area"], ["Line", "line"], ["Keep", "off"]],
 		w.cut_trees, func(v: String) -> void: w.set_trees("cut_trees", v))
 	_slider(col, "veil_cover", "  see-through at", 0.05, 1.0, 0.05, w.veil_cover, percent, func(v: float) -> void: w.veil_cover = v)
@@ -269,7 +277,8 @@ func preset_in_use() -> String:
 func _matching_preset() -> String:
 	var w: DemoWorld = demo.world
 	var now := {"sight": w.cut_trees, "veil_by": w.veil_by, "veil_round": w.veil_round, "veil_cover": w.veil_cover,
-		"veil_solid_below": w.veil_solid_below, "veil_amount": w.veil_amount, "veil_keep": w.veil_keep, "spruce_leaves": w.spruce_leaves}
+		"veil_solid_below": w.veil_solid_below, "veil_amount": w.veil_amount, "veil_keep": w.veil_keep, "spruce_leaves": w.spruce_leaves,
+		"leave": w.leave, "crown": w.crown_cut, "crown_reach": w.crown_reach}
 	for k: String in PRESETS:
 		var same := true
 		for setting: String in PRESETS[k]:
@@ -354,7 +363,7 @@ func _walk_done(r: Dictionary) -> void:
 	if r.is_empty():
 		return
 	var settings := []
-	for k in ["trees", "trimmed", "fewer", "spruce_leaves", "tree_shadows", "shadow_reach", "impostors", "sight", "scale", "shadows", "shadow_size", "details", "ssao", "vsync", "fps"]:
+	for k in ["trees", "trimmed", "fewer", "spruce_leaves", "tree_shadows", "shadow_reach", "impostors", "sight", "crown", "scale", "shadows", "shadow_size", "details", "ssao", "vsync", "fps"]:
 		settings.append(_choices[k])
 	_runs.push_front("%d · avg %d, 5%% low %d, 1%% low %d fps%s\n    %s" % [_runs.size() + 1, roundi(r["fps"]), roundi(r["low5"]),
 		roundi(r["low1"]), "" if r["completed"] else " (stopped early)", ", ".join(settings)])

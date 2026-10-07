@@ -1,13 +1,14 @@
 # wfarpg: the play demo
 
-A first playable piece of Act 1, in Godot: eleven scenes, each an area of Swedish forest in a mood of its own, about
+A first playable piece of Act 1, in Godot: twelve scenes, each an area of Swedish forest in a mood of its own, about
 125 × 100 m to walk (Storskogen 155 × 110 m, the open field 210 m across). Pick one on the start screen, or switch in
 the game with the Scenes button or **Tab**.
 
 | Scene | What it shows |
 |---|---|
 | Storskogen | The first demo, a small part of Storskogen: dense pine and spruce in the west, like Tätskogen, with a winding trail and a fork to the north; an open meadow with lone trees and a low rise in the east, like Stora ängen |
-| Thick forest | Dense spruce and pine all round, with one winding path cleared through it, like where Storskogen starts |
+| Open forest | The forest as most of the game should be, for an ARPG: the trees stand about 14 m apart, so one or two are on the screen at a time from the usual camera, the thick forest only beyond the edges; moss, blueberries, heather, a glade, rocks and logs between, low rises and a hollow |
+| Thick forest | Dense spruce and pine all round, with one winding path cleared through it, like where Storskogen starts; its trees go see-through rather than to their stumps |
 | Open field | A very big, rolling meadow: copses of birch and aspen, lone trees, boulders, the forest only far off |
 | Autumn hollow | A grove of birch, aspen, rowan and alder in a hollow 2.8 m deep, 1–4 m between the trees, turning yellow, orange and red, the ground deep in their leaves; the forest round it still mostly green |
 | River and cliffs | A little river, with a rapid, under a band of mossy cliffs 3.5–4 m high: wooden steps up them, a path up where they peter out, a path along the top, a footbridge over the river, and stepping stones from a gravel bank |
@@ -95,9 +96,27 @@ place (`tools/reference_shots.py`).
   it instead.
   - Into each tree's vertices: how much of the sky each leaf and branch can see.
   - Into the ground: how much the trees shade each spot, separately for each tree set.
-- **Trees and the camera:** once the trees in front of the hero cover enough of the area round it, two trees deep, each
-  of them goes evenly see-through, standing on its stump (**See-through** in the panel; `update_sight`, `_cut_veil` and
-  `_measure_area` in `scripts/world.gd`). No tree goes whole. Their shadows stay.
+- **Trees and the camera, a clear view:** it's an ARPG, so trees must never get in the way of the view (the user).
+  In most scenes (**Clear view**, the panel's first preset), any tree in the way of the hero goes, down to its stump
+  (Trees in the way: **Line**; `_cut_whole` and `_in_way` in `scripts/world.gd`): as soon as any part of it is on a line
+  from the camera to the hero, and back once it's off the lines to a wider hero, so it doesn't flicker. Their shadows
+  stay.
+  - **The crown cut**, with the camera high (from 45° above the horizon, coming in from 30°): no tree crown is ever just
+    in front of the camera. Each tree ends below a ball round the camera, 80% as far across as the camera is from the
+    hero (**Crown cut, camera high**: Near camera, and its reach): one whose trunk enters the ball ends where its trunk
+    does, so the nearer the camera it stands, the lower it ends, and nothing of it is left floating. With the default
+    camera, the trees in front of the hero end 2–5 m up, those beside it about 7 m, those a few metres beyond it 8–12
+    m; further off they stand whole. The top dissolves over the last 1.5 m in the fine dither. A tree cut below its
+    lowest leaves, or lower than 2 m, goes to its stump rather than stand there a bare pole (`crown_fade` in
+    `shaders/common.gdshaderinc`, `_update_crown` in `scripts/world.gd`). As the camera comes down, the cut rises and
+    the trees grow back. **All trees** ends every tree at a height instead, as the user wondered (Path of Exile 2 cuts
+    most of its trees' crowns); Off as before.
+  - The thick forest's scenes keep the see-through below (**Thick forest**), which the user found cinematic there,
+    with the crown cut too; **One tree is enough** is the third preset. A scene's preset is in `scripts/scenes.gd`
+    (view).
+- **See-through, in the thick forest:** once the trees in front of the hero cover enough of the area round it, two
+  trees deep, each of them goes evenly see-through, standing on its stump (**See-through** in the panel;
+  `update_sight`, `_cut_veil` and `_measure_area` in `scripts/world.gd`). No tree goes whole. Their shadows stay.
   - The area is the hero as the camera sees it, on a plane through its middle facing the camera (its width and height,
     or from above its footprint), and **area round hero** round that, its corners rounded: 1.5 m. Lines from the
     camera go to a grid of points across it (5 by 7, those inside its outline). A point is covered once two trees or
@@ -148,7 +167,7 @@ place (`tools/reference_shots.py`).
     goes, but the trees in the way vanish rather than stay half there. Walking the trail with the camera low, keeping 1
     takes the slowest 5% of frames from 44-46 fps to 50-51 and the slowest 1% from 40-43 to 46, hiding 2.8 trees a
     frame on average.
-  - At the top of the panel, **Trees go see-through when** sets them all at once, **Thick forest** (these) or **One
+  - At the top of the panel, **Trees in the way** sets them all at once: **Clear view** (above), **Thick forest** (these) or **One
     tree is enough** (one tree's leaves hiding 90% of the hero alone; solid again below 50%: from the same playtests, one
     tree hiding the hero goes see-through 98% of the time, and needlessly half as often as the way before), the one in
     use marked. Under its advanced settings, each on its own: **see-through at** (40%),
@@ -188,8 +207,10 @@ Where it differs on purpose:
 
 ## The performance panel (F2)
 
-At the top, two presets for when trees go see-through: **Thick forest** (the defaults) and **One tree is enough**
-(under Trees in the way, above), both with the spruces' leaves Lighter (below). The one in use is marked, from the start, until any setting under the advanced
+At the top, three presets for the trees in the way: **Clear view** (the default in most scenes: any tree in the way goes to
+its stump, and the crown cut), **Thick forest** (see-through, the thick forest's scenes' default) and **One tree is
+enough** (under Trees in the way, above), all with the crown cut and the spruces' leaves Lighter (below). Each scene
+starts with its own (`scripts/scenes.gd`, view). The one in use is marked, from the start, until any setting under the advanced
 settings changes, from the panel or by T, P or F4: the settings are then no longer the preset's. Then a frame-time
 graph of the last 3 seconds (one bar per frame: green is faster than 60 fps, amber than 30, red slower), with the frame
 rate now, on average, and in the slowest 5% and 1% of frames, and below it how long the graphics card takes per frame,
@@ -210,7 +231,8 @@ takes effect at once:
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Trees in the way | How trees get out of the way (above): **See-through** (the default), with the presets at the panel's top to set what follows at once (**Thick forest**, the defaults, or **One tree is enough**: Leaves, the hero alone, 90% and 50%; both see-through by 50%, none hidden), how much of the area round the hero the trees must cover (**see-through at**, 40%) and how little before see-through trees turn solid again (**solid again below**, 20%, so they don't flicker), what covers it (**cover counts**: two trees or more hiding a point through the gaps between their leaves, the default, so a tree alone never goes see-through; one tree; or any part of a leaf card, as before), how far round the hero the area reaches (**area round hero**, 1.5 m), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, whether **see-through trees** are drawn with half their cards, each where it was (Fewer cards, the default, much faster deep in the forest) or all of them, and whether to **hide all but** the 1 or 2 see-through trees **nearest** the hero (off by default); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Crown cut, camera high | **Near camera** (the default): the trees near a high camera end lower the nearer they stand, out to a ball round the camera **reach** times as far across as the camera is from the hero (80%); **All trees**: every tree ends at a height (**trees end at**, 8 m), as the user wondered; or **Off**. Above |
+| Trees in the way | How trees get out of the way (above): **Line** in Clear view, the default in most scenes; **See-through** in Thick forest, with the presets at the panel's top to set what follows at once (**Thick forest**, the defaults, or **One tree is enough**: Leaves, the hero alone, 90% and 50%; both see-through by 50%, none hidden), how much of the area round the hero the trees must cover (**see-through at**, 40%) and how little before see-through trees turn solid again (**solid again below**, 20%, so they don't flicker), what covers it (**cover counts**: two trees or more hiding a point through the gaps between their leaves, the default, so a tree alone never goes see-through; one tree; or any part of a leaf card, as before), how far round the hero the area reaches (**area round hero**, 1.5 m), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, whether **see-through trees** are drawn with half their cards, each where it was (Fewer cards, the default, much faster deep in the forest) or all of them, and whether to **hide all but** the 1 or 2 see-through trees **nearest** the hero (off by default); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
 | Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
 | Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
 | Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |

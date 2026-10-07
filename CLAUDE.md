@@ -38,20 +38,21 @@ General knowledge, public documentation, and third-party libraries and engines a
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),
   sideways and up/down, from straight down to low behind the hero. WASD is assumed to move relative to the camera (not
-  yet confirmed by the user). Trees in the way, the user's design, which they're satisfied with, shadows kept: once the
-  trees in front of the hero cover enough of it as the camera sees it, each of them goes evenly half see-through, all
-  but its stump. The user wants a tree standing alone to stay solid, even if it hides the hero, and no flipping back and
-  forth as the hero walks past one; thick forest, layer behind layer of trees, should go see-through, as should being
-  behind a tree with a very big crown, with much covered round the hero. So by default a point round the hero counts as
-  covered only once two trees each hide it through the gaps between their leaves, over the hero and 1.5 m round it,
-  see-through at 40%, solid again below 20%: from playtests (`game/scripts/dev/veiltune.gd`, `game/tools/veiltune.py`),
-  which the user is happy with; they tune them in F2 (it has sliders for both shares, the area and how see-through, the
-  way of counting, and two presets, "Thick forest" and "One tree is enough": one tree's leaves hiding 90% of the hero
-  alone, solid again below 50%; the user's earlier settings: any part of a leaf card, the hero alone, 90% and 72%). No
-  tree goes whole, no bare sticks, no hard x-ray edges. A tree's leaves must not move as it goes see-through: the user
-  saw them shift when it swapped to a model with other cards, so now it keeps half of its own cards where they are and
-  the rest dissolve as it fades. The user's earlier ideas and complaints are in `ref_imgs/tree_disappear/`; the cone
-  (`camera_view.png`) and the earlier ways of cutting trees are in F2 to compare.
+  yet confirmed by the user). It's an ARPG, so trees must never get in the way of the view (the user, 8 October): no
+  tree crown ever just in front of the camera, and a tree the hero walks behind goes completely, all but its stump;
+  shadows stay. So by default (F2's "Clear view") any tree in the way of the hero goes to its stump, and with the camera
+  high the crown cut ends the trees near the camera lower the nearer they stand (none tall in front of the hero; one cut
+  below its leaves goes to its stump); the user wondered about cutting the top off all trees, as Path of Exile 2 does,
+  so that's in F2 too ("All trees"). For most of the game, trees should stand so far apart that one or two are on the
+  screen at a time (the open forest scene); a path through thick forest, as in the thick forest scene, is cinematic,
+  and there the earlier see-through stays, which the user was happy with: once the trees in front of the hero cover
+  enough of it, each goes evenly half see-through, all but its stump; a tree standing alone stays solid; a point round
+  the hero counts as covered once two trees each hide it through the gaps between their leaves, over the hero and 1.5 m
+  round it, see-through at 40%, solid again below 20% (from playtests, `game/scripts/dev/veiltune.gd`,
+  `game/tools/veiltune.py`; F2's "Thick forest" and "One tree is enough" presets, and sliders). A see-through tree's
+  leaves must not move as it fades: it keeps half of its own cards where they are and the rest dissolve. The user's
+  earlier ideas and complaints are in `ref_imgs/tree_disappear/`; the cone (`camera_view.png`) and the earlier ways of
+  cutting trees are in F2 to compare.
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
   hard edges and cut corners instead of rounded ones, fine texture instead of soft gradients, slim orb rims.
@@ -89,9 +90,9 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   leaf cards and clumps. The user's tuned settings are in `assets/trees/tree_settings.json`; build from them, not
   from the defaults in `treegen.py`. See its README.
 - `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, a grey-box
-  hero, the camera and controls, in eleven scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
-  button switches): a small part of Storskogen (dense forest, a trail, a meadow with a rise), a thick forest with one
-  path cleared, a very big open field, an autumn hollow (a grove sunk in the ground, trees 1-4 m apart turning
+  hero, the camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
+  button switches): a small part of Storskogen (dense forest, a trail, a meadow with a rise), an open forest spaced as
+  most of the game should be, a thick forest with one path cleared, a very big open field, an autumn hollow (a grove sunk in the ground, trees 1-4 m apart turning
   yellow, orange and red, the ground full of leaves), a river under 3-4 m cliffs with paths up and down to it, and, for
   the rest of `ref_imgs2/`, a forest lake, a bog, a pine heath, and fog and morning sunbeams. It runs with
   VSync off and no frame rate limit, as the user asked; its performance panel (F2) has a frame rate limit. The user

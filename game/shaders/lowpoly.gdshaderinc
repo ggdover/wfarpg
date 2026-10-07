@@ -30,6 +30,7 @@ void fragment() {
 	fade = max(fade, xray_fade(SCREEN_UV, VIEWPORT_SIZE, VERTEX, VIEW_MATRIX, CAMERA_POSITION_WORLD));
 	soft = max(cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD),
 			veil_fade(sight_veil, world.y - NODE_POSITION_WORLD.y, CAMERA_POSITION_WORLD));  // the stump stays
+	soft = max(soft, crown_fade(world, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD));
 #endif
 	if (faded_out(fade, world) || faded_fine(soft, world, FRAGCOORD.xy)) {
 		discard;

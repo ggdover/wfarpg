@@ -132,6 +132,31 @@ float tree_fade(float sight, vec3 vertex_view, vec3 node, vec3 camera_world) {
 	return max(sight, max(near, camera));
 }
 
+// The crown cut (crown_cut in scripts/world.gd, set every frame): with the camera high, no tree comes near it, nor
+// stands tall in front of the hero. Each tree ends below a ball round the camera, crown_cut.x metres across (its
+// radius; 0 for none): one whose trunk enters the ball ends where its trunk does, so the nearer the camera a tree
+// stands, the lower it ends, and nothing of it is left floating; or every tree ends crown_cut.y metres above its foot
+// (0 for no such limit). Its top dissolves over crown_cut.z metres up to the cut. crown_cut.w is how strongly it's on,
+// 0..1, from the camera's pitch: as it falls, the cut rises out of the way, so the trees grow back as the camera comes
+// down. Never in the shadow pass, so the shadows stay whole. node is the tree's foot (NODE_POSITION_WORLD).
+global uniform vec4 crown_cut;
+
+float crown_fade(vec3 world, vec3 node, vec3 camera_world) {
+	if (crown_cut.w <= 0.0 || distance(camera_world, main_camera_position) > 0.05) {
+		return 0.0;
+	}
+	float cut = 1e6;
+	float d = distance(node.xz, main_camera_position.xz);
+	if (crown_cut.x > d) {
+		cut = main_camera_position.y - node.y - sqrt(crown_cut.x * crown_cut.x - d * d);
+	}
+	if (crown_cut.y > 0.0) {
+		cut = min(cut, crown_cut.y);
+	}
+	cut += (1.0 - crown_cut.w) * 40.0;
+	return smoothstep(cut - crown_cut.z, cut, world.y - node.y);
+}
+
 // Autumn: a leaf's green turned yellow, orange or red, as scripts/world.gd sets it per tree (autumn, from the tree's
 // tint in its area's layout): x how far, 0..1, y which way, 0 yellow, 0.5 orange, 1 red. Brighter greens turn
 // brighter, so the leaves keep their light and shade.

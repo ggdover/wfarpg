@@ -130,6 +130,23 @@ var _shadow_pictures_baking := false
 ## fade out trees near a high camera, as the mockups hide them, though never near the hero (scripts/camera_rig.gd);
 ## off, as trees should only go once they're in the way
 var fade_near_camera := false
+## the crown cut, while the camera is high (crown_fade in shaders/common.gdshaderinc): "near", the trees near the camera
+## end below a ball round it, crown_reach times as far across as the camera is from the hero, lower the nearer they
+## stand, so none comes near the camera or stands tall in front of the hero (the user: tree crowns should never be just
+## in front of the camera; in an ARPG trees must not get in the way of the view); "all", every tree ends crown_height
+## metres up, as Path of Exile 2 cuts most of its trees' crowns; or "off". A tree cut so low that less than CROWN_KEEP
+## of its crown would be left, or lower than STUMP_CUT, goes to its stump rather than stand there a bare pole. It
+## comes on as the camera rises from CROWN_PITCH.x to .y degrees above the horizon; lower, the trees grow back.
+var crown_cut := "near"
+var crown_reach := 0.8
+var crown_height := 8.0
+const CROWN_BAND := 1.5  # metres up to the cut over which a tree's top dissolves
+const CROWN_PITCH := Vector2(30.0, 45.0)
+const STUMP_CUT := 2.0
+const CROWN_KEEP := 1.0  # metres
+var _crown := Vector4.ZERO  # the crown cut as the shaders have it (crown_cut)
+var _crown_bases := {}  # model -> how high its lowest leaves are, unscaled (_crown_base)
+var _cut_low := {}  # tree index -> true while the crown cut takes it lower than STUMP_CUT: it's drawn as its stump
 ## which trees go, so that you can see past them (update_sight): "veil", no tree whole, but once the trees in front of
 ## the hero cover veil_cover of the area round it (the hero and veil_round round it, as the camera sees it), each of
 ## them goes evenly see-through, standing on its stump (_cut_veil); "front",
@@ -276,6 +293,7 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	if _current == "":
 		return
 	var camera_pos := camera.global_position
+	_update_crown(camera, hero_pos)
 	var xray := 1.0 if cut_trees == "xray" else 0.0
 	if xray != _xray:
 		_xray = xray
@@ -299,6 +317,75 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 		RenderingServer.global_shader_parameter_set("cone_shape", Vector4(1.0, cone_soft, cone_power, 0.0))
 	_cone = cone
 	_leave(camera, hero_pos, delta, reach, window)
+
+
+## The crown cut (crown_cut) as the shaders have it, from the camera's pitch and its distance from the hero; and the
+## trees it takes lower than STUMP_CUT, which go to their stumps (_cut_low).
+func _update_crown(camera: Camera3D, hero_pos: Vector3) -> void:
+	var camera_pos := camera.global_position
+	var pitch := rad_to_deg(asin(clampf(camera.global_basis.z.y, -1.0, 1.0)))  # above the horizon, looking down
+	var on := smoothstep(CROWN_PITCH.x, CROWN_PITCH.y, pitch) if crown_cut != "off" else 0.0
+	var reach := crown_reach * camera_pos.distance_to(hero_pos + Vector3(0.0, 1.4, 0.0)) if crown_cut == "near" else 0.0
+	var crown := Vector4(reach, crown_height if crown_cut == "all" else 0.0, CROWN_BAND, on)
+	if not crown.is_equal_approx(_crown):
+		_crown = crown
+		RenderingServer.global_shader_parameter_set("crown_cut", crown)
+	var now := {}
+	var trees: Array = _tree_sets[_current]
+	if on > 0.0 and reach > 0.0:
+		var c := Vector2(camera_pos.x, camera_pos.z)
+		for cx in range(floori((c.x - reach) / CELL), floori((c.x + reach) / CELL) + 1):
+			for cz in range(floori((c.y - reach) / CELL), floori((c.y + reach) / CELL) + 1):
+				for i: int in _tree_cells.get(Vector2i(cx, cz), []):
+					if _cut_at(i, camera_pos) - _tree_y[i] < maxf(STUMP_CUT, float(trees[i]["crown_base"]) + CROWN_KEEP):
+						now[i] = true
+	var old := _cut_low
+	_cut_low = now
+	for i: int in old:
+		if not now.has(i):
+			_refresh_drawn(i)
+	for i: int in now:
+		if not old.has(i):
+			_refresh_drawn(i)
+
+
+## How high a model's lowest leaves are, unscaled: below that, it's bare trunk. 0 for one without leaf cards of its own
+## (the mockups' trees, all one surface).
+func _crown_base(model: String) -> float:
+	if not _crown_bases.has(model):
+		var lo := INF
+		var m := Models.mesh(model)
+		for k in m.get_surface_count():
+			if m.surface_get_name(k).begins_with("Leaves"):
+				for v: Vector3 in m.surface_get_arrays(k)[Mesh.ARRAY_VERTEX]:
+					lo = minf(lo, v.y)
+		_crown_bases[model] = lo if lo < INF else 0.0
+	return _crown_bases[model]
+
+
+## Where the crown cut ends the tree (the height in the world, as crown_fade in the shaders works it out), or INF.
+func _cut_at(i: int, camera_pos: Vector3) -> float:
+	if _crown.w <= 0.0:
+		return INF
+	var cut := INF
+	if _crown.x > 0.0:
+		var d := Vector2(camera_pos.x, camera_pos.z).distance_to(_tree_xz[i])
+		if d < _crown.x:
+			cut = camera_pos.y - sqrt(_crown.x * _crown.x - d * d)
+	if _crown.y > 0.0:
+		cut = minf(cut, _tree_y[i] + _crown.y)
+	return cut + (1.0 - _crown.w) * 40.0
+
+
+## The part of the line from a to b below the crown cut's height (cut, in the world), as [a, b], or [] if none of it is.
+static func _below_cut(a: Vector3, b: Vector3, cut: float) -> Array:
+	if a.y > cut and b.y > cut:
+		return []
+	if a.y > cut:
+		a = a.lerp(b, (a.y - cut) / (a.y - b.y))
+	elif b.y > cut:
+		b = b.lerp(a, (b.y - cut) / (b.y - a.y))
+	return [a, b]
 
 
 ## The cone (cut_trees "cone"): where the hero is on the screen, how big (cone_tip times its size there), how far from
@@ -530,11 +617,18 @@ func _measure_area(camera: Camera3D, hero_pos: Vector3) -> void:
 				var inv: Transform3D = tree["inv"]
 				var shape: TriangleMesh = null
 				var found := false
+				var cut := _cut_at(i, camera_pos)
 				for k in n:
 					if found and area_covered[k]:
 						continue  # nothing more to learn from this line
 					var p := area_points[k]
 					var from := camera_pos + (p - camera_pos).normalized() * NEAR_GONE
+					if cut < INF:  # only what's left of the tree below the crown cut
+						var part := _below_cut(from, p, cut)
+						if part.is_empty():
+							continue
+						from = part[0]
+						p = part[1]
 					if not _through(p, from, c.x, c.y, bound.x, y + bound.y, y + bound.z):
 						continue
 					if shape == null:
@@ -698,6 +792,8 @@ func _leave(camera: Camera3D, hero_pos: Vector3, delta: float, reach: float, win
 		check[i] = true
 	for i: int in _veiled:
 		check[i] = true
+	for i: int in _cut_low:
+		check[i] = true
 	if leave != "nothing" and (not window.is_empty() or (reach > 0.0 and leave == "trunks")):
 		var lo := Vector2(camera_pos.x, camera_pos.z) - Vector2.ONE * (reach + _max_reach)
 		var hi := Vector2(camera_pos.x, camera_pos.z) + Vector2.ONE * (reach + _max_reach)
@@ -732,6 +828,9 @@ func _leave(camera: Camera3D, hero_pos: Vector3, delta: float, reach: float, win
 		if cut_trees == "veil":
 			pole = false
 			stump = _veiled.has(i) and not gone
+		if _cut_low.has(i):  # the crown cut leaves only its stump
+			pole = false
+			stump = true
 		if pole:
 			var f: float = _trunks.get(i, -1.0)
 			if f < 0.0:
@@ -972,9 +1071,16 @@ func _in_way(tree: Dictionary, i: int, camera_pos: Vector3, hero_pos: Vector3, p
 		return false
 	var shape: TriangleMesh = null
 	var inv: Transform3D = tree["inv"]
+	var cut := _cut_at(i, camera_pos)
 	for p in points:
 		# from where the fade of what the camera is about to touch ends: nearer than that, nothing shows anyway
 		var from := camera_pos + (p - camera_pos).normalized() * NEAR_GONE
+		if cut < INF:  # only what's left of the tree below the crown cut
+			var part := _below_cut(from, p, cut)
+			if part.is_empty():
+				continue
+			from = part[0]
+			p = part[1]
 		if not _through(p, from, x, z, bound.x, y + bound.y, y + bound.z):
 			continue
 		if shape == null:
@@ -1041,7 +1147,7 @@ func nearest_tree(p: Vector3, reach: float) -> int:
 
 ## Draw the tree or not, as its fades ask: not while it is faded out near the camera or out of the way.
 func _refresh_drawn(i: int) -> void:
-	var want := not (_skipped.has(i) or float(_sight.get(i, 0.0)) >= 1.0)
+	var want := not (_skipped.has(i) or _cut_low.has(i) or float(_sight.get(i, 0.0)) >= 1.0)
 	if want == (not _undrawn.has(i)):
 		return
 	if want:
@@ -1075,6 +1181,7 @@ func _unskip() -> void:
 	_trunks.clear()
 	_stumped.clear()
 	_skipped.clear()
+	_cut_low.clear()
 	_undrawn.clear()
 	_sight.clear()
 	_clear_for.clear()
@@ -1089,7 +1196,7 @@ func _unskip() -> void:
 
 
 ## Change how the trees are drawn, now: any of trimmed, fewer, spruce_leaves, tree_shadows, shadow_reach, lod_near,
-## lod_far, impostors_from, fade_near_camera, cut_trees, leave, cut_by, cut_near.
+## lod_far, impostors_from, fade_near_camera, cut_trees, leave, cut_by, cut_near, crown_cut.
 func set_trees(option: String, value: Variant) -> void:
 	_unskip()
 	set(option, value)
@@ -1298,7 +1405,8 @@ func _build_trees(which: String) -> Array:
 		var tree := {"model": model, "kind": kind, "species": t["kind"], "draw": [], "shadow": RID(), "impostor": RID(), "stump": RID(), "pole": RID(),
 			"bound": _bound(model) * s, "s": s, "trunk": _trunk(model) * s, "xf": xf, "inv": xf.affine_inverse(),
 			"trunk_top": float(Models.info[model + "_trunk"]["height"]) * s if Models.has(model + "_trunk") else 0.0,
-			"cut": float(Models.info[model + "_stump"]["cut"]) * s if Models.has(model + "_stump") else 0.5}
+			"cut": float(Models.info[model + "_stump"]["cut"]) * s if Models.has(model + "_stump") else 0.5,
+			"crown_base": _crown_base(model) * s}
 		_max_reach = maxf(_max_reach, (tree["bound"] as Vector3).x)
 		if t.has("tint"):  # its leaves turned for autumn (shaders/common.gdshaderinc, autumn_tint)
 			tree["autumn"] = Vector2(t.get("turn", 1.0), t["tint"])
