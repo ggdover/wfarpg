@@ -94,6 +94,35 @@ static func _material_for(model: String, surface: String, imported: Material) ->
 		return m)
 
 
+## The kit's material, for an area's own models (scripts/world.gd, _build_extras).
+static func lowpoly_material() -> Material:
+	return _cached("lowpoly", func() -> Material:
+		var m := ShaderMaterial.new()
+		m.shader = load("res://shaders/lowpoly.gdshader")
+		return m)
+
+
+## Water (shaders/water.gdshader), in WATER's colours for its kind: Lake, River or Pool.
+static func water_material(kind: String) -> Material:
+	return _cached("water " + kind, func() -> Material:
+		var m := ShaderMaterial.new()
+		m.shader = load("res://shaders/water.gdshader")
+		var look: Dictionary = WATER.get(kind, WATER["Lake"])
+		for param: String in look:
+			m.set_shader_parameter(param, look[param])
+		return m)
+
+
+## The kinds of water: a forest lake's dark, brownish water, a stream's clearer water over stones, a bog pool's black.
+const WATER := {
+	"Lake": {"shallow": Color("#4A4632"), "deep": Color("#101D22"), "clear": 0.9, "ripple": 0.005, "roughness": 0.02,
+		"specular": 0.7},
+	"River": {"shallow": Color("#5A5438"), "deep": Color("#17241E"), "clear": 0.45, "ripple": 0.06, "roughness": 0.08},
+	"Pool": {"shallow": Color("#3A3222"), "deep": Color("#161B21"), "clear": 0.35, "ripple": 0.004, "roughness": 0.02,
+		"specular": 0.7},
+}
+
+
 static func _leaf_material(texture: String) -> Material:
 	return _cached(texture, func() -> Material:
 		var m := ShaderMaterial.new()

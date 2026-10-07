@@ -11,6 +11,7 @@ uniform float roughness = 0.75;
 instance uniform float sight_fade = 0.0;  // fading out of the way (tree_fade in shaders/common.gdshaderinc)
 instance uniform vec2 sight_veil = vec2(0.0);  // how see-through, and from how high (veil_fade)
 instance uniform float sight_thin = 0.0;  // how see-through the cards its thinned version leaves out are
+instance uniform vec2 autumn = vec2(0.0);  // how far the leaves have turned, and to what (autumn_tint)
 uniform float specular_level = 0.25;
 // ambient occlusion baked in Blender, in UV2.x (see tools/build_demo.py, bake_ao)
 uniform float ao_light_affect = 0.2;
@@ -33,8 +34,9 @@ void fragment() {
 	if (faded_out(fade, world) || faded_fine(soft, world, FRAGCOORD.xy)) {
 		discard;
 	}
-	float grey = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
-	ALBEDO = mix(vec3(grey), c.rgb, mood_grade.x) * mood_grade.y;
+	vec3 leaf = autumn_tint(c.rgb, autumn);
+	float grey = dot(leaf, vec3(0.2126, 0.7152, 0.0722));
+	ALBEDO = mix(vec3(grey), leaf, mood_grade.x) * mood_grade.y;
 	ALPHA = c.a;
 	ALPHA_SCISSOR_THRESHOLD = 0.5;
 	ROUGHNESS = roughness;

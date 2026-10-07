@@ -1,18 +1,21 @@
 """Builds the play demo's assets for the Godot project in game/. Run from this folder with Blender 5.2:
 
-    blender -b --factory-startup -P build_demo.py -- [models] [stumps] [layout] [ground]
+    blender -b --factory-startup -P build_demo.py -- [models] [stumps] [layout] [ground] [--area=name,name]
 
 models  the mockups' low-poly kit (the old trees, rocks, plants and props) and the tree portfolio's trees, built from
         assets/trees/tree_settings.json with two lighter versions each, as .glb files in assets/kit and assets/trees,
-        with the leaf cards they use and ambient occlusion baked into them
+        with the leaf cards they use and ambient occlusion baked into them (kit: the kit alone, not the trees)
 stumps  every tree's stump, which the game shows in place of a tree in the way, and its bare trunk, which its x-ray
         leaves standing, in assets/trees/stumps.glb
-layout  where every tree, rock and plant stands, in data/demo_layout.json
+layout  where every tree, rock and plant stands, and an area's other things (walls), in data/areas/<area>.json; and
+        its own models (water, stairs, bridges), if it has any, in assets/areas/<area>/extras.glb
 ground  the terrain's heights, the mockups' ground shader baked into textures, and the trees' shade on the ground
-        (from the layout), in assets/ground
+        (from the layout), in assets/areas/<area>
 
-With no stage named, all four run, in that order. The area itself is described in demo_area.py.
+With no stage named, all four run, in that order; layout and ground for every area in tools/areas (AREAS), or only
+for those named with --area. Each area is described by its module there.
 """
+import importlib
 import json
 import math
 import os
@@ -29,12 +32,119 @@ ROOT = os.path.dirname(GAME)
 MOCKUPS = os.path.join(ROOT, "mockups")
 TREES = os.path.join(ROOT, "assets", "trees")
 sys.path[:0] = [HERE, MOCKUPS, TREES]
-import demo_area as D  # noqa: E402
+import areas  # noqa: E402  (tools/areas: the demo's areas, one module each)
 
 KIT_DIR = os.path.join(GAME, "assets", "kit")
 TREE_DIR = os.path.join(GAME, "assets", "trees")
-GROUND_DIR = os.path.join(GAME, "assets", "ground")
 DATA_DIR = os.path.join(GAME, "data")
+# the area the layout and ground stages build (use_area): its module, name, and where its files go
+D = None
+AREA = None
+GROUND_DIR = None
+LAYOUT_PATH = None
+
+
+def use_area(name):
+    global D, AREA, GROUND_DIR, LAYOUT_PATH
+    D = importlib.import_module("areas." + name)
+    AREA = name
+    GROUND_DIR = os.path.join(GAME, "assets", "areas", name)
+    LAYOUT_PATH = os.path.join(DATA_DIR, "areas", name + ".json")
+
+
+def extend_ground_more(kit):
+    """The other areas' ground layers, on the mockups' ground shader (forest_cam.mat_ground, with act1_shots'
+    extend_ground), painted under the paths like the meadow, so they're in the colour the game reads (build_ground):
+    moss, a bright, lumpy carpet of it between pines; litter, autumn's fallen leaves; heath, heather; rock, bare
+    granite; gravel, a river's banks; sedge, the bog's dry, golden grass; bed, the dark bottom under water."""
+    nt = kit["MAT_GROUND"].node_tree
+    if nt.nodes.get("MoreLayers"):
+        return
+    N, L = nt.nodes, nt.links
+    lin = kit["lin"]
+    pos = N.new("ShaderNodeNewGeometry").outputs["Position"]
+    path_in = N["PathIn"]
+
+    def noise(scale, detail=2.0, rough=0.5, off=(0, 0, 0)):
+        vm = N.new("ShaderNodeVectorMath")
+        vm.operation = "ADD"
+        L.new(pos, vm.inputs[0])
+        vm.inputs[1].default_value = off
+        n = N.new("ShaderNodeTexNoise")
+        n.inputs["Scale"].default_value = scale
+        n.inputs["Detail"].default_value = detail
+        n.inputs["Roughness"].default_value = rough
+        L.new(vm.outputs[0], n.inputs["Vector"])
+        return n.outputs["Fac"]
+
+    def ramp(fac, stops):
+        r = N.new("ShaderNodeValToRGB")
+        el = r.color_ramp.elements
+        el[0].position, el[0].color = stops[0][0], lin(stops[0][1])
+        el[1].position, el[1].color = stops[-1][0], lin(stops[-1][1])
+        for p_, c_ in stops[1:-1]:
+            el.new(p_).color = lin(c_)
+        L.new(fac, r.inputs["Fac"])
+        return r.outputs["Color"]
+
+    def link(v, sock):
+        if hasattr(v, "links") or hasattr(v, "is_output"):
+            L.new(v, sock)
+        else:
+            sock.default_value = v
+
+    def mix(fac, a, b):
+        mx = N.new("ShaderNodeMix")
+        mx.data_type = "RGBA"
+        link(fac, [x for x in mx.inputs if x.name == "Factor" and x.type == "VALUE"][0])
+        link(lin(a) if isinstance(a, str) else a, [x for x in mx.inputs if x.name == "A" and x.type == "RGBA"][0])
+        link(lin(b) if isinstance(b, str) else b, [x for x in mx.inputs if x.name == "B" and x.type == "RGBA"][0])
+        return [x for x in mx.outputs if x.name == "Result" and x.type == "RGBA"][0]
+
+    def math_(op, a, b=0.0):
+        mt = N.new("ShaderNodeMath")
+        mt.operation = op
+        link(a, mt.inputs[0])
+        link(b, mt.inputs[1])
+        return mt.outputs[0]
+
+    def sstep(v, lo, hi):
+        mr = N.new("ShaderNodeMapRange")
+        mr.interpolation_type = "SMOOTHSTEP"
+        link(v, mr.inputs["Value"])
+        mr.inputs["From Min"].default_value = lo
+        mr.inputs["From Max"].default_value = hi
+        return mr.outputs["Result"]
+
+    def attr(name):
+        a = N.new("ShaderNodeAttribute")
+        a.attribute_name = name
+        a.attribute_type = "GEOMETRY"
+        return a.outputs["Fac"]
+
+    def broken(mask, scale, amt, off):  # the mask's edge broken up by noise, as the mockups' layers are
+        return sstep(math_("ADD", attr(mask), math_("MULTIPLY", math_("SUBTRACT", noise(scale, 2.0, 0.5, off), 0.5), amt)), 0.42, 0.58)
+
+    col = path_in.inputs["Color"].links[0].from_socket
+    moss = ramp(noise(0.9, 3.0, 0.6, (4, 21, 0)), [(0.3, "#4F6E2A"), (0.48, "#6E8F35"), (0.62, "#8BAA42"), (0.78, "#A3BC52")])
+    moss = mix(math_("MULTIPLY", sstep(noise(3.2, 2.0, 0.55, (9, 9, 0)), 0.55, 0.7), 0.55), moss, "#3E5A26")  # the dark between cushions
+    col = mix(broken("moss", 0.45, 0.45, (21, 4, 0)), col, moss)
+    heath = ramp(noise(1.4, 3.0, 0.6, (6, 13, 0)), [(0.3, "#4A4A2E"), (0.5, "#5E4A4A"), (0.68, "#6E5262"), (0.82, "#7A6A4A")])
+    col = mix(broken("heath", 0.7, 0.5, (13, 6, 0)), col, heath)
+    rock = ramp(noise(1.1, 3.0, 0.55, (2, 31, 0)), [(0.3, "#7D7C76"), (0.55, "#8D8B84"), (0.75, "#9B998F")])
+    rock = mix(math_("MULTIPLY", sstep(noise(2.2, 2.0, 0.5, (31, 2, 0)), 0.58, 0.68), 0.7), rock, "#98A189")  # lichen
+    col = mix(broken("rock", 0.8, 0.35, (5, 5, 0)), col, rock)
+    gravel = ramp(noise(4.0, 2.0, 0.6, (12, 1, 0)), [(0.3, "#7E7466"), (0.55, "#9A8E78"), (0.78, "#B4A68A")])
+    col = mix(broken("gravel", 1.0, 0.4, (1, 12, 0)), col, gravel)
+    sedge = ramp(noise(1.8, 2.0, 0.6, (14, 7, 0)), [(0.3, "#8A7A44"), (0.5, "#A8914E"), (0.7, "#C2AB5E"), (0.85, "#CDB76A")])
+    col = mix(broken("sedge", 0.9, 0.45, (7, 14, 0)), col, sedge)
+    litter = ramp(noise(2.6, 3.0, 0.62, (17, 23, 0)), [(0.25, "#5E3A1E"), (0.42, "#8A5428"), (0.56, "#A86A2C"), (0.7, "#BD8A36"), (0.84, "#9A3E22")])
+    col = mix(broken("litter", 0.6, 0.3, (23, 17, 0)), col, litter)
+    bed = ramp(noise(1.0, 2.0, 0.5, (3, 8, 0)), [(0.3, "#2E3024"), (0.6, "#3A3A2E"), (0.8, "#4A4634")])
+    col = mix(sstep(attr("bed"), 0.2, 0.8), col, bed)
+    marker = N.new("NodeReroute")
+    marker.name = "MoreLayers"
+    L.new(col, path_in.inputs["Color"])
 
 
 def load_kit():
@@ -84,7 +194,9 @@ def ao_uvs(me, ao=None):
 
 
 def srgb_colours(me):
-    src = me.color_attributes["Col"]
+    src = me.color_attributes.get("Col")
+    if src is None:  # a collider, or water: no colours
+        return
     lin = np.zeros(len(src.data) * 4, np.float32)
     src.data.foreach_get("color", lin)
     lin = lin.reshape(-1, 4)
@@ -173,10 +285,254 @@ def kit_groups(k):
         "props": [(f"Log{s}", lambda s=s: k["log_mesh"](800 + s, 6.0)) for s in range(2)]
         + [(f"Snag{s}", lambda s=s: k["snag_mesh"](900 + s)) for s in range(3)]
         + [("RuneStone", lambda: k["runestone_mesh"](False)), ("Cairn", lambda: cairn_mesh(k))],
+        # for the other areas: heath, rock slabs and moss, ferns, and the water's and the bog's plants
+        "nature": [(f"Heather{s}", lambda s=s: k["heather_mesh"](430 + s)) for s in range(3)]
+        + [(f"Slab{s}", lambda s=s: slab_mesh(k, 500 + s)) for s in range(4)]
+        + [(f"MossMound{s}", lambda s=s: moss_mound_mesh(k, 520 + s)) for s in range(3)]
+        + [(f"Fern{s}", lambda s=s: fern_mesh(k, 540 + s)) for s in range(3)]
+        + [(f"Reed{s}", lambda s=s: reed_mesh(k, 560 + s)) for s in range(3)]
+        + [(f"LilyPad{s}", lambda s=s: lily_pad_mesh(k, 580 + s)) for s in range(3)]
+        + [(f"Tussock{s}", lambda s=s: tussock_mesh(k, 600 + s)) for s in range(3)]
+        + [(f"Sedge{s}", lambda s=s: sedge_mesh(k, 620 + s)) for s in range(3)]
+        + [(f"DryFern{s}", lambda s=s: fern_mesh(k, 640 + s, tones(k, *BRACKEN))) for s in range(3)]
+        + [(f"LeafPile{s}", lambda s=s: leaf_pile_mesh(k, 660 + s)) for s in range(3)]
+        + [(f"MossBoulder{s}", lambda s=s: moss_boulder_mesh(k, 680 + s)) for s in range(4)]
+        + [(f"CliffRock{s}", lambda s=s: cliff_rock_mesh(k, 700 + s)) for s in range(6)]
+        + [(f"SteppingStone{s}", lambda s=s: stepping_stone_mesh(k, 720 + s)) for s in range(3)],
     }
 
 
-def build_models():
+# ------------------------------------------------------------------ the other areas' plants and rocks, in the kit's style
+AUTUMN = ("#B5762F", "#D39A38", "#8B5A2E", "#A3402A", "#C98A2E", "#7A4A26", "#BFA640")  # fallen leaves
+BRACKEN = ("#A0622A", "#B87A34", "#8A5A2A", "#C29044", "#946A30")  # ferns turned in autumn
+MOSS = ("#5E7A33", "#6F8B3B", "#4F6B2C", "#7E9A46", "#56722F")  # thick, damp moss on rocks
+
+
+def tones(k, *hexes):
+    """Faces in these colours, jittered like the kit's (its pick takes names from its palette instead)."""
+    cols = [k["lin"](h) for h in hexes]
+    return lambda f: k["jitter"](k["rng"].choice(cols))
+
+
+def repaint(me, colour):
+    """Paint a built mesh's faces anew: colour(polygon) gives each its colour."""
+    col = me.color_attributes["Col"]
+    for poly in me.polygons:
+        c = colour(poly)
+        for li in poly.loop_indices:
+            col.data[li].color = c
+
+
+def slab_mesh(k, seed):
+    """A granite slab, a bare rock outcrop worn flat by the ice: a big boulder, pressed low and wide."""
+    me = k["boulder_mesh"](seed, big=True)
+    for v in me.vertices:
+        v.co.x *= 1.7
+        v.co.y *= 1.5
+        v.co.z = v.co.z * 0.28 - 0.05
+    me.update()
+    me.name = "Slab%d" % seed
+    return me
+
+
+def moss_mound_mesh(k, seed):
+    """Moss cushions, as on the forest floor between the pines: a cluster of small, dark lumps."""
+    r = random.Random(seed)
+    b = k["Builder"]()
+    for _ in range(r.randint(6, 10)):
+        c = (r.uniform(-0.45, 0.45), r.uniform(-0.45, 0.45), -0.04)
+        b.ico(c, r.uniform(0.14, 0.3), tones(k, *MOSS), sub=1, scale=(1, 1, 0.7), displace=0.04)
+    return b.mesh("MossMound%d" % seed)
+
+
+def leaf_pile_mesh(k, seed):
+    """Fallen leaves heaped up a little: a few low lumps in autumn's colours."""
+    r = random.Random(seed)
+    b = k["Builder"]()
+    for _ in range(r.randint(4, 7)):
+        c = (r.uniform(-0.6, 0.6), r.uniform(-0.6, 0.6), -0.06)
+        b.ico(c, r.uniform(0.3, 0.55), tones(k, *AUTUMN), sub=1, scale=(1, 1, 0.28), displace=0.05)
+    return b.mesh("LeafPile%d" % seed)
+
+
+def moss_boulder_mesh(k, seed):
+    """A boulder grown over with thick moss, all but its lower flanks, as in a damp ravine."""
+    r = random.Random(seed)
+    me = k["boulder_mesh"](seed)
+    moss, stone = tones(k, *MOSS), k["pick"]("granite1", "granite2", "granite4")
+    repaint(me, lambda poly: moss(poly) if poly.normal.z > r.uniform(-0.35, 0.1) else stone(poly))
+    me.name = "MossBoulder%d" % seed
+    return me
+
+
+def stepping_stone_mesh(k, seed):
+    """A stepping stone: a block of granite with a flat, worn top at its origin, reaching 0.7 m down into the water."""
+    import bmesh
+    from mathutils import Vector
+    r = random.Random(seed)
+    b = k["Builder"]()
+    rx, ry = r.uniform(0.42, 0.55), r.uniform(0.34, 0.45)
+    pts = []
+    for i in range(7):  # the top's rim, and the flanks below it, widening
+        a = i / 7 * math.tau + r.uniform(-0.2, 0.2)
+        pts.append(Vector((math.cos(a) * rx * r.uniform(0.85, 1.0), math.sin(a) * ry * r.uniform(0.85, 1.0), r.uniform(-0.02, 0.0))))
+        pts.append(Vector((math.cos(a) * rx * 1.25, math.sin(a) * ry * 1.25, -r.uniform(0.12, 0.2))))
+        pts.append(Vector((math.cos(a) * rx * 1.3, math.sin(a) * ry * 1.3, -0.7)))
+    verts = [b.bm.verts.new(p) for p in pts]
+    bmesh.ops.convex_hull(b.bm, input=verts)
+    loose = [v for v in b.bm.verts if not v.link_faces]
+    if loose:
+        bmesh.ops.delete(b.bm, geom=loose, context="VERTS")
+    bmesh.ops.dissolve_limit(b.bm, angle_limit=math.radians(8), verts=b.bm.verts[:], edges=b.bm.edges[:], delimit=set())
+    bmesh.ops.recalc_face_normals(b.bm, faces=b.bm.faces[:])
+    b.bm.normal_update()
+    stone, lichen = k["pick"]("granite1", "granite2", "granite3"), k["pick"]("lichen", "lichen2")
+    b.paint(b.bm.faces[:], lambda f: lichen(f) if f.normal.z > 0.9 and r.random() < 0.3 else stone(f))
+    return b.mesh("SteppingStone%d" % seed)
+
+
+def cliff_rock_mesh(k, seed):
+    """A block of a low cliff's face: a tall, angular rock, its face (towards -Y) steep, leaning back a little and
+    broken into facets, moss on its top and ledges. Its origin is at the foot of its face, and it reaches back (+Y)
+    into the slope behind; 4.6 m high, about 3-4 wide."""
+    import bmesh
+    from mathutils import Vector
+    r = random.Random(seed)
+    b = k["Builder"]()
+    w, h = r.uniform(3.0, 3.9), 4.6
+    pts = []
+    for _ in range(r.randint(10, 14)):  # the face
+        z = r.uniform(-0.6, h - 0.2)
+        pts.append(Vector((r.uniform(-w / 2, w / 2), -0.35 + 0.3 * z / h + r.uniform(-0.25, 0.15), z)))
+    for _ in range(r.randint(5, 8)):  # the top, sloping back into the ground behind
+        pts.append(Vector((r.uniform(-w / 2, w / 2) * 0.9, r.uniform(0.0, 2.2), h - r.uniform(0.0, 0.5) - 0.25 * r.random())))
+    for sx in (-1, 1):  # the sides and the back, buried
+        for z in (-0.6, h * 0.5):
+            pts.append(Vector((sx * w / 2 * r.uniform(0.85, 1.0), r.uniform(0.3, 1.8), z)))
+        pts.append(Vector((sx * w / 2 * 0.8, 2.4, -0.6)))
+    verts = [b.bm.verts.new(p) for p in pts]
+    bmesh.ops.convex_hull(b.bm, input=verts)
+    loose = [v for v in b.bm.verts if not v.link_faces]
+    if loose:
+        bmesh.ops.delete(b.bm, geom=loose, context="VERTS")
+    bmesh.ops.dissolve_limit(b.bm, angle_limit=math.radians(r.uniform(9, 14)), verts=b.bm.verts[:], edges=b.bm.edges[:], delimit=set())
+    bmesh.ops.recalc_face_normals(b.bm, faces=b.bm.faces[:])
+    b.bm.normal_update()
+    moss, stone = tones(k, *MOSS), k["pick"]("granite1", "granite2", "granite3", "granite4")
+    lichen = k["pick"]("lichen", "lichen2")
+
+    def col(f):
+        if f.normal.z > 0.55 or (f.normal.z > 0.25 and r.random() < 0.5):
+            return moss(f)
+        return lichen(f) if r.random() < 0.12 else stone(f)
+
+    b.paint(b.bm.faces[:], col)
+    return b.mesh("CliffRock%d" % seed)
+
+
+def blade(b, k, pts, widths, colours, both_sides=True):
+    """A flat, tapering blade along pts (a leaf, a frond), its tip a point; with both_sides, faced both ways."""
+    from mathutils import Vector
+    pts = [Vector(p) for p in pts]
+    faces = []
+    rows = []
+    for i, (p, w) in enumerate(zip(pts, widths)):
+        t = (pts[min(i + 1, len(pts) - 1)] - pts[max(i - 1, 0)]).normalized()
+        side = Vector((-t.y, t.x, 0.0)).normalized() if abs(t.z) < 0.99 else Vector((1, 0, 0))
+        rows.append([b.bm.verts.new(p)] if w <= 0 else [b.bm.verts.new(p - side * w), b.bm.verts.new(p + side * w)])
+    for a, c in zip(rows, rows[1:]):
+        quad = (a[0], a[1], c[1], c[0]) if len(c) == 2 else (a[0], a[1], c[0])
+        faces.append(b.bm.faces.new(quad))
+        if both_sides:
+            back = [b.bm.verts.new(v.co) for v in quad]
+            faces.append(b.bm.faces.new(list(reversed(back))))
+    b.paint(faces, colours if callable(colours) else k["pick"](*colours))
+    return faces
+
+
+def fern_mesh(k, seed, colours=("leaf1", "leaf2", "birchleaf3")):
+    """A fern: fronds rising from the middle and arching out (in autumn, bracken: colours)."""
+    r = random.Random(seed)
+    b = k["Builder"]()
+    n = r.randint(7, 10)
+    for i in range(n):
+        a = i / n * math.tau + r.uniform(-0.25, 0.25)
+        length = r.uniform(0.55, 0.85)
+        lift = r.uniform(0.45, 0.7)
+        pts = []
+        for j in range(5):
+            t = j / 4
+            z = lift * length * math.sin(t * math.pi * 0.8) * (1.0 - 0.35 * t)
+            pts.append((math.cos(a) * length * t, math.sin(a) * length * t, z))
+        blade(b, k, pts, [0.02, 0.085, 0.095, 0.06, 0.0], colours)
+    return b.mesh("Fern%d" % seed)
+
+
+def reed_mesh(k, seed):
+    """Reeds at the water's edge: tall, thin blades, and a cattail's brown head or two."""
+    r = random.Random(seed)
+    b = k["Builder"]()
+    for _ in range(r.randint(9, 14)):
+        c = (r.uniform(-0.25, 0.25), r.uniform(-0.25, 0.25), 0.0)
+        h = r.uniform(1.1, 1.9)
+        tip = (c[0] + r.uniform(-0.25, 0.25), c[1] + r.uniform(-0.25, 0.25), h)
+        b.limb(c, tip, 0.025, 0.0, k["pick"]("grass1", "grass3", "birchleaf3", "crop2"), segs=3)
+    for _ in range(r.randint(1, 3)):
+        x, y = r.uniform(-0.15, 0.15), r.uniform(-0.15, 0.15)
+        h = r.uniform(1.3, 1.8)
+        b.limb((x, y, 0.0), (x, y, h), 0.012, 0.01, k["pick"]("grass3"), segs=3)
+        b.ico((x, y, h - 0.12), 0.05, k["pick"]("wood2", "barklow"), sub=1, scale=(1, 1, 3.2))
+    return b.mesh("Reed%d" % seed)
+
+
+def lily_pad_mesh(k, seed):
+    """Water lilies: a few round leaves on the water, each with its notch, and now and then a white flower."""
+    r = random.Random(seed)
+    b = k["Builder"]()
+    for _ in range(r.randint(2, 4)):
+        cx, cy = r.uniform(-0.5, 0.5), r.uniform(-0.5, 0.5)
+        rad = r.uniform(0.14, 0.26)
+        notch = r.uniform(0, math.tau)
+        rim = []
+        for j in range(11):
+            a = notch + 0.35 + j / 10 * (math.tau - 0.7)
+            rim.append(b.bm.verts.new((cx + math.cos(a) * rad, cy + math.sin(a) * rad, 0.0)))
+        mid = b.bm.verts.new((cx, cy, 0.01))
+        faces = [b.bm.faces.new((mid, rim[j], rim[j + 1])) for j in range(10)]
+        b.paint(faces, k["pick"]("leaf1", "leaf2", "rmoss3"))
+        if r.random() < 0.35:
+            b.ico((cx + r.uniform(-0.05, 0.05), cy + r.uniform(-0.05, 0.05), 0.04), 0.06, (lambda f: k["P"]["white"]), sub=1, scale=(1, 1, 0.6))
+    return b.mesh("LilyPad%d" % seed)
+
+
+def tussock_mesh(k, seed):
+    """A bog tussock: a mound of dry, golden sedge."""
+    r = random.Random(seed)
+    b = k["Builder"]()
+    w = r.uniform(0.45, 0.65)
+    b.ico((0, 0, 0.05), w, k["pick"]("hay", "crop2", "bog4"), sub=1, scale=(1, 1, 0.55), displace=0.05)
+    for _ in range(r.randint(14, 20)):
+        a = r.uniform(0, math.tau)
+        d = r.uniform(0, w * 0.8)
+        c = (math.cos(a) * d, math.sin(a) * d, 0.2)
+        h = r.uniform(0.35, 0.7)
+        tip = (c[0] + math.cos(a) * r.uniform(0.1, 0.35), c[1] + math.sin(a) * r.uniform(0.1, 0.35), 0.2 + h)
+        b.limb(c, tip, 0.035, 0.0, k["pick"]("hay", "hay2", "crop", "grass2"), segs=3)
+    return b.mesh("Tussock%d" % seed)
+
+
+def sedge_mesh(k, seed):
+    """A tuft of the bog's pale, dry grass."""
+    r = random.Random(seed)
+    b = k["Builder"]()
+    for _ in range(r.randint(7, 11)):
+        c = (r.uniform(-0.2, 0.2), r.uniform(-0.2, 0.2), 0.0)
+        h = r.uniform(0.4, 0.75)
+        b.limb(c, (c[0] + r.uniform(-0.2, 0.2), c[1] + r.uniform(-0.2, 0.2), h), 0.035, 0.0, k["pick"]("hay", "hay2", "crop2", "grass2"), segs=3)
+    return b.mesh("Sedge%d" % seed)
+
+
+def build_models(trees=True):
     kit = load_kit()
     os.makedirs(KIT_DIR, exist_ok=True)
     os.makedirs(TREE_DIR, exist_ok=True)
@@ -198,7 +554,8 @@ def build_models():
     with open(os.path.join(KIT_DIR, "kit.json"), "w") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)
     print("kit:", len(info), "models")
-    build_trees()
+    if trees:
+        build_trees()
 
 
 def cairn_mesh(kit):
@@ -633,30 +990,39 @@ def jittered(rng, box, cell):
     return (X + rng.uniform(0, cell, X.shape)).ravel(), (Y + rng.uniform(0, cell, Y.shape)).ravel()
 
 
-def build_layout():
-    """Scatter the trees, rocks and plants the way the mockups do (act1_shots.populate_act), over the demo area.
-    Every tree spot names the old model and the new one, so the two versions of the demo differ only in the trees."""
-    info = load_info()
-    rng = np.random.default_rng(11)
-    clear = [(D.START[0], 3.5)] + [(p, 2.5) for _, p, _ in D.LANDMARKS] + [(p, 4.5) for _, p in D.LONE_TREES]
-    clear += [(p, 2.0 * s + 1.0) for p, s in D.ERRATICS]
+class Layout:
+    """What an area scatters: its trees, props and solids, and anything else it hands the game (extras: water,
+    models of its own; see tools/areas). An area's populate(layout) fills it, with the helpers below; an area without
+    one gets populate_default. clear holds (position, radius) spots that nothing is scattered on."""
 
-    def blocked(x, y, pad=0.0):
-        return any(math.hypot(x - c[0], y - c[1]) < r + pad for c, r in clear)
+    def __init__(self, info, rng):
+        self.info, self.rng = info, rng
+        self.trees, self.props, self.solids, self.clear = [], {}, [], []
+        self.extras = {}
 
-    trees, props, solids = [], {}, []
-
-    def ground(x, y):
+    def ground(self, x, y):
         return float(D.height(np.array([x]), np.array([y]))[0])
 
-    def add_prop(model, x, y, rot, s, sink=None, solid=None):
-        sink = SINK.get(model.rstrip("0123456789"), SINK["plant"]) if sink is None else sink
-        z = ground(x, y) - sink * s
-        props.setdefault(model, []).append(to_godot((x, y, z)) + [round(float(rot), 3), round(float(s), 3)])
-        if solid:
-            solids.append(to_godot((x, y, z)) + [round(solid * s, 2), round(info[model]["height"] * s, 2)])
+    def blocked(self, x, y, pad=0.0):
+        return any(math.hypot(x - c[0], y - c[1]) < r + pad for c, r in self.clear)
 
-    def add_tree(kind, x, y, s, rot, ring, sapling=False):
+    def add_prop(self, model, x, y, rot, s, sink=None, solid=None, z=None):
+        """A prop standing on the ground (or at height z), sunk into it as SINK says, solid out to solid x s."""
+        sink = SINK.get(model.rstrip("0123456789"), SINK["plant"]) if sink is None else sink
+        z = (self.ground(x, y) if z is None else z) - sink * s
+        self.props.setdefault(model, []).append(to_godot((x, y, z)) + [round(float(rot), 3), round(float(s), 3)])
+        if solid:
+            self.solids.append(to_godot((x, y, z)) + [round(solid * s, 2), round(self.info[model]["height"] * s, 2)])
+
+    def add_solid(self, x, y, radius, height, z=None):
+        """Something the hero can't walk through: a cylinder standing on the ground (or at height z)."""
+        z = self.ground(x, y) if z is None else z
+        self.solids.append(to_godot((x, y, z)) + [round(float(radius), 2), round(float(height), 2)])
+
+    def add_tree(self, kind, x, y, s, rot, ring, sapling=False, tint=None):
+        """A tree: the old model and the new one on the same spot. tint, 0..1, turns its leaves to autumn: 0 yellow,
+        0.5 orange, 1 red (shaders/leaves.gdshader, autumn); or (turn, tint), only turn of the way there."""
+        rng, info = self.rng, self.info
         if sapling:  # a young spruce: the mockups' small spruce, scaled up; the new spruce at the same height
             old = f"YoungSpruce{int(rng.integers(4))}"
             new = f"NorwaySpruce_{'AB'[int(rng.integers(2))]}"
@@ -667,123 +1033,417 @@ def build_layout():
             old, new = f"{base}{int(rng.integers(n))}", f"{kind}_{'AB'[int(rng.integers(2))]}"
             s_old = s_new = s
             sink = SINK["tree"]
-        z = ground(x, y) - sink
-        trees.append({"kind": "YoungSpruce" if sapling else kind, "old": old, "new": new, "p": to_godot((x, y, z)),
-                      "r": round(float(rot), 3), "s_old": round(float(s_old), 3), "s_new": round(float(s_new), 3), "ring": ring})
+        z = self.ground(x, y) - sink
+        t = {"kind": "YoungSpruce" if sapling else kind, "old": old, "new": new, "p": to_godot((x, y, z)),
+             "r": round(float(rot), 3), "s_old": round(float(s_old), 3), "s_new": round(float(s_new), 3), "ring": ring}
+        if tint is not None:
+            turn, tint = tint if isinstance(tint, tuple) else (1.0, tint)
+            t["tint"] = round(float(tint), 3)
+            if turn < 1.0:
+                t["turn"] = round(float(turn), 3)
+        self.trees.append(t)
         if ring == "near" and D.boundary_dist(np.array([x]), np.array([y]))[0] > -4.0:
             trunk = max(info[old]["foot"] * s_old, min(info[new]["foot"], 0.5) * s_new)
-            solids.append(to_godot((x, y, z)) + [round(float(np.clip(trunk, 0.22, 0.55)), 2), 4.0])
+            self.solids.append(to_godot((x, y, z)) + [round(float(np.clip(trunk, 0.22, 0.55)), 2), 4.0])
 
-    # trees: a jittered grid, thinned by the forest's density; young spruces fill in where it is thick
-    X, Y = jittered(rng, D.BAKE, 3.8)
-    dens, pd = D.density(X, Y), D.path_dist(X, Y)
-    r, roll = rng.uniform(0, 1, len(X)), rng.uniform(0, 1, len(X))
-    kinds = D.tree_kind(X, Y, roll)
-    for x, y, d, p, r_, k in zip(X, Y, dens, pd, r, kinds):
-        if p < 1.8 or blocked(x, y, 2.0):
-            continue
-        if d > 0.62 and d * 0.92 <= r_ < d * 1.35 and not blocked(x + 1.3, y - 0.8, 2.0):
-            add_tree("NorwaySpruce", x + 1.3, y - 0.8, rng.uniform(2.2, 3.6), rng.uniform(0, math.tau), "near", sapling=True)
-        elif r_ < d * 0.92 and p > 2.6:  # the big trees keep back from the trails, so the high camera sees them
-            add_tree(D.SPECIES[k], x, y, rng.uniform(0.85, 1.15), rng.uniform(0, math.tau), "near")
-    for kind, (x, y) in D.LONE_TREES:
-        add_tree(kind, x, y, rng.uniform(1.0, 1.12), rng.uniform(0, math.tau), "near")
-    # the distant forest, for low camera angles
-    X, Y = jittered(rng, (-D.FAR_R, D.FAR_R, -D.FAR_R, D.FAR_R), 9.0)
-    keep = (np.hypot(X, Y) < D.FAR_R) & ~((X > D.BAKE[0]) & (X < D.BAKE[1]) & (Y > D.BAKE[2]) & (Y < D.BAKE[3]))
-    X, Y = X[keep], Y[keep]
-    r, roll = rng.uniform(0, 1, len(X)), rng.uniform(0, 1, len(X))
-    kinds = D.tree_kind(X, Y, roll)
-    for x, y, r_, k in zip(X, Y, r, kinds):
-        if r_ < 0.9:
-            add_tree(D.SPECIES[k], x, y, rng.uniform(0.95, 1.25), rng.uniform(0, math.tau), "far")
+    def forest(self, cell=3.8, saplings=True, keep_off=2.6, size=(0.85, 1.15), tint=None, density=None, kind=None):
+        """Trees on a jittered grid, thinned by the area's density, the big ones keep_off path half-widths from the
+        paths' middles; young spruces fill in where it's thick. tint(x, y, kind) gives a tree's autumn, or None;
+        density(X, Y) and kind(X, Y, roll) stand in for the area's density and tree_kind."""
+        rng = self.rng
+        X, Y = jittered(rng, D.BAKE, cell)
+        dens, pd = (density or D.density)(X, Y), D.path_dist(X, Y)
+        r, roll = rng.uniform(0, 1, len(X)), rng.uniform(0, 1, len(X))
+        kinds = (kind or D.tree_kind)(X, Y, roll)
+        for x, y, d, p, r_, k in zip(X, Y, dens, pd, r, kinds):
+            if p < 1.8 or self.blocked(x, y, 2.0):
+                continue
+            if saplings and d > 0.62 and d * 0.92 <= r_ < d * 1.35 and not self.blocked(x + 1.3, y - 0.8, 2.0):
+                self.add_tree("NorwaySpruce", x + 1.3, y - 0.8, rng.uniform(2.2, 3.6), rng.uniform(0, math.tau), "near", sapling=True)
+            elif r_ < d * 0.92 and p > keep_off:  # the big trees keep back from the trails, so the high camera sees them
+                kind = D.SPECIES[k]
+                self.add_tree(kind, x, y, rng.uniform(*size), rng.uniform(0, math.tau), "near",
+                              tint=tint(x, y, kind) if tint else None)
 
-    # boulders, logs, snags and more young spruces
-    X, Y = jittered(rng, D.BAKE, 7.0)
-    G, pd = D.ground_masks(X, Y), D.path_dist(X, Y)
-    r = rng.uniform(0, 1, len(X))
-    for x, y, mead, p, r_ in zip(X, Y, G["meadow"], pd, r):
-        if p < 1.6 or blocked(x, y, 2.5):
-            continue
-        rot = rng.uniform(0, math.tau)
-        if r_ < 0.11:
-            m = f"Boulder{int(rng.integers(8))}"
-            add_prop(m, x, y, rot, rng.uniform(0.6, 1.4), solid=info[m]["foot"] * 0.85)
-        elif r_ < 0.14 and mead < 0.5:
+    def lone_trees(self):
+        for kind, (x, y) in D.LONE_TREES:
+            self.add_tree(kind, x, y, self.rng.uniform(1.0, 1.12), self.rng.uniform(0, math.tau), "near")
+
+    def far_forest(self, cell=9.0, share=0.9, tint=None):
+        """The distant forest beyond the detailed ground, out to FAR_R, for low camera angles."""
+        rng = self.rng
+        X, Y = jittered(rng, (-D.FAR_R, D.FAR_R, -D.FAR_R, D.FAR_R), cell)
+        keep = (np.hypot(X, Y) < D.FAR_R) & ~((X > D.BAKE[0]) & (X < D.BAKE[1]) & (Y > D.BAKE[2]) & (Y < D.BAKE[3]))
+        X, Y = X[keep], Y[keep]
+        r, roll = rng.uniform(0, 1, len(X)), rng.uniform(0, 1, len(X))
+        kinds = D.tree_kind(X, Y, roll)
+        for x, y, r_, k in zip(X, Y, r, kinds):
+            if r_ < share * (D.far_density(x, y) if hasattr(D, "far_density") else 1.0):
+                kind = D.SPECIES[k]
+                self.add_tree(kind, x, y, rng.uniform(0.95, 1.25), rng.uniform(0, math.tau), "far",
+                              tint=tint(x, y, kind) if tint else None)
+
+    def rocks_and_logs(self, cell=7.0, rates=(0.11, 0.14, 0.2, 0.215, 0.222)):
+        """Boulders, big boulders, young spruces, logs and snags, the last four off the meadow; rates are the
+        running shares of spots that get each."""
+        rng, info = self.rng, self.info
+        X, Y = jittered(rng, D.BAKE, cell)
+        G, pd = D.ground_masks(X, Y), D.path_dist(X, Y)
+        r = rng.uniform(0, 1, len(X))
+        for x, y, mead, p, r_ in zip(X, Y, G["meadow"], pd, r):
+            if p < 1.6 or self.blocked(x, y, 2.5):
+                continue
+            rot = rng.uniform(0, math.tau)
+            if r_ < rates[0]:
+                m = f"Boulder{int(rng.integers(8))}"
+                self.add_prop(m, x, y, rot, rng.uniform(0.6, 1.4), solid=info[m]["foot"] * 0.85)
+            elif r_ < rates[1] and mead < 0.5:
+                m = f"BigBoulder{int(rng.integers(4))}"
+                self.add_prop(m, x, y, rot, rng.uniform(0.9, 1.5), solid=info[m]["foot"] * 0.85)
+            elif r_ < rates[2] and mead < 0.5:
+                self.add_tree("NorwaySpruce", x, y, rng.uniform(0.8, 1.3), rot, "near", sapling=True)
+            elif r_ < rates[3] and mead < 0.5:
+                self.log(f"Log{int(rng.integers(2))}", x, y, rot)
+            elif r_ < rates[4] and mead < 0.5:
+                m = f"Snag{int(rng.integers(3))}"
+                self.add_prop(m, x, y, rot, 1.0, solid=0.3)
+
+    def log(self, m, x, y, rot):
+        self.add_prop(m, x, y, rot, 1.0)
+        for t in (-2.2, 0.0, 2.2):  # a log is solid along its length
+            lx, ly = x + math.cos(rot) * t, y + math.sin(rot) * t
+            self.solids.append(to_godot((lx, ly, self.ground(lx, ly) - 0.1)) + [0.36, 0.8])
+
+    def erratics_and_landmarks(self):
+        rng, info = self.rng, self.info
+        for (x, y), s in D.ERRATICS:
             m = f"BigBoulder{int(rng.integers(4))}"
-            add_prop(m, x, y, rot, rng.uniform(0.9, 1.5), solid=info[m]["foot"] * 0.85)
-        elif r_ < 0.2 and mead < 0.5:
-            add_tree("NorwaySpruce", x, y, rng.uniform(0.8, 1.3), rot, "near", sapling=True)
-        elif r_ < 0.215 and mead < 0.5:
-            m = f"Log{int(rng.integers(2))}"
-            add_prop(m, x, y, rot, 1.0)
-            for t in (-2.2, 0.0, 2.2):  # a log is solid along its length
-                lx, ly = x + math.cos(rot) * t, y + math.sin(rot) * t
-                solids.append(to_godot((lx, ly, ground(lx, ly) - 0.1)) + [0.36, 0.8])
-        elif r_ < 0.222 and mead < 0.5:
-            m = f"Snag{int(rng.integers(3))}"
-            add_prop(m, x, y, rot, 1.0, solid=0.3)
-    for (x, y), s in D.ERRATICS:
-        m = f"BigBoulder{int(rng.integers(4))}"
-        add_prop(m, x, y, rng.uniform(0, math.tau), s, solid=info[m]["foot"] * 0.85)
-    for name, (x, y), rot in D.LANDMARKS:
-        add_prop(name, x, y, math.radians(rot), 1.0, solid=0.45)
+            self.add_prop(m, x, y, rng.uniform(0, math.tau), s, solid=info[m]["foot"] * 0.85)
+        for name, (x, y), rot in D.LANDMARKS:
+            self.add_prop(name, x, y, math.radians(rot), 1.0, solid=0.45)
 
-    # ground cover: berry bushes in patches, lichen, grass; tall grass and grass tufts in the meadow
-    X, Y = jittered(rng, D.BAKE, 0.95)
-    G, pd = D.ground_masks(X, Y), D.path_dist(X, Y)
-    path = 1 - D.smoothstep(0.55, 1.2, pd)
-    patch = D.fbm(X / 9.0, Y / 9.0, 2, 33)
-    lingon = D.fbm(X / 11.0, Y / 11.0, 2, 44) > 0.35
-    r = rng.uniform(0, 1, len(X))
-    pick = rng.integers(0, 12, len(X))
-    rots, scales = rng.uniform(0, math.tau, len(X)), rng.uniform(0.9, 1.3, len(X))
-    for i in range(len(X)):
-        x, y, r_ = X[i], Y[i], r[i]
-        if path[i] > 0.2 or blocked(x, y, 0.5):
-            continue
-        if G["meadow"][i] > 0.5:
-            m = f"Grass{pick[i] % 4}" if r_ < 0.12 else (f"TallGrass{pick[i] % 3}" if r_ < 0.14 else (f"Shrub{pick[i] % 3}" if r_ < 0.16 else None))
-        elif patch[i] > 0.25:
-            m = (f"Blueberry{pick[i] % 3}" if r_ < 0.12 else f"Shrub{pick[i] % 3}") if r_ < 0.42 else None
-        elif lingon[i] and r_ < 0.3:
-            m = f"Lingonberry{pick[i] % 3}"
-        elif r_ < 0.18:
-            m = [f"Shrub{pick[i] % 3}", f"Grass{pick[i] % 4}", f"Lichen{pick[i] % 3}"][pick[i] % 3]
-        else:
-            m = None
-        if m:
-            add_prop(m, x, y, rots[i], scales[i])
+    def ground_cover(self, cell=0.95, pick_model=None, place=None):
+        """Plants on a fine jittered grid: by default berry bushes in patches, lingonberry, lichen and grass, and in
+        the meadow grass, tall grass and shrubs; pick_model(i, x, y, r, pick, G, patch, lingon) can choose instead,
+        returning a model name or None, and place(i, x, y, model) place it itself (returning True), such as on
+        water."""
+        rng = self.rng
+        X, Y = jittered(rng, D.BAKE, cell)
+        G, pd = D.ground_masks(X, Y), D.path_dist(X, Y)
+        path = 1 - D.smoothstep(0.55, 1.2, pd)
+        patch = D.fbm(X / 9.0, Y / 9.0, 2, 33)
+        lingon = D.fbm(X / 11.0, Y / 11.0, 2, 44) > 0.35
+        r = rng.uniform(0, 1, len(X))
+        pick = rng.integers(0, 12, len(X))
+        rots, scales = rng.uniform(0, math.tau, len(X)), rng.uniform(0.9, 1.3, len(X))
+        for i in range(len(X)):
+            x, y, r_ = X[i], Y[i], r[i]
+            if path[i] > 0.2 or self.blocked(x, y, 0.5):
+                continue
+            if pick_model:
+                m = pick_model(i, x, y, r_, pick[i], G, patch, lingon)
+            elif G["meadow"][i] > 0.5:
+                m = f"Grass{pick[i] % 4}" if r_ < 0.12 else (f"TallGrass{pick[i] % 3}" if r_ < 0.14 else (f"Shrub{pick[i] % 3}" if r_ < 0.16 else None))
+            elif patch[i] > 0.25:
+                m = (f"Blueberry{pick[i] % 3}" if r_ < 0.12 else f"Shrub{pick[i] % 3}") if r_ < 0.42 else None
+            elif lingon[i] and r_ < 0.3:
+                m = f"Lingonberry{pick[i] % 3}"
+            elif r_ < 0.18:
+                m = [f"Shrub{pick[i] % 3}", f"Grass{pick[i] % 4}", f"Lichen{pick[i] % 3}"][pick[i] % 3]
+            else:
+                m = None
+            if m and not (place and place(i, x, y, m)):
+                self.add_prop(m, x, y, rots[i], scales[i])
 
-    # low grass tufts in the trails' worn edges, and pebbles on and beside them (act1_shots, with its own numbers)
-    er = np.random.default_rng(4242)
-    n = int((D.BAKE[1] - D.BAKE[0]) * (D.BAKE[3] - D.BAKE[2]) * 3.0)
-    EX, EY = er.uniform(D.BAKE[0], D.BAKE[1], n), er.uniform(D.BAKE[2], D.BAKE[3], n)
-    ed = D.path_dist(EX, EY)
-    keep = ed < 1.8
-    EX, EY, ed = EX[keep], EY[keep], ed[keep]
-    er_r, er_rot, er_s, er_k = (er.uniform(0, 1, len(EX)) for _ in range(4))
-    for i, (x, y, d) in enumerate(zip(EX, EY, ed)):
-        if blocked(x, y, 0.4):
-            continue
-        if 0.75 < d < 1.7 and er_r[i] < D.smoothstep(0.75, 1.3, d) * 0.65:
-            add_prop(f"Grass{int(er_k[i] * 4)}", x, y, er_rot[i] * math.tau, 0.45 + 0.4 * er_s[i])
-        elif d < 1.35 and er_r[i] > 0.85:
-            add_prop(f"Pebble{int(er_k[i] * 3)}", x, y, er_rot[i] * math.tau, 0.04 + 0.05 * er_s[i], sink=0.02 / 0.06)
+    def trail_edges(self):
+        """Low grass tufts in the trails' worn edges, and pebbles on and beside them (act1_shots, with its own numbers)."""
+        er = np.random.default_rng(4242)
+        n = int((D.BAKE[1] - D.BAKE[0]) * (D.BAKE[3] - D.BAKE[2]) * 3.0)
+        EX, EY = er.uniform(D.BAKE[0], D.BAKE[1], n), er.uniform(D.BAKE[2], D.BAKE[3], n)
+        ed = D.path_dist(EX, EY)
+        keep = ed < 1.8
+        EX, EY, ed = EX[keep], EY[keep], ed[keep]
+        er_r, er_rot, er_s, er_k = (er.uniform(0, 1, len(EX)) for _ in range(4))
+        for i, (x, y, d) in enumerate(zip(EX, EY, ed)):
+            if self.blocked(x, y, 0.4):
+                continue
+            if 0.75 < d < 1.7 and er_r[i] < D.smoothstep(0.75, 1.3, d) * 0.65:
+                self.add_prop(f"Grass{int(er_k[i] * 4)}", x, y, er_rot[i] * math.tau, 0.45 + 0.4 * er_s[i])
+            elif d < 1.35 and er_r[i] > 0.85:
+                self.add_prop(f"Pebble{int(er_k[i] * 3)}", x, y, er_rot[i] * math.tau, 0.04 + 0.05 * er_s[i], sink=0.02 / 0.06)
 
+
+# ------------------------------------------------------------------ an area's own models
+class Extras:
+    """An area's own models (its module's build_extras(extras)): water, stairs, bridges, jetties and boardwalks, in
+    the kit's style, saved together in assets/areas/<area>/extras.glb, where the game finds them (the layout's
+    "extras"). A model named <name>-colonly is only something to walk on or bump into: Godot's importer makes it a
+    collider, on the ground's layer, and draws nothing. Water is drawn by the game's water shader (shaders/water.gdshader):
+    its first UV map holds the flow (metres a second along Godot's X and Z), its second the depth over the bed."""
+
+    def __init__(self, kit):
+        self.k = kit
+        self.objects = []
+        self.depths = {}  # water: object name -> per corner depth, for its second UV map
+        self.water_mat = bpy.data.materials.get("Water") or bpy.data.materials.new("Water")
+
+    def _add(self, me, name):
+        me.name = name
+        ob = bpy.data.objects.new(name, me)
+        bpy.context.scene.collection.objects.link(ob)
+        self.objects.append(ob)
+        return ob
+
+    def _quads(self, quads, name):
+        """An invisible collider of quads (four corners each, anticlockwise from above)."""
+        verts, faces = [], []
+        for q in quads:
+            faces.append([len(verts) + i for i in range(4)])
+            verts += [tuple(map(float, v)) for v in q]
+        me = bpy.data.meshes.new(name)
+        me.from_pydata(verts, [], faces)
+        return self._add(me, name + "-colonly")
+
+    def _rails(self, b, pts, half, height=1.1):
+        """Invisible walls along both sides of a walkway (pts: its middle line, with heights), on a collider Builder."""
+        from mathutils import Matrix
+        for (x0, y0, z0), (x1, y1, z1) in zip(pts, pts[1:]):
+            ang = math.atan2(y1 - y0, x1 - x0)
+            ln = math.hypot(x1 - x0, y1 - y0)
+            for side in (-1, 1):
+                ox, oy = -math.sin(ang) * side * (half + 0.05), math.cos(ang) * side * (half + 0.05)
+                b.box((ln + 0.1, 0.1, height), ((x0 + x1) / 2 + ox, (y0 + y1) / 2 + oy, (z0 + z1) / 2 + height / 2),
+                      lambda f: (1, 1, 1, 1), rot=Matrix.Rotation(ang, 4, "Z"))
+
+    def water(self, name, box, level, flow=None, step=1.0):
+        """Water over box (x0, x1, y0, y1) wherever level(X, Y) stands above the ground (D.height): a grid at the
+        water's level, which slopes with a river's; flow(X, Y) gives its flow (metres a second, Blender's X and Y)."""
+        xs, ys = grid_axes(box, step)
+        X, Y = np.meshgrid(xs, ys)
+        Lv = level(X, Y)
+        depth = Lv - D.height(X, Y)
+        FX, FY = flow(X, Y) if flow else (np.zeros_like(X), np.zeros_like(X))
+        nx, ny = len(xs), len(ys)
+        wet = depth > -0.25
+        keep = wet[:-1, :-1] | wet[1:, :-1] | wet[:-1, 1:] | wet[1:, 1:]
+        J, I = np.nonzero(keep)
+        a = J * nx + I
+        quads = np.stack([a, a + 1, a + nx + 1, a + nx], -1)
+        used = np.unique(quads)
+        remap = np.full(nx * ny, -1, np.int64)
+        remap[used] = np.arange(len(used))
+        me = bpy.data.meshes.new(name)
+        me.from_pydata(np.stack([X.ravel()[used], Y.ravel()[used], Lv.ravel()[used]], 1).tolist(), [], remap[quads].tolist())
+        me.polygons.foreach_set("use_smooth", [True] * len(me.polygons))
+        uv = me.uv_layers.new(name="UVMap")
+        vi = np.zeros(len(me.loops), np.int64)
+        me.loops.foreach_get("vertex_index", vi)
+        fx, fy = FX.ravel()[used][vi], FY.ravel()[used][vi]
+        uv.data.foreach_set("uv", np.stack([fx, 1.0 + fy], 1).astype(np.float32).ravel())  # Godot reads (x, z)
+        me.materials.append(self.water_mat)
+        self.depths[name] = np.clip(depth.ravel()[used][vi], -0.25, 8.0).astype(np.float32)
+        self._add(me, name)
+
+    def stairs(self, name, p0, p1, width=1.3):
+        """Wooden steps up the ground from p0 (the foot, x, y) to p1 (the top): squared logs set into the slope, a
+        board along each side and a handrail on the left. They're walked on as the ground, which should rise
+        evenly under them, no steeper than the hero can climb (the area's height makes a ramp there)."""
+        from mathutils import Matrix
+        k = self.k
+        b = k["Builder"]()
+        (x0, y0), (x1, y1) = p0, p1
+        z0, z1 = self_ground(x0, y0), self_ground(x1, y1)
+        run, ang = math.hypot(x1 - x0, y1 - y0), math.atan2(y1 - y0, x1 - x0)
+        n = max(2, int(round((z1 - z0) / 0.2)))
+        rise, tread = (z1 - z0) / n, run / n
+        lx, ly = -math.sin(ang), math.cos(ang)  # to the left, going up
+        R = Matrix.Rotation(ang, 4, "Z")
+        pitch = Matrix.Rotation(-math.atan2(z1 - z0, run), 4, "Y")
+        wood, dark = k["pick"]("wood", "wood2", "timber2"), k["pick"]("timber", "timber2")
+        for i in range(n):
+            t = (i + 0.5) / n
+            top = z0 + (i + 1) * rise
+            b.box((tread * 0.92, width, rise + 0.3), (x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, top - (rise + 0.3) / 2), wood, rot=R)
+        slope = math.hypot(run, z1 - z0)
+        for side in (-1, 1):
+            o = side * (width / 2 + 0.05)
+            b.box((slope + 0.3, 0.1, 0.32), ((x0 + x1) / 2 + lx * o, (y0 + y1) / 2 + ly * o, (z0 + z1) / 2 + 0.12), dark, rot=R @ pitch)
+        posts = max(2, int(run / 1.7) + 1)
+        o = width / 2 + 0.16
+        for j in range(posts):
+            t = j / (posts - 1)
+            b.box((0.11, 0.11, 1.15), (x0 + (x1 - x0) * t + lx * o, y0 + (y1 - y0) * t + ly * o, z0 + (z1 - z0) * t + 0.45), dark, rot=R)
+        b.box((slope + 0.1, 0.08, 0.08), ((x0 + x1) / 2 + lx * o, (y0 + y1) / 2 + ly * o, (z0 + z1) / 2 + 1.0), dark, rot=R @ pitch)
+        self._add(b.mesh(name), name)
+
+    def bridge(self, name, p0, p1, width=1.5, arch=0.35):
+        """A plank footbridge from bank to bank, p0 to p1, arching up arch metres in the middle, with a handrail on
+        each side; walked on (its deck a collider), with invisible walls along its rails."""
+        from mathutils import Matrix
+        k = self.k
+        b = k["Builder"]()
+        (x0, y0), (x1, y1) = p0, p1
+        z0, z1 = self_ground(x0, y0) + 0.08, self_ground(x1, y1) + 0.08
+        ln, ang = math.hypot(x1 - x0, y1 - y0), math.atan2(y1 - y0, x1 - x0)
+        lx, ly = -math.sin(ang), math.cos(ang)
+        R = Matrix.Rotation(ang, 4, "Z")
+
+        def at(t, side=0.0, up=0.0):
+            return (x0 + (x1 - x0) * t + lx * side, y0 + (y1 - y0) * t + ly * side, z0 + (z1 - z0) * t + arch * 4 * t * (1 - t) + up)
+
+        wood, dark = k["pick"]("wood", "wood2", "timber2"), k["pick"]("timber", "timber2")
+        n = int(ln / 0.3)
+        for i in range(n):  # planks across, each tilted with the arch
+            t = (i + 0.5) / n
+            dz = (at(t + 0.5 / n)[2] - at(t - 0.5 / n)[2])
+            tilt = Matrix.Rotation(-math.atan2(dz, ln / n), 4, "Y")
+            b.box((ln / n * 0.86, width, 0.07), at(t, up=-0.035), wood, rot=R @ tilt)
+        segs = 6
+        for side in (-1, 1):  # the beams under, and the posts and rails
+            for j in range(segs):
+                ta, tb = j / segs, (j + 1) / segs
+                pa, pb = at(ta, side * width * 0.38, -0.16), at(tb, side * width * 0.38, -0.16)
+                tilt = Matrix.Rotation(-math.atan2(pb[2] - pa[2], ln / segs), 4, "Y")
+                b.box((ln / segs + 0.05, 0.16, 0.2), tuple((u + v) / 2 for u, v in zip(pa, pb)), dark, rot=R @ tilt)
+                ra, rb = at(ta, side * (width / 2 + 0.05), 0.95), at(tb, side * (width / 2 + 0.05), 0.95)
+                b.box((ln / segs + 0.04, 0.08, 0.08), tuple((u + v) / 2 for u, v in zip(ra, rb)), dark, rot=R @ tilt)
+            for j in range(segs + 1):
+                b.box((0.1, 0.1, 1.05), at(j / segs, side * (width / 2 + 0.05), 0.45), dark, rot=R)
+        self._add(b.mesh(name), name)
+        deck, mid = [], []
+        for j in range(12):
+            ta, tb = j / 12 - (0.04 if j == 0 else 0), (j + 1) / 12 + (0.04 if j == 11 else 0)
+            a0, a1, b0, b1 = at(ta, -width / 2), at(ta, width / 2), at(tb, -width / 2), at(tb, width / 2)
+            deck.append([a0, b0, b1, a1])
+            mid.append(at(ta))
+        mid.append(at(1.0))
+        self._quads(deck, name + "Deck")
+        rails = k["Builder"]()
+        self._rails(rails, mid, width / 2)
+        self._add(rails.mesh(name + "Rails"), name + "Rails-colonly")
+
+    def jetty(self, name, p0, p1, width=1.6, deck=0.45, level=0.0):
+        """A wooden jetty from the shore at p0 out over the water to p1, its deck deck metres over the water's level,
+        on posts down to the bed; walked on, with invisible walls along its sides and end."""
+        from mathutils import Matrix
+        k = self.k
+        b = k["Builder"]()
+        (x0, y0), (x1, y1) = p0, p1
+        top = level + deck
+        ln, ang = math.hypot(x1 - x0, y1 - y0), math.atan2(y1 - y0, x1 - x0)
+        lx, ly = -math.sin(ang), math.cos(ang)
+        R = Matrix.Rotation(ang, 4, "Z")
+        wood, dark = k["pick"]("wood", "wood2", "timber2", "log"), k["pick"]("timber", "timber2", "log2")
+        n = int(ln / 0.28)
+        for i in range(n):
+            t = (i + 0.5) / n
+            b.box((ln / n * 0.86, width, 0.07), (x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, top - 0.035), wood, rot=R)
+        for side in (-1, 1):
+            o = side * width * 0.4
+            b.box((ln, 0.14, 0.18), ((x0 + x1) / 2 + lx * o, (y0 + y1) / 2 + ly * o, top - 0.16), dark, rot=R)
+            for j in range(int(ln / 2.0) + 1):
+                t = min(1.0, j * 2.0 / ln)
+                px, py = x0 + (x1 - x0) * t + lx * side * (width / 2 + 0.02), y0 + (y1 - y0) * t + ly * side * (width / 2 + 0.02)
+                bed = self_ground(px, py)
+                b.limb((px, py, bed - 0.3), (px, py, top + 0.12), 0.09, 0.08, dark, segs=6)
+        self._add(b.mesh(name), name)
+        a0, a1 = (x0 + lx * width / 2, y0 + ly * width / 2), (x0 - lx * width / 2, y0 - ly * width / 2)
+        b0, b1 = (x1 + lx * width / 2, y1 + ly * width / 2), (x1 - lx * width / 2, y1 - ly * width / 2)
+        ux, uy = math.cos(ang), math.sin(ang)
+        r0, r1 = (a1[0] - ux * 1.4, a1[1] - uy * 1.4), (a0[0] - ux * 1.4, a0[1] - uy * 1.4)  # the ramp's foot, on land
+        self._quads([[(*a1, top), (*b1, top), (*b0, top), (*a0, top)],
+                     [(*r0, self_ground(*r0) - 0.02), (*a1, top), (*a0, top), (*r1, self_ground(*r1) - 0.02)]], name + "Deck")
+        # walls along its sides and across its end, from the bed up, so the hero can neither walk off it nor wade
+        # under it into the deep water
+        bed = min(self_ground(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t) for t in np.linspace(0, 1, 9)) - 0.5
+        hgt = top + 1.1 - bed
+        walls = k["Builder"]()
+        white = lambda f: (1, 1, 1, 1)  # noqa: E731
+        for side in (-1, 1):
+            o = side * (width / 2 + 0.05)
+            walls.box((ln + 0.1, 0.1, hgt), ((x0 + x1) / 2 + lx * o, (y0 + y1) / 2 + ly * o, bed + hgt / 2), white, rot=R)
+        walls.box((0.1, width + 0.3, hgt), (x1 + ux * 0.05, y1 + uy * 0.05, bed + hgt / 2), white, rot=R)
+        self._add(walls.mesh(name + "Walls"), name + "Walls-colonly")
+
+    def boardwalk(self, name, pts, width=0.9, lift=0.14, level=None):
+        """A boardwalk over wet ground (a spang): two planks side by side, on short cross logs, following pts,
+        lift metres over the ground (or the water's level(x, y), where higher), its ends sloping down to the
+        ground; walked on."""
+        from mathutils import Matrix
+        k = self.k
+        b = k["Builder"]()
+        pts = [tuple(map(float, p)) for p in pts]
+        tops = [max(self_ground(x, y), level(x, y) if level else -1e9) + lift for x, y in pts]
+        tops[0], tops[-1] = self_ground(*pts[0]) + 0.03, self_ground(*pts[-1]) + 0.03
+        plank = k["pick"]("snag", "snag2", "log", "wood")
+        dark = k["pick"]("log2", "timber2", "wood2")
+        quads = []
+        for (xa, ya), (xb, yb), za, zb in zip(pts, pts[1:], tops, tops[1:]):
+            ln, ang = math.hypot(xb - xa, yb - ya), math.atan2(yb - ya, xb - xa)
+            lx, ly = -math.sin(ang), math.cos(ang)
+            R = Matrix.Rotation(ang, 4, "Z") @ Matrix.Rotation(-math.atan2(zb - za, ln), 4, "Y")
+            for side in (-1, 1):
+                o = side * width * 0.26
+                b.box((ln + 0.12, width * 0.46, 0.06), ((xa + xb) / 2 + lx * o, (ya + yb) / 2 + ly * o, (za + zb) / 2 - 0.03), plank, rot=R)
+            b.limb((xb - lx * width * 0.65, yb - ly * width * 0.65, zb - 0.1), (xb + lx * width * 0.65, yb + ly * width * 0.65, zb - 0.1), 0.07, 0.06, dark, segs=5)
+            quads.append([(xa - lx * width / 2, ya - ly * width / 2, za), (xb - lx * width / 2, yb - ly * width / 2, zb),
+                          (xb + lx * width / 2, yb + ly * width / 2, zb), (xa + lx * width / 2, ya + ly * width / 2, za)])
+        self._add(b.mesh(name), name)
+        self._quads(quads, name + "Deck")
+
+    def save(self, path):
+        if not self.objects:
+            return None
+        export_glb(self.objects, path, self.depths)
+        for ob in self.objects:
+            bpy.data.objects.remove(ob)
+        self.objects = []
+        return path
+
+
+def self_ground(x, y):
+    return float(D.height(np.array([x]), np.array([y]))[0])
+
+
+def populate_default(L):
+    """The way the first area (Storskogen) is scattered, the way the mockups do it (act1_shots.populate_act)."""
+    L.clear += [(D.START[0], 3.5)] + [(p, 2.5) for _, p, _ in D.LANDMARKS] + [(p, 4.5) for _, p in D.LONE_TREES]
+    L.clear += [(p, 2.0 * s + 1.0) for p, s in D.ERRATICS]
+    L.forest()
+    L.lone_trees()
+    L.far_forest()
+    L.rocks_and_logs()
+    L.erratics_and_landmarks()
+    L.ground_cover()
+    L.trail_edges()
+
+
+def build_layout():
+    """Scatter the area's trees, rocks and plants (its populate, or populate_default). Every tree spot names the old
+    model and the new one, so the two versions of the demo differ only in the trees."""
+    L = Layout(load_info(), np.random.default_rng(getattr(D, "SEED", 11)))
+    getattr(D, "populate", populate_default)(L)
     (sx, sy), facing = D.START
     layout = {
-        "about": "Written by tools/build_demo.py from tools/demo_area.py. Positions are Godot's (metres, Y up); a prop is "
-                 "[x, y, z, rotation about Y in radians, scale]; a solid is [x, y, z, radius, height].",
-        "start": {"position": to_godot((sx, sy, ground(sx, sy))), "facing": facing},
+        "about": "Written by tools/build_demo.py from tools/areas/%s.py. Positions are Godot's (metres, Y up); a prop is "
+                 "[x, y, z, rotation about Y in radians, scale]; a solid is [x, y, z, radius, height]." % AREA,
+        "title": getattr(D, "TITLE", AREA),
+        "start": {"position": to_godot((sx, sy, L.ground(sx, sy))), "facing": facing},
         "boundary": [[round(float(x), 2), round(float(-y), 2)] for x, y in D.BOUNDARY],
-        "trees": trees, "props": {k: props[k] for k in sorted(props)}, "solids": solids,
+        "trees": L.trees, "props": {k: L.props[k] for k in sorted(L.props)}, "solids": L.solids,
     }
-    os.makedirs(DATA_DIR, exist_ok=True)
-    with open(os.path.join(DATA_DIR, "demo_layout.json"), "w") as fh:
+    layout.update(L.extras)
+    if hasattr(D, "build_extras"):  # the area's own models: water, stairs, bridges (Extras)
+        E = Extras(load_kit())
+        D.build_extras(E)
+        os.makedirs(GROUND_DIR, exist_ok=True)
+        if E.save(os.path.join(GROUND_DIR, "extras.glb")):
+            layout["extras"] = "res://assets/areas/%s/extras.glb" % AREA
+    os.makedirs(os.path.dirname(LAYOUT_PATH), exist_ok=True)
+    with open(LAYOUT_PATH, "w") as fh:
         json.dump(layout, fh, separators=(",", ":"))
-    near = sum(1 for t in trees if t["ring"] == "near")
-    print("layout: %d trees near, %d far, %d props, %d solids" % (near, len(trees) - near, sum(map(len, props.values())), len(solids)))
+    near = sum(1 for t in L.trees if t["ring"] == "near")
+    print("layout %s: %d trees near, %d far, %d props, %d solids" % (AREA, near, len(L.trees) - near, sum(map(len, L.props.values())), len(L.solids)))
 
 
 # ------------------------------------------------------------------ ground
@@ -794,7 +1454,8 @@ COLOUR_TEXEL = 0.04  # the ground's colour; the game's shader draws the gravel, 
 MASK_TEXEL = 0.1  # where the paths wear the grass, and the paths' dirt colour
 FAR_TEXEL = 0.5  # the outer ground's colour
 CANOPY_TEXEL = 0.25  # how much the trees shade the ground from the sky
-GROUND_LAYERS = ("pathw", "bog", "shore", "meadow", "field", "fieldbase", "yard", "paving", "ash", "darkfloor")
+GROUND_LAYERS = ("pathw", "bog", "shore", "meadow", "field", "fieldbase", "yard", "paving", "ash", "darkfloor",
+                 "moss", "litter", "heath", "rock", "gravel", "sedge", "bed")  # the last seven: extend_ground_more
 
 
 def grid_axes(box, step):
@@ -1035,17 +1696,31 @@ def bake_masks(kit):
     save_pixels(masks, os.path.join(GROUND_DIR, "masks.png"), alpha=True)
 
 
+def bake_litter(texel=0.25):
+    """Where autumn's leaves cover the ground (an area's litter layer), for the game's fallen leaves to cover it too
+    (litter in shaders/ground.gdshaderinc): litter.png, only for an area that has the layer."""
+    x0, x1, y0, y1 = D.BAKE
+    X, Y = np.meshgrid(x0 + (np.arange(int(round((x1 - x0) / texel))) + 0.5) * texel,
+                       y0 + (np.arange(int(round((y1 - y0) / texel))) + 0.5) * texel)  # rows from the south
+    litter = D.ground_masks(X, Y).get("litter")
+    if litter is not None:
+        save_pixels(np.clip(litter, 0.0, 1.0), os.path.join(GROUND_DIR, "litter.png"))
+
+
 def build_masks():
     """Only the masks, after changing how the paths wear the grass (the rest of the ground stays as it is)."""
     kit = load_kit()
+    extend_ground_more(kit)
     bake_scene()
     inner = ground_mesh("Ground", D.BAKE, GRID, kit)
     bake_masks(kit)
     bpy.data.objects.remove(inner)
+    bake_litter()
 
 
 def build_ground():
     kit = load_kit()
+    extend_ground_more(kit)
     bake_scene()
     sc = bpy.context.scene
 
@@ -1061,18 +1736,19 @@ def build_ground():
     # path's colours come from, and the masks; the game paints the trampled grass and the dirt from a palette
     inner = ground_mesh("Ground", D.BAKE, GRID, kit)
     show(kit, lambda nt: mix_input(nt.nodes["WornGrass"], "A"))
-    bake_view(D.BAKE, COLOUR_TEXEL, os.path.join(GROUND_DIR, "grass.jpg"), tiles=(4, 4), quality=92)
+    bake_view(D.BAKE, getattr(D, "COLOUR_TEXEL", COLOUR_TEXEL), os.path.join(GROUND_DIR, "grass.jpg"), tiles=(4, 4), quality=92)
     show(kit, path_noise_socket)
     bake_view(D.BAKE, MASK_TEXEL, os.path.join(GROUND_DIR, "path_noise.png"))
     bake_masks(kit)
     bpy.data.objects.remove(inner)
+    bake_litter()
     outer = ground_mesh("FarGround", (-FAR, FAR, -FAR, FAR), FAR_GRID, kit)
     show(kit, lambda nt: mix_input(nt.nodes["WornGrass"], "A"))
     bake_view((-FAR, FAR, -FAR, FAR), FAR_TEXEL, os.path.join(GROUND_DIR, "grass_far.jpg"), quality=92)
     bpy.data.objects.remove(outer)
 
     # the trees' shade on the ground's sky light, for each tree set
-    with open(os.path.join(DATA_DIR, "demo_layout.json")) as fh:
+    with open(LAYOUT_PATH) as fh:
         trees = json.load(fh)["trees"]
     kit_meshes = {name: make() for items in kit_groups(kit).values() for name, make in items if name.startswith(("Pine", "TallSpruce", "Birch", "YoungSpruce"))}
     new_meshes = tree_meshes()
@@ -1086,21 +1762,35 @@ def build_ground():
         save_pixels(vis, os.path.join(GROUND_DIR, f"canopy_{which}.png"))
         print("canopy", which, "mean sky %.2f, darkest %.2f" % (vis.mean(), vis.min()))
 
+    res = "res://assets/areas/%s/" % AREA
     info = {
-        "about": "Written by tools/build_demo.py. Godot's axes; the images' top edge is the area's north (-Z) edge.",
+        "about": "Written by tools/build_demo.py. Godot's axes; the images' top edge is the area's north (-Z) edge. The "
+                 "ground's textures are in dir: grass.jpg, path_noise.png, masks.png, grass_far.jpg, canopy_old.png and "
+                 "canopy_new.png, and litter.png where autumn's leaves cover the ground.",
+        "dir": res,
         "bounds": [D.BAKE[0], -D.BAKE[3], D.BAKE[1] - D.BAKE[0], D.BAKE[3] - D.BAKE[2]],  # x, z, width, depth
-        "grid": GRID, "size": [len(xs), len(ys)], "heights": "res://assets/ground/heights.bin",
+        "grid": GRID, "size": [len(xs), len(ys)], "heights": res + "heights.bin",
         "far_bounds": [-FAR, -FAR, 2 * FAR, 2 * FAR], "far_grid": FAR_GRID, "far_size": [len(fxs), len(fys)],
-        "far_heights": "res://assets/ground/heights_far.bin",
+        "far_heights": res + "heights_far.bin",
     }
     with open(os.path.join(GROUND_DIR, "ground.json"), "w") as fh:
         json.dump(info, fh, indent=1)
-    print("ground: %d x %d heights, colour %d x %d" % (len(xs), len(ys), round((D.BAKE[1] - D.BAKE[0]) / COLOUR_TEXEL), round((D.BAKE[3] - D.BAKE[2]) / COLOUR_TEXEL)))
+    texel = getattr(D, "COLOUR_TEXEL", COLOUR_TEXEL)
+    print("ground %s: %d x %d heights, colour %d x %d" % (AREA, len(xs), len(ys), round((D.BAKE[1] - D.BAKE[0]) / texel), round((D.BAKE[3] - D.BAKE[2]) / texel)))
 
 
 # ------------------------------------------------------------------ main
 if __name__ == "__main__":
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-    stages = argv or ["models", "stumps", "layout", "ground"]
+    names = areas.AREAS
+    for a in argv:
+        if a.startswith("--area="):
+            names = a[7:].split(",")
+    stages = [a for a in argv if not a.startswith("--")] or ["models", "stumps", "layout", "ground"]
     for stage in stages:
-        {"models": build_models, "stumps": build_stumps, "layout": build_layout, "ground": build_ground, "masks": build_masks}[stage]()
+        if stage in ("models", "kit", "stumps"):  # the same for every area
+            {"models": build_models, "kit": lambda: build_models(trees=False), "stumps": build_stumps}[stage]()
+            continue
+        for name in names:
+            use_area(name)
+            {"layout": build_layout, "ground": build_ground, "masks": build_masks}[stage]()

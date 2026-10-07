@@ -1,12 +1,14 @@
 extends Node3D
-## The play demo: a small part of Storskogen, with dense pine and spruce forest in the west, like Tätskogen, and an
-## open meadow with a low rise in the east, like Stora ängen. It shows the mockups' trees or the tree portfolio's
-## (Game.tree_set), and T swaps them where you stand.
+## The play demo: one of its scenes (scripts/scenes.gd, Game.scene), an area of forest in a mood, the first a small
+## part of Storskogen. The Scenes button, or Tab, switches between them. It shows the mockups' trees or the tree
+## portfolio's (Game.tree_set), and T swaps them where you stand.
 ##
 ## For checking it from the command line (see README.md), after the scene path and "--":
 ##   --trees=old|new  which trees            --pose=x,z,yaw,pitch,distance[,facing]  where the hero and camera are
 ##   --shot=out.png   take a screenshot and quit (after --wait=frames, default 90)    --nohud  without the HUD
 ##   --fps=seconds    measure the frame rate first and print it                       --selftest  try the controls
+##   --scene=id       which scene (scripts/scenes.gd)       --scenetest  walk the scene's steps, bridges and jetties
+##   --mood=name      the scene's area in another mood (scripts/mood.gd)
 ##   --walktest       walk the trail and print the frame times                       --treelod=1|2  lighter trees
 ##   --panel          open the performance panel (F2); --panel=advanced with its advanced settings shown
 ##   --set:option=value  a panel option or slider, e.g. --set:shadow_size=1024 --set:details=2 --set:tree_shadows=far
@@ -16,12 +18,14 @@ extends Node3D
 ##   --flatground, --canopy=0..1, --bump=0..1, --sun:property=value, --env:property=value, --vp:property=value
 
 var world: DemoWorld
+var scene: Dictionary  # the scene shown (scripts/scenes.gd)
 var hero: Hero
 var rig: CameraRig
 var _info: Label
 var _help: Control
 var _fps: Label
 var _panel: PerfPanel
+var _scenes: ScenePicker
 ## the shadows reach as far as the camera sees the ground, at most shadow_cap metres; or always shadow_cap if false
 var shadow_fit := true
 var shadow_cap := 70.0
@@ -35,15 +39,22 @@ var _gpu := 0.0
 
 
 func _ready() -> void:
+	scene = Scenes.find(Game.scene)
 	var env := WorldEnvironment.new()
 	add_child(env)
 	var sun := DirectionalLight3D.new()
 	sun.name = "DirectionalLight3D"
 	add_child(sun)
-	Mood.apply_day(env, sun)
+	var mood: String = scene["mood"]
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--mood="):  # another mood for the scene's area, for trying them out
+			mood = a.substr(7)
+	Mood.apply(env, sun, mood, scene.get("reflections", false))
 	world = DemoWorld.new()
 	add_child(world)
-	world.build(Game.tree_set)
+	world.build(scene["area"], Game.tree_set)
+	for param: String in scene.get("ground", {}):
+		world.set_ground_param(param, scene["ground"][param])
 	PathThemes.apply(world, Game.path_theme)
 	hero = Hero.new()
 	add_child(hero)
@@ -57,6 +68,8 @@ func _ready() -> void:
 	rig.world = world
 	hero.camera_rig = rig
 	_build_hud()
+	if scene.has("pose"):  # a scene that starts somewhere of its own, or with the camera low
+		_pose(scene["pose"])
 	_read_args()
 	rig.snap()
 	for a in OS.get_cmdline_user_args():
@@ -76,6 +89,10 @@ func _ready() -> void:
 		var test: Node = load("res://scripts/dev/selftest.gd").new()
 		add_child(test)
 		test.run(self)
+	elif "--scenetest" in OS.get_cmdline_user_args():
+		var test: Node = load("res://scripts/dev/scenetest.gd").new()
+		add_child(test)
+		test.run(self)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -83,6 +100,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		show_tree_set("old" if Game.tree_set == "new" else "new")
 	elif event.is_action_pressed("perf_panel"):
 		_panel.visible = not _panel.visible
+	elif event.is_action_pressed("scene_menu"):
+		_scenes.visible = not _scenes.visible
 	elif event.is_action_pressed("path_theme"):
 		var order := PathThemes.ORDER
 		show_path_theme(order[(order.find(Game.path_theme) + 1) % order.size()])
@@ -218,17 +237,22 @@ func _read_args() -> void:
 			RenderingServer.global_shader_parameter_set("hero_fade_on", 0.0)
 		elif a == "--flatground":
 			world.set_ground_detail(0)
-		elif a.begins_with("--pose="):  # x,z,yaw,pitch,distance[,hero facing in degrees like the start's]
-			var v := a.substr(7).split_floats(",")
-			hero.global_position = Vector3(v[0], world.height_at(v[0], v[1]) + 0.05, v[1])
-			rig.yaw = v[2]
-			rig.pitch = v[3]
-			rig.distance = v[4]
-			if v.size() > 5:
-				var f := deg_to_rad(v[5])
-				hero.facing = atan2(-cos(f), sin(f))
-				hero.rotation.y = hero.facing
-			hero.reset_physics_interpolation()
+		elif a.begins_with("--pose="):
+			_pose(a.substr(7))
+
+
+## Put the hero and the camera somewhere: "x,z,yaw,pitch,distance[,hero facing in degrees like the start's]".
+func _pose(spec: String) -> void:
+	var v := spec.split_floats(",")
+	hero.global_position = Vector3(v[0], world.height_at(v[0], v[1]) + 0.05, v[1])
+	rig.yaw = v[2]
+	rig.pitch = v[3]
+	rig.distance = v[4]
+	if v.size() > 5:
+		var f := deg_to_rad(v[5])
+		hero.facing = atan2(-cos(f), sin(f))
+		hero.rotation.y = hero.facing
+	hero.reset_physics_interpolation()
 
 
 # ------------------------------------------------------------------ HUD
@@ -254,11 +278,26 @@ func _build_hud() -> void:
 	var col := VBoxContainer.new()
 	box.add_child(col)
 	var title := Label.new()
-	title.text = "Storskogen · play demo"
+	title.text = "%s · play demo" % scene["title"]
 	title.add_theme_font_override("font", font)
 	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", Color("#E8D9B0"))
 	col.add_child(title)
+	var scenes := Button.new()  # the scenes to switch to: _scenes
+	scenes.text = "Scenes  (Tab)"
+	scenes.focus_mode = Control.FOCUS_NONE
+	scenes.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	scenes.add_theme_font_size_override("font_size", 14)
+	for state in ["normal", "hover", "pressed"]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color("#2A2620") if state == "normal" else Color("#3A3328")
+		sb.border_color = Color("#C9A24A") if state != "normal" else Color("#6E5D3E")
+		sb.set_border_width_all(1)
+		sb.set_content_margin_all(5)
+		scenes.add_theme_stylebox_override(state, sb)
+	scenes.add_theme_color_override("font_color", Color("#E8D9B0"))
+	scenes.pressed.connect(func() -> void: _scenes.visible = not _scenes.visible)
+	col.add_child(scenes)
 	_info = Label.new()
 	_info.add_theme_color_override("font_color", Color("#E6E0D2"))
 	_info.add_theme_font_size_override("font_size", 14)
@@ -269,7 +308,7 @@ func _build_hud() -> void:
 		+ "Mouse wheel  zoom\n"
 		+ "Left mouse button  'attack': face the cursor, walk slower\n"
 		+ "T  swap old and new trees    P  path colours    F2  performance    F3  frame rate\n"
-		+ "F4  render scale    F12  screenshot    F1  hide this    Esc  menu")
+		+ "F4  render scale    F12  screenshot    Tab  scenes    F1  hide this    Esc  menu")
 	_help.add_theme_color_override("font_color", Color("#CFC6B2"))
 	_help.add_theme_font_size_override("font_size", 13)
 	col.add_child(_help)
@@ -281,6 +320,16 @@ func _build_hud() -> void:
 	_fps.add_theme_color_override("font_color", Color("#E6E0D2"))
 	_fps.visible = false
 	layer.add_child(_fps)
+	_scenes = ScenePicker.new()
+	_scenes.visible = false
+	_scenes.set_anchors_preset(Control.PRESET_CENTER)
+	_scenes.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_scenes.grow_vertical = Control.GROW_DIRECTION_BOTH
+	layer.add_child(_scenes)
+	_scenes.setup(Game.scene, "Scenes  ·  Tab closes")
+	_scenes.picked.connect(func(id: String) -> void:
+		Game.scene = id
+		get_tree().reload_current_scene())
 	_panel = PerfPanel.new()
 	_panel.visible = false
 	_panel.anchor_left = 1.0

@@ -1,5 +1,5 @@
 extends Control
-## The start screen: pick which trees the demo shows.
+## The start screen: pick one of the demo's scenes (scripts/scenes.gd), and start it with the new trees or the old.
 
 func _ready() -> void:
 	var font: Font = load("res://assets/fonts/Cinzel.ttf")
@@ -23,19 +23,23 @@ func _ready() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(title)
 	var sub := Label.new()
-	sub.text = "Play demo · Act 1 · Storskogen"
+	sub.text = "Play demo · Act 1"
 	sub.add_theme_font_override("font", font)
 	sub.add_theme_font_size_override("font_size", 24)
 	sub.add_theme_color_override("font_color", Color("#C9B58A"))
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(sub)
 	var about := Label.new()
-	about.text = ("A small part of Storskogen: dense pine and spruce forest, a winding trail,\n"
-		+ "and an open meadow with a low rise. Both versions are the same place;\nonly the trees differ.")
+	about.text = "Pick a scene, then start it with the new trees or the old: the same place either way, only the trees differ."
 	about.add_theme_font_size_override("font_size", 15)
 	about.add_theme_color_override("font_color", Color("#CFC6B2"))
 	about.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(about)
+	var picker := ScenePicker.new()
+	picker.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	col.add_child(picker)
+	picker.setup(Game.scene, "")
+	picker.picked.connect(func(id: String) -> void: Game.scene = id)
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0, 10)
 	col.add_child(gap)
@@ -60,7 +64,7 @@ func _ready() -> void:
 		if choice[0] == Game.tree_set:
 			b.call_deferred("grab_focus")
 	var keys := Label.new()
-	keys.text = "WASD walk  ·  right mouse button orbits the camera  ·  wheel zooms  ·  T swaps the trees  ·  F1 help"
+	keys.text = "WASD walk  ·  right mouse button orbits the camera  ·  wheel zooms  ·  T swaps the trees  ·  Tab scenes  ·  F1 help"
 	keys.add_theme_font_size_override("font_size", 13)
 	keys.add_theme_color_override("font_color", Color("#9C927E"))
 	keys.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

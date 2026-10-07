@@ -1,12 +1,28 @@
 # wfarpg: the play demo
 
-A first playable piece of Act 1, in Godot: a small part of Storskogen, about 155 × 110 m to walk.
+A first playable piece of Act 1, in Godot: eleven scenes, each an area of Swedish forest in a mood of its own, about
+125 × 100 m to walk (Storskogen 155 × 110 m, the open field 210 m across). Pick one on the start screen, or switch in
+the game with the Scenes button or **Tab**.
 
-- **Tätskogen-like forest** in the west: dense pine and spruce, berry bushes, mossy boulders and fallen logs.
-  A winding trail runs through it, with a fork to the north.
-- **Stora ängen-like meadow** in the east: open grass with lone trees, boulders and a low rise you can walk up.
-  Birch, aspen, rowan and alder grow along the forest's edge.
-- **Two versions of the same place:**
+| Scene | What it shows |
+|---|---|
+| Storskogen | The first demo, a small part of Storskogen: dense pine and spruce in the west, like Tätskogen, with a winding trail and a fork to the north; an open meadow with lone trees and a low rise in the east, like Stora ängen |
+| Thick forest | Dense spruce and pine all round, with one winding path cleared through it, like where Storskogen starts |
+| Open field | A very big, rolling meadow: copses of birch and aspen, lone trees, boulders, the forest only far off |
+| Autumn hollow | A grove of birch, aspen, rowan and alder in a hollow 2.8 m deep, 1–4 m between the trees, turning yellow, orange and red, the ground deep in their leaves; the forest round it still mostly green |
+| River and cliffs | A little river, with a rapid, under a band of mossy cliffs 3.5–4 m high: wooden steps up them, a path up where they peter out, a path along the top, a footbridge over the river, and stepping stones from a gravel bank |
+| Forest lake | A still, dark lake with reflections: reeds, water lilies in a bay, a jetty, an island with pines. The hero can wade in the shallows |
+| Bog | An open wetland: golden tussocks between dark pools, stunted pines and birches, grey snags, a boardwalk across |
+| Pine heath | Tall pines standing apart over moss, heather and bare granite knolls |
+| Misty forest | The thick forest, with fog rolling in |
+| Misty ravine | The river and cliffs, in grey, damp mist |
+| Sunbeams | The pine heath early in the morning: a low sun shining through mist between the trunks |
+
+The new areas follow the reference images in `ref_imgs2/`: the forest densities (thick forest, pine heath, open
+field), fog, sun rays, leaves on the ground (the autumn hollow), the hike trail (the river and cliffs), the lake, and
+the wetland (the bog).
+
+- **Two versions of the trees:**
   - the old trees, the low-poly ones from the mockup screenshots;
   - the new trees, the tree portfolio built in Blender (`assets/trees`).
   - Every tree stands on the same spot in both.
@@ -23,6 +39,7 @@ godot --path game                                  # from the repository root: p
 godot -e --path game                               # opens the project in the editor (F5 plays)
 godot --path game res://scenes/demo.tscn -- --trees=old   # straight into the demo, with the old trees
 godot --path game res://scenes/demo.tscn -- --theme=Brown_earth   # with one of the path colours (_ for spaces)
+godot --path game res://scenes/demo.tscn -- --scene=forest_lake   # straight into a scene (its id in scripts/scenes.gd)
 ```
 
 The first time, Godot imports the models and textures, which takes a minute. When running it from the command line
@@ -38,6 +55,7 @@ The controls follow the mechanics and camera notes on the look & feel board.
 | Right mouse button + move | Orbit the camera round the hero. Sideways turns the view; up and down changes the angle, from straight down to low behind the hero |
 | Mouse wheel | Zoom |
 | Left mouse button (hold) | "Attack": the hero turns to face the cursor and walks at 55% speed. There are no attacks yet |
+| Tab | The scenes, to switch to another (or click Scenes, top left) |
 | T | Swap the old and new trees |
 | P | Change the paths' colours (eight themes, below) |
 | F2 | The performance panel (below) |
@@ -66,7 +84,13 @@ place (`tools/reference_shots.py`).
     sharp up close: the trampled grass and dirt, gravel and pebbles, grit, and fallen leaves. It uses a port of
     Blender's noise (`shaders/blender_noise.gdshaderinc`), and comes in four levels of detail (below).
 - **Light:** `scripts/mood.gd` copies the mockups' daylight: the sun, a plain ambient colour, the gradient sky with
-  clouds, haze, and AgX tone mapping.
+  clouds, haze, and AgX tone mapping. The other moods change it for a scene: **fog** (a grey sky, the sun dimmed, thick
+  haze and mist lying low), **morning** (a low, warm sun and volumetric fog, lit by the sun alone, so its shafts show
+  between the trunks) and **autumn** (a warmer sun, more saturated). The water's scenes turn on screen-space
+  reflections, so the water mirrors the trees on its far shore when the camera is low.
+- **Autumn:** a tree in an area's layout can carry a tint, which turns its leaves yellow, orange or red, and how far
+  (`autumn` in `shaders/leaves.gdshader` and `impostor.gdshader`); an area with an autumn ground (`litter.png`) has
+  its fallen leaves cover the ground in two layers there.
 - **Shading under the trees:** Godot's ambient light isn't blocked by geometry, unlike Eevee's, so the build bakes
   it instead.
   - Into each tree's vertices: how much of the sky each leaf and branch can see.
@@ -345,20 +369,30 @@ of the hero went whole there; with See-through, the defaults take 11.6 ms):
 
 ## Rebuilding the assets
 
-Everything in `assets/kit`, `assets/trees`, `assets/ground` and `data` is generated from code. Rebuild it after
-changing the trees, the mockups' kit or the area. Run from `game/tools`, with Blender 5.2:
+Everything in `assets/kit`, `assets/trees`, `assets/areas` and `data` is generated from code. Rebuild it after
+changing the trees, the mockups' kit or an area. Run from `game/tools`, with Blender 5.2:
 
 ```sh
 blender -b --factory-startup -P build_demo.py -- models   # the old kit and the portfolio trees (.glb), with baked occlusion
+blender -b --factory-startup -P build_demo.py -- kit      # only the kit (rocks, plants, the areas' own pieces), in seconds
 blender -b --factory-startup -P build_demo.py -- stumps   # every tree's stump and bare trunk (stumps.glb), in a few seconds
-blender -b --factory-startup -P build_demo.py -- layout   # where every tree, rock and plant stands
+blender -b --factory-startup -P build_demo.py -- layout   # where every tree, rock and plant stands; water, steps, bridges
 blender -b --factory-startup -P build_demo.py -- ground   # heights, ground textures and the trees' shade (after layout)
 blender -b --factory-startup -P build_demo.py -- masks    # only the paths' wear masks (masks.png), in a few seconds
-blender -b --factory-startup -P build_demo.py            # all four, in that order
+blender -b --factory-startup -P build_demo.py            # models, stumps, layout and ground, in that order
+blender -b --factory-startup -P build_demo.py -- layout ground --area=bog,forest_lake   # only these areas
 ```
 
-The area itself, with its outline, trails, meadow, rise and how thick the forest grows, is data in
-`tools/demo_area.py`. To compare the game with the mockups, render the same view both ways:
+Layout and ground run for every area in `tools/areas` (its `AREAS`) unless `--area` names some; ground takes a few
+minutes an area. Each area is a module there: its outline, paths, heights, how thick the forest grows and of what
+trees, its ground's layers (moss, heather, rock, gravel, sedge, the bog's mud, autumn's fallen leaves, the bed under
+water), and what it scatters (`populate`); `storskogen.py` is the first demo's. An area with water, steps, a bridge, a
+jetty or a boardwalk builds them in `build_extras`, into `assets/areas/<area>/extras.glb`: the models named
+`-colonly` there are colliders the importer makes, to walk on or bump into. Its layout goes to
+`data/areas/<area>.json`, its ground to `assets/areas/<area>`. A scene (`scripts/scenes.gd`) shows an area in a
+mood (`scripts/mood.gd`); several scenes can share one.
+
+To compare the game with the mockups, render the same view both ways (`--area=name` for another area):
 
 ```sh
 blender -b --factory-startup -P reference_shots.py -- ref.png -46,-15,225,55,20 old
@@ -373,7 +407,8 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 |---|---|
 | `scenes/start.tscn`, `scenes/demo.tscn` | The start screen and the demo |
 | `scripts/demo.gd` | The demo: builds the scene, the HUD, and the command-line options for checking it |
-| `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions, and their stumps for when they're cut), rocks and plants, colliders, walls |
+| `scripts/scenes.gd`, `scripts/scene_picker.gd` | The scenes (an area in a mood each), and the list to pick one from, on the start screen and in the game |
+| `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions, and their stumps for when they're cut), rocks and plants, its own models (water, steps, bridges), colliders, walls |
 | `scripts/ground_detail.gd` | Bakes the ground's details into tiling textures at startup, for the Baked level |
 | `scripts/tree_impostors.gd`, `scripts/tree_shadow_pictures.gd` | Picture the new trees at startup: from the side, for the far trees, and their leaves from the sun, for their shadows |
 | `scripts/hero.gd`, `scripts/camera_rig.gd` | The hero and the camera |
@@ -381,7 +416,7 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/path_themes.gd` | The paths' colour themes |
 | `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials, and the trees' thinned versions; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
-| `shaders/` | Ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material (and `lowpoly_trunk` for the bare trunks trees leave, which neither the x-ray nor the fade near the camera touch), the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
-| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees, `--pitch=12` for the camera low), `paneltest.gd` (`--paneltest`), `veilbench.gd` (`godot --path game --script res://scripts/dev/veilbench.gd`: at random spots in the forest with the camera low, the slowest views, and what the see-through trees cost there with all their cards, half, or hidden; add `-- --poses=x,z,yaw,pitch,distance;...` for set views), `veiltune.gd` (`godot --headless --path game --script res://scripts/dev/veiltune.gd -- --out=rows.csv`: playtests for when trees go see-through, walking the hero under every tree standing alone, along the trail and to random forest spots, writing for each step how much of the area round the hero each way of measuring covers, and how much of the hero shows; `python3 tools/veiltune.py rows.csv` plays the settings over them), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender) |
-| `tools/` | The Blender build scripts, and `veiltune.py` (above) (Godot ignores this folder) |
+| `shaders/` | Water (`water`: its colour from its depth, ripples moving with its flow, white water where it runs fast), ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material (and `lowpoly_trunk` for the bare trunks trees leave, which neither the x-ray nor the fade near the camera touch), the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
+| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it), `scenetest.gd` (`--scene=river_cliffs --scenetest`: walks the hero up the river's steps, over its bridge, out on the lake's jetty and into its shallows, along the bog's boardwalk and down into the autumn hollow, and checks it gets there on what it walks on), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees, `--pitch=12` for the camera low), `paneltest.gd` (`--paneltest`), `veilbench.gd` (`godot --path game --script res://scripts/dev/veilbench.gd`: at random spots in the forest with the camera low, the slowest views, and what the see-through trees cost there with all their cards, half, or hidden; add `-- --poses=x,z,yaw,pitch,distance;...` for set views), `veiltune.gd` (`godot --headless --path game --script res://scripts/dev/veiltune.gd -- --out=rows.csv`: playtests for when trees go see-through, walking the hero under every tree standing alone, along the trail and to random forest spots, writing for each step how much of the area round the hero each way of measuring covers, and how much of the hero shows; `python3 tools/veiltune.py rows.csv` plays the settings over them), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender) |
+| `tools/` | The Blender build scripts, the areas (`tools/areas`), and `veiltune.py` (above) (Godot ignores this folder) |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

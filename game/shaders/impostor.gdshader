@@ -6,9 +6,12 @@
 shader_type spatial;
 render_mode skip_vertex_transform, cull_disabled, diffuse_lambert, specular_schlick_ggx;
 
+#include "res://shaders/common.gdshaderinc"
+
 uniform sampler2D atlas : source_color, filter_linear_mipmap, repeat_disable;
 uniform float frames = 8.0;  // pictures round each tree, the first from the tree's +Z, then turning
 uniform float frame_u = 0.125;  // a picture's width in the atlas
+instance uniform vec2 autumn = vec2(0.0);  // the tree's leaves turned (autumn_tint in common.gdshaderinc)
 global uniform vec2 mood_grade;
 
 varying vec3 pick;  // the two pictures' columns and how far between them
@@ -35,6 +38,7 @@ void vertex() {
 void fragment() {
 	vec4 c = mix(texture(atlas, vec2((pick.x + UV.x) * frame_u, UV.y)), texture(atlas, vec2((pick.y + UV.x) * frame_u, UV.y)), pick.z);
 	vec3 col = c.rgb / max(c.a, 0.002);  // the pictures' empty parts are black, which their smaller mipmaps mix in
+	col = mix(col, autumn_tint(col, autumn), smoothstep(0.0, 0.02, col.g - max(col.r, col.b)));  // the leaves, not the bark
 	float grey = dot(col, vec3(0.2126, 0.7152, 0.0722));
 	ALBEDO = mix(vec3(grey), col, mood_grade.x) * mood_grade.y;
 	ALPHA = c.a;

@@ -20,6 +20,10 @@ uniform float bump_strength = 0.5;
 // baked once at startup (shaders/detail_bake.gdshader, scripts/ground_detail.gd), instead of being worked out for
 // every pixel: the same stones, grit, leaves and grain, at a fraction of the cost.
 uniform float leaf_amount = 1.0;  // more or fewer fallen leaves
+// where autumn's fallen leaves cover the ground, two layers of them (an autumn grove): the area's litter.png, if it has
+// one, times litter
+uniform sampler2D litter_tex : hint_default_black, filter_linear, repeat_disable;
+uniform float litter = 1.0;
 #ifdef BAKED
 uniform sampler2D detail_small : hint_default_black, filter_linear_mipmap_anisotropic, repeat_enable;  // 4 m tile
 uniform sampler2D detail_big : hint_default_black, filter_linear_mipmap_anisotropic, repeat_enable;  // 4 m tile
@@ -281,42 +285,54 @@ void fragment() {
 	// cells round this spot can hold a leaf that covers it.
 	if (detail > 0.0) {
 		vec2 lv = (p + vec2(2.3, 7.7)) * 4.5;
-		vec2 base = floor(lv - 0.5);
-		float drift = (0.12 + map_s(m.a, 0.5, 0.75, 0.0, 0.2)) * leaf_amount;
-		float leaf = 0.0;
-		float tone = 0.0;
+		float lit = litter * texture(litter_tex, uv).r;
+		float drift = mix((0.12 + map_s(m.a, 0.5, 0.75, 0.0, 0.2)) * leaf_amount, 0.97, lit);
+		float fade = (1.0 - smoothstep(0.3, 0.9, length(fwidth(lv)) * 4.0)) * detail;  // too small to see far off
+		float covered = 0.0;
+		// with litter, a second layer on top, turned and at another scale, so the leaves cover the ground
+		for (int layer = 0; layer < (lit > 0.0 ? 2 : 1); layer++) {
+			mat2 turn = layer == 0 ? mat2(1.0) : mat2(vec2(0.8, 0.6), vec2(-0.6, 0.8));
+			float scale = layer == 0 ? 4.5 : 3.4;
+			vec2 q = turn * p + (layer == 0 ? vec2(2.3, 7.7) : vec2(13.1, 3.7));
+			vec2 lq = q * scale;
+			float leaf = 0.0;
+			float tone = 0.0;
 #ifdef BAKED
-		vec4 baked_leaf = textureGrad(detail_leaves, t4, t4x, t4y);
-		leaf = baked_leaf.r * smoothstep(-0.01, 0.01, drift - baked_leaf.g);
-		tone = baked_leaf.b;
+			vec2 tq = q / 4.0;
+			vec4 baked_leaf = textureGrad(detail_leaves, layer == 0 ? t4 : tq, turn * t4x, turn * t4y);
+			leaf = baked_leaf.r * smoothstep(-0.01, 0.01, drift - baked_leaf.g);
+			tone = baked_leaf.b;
 #else
-		float aa = min(fwidth(lv.x) * 20.0, 0.5);
-		for (int j = 0; j < 2; j++) {
-			for (int i = 0; i < 2; i++) {
-				ivec2 cell = ivec2(base) + ivec2(i, j);
-				vec3 h = hash_cell2(cell);
-				if (h.r >= drift) {
-					continue;
-				}
-				vec2 rel = (lv - (vec2(cell) + h.xy * 0.75)) / 4.5;  // metres from the leaf's centre
-				float size = fract(h.b * 5.7) * 0.5 + 0.75;
-				if (dot(rel, rel) > 0.0045 * size * size) {
-					continue;
-				}
-				float ang = h.g * 6.2832;
-				vec2 tr = vec2(rel.x * cos(ang) - rel.y * sin(ang), rel.x * sin(ang) + rel.y * cos(ang));
-				float qd = pow(tr.x / (size * 0.05), 2.0) + pow(tr.y / (size * 0.025), 2.0);
-				float l = 1.0 - smoothstep(0.75 - aa, 1.0 + aa, qd);
-				if (l > leaf) {
-					leaf = l;
-					tone = h.b;
+			vec2 lbase = floor(lq - 0.5);
+			float aa = min(fwidth(lq.x) * 20.0, 0.5);
+			for (int j = 0; j < 2; j++) {
+				for (int i = 0; i < 2; i++) {
+					ivec2 cell = ivec2(lbase) + ivec2(i, j);
+					vec3 h = hash_cell2(cell + ivec2(layer * 97, layer * 31));
+					if (h.r >= drift) {
+						continue;
+					}
+					vec2 rel = (lq - (vec2(cell) + h.xy * 0.75)) / scale;  // metres from the leaf's centre
+					float size = (fract(h.b * 5.7) * 0.5 + 0.75) * (layer == 0 ? 1.0 : 1.25);
+					if (dot(rel, rel) > 0.0045 * size * size) {
+						continue;
+					}
+					float ang = h.g * 6.2832;
+					vec2 tr = vec2(rel.x * cos(ang) - rel.y * sin(ang), rel.x * sin(ang) + rel.y * cos(ang));
+					float qd = pow(tr.x / (size * 0.05), 2.0) + pow(tr.y / (size * 0.025), 2.0);
+					float l = 1.0 - smoothstep(0.75 - aa, 1.0 + aa, qd);
+					if (l > leaf) {
+						leaf = l;
+						tone = h.b;
+					}
 				}
 			}
-		}
 #endif
-		leaf *= (1.0 - smoothstep(0.3, 0.9, length(fwidth(lv)) * 4.0)) * detail;  // too small to see far off
-		col = mix(col, leaf_ramp(tone), leaf);
-		hgt += 0.3 * leaf;
+			leaf *= fade * (layer == 0 ? 1.0 : lit);
+			col = mix(col, leaf_ramp(tone), leaf);
+			covered = max(covered, leaf);
+		}
+		hgt += 0.3 * covered;
 #if DETAIL >= 3
 #ifdef BAKED
 		hgt += 0.12 * flat_grain.a;  // the grass's grain, for the bumps

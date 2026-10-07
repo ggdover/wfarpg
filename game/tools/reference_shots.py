@@ -1,9 +1,11 @@
 """Renders the play demo's area the way the mockups are rendered, in Blender, for comparing the game with them.
 
     blender -b --factory-startup -P reference_shots.py -- <out.png> <x,z,yaw,pitch,distance[,facing]> [old|new] [samples]
+        [--area=name]
 
 The pose is the demo's --pose: the hero's Godot X and Z, then the camera's yaw, pitch and distance in the mockups'
-terms (scripts/camera_rig.gd). It builds the area from data/demo_layout.json with the mockups' kit and lighting
+terms (scripts/camera_rig.gd). It builds the area (storskogen unless --area names another of tools/areas) from its
+layout, data/areas/<area>.json, with the mockups' kit and lighting
 (setup_world_act in mockups/act1_shots.py), the ground from the ground shader, and the hero as a grey box, then
 renders it with Eevee like the mockups. Trees between the camera and the hero are hidden, as in the mockups.
 """
@@ -18,9 +20,11 @@ from mathutils import Vector
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build_demo as B  # noqa: E402
-import demo_area as D  # noqa: E402
 
 argv = sys.argv[sys.argv.index("--") + 1:]
+B.use_area(next((a[7:] for a in argv if a.startswith("--area=")), "storskogen"))
+D = B.D
+argv = [a for a in argv if not a.startswith("--area=")]
 OUT, POSE = argv[0], [float(v) for v in argv[1].split(",")]
 WHICH = argv[2] if len(argv) > 2 else "old"
 SAMPLES = int(argv[3]) if len(argv) > 3 else 48
@@ -41,6 +45,7 @@ sc = bpy.context.scene
 sc.render.resolution_x, sc.render.resolution_y = 1600, 900
 sc.eevee.taa_render_samples = SAMPLES
 
+B.extend_ground_more(kit)  # the other areas' ground layers
 B.ground_mesh("Terrain", D.BAKE, B.GRID, kit)
 far = B.ground_mesh("OuterGround", (-B.FAR, B.FAR, -B.FAR, B.FAR), B.FAR_GRID, kit)
 far.location.z = -0.06
@@ -72,7 +77,7 @@ def place(name, gx, gy, gz, rot, s):
     return ob
 
 
-with open(os.path.join(B.DATA_DIR, "demo_layout.json")) as fh:
+with open(B.LAYOUT_PATH) as fh:
     layout = json.load(fh)
 for t in layout["trees"]:
     ob = place(t[WHICH], *t["p"], t["r"], t["s_" + WHICH])

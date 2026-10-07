@@ -1,0 +1,28 @@
+{
+ "about": "Written by tools/build_demo.py. Godot's axes; the images' top edge is the area's north (-Z) edge. The ground's textures are in dir: grass.jpg, path_noise.png, masks.png, grass_far.jpg, canopy_old.png and canopy_new.png.",
+ "dir": "res://assets/areas/storskogen/",
+ "bounds": [
+  -112.0,
+  -88.0,
+  224.0,
+  176.0
+ ],
+ "grid": 0.5,
+ "size": [
+  449,
+  353
+ ],
+ "heights": "res://assets/areas/storskogen/heights.bin",
+ "far_bounds": [
+  -330.0,
+  -330.0,
+  660.0,
+  660.0
+ ],
+ "far_grid": 5.0,
+ "far_size": [
+  133,
+  133
+ ],
+ "far_heights": "res://assets/areas/storskogen/heights_far.bin"
+}

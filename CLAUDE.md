@@ -88,8 +88,12 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   Python scripts, saved in `tree_portfolio.blend`, with a tree editor (a Trees tab in Blender's sidebar) for tuning
   leaf cards and clumps. The user's tuned settings are in `assets/trees/tree_settings.json`; build from them, not
   from the defaults in `treegen.py`. See its README.
-- `game/`: the Godot project. For now a play demo: a small part of Storskogen (dense forest, a trail, a meadow with
-  a rise) with the old mockup trees or the new portfolio trees, a grey-box hero, the camera and controls. It runs with
+- `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, a grey-box
+  hero, the camera and controls, in eleven scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
+  button switches): a small part of Storskogen (dense forest, a trail, a meadow with a rise), a thick forest with one
+  path cleared, a very big open field, an autumn hollow (a grove sunk in the ground, trees 1-4 m apart turning
+  yellow, orange and red, the ground full of leaves), a river under 3-4 m cliffs with paths up and down to it, and, for
+  the rest of `ref_imgs2/`, a forest lake, a bog, a pine heath, and fog and morning sunbeams. It runs with
   VSync off and no frame rate limit, as the user asked; its performance panel (F2) has a frame rate limit. The user
   wants a before and after switch in F2 for every optimization, to judge what it costs the look; the speed-ups (ground
   details baked into textures, tree shadows and far trees from pictures baked at startup, shadows only from trees
@@ -101,8 +105,9 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   presets and "All on" set it. At the top of F2 are the
   see-through presets, the one in use marked until a setting changes; the user wants every other setting hidden under
   "Advanced settings", so new ones go there. Its models,
-  ground textures and layout are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
-  portfolio and `game/tools/demo_area.py`; rebuild them after changing any of those. See `game/README.md`.
+  ground textures and layouts are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
+  portfolio and the areas in `game/tools/areas/` (one module each); rebuild them after changing any of those. See
+  `game/README.md`.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building
   scenes in Blender in background mode. `mockups/act1_world.py` holds the Act 1 layout as data. See `mockups/README.md`
   for how to rerun them. Generated output goes to `mockups/build/` (ignored by git); curated final images live in

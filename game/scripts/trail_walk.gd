@@ -6,7 +6,7 @@ extends Node
 
 signal finished(result: Dictionary)
 
-# the trail's bends, in Godot's X and Z (tools/demo_area.py, PATHS["trail"], with Z = -Y)
+# the trail's bends, in Godot's X and Z (tools/areas/storskogen.py, PATHS["trail"], with Z = -Y)
 const WAYPOINTS := [Vector2(-60, -2), Vector2(-48, -1), Vector2(-37, 6), Vector2(-25, 5), Vector2(-14, -3), Vector2(-2, -5),
 	Vector2(10, -1), Vector2(23, 5), Vector2(36, 3), Vector2(48, -5)]
 const WARM_UP := 30  # frames to let the view settle after moving the hero to the start

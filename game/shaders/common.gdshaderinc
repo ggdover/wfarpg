@@ -131,3 +131,18 @@ float tree_fade(float sight, vec3 vertex_view, vec3 node, vec3 camera_world) {
 	float camera = 1.0 - smoothstep(tree_fade_radius - 2.5, tree_fade_radius, distance(node.xz, main_camera_position.xz));
 	return max(sight, max(near, camera));
 }
+
+// Autumn: a leaf's green turned yellow, orange or red, as scripts/world.gd sets it per tree (autumn, from the tree's
+// tint in its area's layout): x how far, 0..1, y which way, 0 yellow, 0.5 orange, 1 red. Brighter greens turn
+// brighter, so the leaves keep their light and shade.
+vec3 autumn_tint(vec3 c, vec2 autumn) {
+	if (autumn.x <= 0.0) {
+		return c;
+	}
+	vec3 yellow = vec3(0.80, 0.50, 0.035);
+	vec3 orange = vec3(0.70, 0.20, 0.02);
+	vec3 red = vec3(0.42, 0.035, 0.012);
+	vec3 tone = autumn.y < 0.5 ? mix(yellow, orange, autumn.y * 2.0) : mix(orange, red, autumn.y * 2.0 - 1.0);
+	float lum = dot(c, vec3(0.2126, 0.7152, 0.0722));
+	return mix(c, tone * clamp(lum * 7.0, 0.2, 1.4), autumn.x);
+}

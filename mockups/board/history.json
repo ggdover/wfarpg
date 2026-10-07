@@ -3919,6 +3919,79 @@
     }
    ],
    "wip": []
+  },
+  {
+   "id": "play-demo-scenes",
+   "date": "2026-10-07",
+   "asked_at": "19:50",
+   "posted_at": "21:28",
+   "title": "Scenes to switch between",
+   "section": "Play demo: scenes",
+   "asked": "A few different environment examples for this demo: a thick forest with only a path cleared from trees, like where the current demo starts; a very big and open field; a grove that sinks down into the ground slightly, semi-thick (1-4 m between the trees), the ground absolutely filled with leaves, its trees more yellow, red and orange, as if it's turning into autumn there; and the forest down close to a river, with some trees and cliffs 3-4 m high, paths up to the top of the cliffs and down to the little river. Any other scene needed to depict all the kinds of place in the reference images in ref_imgs2. And some button to switch between all the scenes",
+   "changed": [
+    "Eleven scenes in the play demo, each an area in a mood: picked on the start screen, or in the game with Tab or the Scenes button",
+    "Seven new areas, built from code like Storskogen: a thick forest, an open field, an autumn hollow, a river under low cliffs (wooden steps up, a path along the top, a footbridge and stepping stones), a forest lake with a jetty, a bog with a boardwalk, and a pine heath",
+    "Water, its colour from how deep it is, its ripples moving with the flow, white water on the rapid, mirroring the far shore in the water's scenes; leaves turning yellow, orange and red, and a ground covered in fallen leaves; new pieces for the kit: cliff rocks, mossy boulders, stepping stones, bracken, reeds, water lilies, tussocks",
+    "Three moods besides the day: fog, a low morning sun through mist, and autumn"
+   ],
+   "items": [
+    {
+     "id": "s-scenes",
+     "type": "frame",
+     "status": "new",
+     "title": "Play demo: scenes",
+     "author": "claude"
+    },
+    {
+     "id": "sc-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Scenes\nYou asked for a few environments to switch between: a thick forest with only a path cleared, a very big open field, a grove sinking slightly into the ground, semi-thick (1-4 m between the trees), its trees turning yellow, orange and red and its ground full of leaves, and a forest down by a little river under 3-4 m cliffs, with paths up to the top and down to the water; and whatever else it takes to show every kind of place in ref_imgs2.\n\nThe demo now has eleven scenes. Pick one on the start screen, or in the game press **Tab** or click **Scenes** (top left).\n- **Thick forest:** spruce and pine all round, one winding path cleared through, like where Storskogen starts\n- **Open field:** a rolling meadow 210 m across, copses of birch and aspen, lone trees and boulders, the forest far off\n- **Autumn hollow:** a grove of birch, aspen, rowan and alder in a hollow 2.8 m deep, 1-4 m between the trees: birches yellow, aspens anything from yellow to red, rowans orange and red. In the hollow two layers of fallen leaves cover everything, the paths too, with bracken turned rust; round it the forest is still green, its birches just turning\n- **River and cliffs:** a stream with a rapid, under a band of mossy granite 3.5-4 m high. Wooden steps climb it in the middle, a path climbs where it peters out to the west, and a path runs along the top. Down at the water, a gravel bank with stepping stones, and a footbridge over. The hero can wade the stream; the cliffs are a wall\n- From the rest of ref_imgs2: **Forest lake** (reeds, water lilies, a jetty, an island, the water mirroring the far shore; the hero can wade the shallows), **Bog** (golden tussocks between dark pools, a boardwalk across), **Pine heath** (the medium forest density), **Misty forest** and **Misty ravine** (the fog pictures, and the hike trail's misty gorge), **Sunbeams** (a low morning sun through mist)\n\nFrame rates at each scene's start, default settings: open field 157, pine heath 124, misty ravine 114, sunbeams 108, lake 103, river 101, Storskogen 99, bog 96, misty forest 92, autumn hollow 82, thick forest 71.\n\nThe names are my suggestions. The mood scenes open with the camera low, to show the light; the rest open with the usual high camera.",
+     "author": "claude"
+    },
+    {
+     "id": "sc-starts",
+     "type": "image",
+     "status": "new",
+     "caption": "Each scene as it opens.",
+     "assetId": "c293e1f59ce0e058a0bcee9bfc01fee1",
+     "file": "renders/play_demo_scenes/start_views.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "sc-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Close up: the autumn hollow, from the default camera and from low down; the cliffs from the valley; the steps up them; the rapid and the footbridge; the lake with the camera low; the bog's boardwalk; sunbeams.",
+     "assetId": "55654e45f6d77d22f262319a320a87f5",
+     "file": "renders/play_demo_scenes/close_ups.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/35_scenes_first_look.jpg",
+     "caption": "First look: the autumn hollow from above and low, the river's cliffs from above and its steps, the bridge, and the lake"
+    },
+    {
+     "file": "renders/wip/36_scenes_river_pale.jpg",
+     "caption": "The rapid and the bridge, the water first pale"
+    },
+    {
+     "file": "renders/wip/37_scenes_river_pebbles.jpg",
+     "caption": "The river's gravel bank with the paths' pebbles at full size (the trees hidden)"
+    },
+    {
+     "file": "renders/wip/38_scenes_bog_black_pools.jpg",
+     "caption": "The bog from above, its pools black"
+    }
+   ],
+   "found": [
+    "The river's first stones were the paths' pebbles at full size, a metre across; its banks now have small grey cobbles, and the stepping stones are flat-topped stones of their own",
+    "The water first looked pale, mostly the bright sky reflected; darker water fixed it, and from above the bog's pools were black until their deep colour got a little of the sky's blue",
+    "The new scenes first started where their water, cliffs and autumn trees were out of sight; they now start where these are in view, and the mood scenes with the camera low"
+   ],
+   "cover": "renders/play_demo_scenes/start_views.jpg"
   }
  ]
 }

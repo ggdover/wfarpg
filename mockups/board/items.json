@@ -2180,6 +2180,19 @@
   "y": 5000,
   "z": 16
  },
+ "s-scenes": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791401262324,
+  "h": 3790,
+  "title": "Play demo: scenes",
+  "type": "frame",
+  "updatedAt": 1791401262324,
+  "w": 2740,
+  "x": 0,
+  "y": 70042,
+  "z": 41
+ },
  "s-seethrough": {
   "author": "claude",
   "color": "moss",
@@ -2400,6 +2413,45 @@
   "x": 1920,
   "y": 780,
   "z": 6
+ },
+ "sc-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791401262324,
+  "h": 1880,
+  "text": "# Scenes\nYou asked for a few environments to switch between: a thick forest with only a path cleared, a very big open field, a grove sinking slightly into the ground, semi-thick (1-4 m between the trees), its trees turning yellow, orange and red and its ground full of leaves, and a forest down by a little river under 3-4 m cliffs, with paths up to the top and down to the water; and whatever else it takes to show every kind of place in ref_imgs2.\n\nThe demo now has eleven scenes. Pick one on the start screen, or in the game press **Tab** or click **Scenes** (top left).\n- **Thick forest:** spruce and pine all round, one winding path cleared through, like where Storskogen starts\n- **Open field:** a rolling meadow 210 m across, copses of birch and aspen, lone trees and boulders, the forest far off\n- **Autumn hollow:** a grove of birch, aspen, rowan and alder in a hollow 2.8 m deep, 1-4 m between the trees: birches yellow, aspens anything from yellow to red, rowans orange and red. In the hollow two layers of fallen leaves cover everything, the paths too, with bracken turned rust; round it the forest is still green, its birches just turning\n- **River and cliffs:** a stream with a rapid, under a band of mossy granite 3.5-4 m high. Wooden steps climb it in the middle, a path climbs where it peters out to the west, and a path runs along the top. Down at the water, a gravel bank with stepping stones, and a footbridge over. The hero can wade the stream; the cliffs are a wall\n- From the rest of ref_imgs2: **Forest lake** (reeds, water lilies, a jetty, an island, the water mirroring the far shore; the hero can wade the shallows), **Bog** (golden tussocks between dark pools, a boardwalk across), **Pine heath** (the medium forest density), **Misty forest** and **Misty ravine** (the fog pictures, and the hike trail's misty gorge), **Sunbeams** (a low morning sun through mist)\n\nFrame rates at each scene's start, default settings: open field 157, pine heath 124, misty ravine 114, sunbeams 108, lake 103, river 101, Storskogen 99, bog 96, misty forest 92, autumn hollow 82, thick forest 71.\n\nThe names are my suggestions. The mood scenes open with the camera low, to show the light; the rest open with the usual high camera.",
+  "type": "note",
+  "updatedAt": 1791401262324,
+  "w": 460,
+  "x": 28,
+  "y": 70070,
+  "z": 256
+ },
+ "sc-close": {
+  "ar": 0.889,
+  "assetId": "55654e45f6d77d22f262319a320a87f5",
+  "author": "claude",
+  "caption": "Close up: the autumn hollow, from the default camera and from low down; the cliffs from the valley; the steps up them; the rapid and the footbridge; the lake with the camera low; the bog's boardwalk; sunbeams.",
+  "createdAt": 1791401262324,
+  "type": "image",
+  "updatedAt": 1791401262324,
+  "w": 1600,
+  "x": 512,
+  "y": 71850,
+  "z": 258
+ },
+ "sc-starts": {
+  "ar": 1.333,
+  "assetId": "c293e1f59ce0e058a0bcee9bfc01fee1",
+  "author": "claude",
+  "caption": "Each scene as it opens.",
+  "createdAt": 1791401262324,
+  "type": "image",
+  "updatedAt": 1791401262324,
+  "w": 2200,
+  "x": 512,
+  "y": 70070,
+  "z": 257
  },
  "see-about": {
   "author": "claude",

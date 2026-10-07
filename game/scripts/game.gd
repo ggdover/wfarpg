@@ -6,6 +6,8 @@ extends Node
 
 ## which trees the demo shows: "old" (the mockups' trees) or "new" (the tree portfolio's)
 var tree_set := "new"
+## which of the demo's scenes it shows (scripts/scenes.gd)
+var scene := "storskogen"
 ## the paths' colour theme (scripts/path_themes.gd)
 var path_theme := "Forest earth"
 
@@ -13,7 +15,7 @@ const KEYS := {
 	"move_forward": [KEY_W, KEY_UP], "move_back": [KEY_S, KEY_DOWN],
 	"move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
 	"swap_trees": [KEY_T], "path_theme": [KEY_P], "toggle_help": [KEY_F1, KEY_H], "perf_panel": [KEY_F2], "toggle_fps": [KEY_F3], "render_scale": [KEY_F4],
-	"screenshot": [KEY_F12], "menu": [KEY_ESCAPE],
+	"screenshot": [KEY_F12], "menu": [KEY_ESCAPE], "scene_menu": [KEY_TAB],
 }
 
 
@@ -28,5 +30,7 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--trees="):
 			tree_set = a.substr(8)
+		elif a.begins_with("--scene="):
+			scene = a.substr(8)
 		elif a.begins_with("--theme="):
 			path_theme = a.substr(8).replace("_", " ")

@@ -1,15 +1,15 @@
 class_name DemoWorld
 extends Node3D
-## The demo's area, built when the scene starts from what tools/build_demo.py exported: the terrain and its
-## collider, the trees of one set or the other, the rocks and plants, the colliders round the trees and rocks, and
-## the walls round the walkable area.
+## One of the demo's areas (Game.scene's, scripts/scenes.gd), built when the scene starts from what
+## tools/build_demo.py exported for it: the terrain and its collider, the trees of one set or the other, the rocks and
+## plants, the colliders round the trees and rocks, and the walls round the walkable area.
 ##
 ## Each tree is drawn on its own, so the camera skips the ones it doesn't see; the portfolio's trees switch to
 ## lighter versions with distance. How the trees are drawn (which versions, which casts the shadow) can change while
 ## playing, from the performance panel (scripts/perf_panel.gd). Rocks and plants are multimeshes in square chunks.
 
-const LAYOUT := "res://data/demo_layout.json"
-const GROUND := "res://assets/ground/ground.json"
+const LAYOUT := "res://data/areas/%s.json"  # the area's layout, by its name
+const GROUND := "res://assets/areas/%s/ground.json"  # its ground; the textures are in the same folder
 const CHUNK := 32.0
 const LOD_MARGIN := 5.0
 const PLANT_RANGE := 110.0  # small plants and pebbles are not drawn further off than this
@@ -212,16 +212,17 @@ var tree_lod := 0
 var hidden_kinds := PackedStringArray()
 
 
-func build(tree_set: String) -> void:
+func build(area: String, tree_set: String) -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--treelod="):
 			tree_lod = int(a.substr(10))
 		elif a.begins_with("--hide="):
 			hidden_kinds = a.substr(7).split(",")
-	layout = JSON.parse_string(FileAccess.get_file_as_string(LAYOUT))
-	ground = JSON.parse_string(FileAccess.get_file_as_string(GROUND))
+	layout = JSON.parse_string(FileAccess.get_file_as_string(LAYOUT % area))
+	ground = JSON.parse_string(FileAccess.get_file_as_string(GROUND % area))
 	_build_terrain()
 	_build_props()
+	_build_extras()
 	_build_solids()
 	_build_walls()
 	show_trees(tree_set)
@@ -239,7 +240,7 @@ func show_trees(which: String) -> void:
 					RenderingServer.instance_set_visible(rid, false)
 	_current = which
 	_apply_trees()
-	set_ground_param("canopy_tex", load("res://assets/ground/canopy_%s.png" % which))
+	set_ground_param("canopy_tex", load(ground["dir"] + "canopy_%s.png" % which))
 	_build_occluders()
 
 
@@ -1175,9 +1176,11 @@ func _build_terrain() -> void:
 		var mat := ShaderMaterial.new()
 		mat.shader = load(GROUND_SHADERS[level])
 		_ground_materials[level] = mat
-	set_ground_param("grass_tex", load("res://assets/ground/grass.jpg"))
-	set_ground_param("path_noise_tex", load("res://assets/ground/path_noise.png"))
-	set_ground_param("masks_tex", load("res://assets/ground/masks.png"))
+	set_ground_param("grass_tex", load(ground["dir"] + "grass.jpg"))
+	set_ground_param("path_noise_tex", load(ground["dir"] + "path_noise.png"))
+	set_ground_param("masks_tex", load(ground["dir"] + "masks.png"))
+	if ResourceLoader.exists(ground["dir"] + "litter.png"):  # autumn's leaves, where they cover the ground
+		set_ground_param("litter_tex", load(ground["dir"] + "litter.png"))
 	set_ground_param("bounds", Vector4(b[0], b[1], b[2], b[3]))
 	set_ground_param("wear_spread", path_wear)
 	GroundDetail.bake(self, func(layer: String, tex: Texture2D) -> void:
@@ -1200,7 +1203,7 @@ func _build_terrain() -> void:
 	var far_heights := FileAccess.get_file_as_bytes(ground["far_heights"]).to_float32_array()
 	var far_mat := ShaderMaterial.new()
 	far_mat.shader = load("res://shaders/ground_far.gdshader")
-	far_mat.set_shader_parameter("grass_tex", load("res://assets/ground/grass_far.jpg"))
+	far_mat.set_shader_parameter("grass_tex", load(ground["dir"] + "grass_far.jpg"))
 	far_mat.set_shader_parameter("bounds", Vector4(fb[0], fb[1], fb[2], fb[3]))
 	var far := MeshInstance3D.new()
 	var hole := Rect2(_origin + Vector2.ONE * 6.0, Vector2(b[2], b[3]) - Vector2.ONE * 12.0)
@@ -1297,9 +1300,13 @@ func _build_trees(which: String) -> Array:
 			"trunk_top": float(Models.info[model + "_trunk"]["height"]) * s if Models.has(model + "_trunk") else 0.0,
 			"cut": float(Models.info[model + "_stump"]["cut"]) * s if Models.has(model + "_stump") else 0.5}
 		_max_reach = maxf(_max_reach, (tree["bound"] as Vector3).x)
+		if t.has("tint"):  # its leaves turned for autumn (shaders/common.gdshaderinc, autumn_tint)
+			tree["autumn"] = Vector2(t.get("turn", 1.0), t["tint"])
 		for i in count:
 			var rid := RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)
 			RenderingServer.instance_set_transform(rid, xf)
+			if tree.has("autumn"):
+				RenderingServer.instance_geometry_set_shader_parameter(rid, "autumn", tree["autumn"])
 			(tree["draw"] as Array).append(rid)
 		tree["shadow"] = RenderingServer.instance_create2(Models.mesh(model).get_rid(), scenario)
 		RenderingServer.instance_set_transform(tree["shadow"], xf)
@@ -1353,6 +1360,8 @@ func _apply_trees() -> void:
 				RenderingServer.instance_set_transform(impostor, tree["xf"])
 				RenderingServer.instance_geometry_set_cast_shadows_setting(impostor, RenderingServer.SHADOW_CASTING_SETTING_OFF)
 				tree["impostor"] = impostor
+				if tree.has("autumn"):
+					RenderingServer.instance_geometry_set_shader_parameter(impostor, "autumn", tree["autumn"])
 			RenderingServer.instance_geometry_set_visibility_range(impostor, far, 0.0, LOD_MARGIN, 0.0,
 				RenderingServer.VISIBILITY_RANGE_FADE_DISABLED)
 			RenderingServer.instance_set_visible(impostor, true)
@@ -1447,7 +1456,7 @@ func _bake_shadow_pictures() -> void:
 		_shadow_pictures_baking = false
 		return
 	var pics := TreeShadowPictures.new()
-	await pics.bake(self, models, versions, -Mood.sun_direction(Mood.SUN_ROTATION.x, Mood.SUN_ROTATION.y), bare)
+	await pics.bake(self, models, versions, -Mood.sun_direction(Mood.sun_rotation.x, Mood.sun_rotation.y), bare)
 	_shadow_pictures = pics
 	_shadow_pictures_baking = false
 	_apply_trees()
@@ -1472,8 +1481,12 @@ func _build_props() -> void:
 			if not groups.has(key):
 				groups[key] = []
 			(groups[key] as Array).append(xf)
-		var small := model.begins_with("Pebble") or model.begins_with("Grass") or model.begins_with("Lichen")
-		var plant := small or model.begins_with("Shrub") or model.begins_with("Blueberry") or model.begins_with("Lingonberry") or model.begins_with("TallGrass")
+		var small := model.begins_with("Pebble") or model.begins_with("Grass") or model.begins_with("Lichen") \
+			or model.begins_with("Sedge") or model.begins_with("LilyPad")
+		var plant := small or model.begins_with("Shrub") or model.begins_with("Blueberry") or model.begins_with("Lingonberry") \
+			or model.begins_with("TallGrass") or model.begins_with("Heather") or model.begins_with("MossMound") \
+			or model.begins_with("Fern") or model.begins_with("Reed") or model.begins_with("Tussock") \
+			or model.begins_with("DryFern") or model.begins_with("LeafPile")
 		for key: Vector2i in groups:
 			var mmi := _add_multimesh(root, model, groups[key], key, CHUNK, PLANT_RANGE if small else 0.0)
 			if plant and not plant_shadows:
@@ -1501,6 +1514,27 @@ func _add_multimesh(parent: Node3D, model: String, xforms: Array, chunk: Vector2
 	return mmi
 
 
+## The area's own models, if it has any (Extras in tools/build_demo.py): water, stairs, bridges, jetties and
+## boardwalks, with the colliders Godot's importer made from those named -colonly, on the ground's layer.
+func _build_extras() -> void:
+	if not layout.has("extras"):
+		return
+	var extras := (load(layout["extras"]) as PackedScene).instantiate()
+	extras.name = "Extras"
+	add_child(extras)
+	for mi: MeshInstance3D in extras.find_children("*", "MeshInstance3D", true, false):
+		var water := false
+		for i in mi.mesh.get_surface_count():
+			var imported := mi.mesh.surface_get_material(i)
+			if imported and imported.resource_name == "Water":  # Lake, River or Pool: the object's name says which
+				water = true
+				mi.set_surface_override_material(i, Models.water_material(String(mi.name).rstrip("0123456789")))
+			else:
+				mi.set_surface_override_material(i, Models.lowpoly_material())
+		if water:
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
 # ------------------------------------------------------------------ colliders
 func _build_solids() -> void:
 	var body := StaticBody3D.new()
@@ -1517,16 +1551,23 @@ func _build_solids() -> void:
 		body.add_child(cs)
 
 
-## Invisible walls round the walkable area; the forest beyond them hides the edge.
+## Invisible walls round the walkable area, where the forest beyond them hides the edge, and wherever else the area
+## has them (its layout's walls: lines, such as round a lake's deep water).
 func _build_walls() -> void:
 	var body := StaticBody3D.new()
 	body.name = "Walls"
 	body.collision_layer = LAYER_SOLID
 	add_child(body)
 	var pts: Array = layout["boundary"]
-	for i in pts.size():
+	_wall_line(body, pts + [pts[0]])
+	for line: Array in layout.get("walls", []):
+		_wall_line(body, line)
+
+
+func _wall_line(body: StaticBody3D, pts: Array) -> void:
+	for i in pts.size() - 1:
 		var a := Vector2(pts[i][0], pts[i][1])
-		var b := Vector2(pts[(i + 1) % pts.size()][0], pts[(i + 1) % pts.size()][1])
+		var b := Vector2(pts[i + 1][0], pts[i + 1][1])
 		var mid := (a + b) * 0.5
 		var shape := BoxShape3D.new()
 		shape.size = Vector3(a.distance_to(b) + 0.6, 12.0, 0.6)

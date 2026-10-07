@@ -76,6 +76,14 @@ func run(d: Node) -> void:
 	_key(KEY_P)
 	await _frames(3)
 	_check("P changes the paths' colours", Game.path_theme != theme0, "%s -> %s" % [theme0, Game.path_theme])
+	# Tab opens the list of scenes, and closes it
+	_key(KEY_TAB)
+	await _frames(3)
+	var opened: bool = demo._scenes.visible
+	_key(KEY_TAB)
+	await _frames(3)
+	_check("Tab opens the list of scenes, and closes it", opened and not demo._scenes.visible,
+		"open %s, then %s" % [opened, demo._scenes.visible])
 	await _sight_checks()
 	# the walls hold: walk west for a long time from near the west edge
 	hero.global_position = Vector3(-74.0, demo.world.height_at(-74.0, 0.0) + 0.2, 0.0)

@@ -1,0 +1,28 @@
+{
+ "about": "Written by tools/build_demo.py. Godot's axes; the images' top edge is the area's north (-Z) edge. The ground's textures are in dir: grass.jpg, path_noise.png, masks.png, grass_far.jpg, canopy_old.png and canopy_new.png, and litter.png where autumn's leaves cover the ground.",
+ "dir": "res://assets/areas/autumn_hollow/",
+ "bounds": [
+  -80.0,
+  -68.0,
+  160.0,
+  136.0
+ ],
+ "grid": 0.5,
+ "size": [
+  321,
+  273
+ ],
+ "heights": "res://assets/areas/autumn_hollow/heights.bin",
+ "far_bounds": [
+  -330.0,
+  -330.0,
+  660.0,
+  660.0
+ ],
+ "far_grid": 5.0,
+ "far_size": [
+  133,
+  133
+ ],
+ "far_heights": "res://assets/areas/autumn_hollow/heights_far.bin"
+}

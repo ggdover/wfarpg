@@ -1,6 +1,7 @@
 extends Node3D
 ## Dev: the old and new trees and the props in rows, lit like the mockups, for comparing with Blender renders.
-## godot --path game res://scenes/dev/lineup.tscn -- --shot=out.png [--crown=0]
+## godot --path game res://scenes/dev/lineup.tscn -- --shot=out.png [--crown=0] [--models=Fern0,Reed0,...]
+## (--models: those models alone, in a row, the camera close)
 
 const LINEUP := [  # model, Blender x, y, scale
 	["ScotsPine_A", 0.0, 0.0, 1.0], ["NorwaySpruce_A", 9.0, 0.0, 1.0], ["SilverBirch_A", 18.0, 0.0, 1.0],
@@ -46,7 +47,20 @@ func _ready() -> void:
 	gm.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT
 	ground.material_override = gm
 	add_child(ground)
-	for row in LINEUP:
+	var rows: Array = LINEUP
+	var pivot := Vector3(22.5, 0.0, -3.0)
+	var reach := 52.0
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--models="):
+			rows = []
+			var x := 0.0
+			for m: String in a.substr(9).split(","):
+				var w := maxf(1.2, (Models.mesh(m).get_aabb().size.x + Models.mesh(m).get_aabb().size.z) * 0.6)
+				rows.append([m, x + w * 0.5, 0.0, 1.0])
+				x += w + 0.4
+			pivot = Vector3(x * 0.5, 0.0, 0.0)
+			reach = x * 0.75 + 2.0
+	for row in rows:
 		var mi := MeshInstance3D.new()
 		mi.mesh = Models.mesh(row[0])
 		mi.position = Vector3(row[1], 0.0, -row[2])
@@ -63,12 +77,11 @@ func _ready() -> void:
 	cam.keep_aspect = Camera3D.KEEP_WIDTH
 	cam.fov = rad_to_deg(2.0 * atan(18.0 / 35.0))
 	cam.far = 600.0
-	var pivot := Vector3(22.5, 0.0, -3.0)
 	var yaw := deg_to_rad(250.0)
 	var pitch := deg_to_rad(24.0)
-	var off_b := Vector3(cos(yaw) * cos(pitch), sin(yaw) * cos(pitch), sin(pitch)) * 52.0
+	var off_b := Vector3(cos(yaw) * cos(pitch), sin(yaw) * cos(pitch), sin(pitch)) * reach
 	cam.position = pivot + Vector3(off_b.x, off_b.z, -off_b.y)
-	cam.look_at(pivot + Vector3(0, 4.0, 0))
+	cam.look_at(pivot + Vector3(0, reach / 13.0, 0))
 
 
 func _process(_d: float) -> void:
