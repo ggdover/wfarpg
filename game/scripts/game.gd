@@ -10,6 +10,8 @@ var tree_set := "new"
 var scene := "storskogen"
 ## the paths' colour theme (scripts/path_themes.gd)
 var path_theme := "Forest earth"
+## the grass over the green ground (scripts/grass.gd, GrassField.STYLES; G and F2 change it)
+var grass := "GrassTufts"
 ## the portfolio trees' bark textures, or their trunks plain as before them (F2's Bark textures)
 var bark := true:
 	set(v):
@@ -19,7 +21,7 @@ var bark := true:
 const KEYS := {
 	"move_forward": [KEY_W, KEY_UP], "move_back": [KEY_S, KEY_DOWN],
 	"move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
-	"swap_trees": [KEY_T], "path_theme": [KEY_P], "toggle_help": [KEY_F1, KEY_H], "perf_panel": [KEY_F2], "toggle_fps": [KEY_F3], "render_scale": [KEY_F4],
+	"swap_trees": [KEY_T], "path_theme": [KEY_P], "grass_style": [KEY_G], "toggle_help": [KEY_F1, KEY_H], "perf_panel": [KEY_F2], "toggle_fps": [KEY_F3], "render_scale": [KEY_F4],
 	"screenshot": [KEY_F12], "menu": [KEY_ESCAPE], "scene_menu": [KEY_TAB],
 }
 
@@ -39,3 +41,5 @@ func _ready() -> void:
 			scene = a.substr(8)
 		elif a.begins_with("--theme="):
 			path_theme = a.substr(8).replace("_", " ")
+		elif a.begins_with("--grass="):
+			grass = a.substr(8)

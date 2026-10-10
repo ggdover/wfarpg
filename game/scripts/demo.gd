@@ -9,6 +9,7 @@ extends Node3D
 ##   --fps=seconds    measure the frame rate first and print it                       --selftest  try the controls
 ##   --scene=id       which scene (scripts/scenes.gd)       --scenetest  walk the scene's steps, bridges and jetties
 ##   --mood=name      the scene's area in another mood (scripts/mood.gd)
+##   --grass=style    the grass over the green ground: GrassTufts, GrassWisps, GrassClumps, GrassShort, LongGrass, before
 ##   --walktest       walk the trail and print the frame times                       --treelod=1|2  lighter trees
 ##   --panel          open the performance panel (F2); --panel=advanced with its advanced settings shown
 ##   --set:option=value  a panel option or slider, e.g. --set:shadow_size=1024 --set:details=2 --set:tree_shadows=far
@@ -106,6 +107,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("path_theme"):
 		var order := PathThemes.ORDER
 		show_path_theme(order[(order.find(Game.path_theme) + 1) % order.size()])
+	elif event.is_action_pressed("grass_style"):
+		var styles := GrassField.STYLES.keys()
+		show_grass(styles[(styles.find(Game.grass) + 1) % styles.size()])
 	elif event.is_action_pressed("toggle_help"):
 		_help.visible = not _help.visible
 	elif event.is_action_pressed("toggle_fps"):
@@ -132,6 +136,14 @@ func show_path_theme(theme: String) -> void:
 	PathThemes.apply(world, theme)
 	_update_info()
 	_panel.show_theme(theme)
+
+
+## Show one of the grasses over the green ground (GrassField.STYLES), or the mockups' tufts as before them.
+func show_grass(style: String) -> void:
+	Game.grass = style
+	world.set_grass(style)
+	_update_info()
+	_panel.show_choice("grass", style)
 
 
 ## Show the old trees or the new ones, where you stand.
@@ -308,7 +320,7 @@ func _build_hud() -> void:
 		+ "Right mouse button + move  orbit the camera\n"
 		+ "Mouse wheel  zoom\n"
 		+ "Left mouse button  'attack': face the cursor, walk slower\n"
-		+ "T  swap old and new trees    P  path colours    F2  performance    F3  frame rate\n"
+		+ "T  swap old and new trees    P  path colours    G  grass    F2  performance    F3  frame rate\n"
 		+ "F4  render scale    F12  screenshot    Tab  scenes    F1  hide this    Esc  menu")
 	_help.add_theme_color_override("font_color", Color("#CFC6B2"))
 	_help.add_theme_font_size_override("font_size", 13)
@@ -347,6 +359,7 @@ func _update_info() -> void:
 	_info.text = ("New trees: the tree portfolio (Blender)" if Game.tree_set == "new"
 		else "Old trees: as in the mockups") + "   ·   T swaps them"
 	_info.text += "\nPaths: %s   ·   P changes them" % Game.path_theme
+	_info.text += "\nGrass: %s   ·   G changes it" % GrassField.STYLES.get(Game.grass, Game.grass)
 	var scale := get_viewport().scaling_3d_scale
 	if scale < 0.99:
 		_info.text += "\nRendering at %d%% (F4)" % roundi(scale * 100.0)

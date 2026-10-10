@@ -223,9 +223,9 @@ var cone_power := 1.0
 var sight_clear := 0.0
 ## small plants and pebbles cast no shadows
 var plant_shadows := false
-## the long grass over the green ground (scripts/grass.gd), which folds as the hero walks through it
+## the grass over the green ground (scripts/grass.gd), which folds as the hero walks through it
 var grass: GrassField
-var _old_grass: Array[MultiMeshInstance3D] = []  # the mockups' grass tufts, shown instead of it with set_grass(false)
+var _old_grass: Array[MultiMeshInstance3D] = []  # the mockups' grass tufts, shown instead of it with set_grass("before")
 ## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
 var tree_lod := 0
 ## for measuring: kinds of tree not drawn at all (--hide=NorwaySpruce,ScotsPine; the layout's kinds)
@@ -247,8 +247,8 @@ func build(area: String, tree_set: String) -> void:
 	_build_walls()
 	grass = GrassField.new()
 	add_child(grass)
-	grass.build(self)
-	set_grass(true)
+	grass.build(self, Game.grass)
+	set_grass(Game.grass)
 	show_trees(tree_set)
 
 
@@ -1253,11 +1253,12 @@ func ground_param(param: String) -> Variant:
 	return _ground_materials[BAKED].get_shader_parameter(param)
 
 
-## The long grass over the green ground (true), or the mockups' grass tufts as before it (false).
-func set_grass(on: bool) -> void:
-	grass.set_option("shown", on)
+## The grass over the green ground: one of the grass styles, or the long grass (GrassField.STYLES), or "before":
+## the mockups' grass tufts, as before it.
+func set_grass(style: String) -> void:
+	grass.set_style(style)
 	for mmi in _old_grass:
-		mmi.visible = not on
+		mmi.visible = not grass.shown
 
 
 ## How much small detail the ground draws: 3 high, 4 high from baked textures, 2 medium, 1 low, 0 none (see

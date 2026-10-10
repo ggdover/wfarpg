@@ -115,6 +115,10 @@ class PlantSettings(bpy.types.PropertyGroup):
                         description="How steeply the fronds rise from the ground, in degrees")
     flower_height: FloatProperty(name="Stalk height", default=1.6, min=0.8, max=2.5, update=_on_shape,
                                  description="How tall the flowering stalks stand, against the leaves")
+    spin: FloatProperty(name="Card turn randomness", default=0.0, min=0.0, max=1.0, update=_on_shape,
+                        description="How far each card of a patch of grass is turned its own way, rather than spread "
+                                    "evenly round (1: anywhere). The game turns and leans every card of every patch "
+                                    "by this much again, at random")
 
 
 class PlantEditor(bpy.types.PropertyGroup):
@@ -264,12 +268,14 @@ class VIEW3D_PT_plant_editor(bpy.types.Panel):
             col.prop(s, "lean", slider=True)
             col.prop(s, "bend", slider=True)
             col.prop(s, "tilt", slider=True)
+            col.prop(s, "spin", slider=True)
             col.prop(s, "spread", text="Patch spacing", slider=True)
-            box = lay.box()
-            box.label(text="Seed heads", icon="OUTLINER_OB_FORCE_FIELD")
-            col = box.column(align=True)
-            col.prop(s, "extra", text="Patches with seed heads", slider=True)
-            col.prop(s, "flower_height", text="Seed head height", slider=True)
+            if extra:
+                box = lay.box()
+                box.label(text="Seed heads", icon="OUTLINER_OB_FORCE_FIELD")
+                col = box.column(align=True)
+                col.prop(s, "extra", text="Patches with seed heads", slider=True)
+                col.prop(s, "flower_height", text="Seed head height", slider=True)
         elif kind == "fern":
             box.label(text="Fronds", icon="OUTLINER_OB_POINTCLOUD")
             col = box.column(align=True)

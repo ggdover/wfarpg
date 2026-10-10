@@ -1,17 +1,141 @@
 {
+ "GrassClumps_A": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.28,
+  "height": 0.411,
+  "max": [
+   0.224,
+   0.411,
+   0.319
+  ],
+  "min": [
+   -0.314,
+   -0.02,
+   -0.269
+  ]
+ },
+ "GrassClumps_B": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.33,
+  "height": 0.383,
+  "max": [
+   0.339,
+   0.383,
+   0.28
+  ],
+  "min": [
+   -0.279,
+   -0.02,
+   -0.368
+  ]
+ },
+ "GrassShort_A": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.202,
+  "height": 0.241,
+  "max": [
+   0.225,
+   0.241,
+   0.123
+  ],
+  "min": [
+   -0.178,
+   -0.02,
+   -0.261
+  ]
+ },
+ "GrassShort_B": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.211,
+  "height": 0.218,
+  "max": [
+   0.14,
+   0.218,
+   0.209
+  ],
+  "min": [
+   -0.166,
+   -0.02,
+   -0.214
+  ]
+ },
+ "GrassTufts_A": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.257,
+  "height": 0.325,
+  "max": [
+   0.147,
+   0.325,
+   0.23
+  ],
+  "min": [
+   -0.224,
+   -0.02,
+   -0.284
+  ]
+ },
+ "GrassTufts_B": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.26,
+  "height": 0.375,
+  "max": [
+   0.247,
+   0.375,
+   0.276
+  ],
+  "min": [
+   -0.238,
+   -0.02,
+   -0.245
+  ]
+ },
+ "GrassWisps_A": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.339,
+  "height": 0.352,
+  "max": [
+   0.299,
+   0.352,
+   0.236
+  ],
+  "min": [
+   -0.403,
+   -0.02,
+   -0.337
+  ]
+ },
+ "GrassWisps_B": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.354,
+  "height": 0.357,
+  "max": [
+   0.407,
+   0.357,
+   0.412
+  ],
+  "min": [
+   -0.265,
+   -0.02,
+   -0.284
+  ]
+ },
  "LongGrass_A": {
-  "card_mean": {
-   "flowers": [
-    0.5717,
-    0.4953,
-    0.3467
-   ],
-   "leaves": [
-    0.3985,
-    0.5313,
-    0.2468
-   ]
-  },
   "cards": 6,
   "faces": 6,
   "file": "res://assets/plants/plants.glb",
@@ -26,27 +150,9 @@
    -0.402,
    -0.02,
    -0.38
-  ],
-  "seed_heads": 0.15,
-  "spacing": 0.5,
-  "textures": {
-   "flowers": "res://assets/plants/textures/longgrass_1_flowers.png",
-   "leaves": "res://assets/plants/textures/longgrass_1.png"
-  }
+  ]
  },
  "LongGrass_B": {
-  "card_mean": {
-   "flowers": [
-    0.5717,
-    0.4953,
-    0.3467
-   ],
-   "leaves": [
-    0.3985,
-    0.5313,
-    0.2468
-   ]
-  },
   "cards": 10,
   "faces": 10,
   "file": "res://assets/plants/plants.glb",
@@ -61,12 +167,196 @@
    -0.384,
    -0.02,
    -0.451
-  ],
-  "seed_heads": 0.15,
-  "spacing": 0.5,
-  "textures": {
-   "flowers": "res://assets/plants/textures/longgrass_1_flowers.png",
-   "leaves": "res://assets/plants/textures/longgrass_1.png"
+  ]
+ },
+ "grass": {
+  "GrassClumps": {
+   "card_foot": {
+    "leaves": [
+     0.3662,
+     0.5367,
+     0.2176
+    ]
+   },
+   "card_mean": {
+    "leaves": [
+     0.3954,
+     0.5692,
+     0.2279
+    ]
+   },
+   "ground": {
+    "mean": [
+     0.3819,
+     0.5363,
+     0.2215
+    ],
+    "metres": 4.0,
+    "texture": "res://assets/plants/textures/clumps_ground.jpg"
+   },
+   "height": 0.411,
+   "meshes": [
+    "GrassClumps_A",
+    "GrassClumps_B"
+   ],
+   "share_b": 0.5,
+   "spacing": 0.5,
+   "spin": 1.0,
+   "textures": {
+    "leaves": "res://assets/plants/textures/clumps_1.png"
+   },
+   "title": "Grass: clumps"
+  },
+  "GrassShort": {
+   "card_foot": {
+    "leaves": [
+     0.3675,
+     0.5378,
+     0.2179
+    ]
+   },
+   "card_mean": {
+    "leaves": [
+     0.3949,
+     0.5683,
+     0.2274
+    ]
+   },
+   "ground": {
+    "mean": [
+     0.3776,
+     0.5283,
+     0.2194
+    ],
+    "metres": 4.0,
+    "texture": "res://assets/plants/textures/shortgrass_ground.jpg"
+   },
+   "height": 0.241,
+   "meshes": [
+    "GrassShort_A",
+    "GrassShort_B"
+   ],
+   "share_b": 0.5,
+   "spacing": 0.45,
+   "spin": 1.0,
+   "textures": {
+    "leaves": "res://assets/plants/textures/shortgrass_1.png"
+   },
+   "title": "Grass: short"
+  },
+  "GrassTufts": {
+   "card_foot": {
+    "leaves": [
+     0.3726,
+     0.5447,
+     0.2209
+    ]
+   },
+   "card_mean": {
+    "leaves": [
+     0.404,
+     0.5785,
+     0.2317
+    ]
+   },
+   "ground": {
+    "mean": [
+     0.3802,
+     0.5324,
+     0.22
+    ],
+    "metres": 4.0,
+    "texture": "res://assets/plants/textures/tufts_ground.jpg"
+   },
+   "height": 0.375,
+   "meshes": [
+    "GrassTufts_A",
+    "GrassTufts_B"
+   ],
+   "share_b": 0.5,
+   "spacing": 0.65,
+   "spin": 1.0,
+   "textures": {
+    "leaves": "res://assets/plants/textures/tufts_1.png"
+   },
+   "title": "Grass: tufts"
+  },
+  "GrassWisps": {
+   "card_foot": {
+    "leaves": [
+     0.3667,
+     0.5383,
+     0.2177
+    ]
+   },
+   "card_mean": {
+    "leaves": [
+     0.3962,
+     0.5706,
+     0.2283
+    ]
+   },
+   "ground": {
+    "mean": [
+     0.3786,
+     0.5295,
+     0.2194
+    ],
+    "metres": 4.0,
+    "texture": "res://assets/plants/textures/wisps_ground.jpg"
+   },
+   "height": 0.357,
+   "meshes": [
+    "GrassWisps_A",
+    "GrassWisps_B"
+   ],
+   "share_b": 0.5,
+   "spacing": 0.9,
+   "spin": 1.0,
+   "textures": {
+    "leaves": "res://assets/plants/textures/wisps_1.png"
+   },
+   "title": "Grass: wisps"
+  },
+  "LongGrass": {
+   "card_foot": {
+    "flowers": [
+     0.5169,
+     0.5651,
+     0.3092
+    ],
+    "leaves": [
+     0.3132,
+     0.456,
+     0.1904
+    ]
+   },
+   "card_mean": {
+    "flowers": [
+     0.5717,
+     0.4953,
+     0.3467
+    ],
+    "leaves": [
+     0.3985,
+     0.5313,
+     0.2468
+    ]
+   },
+   "ground": null,
+   "height": 0.531,
+   "meshes": [
+    "LongGrass_A",
+    "LongGrass_B"
+   ],
+   "share_b": 0.15,
+   "spacing": 0.5,
+   "spin": 0.0,
+   "textures": {
+    "flowers": "res://assets/plants/textures/longgrass_1_flowers.png",
+    "leaves": "res://assets/plants/textures/longgrass_1.png"
+   },
+   "title": "Long grass"
   }
  }
 }

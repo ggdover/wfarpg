@@ -12,6 +12,22 @@ vec3 srgb_to_linear(vec3 c) {
 	return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(vec3(0.04045), c));
 }
 
+// How green a colour of the ground is, 0..1 (linear colour in): green to yellow-green, not too grey or dark, as
+// water, its bed, rock, heather, the bog and fallen leaves aren't. The long grass grows where the ground is green
+// (shaders/grass.gdshader), and its ground texture lies there (ground.gdshaderinc).
+float ground_green(vec3 lin) {
+	vec3 c = pow(max(lin, vec3(0.0)), vec3(1.0 / 2.2));
+	float mx = max(c.r, max(c.g, c.b));
+	float d = mx - min(c.r, min(c.g, c.b));
+	if (d < 1e-4) {
+		return 0.0;
+	}
+	float h = mx == c.r ? mod((c.g - c.b) / d, 6.0) : (mx == c.g ? (c.b - c.r) / d + 2.0 : (c.r - c.g) / d + 4.0);
+	h *= 60.0;
+	return smoothstep(45.0, 55.0, h) * (1.0 - smoothstep(140.0, 150.0, h)) * smoothstep(0.15, 0.25, d / mx)
+			* smoothstep(0.28, 0.34, mx);
+}
+
 // A random number, 0..1, for a cell of a 3D grid.
 float hash_cell3(vec3 c) {
 	uvec3 v = uvec3(ivec3(c)) * uvec3(1597334673u, 3812015801u, 2798796415u);

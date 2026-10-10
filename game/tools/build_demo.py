@@ -7,8 +7,9 @@ models  the mockups' low-poly kit (the old trees, rocks, plants and props) and t
         with the leaf cards they use and ambient occlusion baked into them (kit: the kit alone, not the trees)
 stumps  every tree's stump, which the game shows in place of a tree in the way, and its bare trunk, which its x-ray
         leaves standing, in assets/trees/stumps.glb
-plants  the plant portfolio's long grass, from assets/plants/plant_settings.json: a patch of it, without and with seed
-        heads, which the game sets all over the green ground (scripts/grass.gd), in assets/plants/plants.glb
+plants  the plant portfolio's grasses for the green ground, from assets/plants/plant_settings.json: the long grass and
+        the grass styles, two patches of each, with their cards and ground textures, which the game sets all over its
+        green ground (scripts/grass.gd), in assets/plants
 layout  where every tree, rock and plant stands, and an area's other things (walls), in data/areas/<area>.json; and
         its own models (water, stairs, bridges), if it has any, in assets/areas/<area>/extras.glb
 ground  the terrain's heights, the mockups' ground shader baked into textures, and the trees' shade on the ground
@@ -173,7 +174,8 @@ def export_glb(objects, path, ao=None):
     channel, which bands the dark greens if they are linear, so the colours go out sRGB-encoded in "ColSRGB" and the
     game's shaders decode them. The baked ambient occlusion (ao: object name -> per corner) goes in a second UV map,
     which Godot reads as UV2: Blender's exporter writes real vertex colours for a mesh's first material only, and
-    white for the rest, so the leaf cards could not carry it in their colours."""
+    white for the rest, so the leaf cards could not carry it in their colours. (The grass's patches carry their
+    cards' numbers there instead, build_plants.)"""
     bpy.ops.object.select_all(action="DESELECT")
     for ob in objects:
         srgb_colours(ob.data)
@@ -820,42 +822,119 @@ def build_trees():
 
 
 def build_plants():
-    """The plant portfolio's long grass (assets/plants), as tuned in its plant_settings.json: a patch of it without
-    and with seed heads (variants A and B), which the game's grass (scripts/grass.gd) sets all over the green ground,
-    in assets/plants/plants.glb, with its cards (the editor's tint baked in) and plants.json: each patch's file and
-    cards, the cards' average colour where they're opaque (the game tints them to the ground under them), how far
-    apart the patches stand and what share of them has seed heads."""
+    """The plant portfolio's grasses for the game's green ground (assets/plants), as tuned in its plant_settings.json:
+    the long grass (the first try) and the grass styles (wisps, tufts, clumps, short), each as two patches, A and B
+    (B with seed heads, if it has them, or another of its kind), in assets/plants/plants.glb, with their cards and a
+    style's ground texture (the editor's tint baked in), and plants.json. Each patch's corners carry the number of
+    the card they're on in their second UV map, so the game can turn and lean every card of every patch its own way.
+    plants.json's "grass" lists each one: its patches, cards and ground, the colour of its cards' feet, of all of them
+    and of its ground (the game tints them to the ground's own colour where they are), how far apart the patches
+    stand, what share of them is B, and how far the game turns each card at random."""
     import plantgen
-    cfg = plantgen.load_settings()["LongGrass"]
+    settings = plantgen.load_settings()
     tex_dir = os.path.join(PLANT_DIR, "textures")
     os.makedirs(tex_dir, exist_ok=True)
-    card = plantgen.BY_KEY["LongGrass"][6]
-    textures = {"leaves": f"{card}_{int(cfg['card'])}", "flowers": f"{card}_{int(cfg['card'])}_flowers"}
-    means = {}
-    for slot, name in textures.items():
-        copy_card(name, cfg, tex_dir, os.path.join(PLANTS, "textures"))
-        mipmapped(os.path.join(tex_dir, name + ".png"))
-        img = bpy.data.images.load(os.path.join(tex_dir, name + ".png"))
-        px = np.array(img.pixels[:], np.float32).reshape(-1, 4)  # Blender: linear
-        opaque = px[px[:, 3] >= 0.5, :3]
-        means[slot] = [round(float(v), 4) for v in opaque.mean(0)]
-        bpy.data.images.remove(img)
-    objs, info = [], {}
-    for variant in "AB":
-        name = f"LongGrass_{variant}"
-        me = bpy.data.meshes.new(name)
-        cards, faces = plantgen.build_into("LongGrass", variant, cfg, me)
-        ob = bpy.data.objects.new(name, me)
-        bpy.context.scene.collection.objects.link(ob)
-        objs.append(ob)
-        info[name] = dict(mesh_info(me, bark_slot=None), file="res://assets/plants/plants.glb", cards=cards,
-                          textures={slot: f"res://assets/plants/textures/{t}.png" for slot, t in textures.items()},
-                          card_mean=means, spacing=round(0.5 * max(0.3, cfg["spread"]), 3),
-                          seed_heads=round(float(cfg["extra"]), 3))
-        print(name, "cards", cards, "faces", faces)
-    export_glb(objs, os.path.join(PLANT_DIR, "plants.glb"))
+    grounds = plantgen._cards().get("grounds", {})
+    res = "res://assets/plants/textures/"
+    objs, info, ids = [], {"grass": {}}, {}
+    for key, *_rest in plantgen.SPECIES:
+        if plantgen.kind(key) != "patch":
+            continue
+        cfg = settings[key]
+        card, extra = plantgen.BY_KEY[key][6], plantgen.extra_of(key)
+        textures = {"leaves": f"{card}_{int(cfg['card'])}"}
+        if extra:
+            textures["flowers"] = f"{card}_{int(cfg['card'])}_{extra}"
+        feet, means = {}, {}
+        for slot, name in textures.items():
+            copy_card(name, cfg, tex_dir, os.path.join(PLANTS, "textures"))
+            mipmapped(os.path.join(tex_dir, name + ".png"))
+            feet[slot], means[slot] = card_colours(os.path.join(tex_dir, name + ".png"))
+        ground = None
+        if card in grounds:
+            name = grounds[card]["file"]
+            mean = copy_ground(os.path.join(PLANTS, "textures", name), os.path.join(tex_dir, name), cfg)
+            ground = {"texture": res + name, "metres": grounds[card]["metres"], "mean": mean}
+        meshes = []
+        for variant in "AB":
+            name = f"{key}_{variant}"
+            me = bpy.data.meshes.new(name)
+            cards, faces = plantgen.build_into(key, variant, cfg, me)
+            ob = bpy.data.objects.new(name, me)
+            bpy.context.scene.collection.objects.link(ob)
+            objs.append(ob)
+            ids[name] = card_numbers(me)
+            info[name] = dict(mesh_info(me, bark_slot=None), file="res://assets/plants/plants.glb", cards=cards)
+            meshes.append(name)
+            print(name, "cards", cards, "faces", faces)
+        info["grass"][key] = dict(
+            title=plantgen.BY_KEY[key][2], meshes=meshes, textures={slot: res + t + ".png" for slot, t in textures.items()},
+            card_foot=feet, card_mean=means, ground=ground, spacing=round(0.5 * max(0.3, cfg["spread"]), 3),
+            share_b=round(float(cfg["extra"]), 3) if extra else 0.5, spin=round(float(cfg["spin"]), 3),
+            height=max(info[m]["height"] for m in meshes))
+    export_glb(objs, os.path.join(PLANT_DIR, "plants.glb"), ids)
     with open(os.path.join(PLANT_DIR, "plants.json"), "w") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)
+
+
+def card_numbers(me):
+    """For each face corner of a patch of grass, the number of the card it's on (its faces joined by their corners),
+    as (n + 0.5) / 64, for the second UV map (export_glb)."""
+    parent = list(range(len(me.vertices)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for poly in me.polygons:
+        vs = list(poly.vertices)
+        for v in vs[1:]:
+            parent[find(v)] = find(vs[0])
+    number = {}
+    out = np.zeros(len(me.loops), np.float32)
+    for poly in me.polygons:
+        root = find(poly.vertices[0])
+        n = number.setdefault(root, len(number))
+        for li in poly.loop_indices:
+            out[li] = (n + 0.5) / 64.0
+    return out
+
+
+def card_colours(path):
+    """The average colour of a card's foot where it's opaque (the bottom eighth of its rows), and of all of it where
+    it's opaque, sRGB as stored."""
+    img = bpy.data.images.load(path)
+    w, h = img.size
+    px = np.array(img.pixels[:], np.float32).reshape(h, w, 4)  # Blender: bottom row first
+    bpy.data.images.remove(img)
+
+    def mean(p):
+        p = p.reshape(-1, 4)
+        opaque = p[p[:, 3] >= 0.5, :3]
+        return [round(float(v), 4) for v in (opaque.mean(0) if len(opaque) else p[:, :3].mean(0))]
+
+    return mean(px[: max(1, h // 8)]), mean(px)
+
+
+def copy_ground(src, dst, cfg):
+    """Copy a grass style's ground texture for the game, with the editor's tint baked in as for its cards; returns its
+    average colour, sRGB as stored."""
+    img = bpy.data.images.load(src)
+    px = np.array(img.pixels[:], np.float32).reshape(-1, 4)
+    if (cfg["hue"], cfg["saturation"], cfg["brightness"]) == (0.5, 1.0, 1.0):
+        shutil.copyfile(src, dst)
+    else:
+        px[:, :3] = tinted(px[:, :3], cfg)
+        img.pixels.foreach_set(px.ravel())
+        img.filepath_raw = dst
+        img.file_format = "JPEG"
+        bpy.context.scene.render.image_settings.quality = 92
+        img.save()
+    bpy.data.images.remove(img)
+    mipmapped(dst)
+    return [round(float(v), 4) for v in px[:, :3].mean(0)]
 
 
 def mipmapped(path):
@@ -875,7 +954,15 @@ def copy_card(name, cfg, tex_dir, src_dir=os.path.join(TREES, "textures")):
         return
     img = bpy.data.images.load(src)
     px = np.array(img.pixels[:], np.float32).reshape(-1, 4)
-    rgb = px[:, :3]
+    px[:, :3] = tinted(px[:, :3], cfg)
+    img.pixels.foreach_set(px.ravel())
+    img.filepath_raw = dst
+    img.file_format = "PNG"
+    img.save()
+
+
+def tinted(rgb, cfg):
+    """Colours through the editor's hue, saturation and brightness, as Blender's hue/saturation/value node does."""
     mx, mn = rgb.max(1), rgb.min(1)
     d = mx - mn
     h = np.zeros_like(mx)
@@ -890,12 +977,7 @@ def copy_card(name, cfg, tex_dir, src_dir=os.path.join(TREES, "textures")):
     i = np.floor(h * 6).astype(int) % 6
     f = h * 6 - np.floor(h * 6)
     p, q, t = v * (1 - s), v * (1 - s * f), v * (1 - s * (1 - f))
-    out = np.stack([np.choose(i, [v, q, p, p, t, v]), np.choose(i, [t, v, v, q, p, p]), np.choose(i, [p, p, t, v, v, q])], 1)
-    px[:, :3] = out
-    img.pixels.foreach_set(px.ravel())
-    img.filepath_raw = dst
-    img.file_format = "PNG"
-    img.save()
+    return np.stack([np.choose(i, [v, q, p, p, t, v]), np.choose(i, [t, v, v, q, p, p]), np.choose(i, [p, p, t, v, v, q])], 1)
 
 
 # ------------------------------------------------------------------ stumps

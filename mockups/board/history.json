@@ -4327,6 +4327,103 @@
     "The seed heads' cards were about 90% empty; cropped to their stalks, the narrowest are 40% as wide as before, and the grass's own cards lost their empty tops"
    ],
    "cover": "renders/play_demo_grass/before_and_now.jpg"
+  },
+  {
+   "id": "grass-blend",
+   "date": "2026-10-10",
+   "asked_at": "21:58",
+   "posted_at": "22:41",
+   "title": "Grass that blends into the ground",
+   "section": "Plants: grass that blends into the ground",
+   "asked": "I feel like the grass doesn't blend in with the background enough, you can tell that it is crossed planes instead of naturally blending into the background. I think the biggest reason is that the color of the underlying ground is different and I think the underlying ground needs more texture to it. Also the grass planes obviously need to have the same colour as the underlying ground so it blends in, but also to not have as thick an amount of strands per plane. If it's fewer strands per plane, more of the plane is transparent so you see the underlying ground through it and it overall blends in more. Also don't fill up the ground with as many grass chunks (each grass chunk is multiple intersecting planes of grass strands). I think maybe varying the angle of each grass plane in the same chunk might help blend it into the background also. Give me a few different examples (matching the texture and color of the underlying ground with the planes making up the grass patch) of grass so I can try a few different variations and hopefully at least one will be what I want.",
+   "changed": [
+    "Four grass styles to try in the game, G or F2's Grass stepping through them: Wisps (the subtlest), Tufts (the default), Clumps (the thickest) and Short (a lawn), with the first try and the ground as before to compare",
+    "Each strand in the ground's own colour, the colour just under it; only its tips lighter. At its foot, each card fades into the ground itself, so there's no line where they meet",
+    "A ground texture for each style, its strands lying flat in the same colours, laid over the green ground a little darker, as in the grass's shade; F2 sets how strongly it shows and how dark",
+    "Fewer strands a card and fewer patches; every card of every patch turned and leaned its own way",
+    "In the portfolio: the four styles under Grasses, a Card turn randomness slider, each style's tile a small lawn on its ground, the forest floor in Tufts"
+   ],
+   "items": [
+    {
+     "id": "s-grassblend",
+     "type": "frame",
+     "status": "new",
+     "title": "Plants: grass that blends into the ground",
+     "author": "claude"
+    },
+    {
+     "id": "gb-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Grass that blends into the ground\nYou found the long grass didn't blend in: you could tell it was crossed planes, its colour wasn't the ground's, and the ground under it was too smooth.\n\nSo there are four new styles to try. Each one has:\n- **The ground's own colour:** every pixel of a strand takes the colour of the ground just under it; only its tips are lighter. At its foot, the card fades into the ground itself, so there's no line where they meet\n- **A ground to match:** a texture of the same strands lying flat, laid over the green ground, a little darker, as if in the grass's shade\n- **Fewer strands, fewer patches:** more of each card is clear, so the ground shows through\n- **Every card at its own angle:** turned and leaned at random, in every patch\n\n**The styles** (G in the game steps through them, or F2's Grass):\n- **Wisps:** the subtlest, sparse long strands\n- **Tufts** (the default): tufts fanning out from their feet\n- **Clumps:** the thickest, a meadow\n- **Short:** a short lawn\n- **First try** and **As before**, to compare\n\n**F2** also sets how strongly the ground texture shows, and how dark the ground is in the grass's shade.\n\n**Cost per frame:** Wisps 0.5 ms, Tufts 1.0, Clumps 1.8, Short 1.9, against 2.1 for the first try. These were measured on a busy machine; expect about two thirds of that on a quiet one.\n\n**In the editor:** the styles are under Grasses, with a new Card turn randomness slider. Their colour sliders tint their ground too.",
+     "author": "claude"
+    },
+    {
+     "id": "gb-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Close up in the open forest: the four styles, the first try, and as before.",
+     "assetId": "d9c75f2958cc8d37b449cbc6be4763bd",
+     "file": "renders/play_demo_grass_styles/close_ups.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gb-high",
+     "type": "image",
+     "status": "new",
+     "caption": "The same, from the game's camera.",
+     "assetId": "0d8845fc7625b968dd1b6972b468c01e",
+     "file": "renders/play_demo_grass_styles/game_camera.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gb-grounds",
+     "type": "image",
+     "status": "new",
+     "caption": "Each style's ground: its strands lying flat, with one of its cards on top.",
+     "assetId": "f7e3497864c1a8623b37c05acb48bc38",
+     "file": "../assets/plants/previews/v3/grounds.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gb-walk",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking through Clumps: the trodden lane behind the hero.",
+     "assetId": "5847805609a915e06467ef3c0d57333f",
+     "file": "renders/play_demo_grass_styles/walking_clumps.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gb-styles",
+     "type": "image",
+     "status": "new",
+     "caption": "In the portfolio: a small lawn of each style on its ground.",
+     "assetId": "5bf8c163e27edba0fdef8942385ff662",
+     "file": "../assets/plants/previews/v3/styles.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gb-floor",
+     "type": "image",
+     "status": "new",
+     "caption": "The portfolio's forest floor, in Tufts.",
+     "assetId": "11e06d06fb12051bfe9bd55f4c0df7fb",
+     "file": "../assets/plants/previews/v3/floor_close.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/46_grass_vanished.jpg",
+     "caption": "The first try at blending: in exactly the ground's colour, with sparse thin strands, the grass all but vanished from the game's camera. So the ground among it is now a little darker, its tips lighter, its strands wider"
+    }
+   ],
+   "found": [
+    "From the game's camera a pixel is about 3.4 cm across, so a strand a few millimetres wide is drawn only where strands overlap: the first try's cards showed as blobs the shape of the cards. The styles' strands are 1.5 to 2 cm wide",
+    "Blender lit the grass cards' backs darker and let them cast shadows, so in the portfolio the grass looked darker than its ground; the game does neither, and the portfolio now matches it"
+   ],
+   "cover": "renders/play_demo_grass_styles/close_ups.jpg"
   }
  ]
 }

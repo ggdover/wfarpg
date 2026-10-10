@@ -18,7 +18,7 @@ import os
 import random
 import sys
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "trees"))
@@ -625,6 +625,123 @@ def longgrass(v, extra=False):
     return c
 
 
+# ------------------------------------------------------------------ the game's grass: four styles and their ground
+# The user found the long grass didn't blend into the ground (10 October): its cards showed as crossed planes, its
+# colour wasn't the ground's, and the ground under it was too smooth. So the game's grass comes in styles of fewer
+# strands a card than the long grass, more of each card clear so the ground shows through, each with a ground texture
+# to match: the same strands lying flat, as seen from above, which the game paints over its green ground. Cards and
+# ground are painted round one base colour, the strands' feet in it and their tips a little lighter and yellower:
+# the game colours both by the ground's own colour where they lie, so they only need to agree with each other.
+GRASS_BASE = "#5E8A38"  # a strand's foot, and the ground's background
+GRASS_TIP = "#76A440"   # its tip: about 1.5 times as light as its foot, once the game has it in linear colour
+GRASS_DRY = "#98A44C"   # a dry strand's tip
+STYLES = {  # set: its card's strands (half-width and length as shares of the card), and its ground's (in metres)
+    "wisps": dict(n=20, width=0.016, length=0.95, spread=0.26, curve=0.28, droop=0.32, tuft=False,
+                  ground=dict(kind="loose", count=2600, length=(0.1, 0.24), width=0.008)),
+    "tufts": dict(n=16, width=0.022, length=0.95, spread=0.42, curve=0.3, droop=0.22, tuft=True,
+                  ground=dict(kind="tufts", count=380, blades=(8, 14), length=(0.08, 0.18), width=0.009)),
+    "clumps": dict(n=30, width=0.014, length=0.95, spread=0.22, curve=0.22, droop=0.24, tuft=False,
+                   ground=dict(kind="clumps", count=240, blades=(20, 34), length=(0.12, 0.24), width=0.007)),
+    "shortgrass": dict(n=26, width=0.024, length=0.92, spread=0.3, curve=0.2, droop=0.12, tuft=False,
+                       ground=dict(kind="loose", count=5200, length=(0.04, 0.09), width=0.008)),
+}
+GROUND_METRES = 4.0  # how far a ground texture reaches before it repeats
+GROUND_SIZE = 2048   # its pixels across
+
+
+def grass_style(name, v):
+    """A card of one of the game's grass styles (STYLES): fewer strands than the long grass's, in a row along the
+    card's foot, or fanning out from its middle as a tuft; design 2 has some dry blades, 3 more strands."""
+    s = STYLES[name]
+    c = Plant([GRASS_BASE], 1700 + 10 * list(STYLES).index(name) + v)
+    c.fit = "box" if s["tuft"] else "top"
+    r = c.rng
+    n = round(s["n"] * (1.4 if v == 3 else 1.0))
+    base, tip, dry = rgb(GRASS_BASE), rgb(GRASS_TIP), rgb(GRASS_DRY)
+    for k in range(n):
+        x = 0.5 + r.gauss(0, 0.06) if s["tuft"] else r.uniform(0.06, 0.94)
+        a = math.pi / 2 + (0.5 - x) * (0.5 if not s["tuft"] else 0.0) + r.gauss(0, s["spread"])
+        L = s["length"] * r.uniform(0.55, 1.0)
+        foot = shade(base, r.uniform(0.94, 1.04))
+        end = shade(dry if (v == 2 and r.random() < 0.2) else tip, r.uniform(0.95, 1.05))
+        side = 1 if r.random() < 0.5 else -1
+        strand(c, (x, FOOT[1] + r.uniform(-0.01, 0.015)), a, L, s["width"] * r.uniform(0.8, 1.15),
+               side * abs(r.gauss(s["curve"], s["curve"] * 0.5)), s["droop"] * (L / s["length"]) ** 2 * r.uniform(0.4, 1.3),
+               foot, end)
+    return c
+
+
+def ground_tile(name):
+    """The ground under a grass style: its strands lying flat in the same colours, as seen from above, on the base
+    colour, GROUND_METRES across and seamless (a strand over an edge comes back in at the other). Loose strands lie
+    every which way; tufts lie as stars from their middles; clumps lie combed one way, a clump at a time. Under them,
+    lighter and darker blotches a clump of grass across."""
+    g = STYLES[name]["ground"]
+    r = random.Random(1800 + list(STYLES).index(name))
+    big = GROUND_SIZE * 2  # drawn at twice the size, for clean edges
+    img = Image.new("RGB", (big, big), rgb(GRASS_BASE))
+    # under the strands, lighter and darker blotches a clump of grass across (10 to 40 cm), so the ground has
+    # texture at the size the game's camera sees, not only in strands too fine for it: drawn small, wrapped round and
+    # blurred, then laid over the base colour
+    low = 256
+    blot = Image.new("L", (low * 3, low * 3), 128)
+    bd = ImageDraw.Draw(blot)
+    for _ in range(int(140 * GROUND_METRES ** 2 / 16)):
+        x, y, rad = r.uniform(0, low), r.uniform(0, low), r.uniform(0.05, 0.2) * low / GROUND_METRES
+        tone = 128 + round(r.choice((-1, 1)) * r.uniform(14, 34))
+        for ox in (0, low, 2 * low):
+            for oy in (0, low, 2 * low):
+                bd.ellipse([x + ox - rad, y + oy - rad * r.uniform(0.6, 1.0), x + ox + rad, y + oy + rad], fill=tone)
+    blot = blot.filter(ImageFilter.GaussianBlur(low / GROUND_METRES * 0.05)).crop((low, low, 2 * low, 2 * low))
+    blot = blot.resize((big, big), Image.BILINEAR)
+    img = Image.composite(Image.new("RGB", (big, big), shade(rgb(GRASS_BASE), 1.12)), img, blot.point(lambda v: max(0, v - 128) * 2))
+    img = Image.composite(Image.new("RGB", (big, big), shade(rgb(GRASS_BASE), 0.88)), img, blot.point(lambda v: max(0, 128 - v) * 2))
+    d = ImageDraw.Draw(img)
+    m = big / GROUND_METRES  # pixels a metre
+    base, tip, dry = rgb(GRASS_BASE), rgb(GRASS_TIP), rgb(GRASS_DRY)
+
+    def lie(x, y, ang, length, width, foot, end):
+        """One strand lying from (x, y), metres, along ang: tapering, its colour running from foot to end."""
+        n = 6
+        pts = [(x + math.cos(ang) * length * i / n + math.sin(ang) * r.uniform(-0.1, 0.1) * length * (i / n) ** 2,
+                y + math.sin(ang) * length * i / n) for i in range(n + 1)]
+        for ox in (-GROUND_METRES, 0.0, GROUND_METRES):  # and its copies over the edges, so the tile repeats seamlessly
+            for oy in (-GROUND_METRES, 0.0, GROUND_METRES):
+                if not (-0.3 < x + ox < GROUND_METRES + 0.3 and -0.3 < y + oy < GROUND_METRES + 0.3):
+                    continue
+                for i in range(n):
+                    (ax, ay), (bx, by) = pts[i], pts[i + 1]
+                    h = math.atan2(by - ay, bx - ax)
+                    nx, ny = -math.sin(h), math.cos(h)
+                    w0, w1 = width * (1 - i / n) ** 0.6, width * (1 - (i + 1) / n) ** 0.6
+                    f = (i + 0.5) / n
+                    col = tuple(round(foot[k] + (end[k] - foot[k]) * f) for k in range(3))
+                    quad = [(ax + nx * w0, ay + ny * w0), (bx + nx * w1, by + ny * w1), (bx - nx * w1, by - ny * w1), (ax - nx * w0, ay - ny * w0)]
+                    d.polygon([((qx + ox) * m, (qy + oy) * m) for qx, qy in quad], fill=col)
+
+    def colours():
+        foot = shade(base, r.uniform(0.86, 1.0))
+        end = shade(dry if r.random() < 0.08 else tip, r.uniform(0.94, 1.06))
+        return foot, end
+
+    W = GROUND_METRES
+    if g["kind"] == "loose":
+        for _ in range(g["count"]):
+            lie(r.uniform(0, W), r.uniform(0, W), r.uniform(0, math.tau), r.uniform(*g["length"]), g["width"] * r.uniform(0.8, 1.2), *colours())
+    elif g["kind"] == "tufts":
+        for _ in range(g["count"]):
+            x, y = r.uniform(0, W), r.uniform(0, W)
+            for k in range(r.randint(*g["blades"])):
+                lie(x, y, r.uniform(0, math.tau), r.uniform(*g["length"]), g["width"] * r.uniform(0.8, 1.2), *colours())
+    else:  # clumps, combed one way each
+        for _ in range(g["count"]):
+            cx, cy, way = r.uniform(0, W), r.uniform(0, W), r.uniform(0, math.tau)
+            for k in range(r.randint(*g["blades"])):
+                x, y = cx + r.gauss(0, 0.12), cy + r.gauss(0, 0.12)
+                lie(x, y, way + r.gauss(0, 0.45), r.uniform(*g["length"]), g["width"] * r.uniform(0.8, 1.2), *colours())
+    return img.resize((GROUND_SIZE, GROUND_SIZE), Image.LANCZOS)
+
+
 # ------------------------------------------------------------------ the list
 PLANTS = {  # card set: (draw, extra kind, the designs' names)
     "raspberry": (raspberry, "berries", ["Leaf cluster", "Arching cane", "Pale undersides", "Young, light"]),
@@ -632,6 +749,10 @@ PLANTS = {  # card set: (draw, extra kind, the designs' names)
     "hazel": (hazel, "nuts", ["Leafy twig", "Fan cluster", "Painted mass", "Autumn"]),
     "fern": (fern, None, ["Frond", "Broad frond", "Young, light", "Autumn, rusty"]),
     "longgrass": (longgrass, "flowers", ["Thick, semi-long", "Long, arching", "With dry blades", "Lush, broad"]),
+    "wisps": (lambda v, extra=False: grass_style("wisps", v), None, ["Even", "Dry blades", "Fuller"]),
+    "tufts": (lambda v, extra=False: grass_style("tufts", v), None, ["Even", "Dry blades", "Fuller"]),
+    "clumps": (lambda v, extra=False: grass_style("clumps", v), None, ["Even", "Dry blades", "Fuller"]),
+    "shortgrass": (lambda v, extra=False: grass_style("shortgrass", v), None, ["Even", "Dry blades", "Fuller"]),
     "hairgrass": (hairgrass, "flowers", ["Fine tuft", "Dense tuft", "Golden, late summer", "Sparse"]),
     "bent": (bent, "flowers", ["Meadow tuft", "Tall, loose", "Dry", "Lush"]),
     "smallreed": (smallreed, "flowers", ["Arching blades", "Upright", "Late summer", "Full"]),
@@ -703,7 +824,24 @@ if __name__ == "__main__":
                         fill=(90, 80, 64), font=small, anchor="mt")
     os.makedirs(os.path.join(HERE, "previews"), exist_ok=True)
     sheet.save(os.path.join(HERE, "previews", "cards.png"))
+    # the grass styles' grounds (ground_tile), and a sheet of them, each with a card of its strands on it
+    tiles = []
+    for name in STYLES:
+        tile = ground_tile(name)
+        tile.save(os.path.join(OUT, f"{name}_ground.jpg"), quality=92)
+        tiles.append((name, tile))
+    side = 700
+    sheet = Image.new("RGB", (pad + len(tiles) * (side + pad), side + 2 * pad + 40), (236, 232, 222))
+    dr = ImageDraw.Draw(sheet)
+    for i, (name, tile) in enumerate(tiles):
+        x = pad + i * (side + pad)
+        part = tile.crop((0, 0, GROUND_SIZE // 2, GROUND_SIZE // 2)).resize((side, side), Image.LANCZOS)  # 2 m of it
+        card = made[(name, 1)].resize((side // 2, side // 2), Image.LANCZOS)
+        part.paste(card, (side // 4, side // 2 - 20), card)
+        sheet.paste(part, (x, pad))
+        dr.text((x + side / 2, pad + side + 8), f"{name}: 2 m of its ground, a card on it", fill=(90, 80, 64), font=big, anchor="mt")
+    sheet.save(os.path.join(HERE, "previews", "grounds.png"))
     with open(os.path.join(OUT, "cards.json"), "w") as fh:  # the designs' names and extras, for the plant editor
-        json.dump({"names": {k: p[2] for k, p in PLANTS.items()}, "extras": {k: p[1] for k, p in PLANTS.items()}, "fits": FITS},
-                  fh, indent=1)
+        json.dump({"names": {k: p[2] for k, p in PLANTS.items()}, "extras": {k: p[1] for k, p in PLANTS.items()}, "fits": FITS,
+                   "grounds": {k: {"file": f"{k}_ground.jpg", "metres": GROUND_METRES} for k in STYLES}}, fh, indent=1)
     print("wrote", len(made), "cards to", OUT)

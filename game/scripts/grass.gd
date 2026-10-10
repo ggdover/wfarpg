@@ -1,104 +1,77 @@
 class_name GrassField
 extends Node3D
-## The long grass over the area's green ground, as the user asked for (10 October): thick, semi-long grass wherever
-## the ground is green, outside the paths, which folds as the hero walks through it. Its patches are the plant
-## portfolio's long grass (assets/plants), cards of thin strands crossing, exported by tools/build_demo.py's plants
-## stage into assets/plants/plants.glb: one patch without seed heads and one with, a share of them.
+## The grass over the area's green ground, as the user asked for (10 October): grass wherever the ground is green,
+## outside the paths, which folds as the hero walks through it. Its patches are one of the plant portfolio's grasses
+## (assets/plants), cards of strands crossing, exported by tools/build_demo.py's plants stage into assets/plants: the
+## grass styles (wisps, tufts, clumps, short), each with a ground texture of its strands lying flat, which the ground
+## shader lays over the green ground so the grass and the ground under it match; or the long grass, the first try.
+## STYLES lists them; F2's Grass and G switch between them, and "before" shows the mockups' grass tufts instead.
 ##
 ## The graphics card places it, so placing it takes no time as the area loads (only block_tex does, a tenth of a
-## second or so): every CHUNK-metre square of the area draws the same grid of patches (one multimesh for each patch,
-## shared), and the grass shader (shaders/grass.gdshader) stands each on the ground, from a texture of the terrain's
-## heights; turns, moves and sizes it by where it stands; and keeps it only on green ground, out of the paths' wear
-## and off steep ground, and where nothing lies: block_tex, made here, marks the rocks and logs (the layout's solids)
-## and the area's own models, its water, boardwalks, jetties, steps and bridges. It takes the ground's colour where it stands. The hero's trail, its
-## last 12 m, goes to the shader every frame, and the grass folds away from it and springs back.
+## second or so): every CHUNK-metre square of the area draws the same grid of patches (one multimesh for each of a
+## style's two patches, shared), and the grass shader (shaders/grass.gdshader) stands each on the ground, from a
+## texture of the terrain's heights; turns, moves and sizes it, and every card of it, by where it stands; and keeps it
+## only on green ground, out of the paths' wear and off steep ground, and where nothing lies: block_tex, made here,
+## marks the rocks and logs (the layout's solids) and the area's own models, its water, boardwalks, jetties, steps and
+## bridges. It takes the ground's colour where it stands. The hero's trail, its last 12 m, goes to the shader every
+## frame, and the grass folds away from it and springs back.
 
 const PLANTS := "res://assets/plants/plants.json"
+## the grasses to choose from, in F2's and G's order, and what they're called there; "before" is the mockups' tufts
+const STYLES := {"GrassWisps": "Wisps", "GrassTufts": "Tufts", "GrassClumps": "Clumps", "GrassShort": "Short",
+	"LongGrass": "First try", "before": "As before"}
 const CHUNK := 16.0  ## metres across each chunk of grass
 const BLOCK_TEXEL := 0.25  ## metres per texel of block_tex
 const TRAIL := 24  ## the hero's positions kept for the grass to fold round (TRAIL in the shader): 12 m of them
 const TRAIL_STEP := 0.5  ## metres the hero walks between two of them
 const TRAIL_JUMP := 3.0  ## metres the hero can't walk in a frame: put somewhere else, it starts a new trail
 ## the ground shader's parameters the grass shares (DemoWorld.set_ground_param)
-const GROUND_PARAMS := ["grass_tex", "masks_tex", "path_noise_tex", "canopy_tex", "canopy_strength", "wear_spread", "worn0", "worn1"]
+const GROUND_PARAMS := ["grass_tex", "masks_tex", "path_noise_tex", "canopy_tex", "canopy_strength", "wear_spread", "worn0",
+	"worn1", "strokes_tex", "strokes_mean", "strokes_metres", "strokes_amount", "strokes_shade"]
 
 var world: DemoWorld
-## drawn, or the mockups' grass tufts as before (DemoWorld.set_grass)
+## the grass shown: one of STYLES (DemoWorld.set_grass)
+var style := "GrassTufts"
+## drawn: not "before"
 var shown := true
 ## the share of the grid's patches drawn
 var density := 1.0
-## how tall, against the patch as tuned
+## how tall, against the patches as tuned
 var height_scale := 1.0
 ## metres from the camera where it has sunk into the ground; the chunks are drawn out to this and their size
 var reach := 45.0
+## how strongly a style's ground texture shows on the green ground: 0 none, 1 as painted
+var ground_texture := 1.0
+## how much darker the ground is under the grass, in its shade, so its lighter strands show: 1 not at all
+var ground_shade := 0.85
 ## patches whose foot is this near the hero's trail fold, over by up to fold_angle radians (fully within 0.5 m)
 var fold_radius := 0.9
 var fold_angle := 1.4
 ## seconds after the hero has gone until the grass stands up again
 var recover := 1.6
-var _materials: Array[ShaderMaterial] = []
-var _chunks: Array[MultiMeshInstance3D] = []
-var _trail: Array[Vector3] = []  # x, z and its age in seconds; [0] is the hero now
 var _info: Dictionary
+var _styles := {}  # style -> {materials: [leaves, flowers], multimeshes: [A, B], ground: {...} or null}, once made
+var _materials: Array[ShaderMaterial] = []  # the style shown's
+var _chunks: Array[MultiMeshInstance3D] = []  # two a chunk: its A patches and its B
+var _ground := {}  # the ground's parameters the grass shares, as last set
+var _heights: ImageTexture
+var _block: ImageTexture
+var _trail: Array[Vector3] = []  # x, z and its age in seconds; [0] is the hero now
 
 
-func build(w: DemoWorld) -> void:
+func build(w: DemoWorld, first_style: String) -> void:
 	world = w
 	name = "Grass"
 	_info = JSON.parse_string(FileAccess.get_file_as_string(PLANTS))
-	var a: Dictionary = _info["LongGrass_A"]
-	var spacing: float = a["spacing"]
-	var share: float = a["seed_heads"]
-	var scene := (load(a["file"]) as PackedScene).instantiate()
-	var meshes := {}
-	for node in scene.find_children("*", "MeshInstance3D", true, false):
-		meshes[node.name] = (node as MeshInstance3D).mesh
-	scene.free()
-	var heights := _height_texture()
-	var block := _block_texture()
+	_heights = _height_texture()
+	_block = _block_texture()
+	for param: String in GROUND_PARAMS:  # those the ground had before the grass was made
+		_ground[param] = world.ground_param(param)
+	# a chunk's box: its ground, low to high, and the tallest grass on it
 	var b: Array = world.ground["bounds"]
-	for slot: String in ["leaves", "flowers"]:
-		var m := ShaderMaterial.new()
-		m.shader = load("res://shaders/grass.gdshader")
-		m.set_shader_parameter("card", load(a["textures"][slot]))
-		var mean: Array = a["card_mean"][slot]
-		var lin := Color(mean[0], mean[1], mean[2]).srgb_to_linear()
-		m.set_shader_parameter("card_mean", Vector3(lin.r, lin.g, lin.b))
-		m.set_shader_parameter("ground_tint", 1.0 if slot == "leaves" else 0.0)  # the seed heads keep their colours
-		m.set_shader_parameter("height_tex", heights)
-		m.set_shader_parameter("height_grid", Vector3(world._origin.x, world._origin.y, world._grid))
-		m.set_shader_parameter("height_size", world._size)
-		m.set_shader_parameter("block_tex", block)
-		m.set_shader_parameter("bounds", Vector4(b[0], b[1], b[2], b[3]))
-		m.set_shader_parameter("spacing", spacing)
-		for param: String in GROUND_PARAMS:  # those the ground had before the grass was made
-			m.set_shader_parameter(param, world.ground_param(param))
-		_materials.append(m)
-	# the grid of patches every chunk draws: jittered, a share of them the patch with seed heads
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 1010
-	var spots := {"LongGrass_A": [], "LongGrass_B": []}
-	var n := int(round(CHUNK / spacing))
-	for j in n:
-		for i in n:
-			var p := Vector3((i + 0.5 + rng.randf_range(-0.3, 0.3)) * spacing, 0.0, (j + 0.5 + rng.randf_range(-0.3, 0.3)) * spacing)
-			(spots["LongGrass_B" if rng.randf() < share else "LongGrass_A"] as Array).append(p)
-	var multimeshes := {}
-	for model: String in spots:
-		var mesh := (meshes[model] as Mesh).duplicate() as ArrayMesh
-		for s in mesh.get_surface_count():
-			var imported := mesh.surface_get_material(s)
-			var surface := imported.resource_name if imported else mesh.surface_get_name(s)
-			mesh.surface_set_material(s, _materials[1] if surface.begins_with("Flowers") else _materials[0])
-		var mm := MultiMesh.new()
-		mm.transform_format = MultiMesh.TRANSFORM_3D
-		mm.mesh = mesh
-		mm.instance_count = (spots[model] as Array).size()
-		for k in mm.instance_count:
-			mm.set_instance_transform(k, Transform3D(Basis(), spots[model][k]))
-		multimeshes[model] = mm
-	# a chunk's box: its ground, low to high, and the grass on it
-	var tall := maxf(float(a["height"]), float(_info["LongGrass_B"]["height"])) * 1.6
+	var tall := 0.0
+	for key: String in _info["grass"]:
+		tall = maxf(tall, float(_info["grass"][key]["height"]) * 1.6)
 	for cz in int(ceil(b[3] / CHUNK)):
 		for cx in int(ceil(b[2] / CHUNK)):
 			var x0: float = b[0] + cx * CHUNK
@@ -110,23 +83,37 @@ func build(w: DemoWorld) -> void:
 					var h := world.height_at(x0 + sx * CHUNK / 8.0, z0 + sz * CHUNK / 8.0)
 					lo = minf(lo, h)
 					hi = maxf(hi, h)
-			for model: String in multimeshes:
+			for k in 2:
 				var mmi := MultiMeshInstance3D.new()
-				mmi.multimesh = multimeshes[model]
 				mmi.position = Vector3(x0, 0.0, z0)
 				mmi.custom_aabb = AABB(Vector3(-1.0, lo - 0.5, -1.0), Vector3(CHUNK + 2.0, hi - lo + tall + 1.0, CHUNK + 2.0))
 				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 				mmi.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 				add_child(mmi)
 				_chunks.append(mmi)
+	set_style(first_style)
+
+
+## Show one of STYLES: its patches in every chunk, its ground texture on the green ground; "before", none (the world
+## shows the mockups' tufts then, DemoWorld.set_grass).
+func set_style(which: String) -> void:
+	style = which if STYLES.has(which) else "GrassTufts"
+	shown = style != "before"
+	if shown:
+		var s := _style(style)
+		_materials = s["materials"]
+		for i in _chunks.size():
+			_chunks[i].multimesh = s["multimeshes"][i % 2]
 	_apply()
 
 
 ## A ground parameter the grass shares with the ground shader (DemoWorld.set_ground_param).
 func set_ground_param(param: String, value: Variant) -> void:
 	if param in GROUND_PARAMS:
-		for m in _materials:
-			m.set_shader_parameter(param, value)
+		_ground[param] = value
+		for s: Dictionary in _styles.values():
+			for m: ShaderMaterial in s["materials"]:
+				m.set_shader_parameter(param, value)
 
 
 func set_option(option: String, value: Variant) -> void:
@@ -145,6 +132,83 @@ func _apply() -> void:
 	for mmi in _chunks:
 		mmi.visible = shown
 		mmi.visibility_range_end = reach + CHUNK * 0.75  # from the chunk's middle
+	# the style's ground texture on the green ground, for the ground and the grass's feet alike
+	var ground: Variant = _style(style)["ground"] if shown else null
+	if ground:
+		world.set_ground_param("strokes_tex", ground["texture"])
+		world.set_ground_param("strokes_mean", ground["mean"])
+		world.set_ground_param("strokes_metres", ground["metres"])
+	world.set_ground_param("strokes_amount", ground_texture if ground else 0.0)
+	world.set_ground_param("strokes_shade", ground_shade)
+
+
+## A style's materials and multimeshes, made the first time it's shown.
+func _style(key: String) -> Dictionary:
+	if _styles.has(key):
+		return _styles[key]
+	var g: Dictionary = _info["grass"][key]
+	var meshes := {}
+	var file: String = _info[g["meshes"][0]]["file"]
+	var scene := (load(file) as PackedScene).instantiate()
+	for node in scene.find_children("*", "MeshInstance3D", true, false):
+		meshes[node.name] = (node as MeshInstance3D).mesh
+	scene.free()
+	var first := key == "LongGrass"  # the first try keeps its colours as it had them: tinted by its cards' average
+	var materials: Array[ShaderMaterial] = []
+	var b: Array = world.ground["bounds"]
+	for slot: String in ["leaves", "flowers"]:
+		var m := ShaderMaterial.new()
+		m.shader = load("res://shaders/grass.gdshader")
+		if g["textures"].has(slot):
+			m.set_shader_parameter("card", load(g["textures"][slot]))
+			m.set_shader_parameter("card_foot", _linear(g["card_mean" if first else "card_foot"][slot]))
+		m.set_shader_parameter("ground_tint", 1.0 if slot == "leaves" else 0.0)  # the seed heads keep their colours
+		m.set_shader_parameter("root_blend", 0.0 if first else 0.3)
+		m.set_shader_parameter("card_spin", g["spin"])
+		m.set_shader_parameter("card_lean", 0.45 * float(g["spin"]))
+		m.set_shader_parameter("height_tex", _heights)
+		m.set_shader_parameter("height_grid", Vector3(world._origin.x, world._origin.y, world._grid))
+		m.set_shader_parameter("height_size", world._size)
+		m.set_shader_parameter("block_tex", _block)
+		m.set_shader_parameter("bounds", Vector4(b[0], b[1], b[2], b[3]))
+		m.set_shader_parameter("spacing", g["spacing"])
+		for param: String in _ground:
+			m.set_shader_parameter(param, _ground[param])
+		materials.append(m)
+	# the grid of patches every chunk draws: jittered, a share of them B
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1010
+	var spots := [[], []]
+	var spacing: float = g["spacing"]
+	var n := int(round(CHUNK / spacing))
+	for j in n:
+		for i in n:
+			var p := Vector3((i + 0.5 + rng.randf_range(-0.3, 0.3)) * spacing, 0.0, (j + 0.5 + rng.randf_range(-0.3, 0.3)) * spacing)
+			(spots[1 if rng.randf() < float(g["share_b"]) else 0] as Array).append(p)
+	var multimeshes := []
+	for k in 2:
+		var mesh := (meshes[g["meshes"][k]] as Mesh).duplicate() as ArrayMesh
+		for s in mesh.get_surface_count():
+			var imported := mesh.surface_get_material(s)
+			var surface := imported.resource_name if imported else mesh.surface_get_name(s)
+			mesh.surface_set_material(s, materials[1] if surface.begins_with("Flowers") else materials[0])
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = mesh
+		mm.instance_count = (spots[k] as Array).size()
+		for i in mm.instance_count:
+			mm.set_instance_transform(i, Transform3D(Basis(), spots[k][i]))
+		multimeshes.append(mm)
+	var ground: Variant = null
+	if g["ground"]:
+		ground = {"texture": load(g["ground"]["texture"]), "mean": _linear(g["ground"]["mean"]), "metres": g["ground"]["metres"]}
+	_styles[key] = {"materials": materials, "multimeshes": multimeshes, "ground": ground}
+	return _styles[key]
+
+
+static func _linear(srgb: Array) -> Vector3:
+	var c := Color(srgb[0], srgb[1], srgb[2]).srgb_to_linear()
+	return Vector3(c.r, c.g, c.b)
 
 
 ## Every frame: the hero's trail for the shader, newest first. A new point each TRAIL_STEP metres walked; the oldest

@@ -133,12 +133,23 @@ func _grass_checks() -> void:
 			inside += 1
 			under += 1 if block.get_pixel(t.x, t.y).r > 0.5 else 0
 	_check("no grass grows under the rocks and logs: the grass's mask covers them", under == inside and inside > 0, "%d of %d" % [under, inside])
-	demo._panel.choose("grass", false)
-	var before := not g._chunks[0].visible and w._old_grass.all(func(m: MultiMeshInstance3D) -> bool: return m.visible)
-	demo._panel.choose("grass", true)
-	var after := g._chunks[0].visible and w._old_grass.all(func(m: MultiMeshInstance3D) -> bool: return not m.visible)
-	_check("F2's Grass: As before shows the mockups' grass tufts instead, Long grass the long grass again", before and after,
-		"as before %s, long grass %s" % [before, after])
+	var style0 := Game.grass
+	demo._panel.choose("grass", "before")
+	var before: bool = not g._chunks[0].visible and w._old_grass.all(func(m: MultiMeshInstance3D) -> bool: return m.visible) \
+		and float(w.ground_param("strokes_amount")) == 0.0
+	demo._panel.choose("grass", "GrassClumps")
+	var after: bool = g._chunks[0].visible and w._old_grass.all(func(m: MultiMeshInstance3D) -> bool: return not m.visible) \
+		and float(w.ground_param("strokes_amount")) > 0.0 and g._chunks[0].multimesh == g._styles["GrassClumps"]["multimeshes"][0]
+	_check("F2's Grass: As before shows the mockups' grass tufts instead, no grass texture on the ground; a style its grass and ground",
+		before and after, "as before %s, clumps %s" % [before, after])
+	var seen := [Game.grass]
+	for i in GrassField.STYLES.size():
+		_key(KEY_G)
+		await _frames(2)
+		seen.append(Game.grass)
+	_check("G steps through the grass styles and back", seen[-1] == seen[0] and seen.size() == GrassField.STYLES.size() + 1
+		and GrassField.STYLES.keys().all(func(k: String) -> bool: return k in seen), " → ".join(seen))
+	demo.show_grass(style0)
 
 
 static func _thinned_in_place(model: String) -> String:

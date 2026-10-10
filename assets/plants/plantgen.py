@@ -17,7 +17,9 @@ Four kinds of plant:
   under it is.
 - Long grass: a patch of it, cards of thin strands crossing at its middle, each a strip of grass rather than a tuft,
   bent once; variant B has a card of seed heads crossed among them. Copies of it cover the ground, as in the game,
-  where they fold as the hero walks through.
+  where they fold as the hero walks through. The game's grass styles (wisps, tufts, clumps, short) are patches too,
+  of fewer strands a card, each card turned its own way (spin), and each with a ground texture of its strands lying
+  flat (make_plant_cards.py), so the grass and the ground under it match.
 """
 import json
 import math
@@ -40,13 +42,18 @@ SETTINGS = os.path.join(HERE, "plant_settings.json")
 # what each setting does is described in plant_editor.py, next to its slider
 BASE = dict(card=1, size=1.0, planes=3, density=1.0, spread=1.0, upright=1.0, flat=True, tilt=1.0,
             brightness=1.0, hue=0.5, saturation=1.0, height=1.0, width=1.0, seed=0, extra=0.3,
-            stems=5, lean=0.3, bend=0.35, rise=55.0, flower_height=1.6)
+            stems=5, lean=0.3, bend=0.35, rise=55.0, flower_height=1.6, spin=0.0)
 DEFAULTS = {
     "Raspberry": dict(BASE, stems=16, extra=0.25),
     "AlderBuckthorn": dict(BASE, stems=7, extra=0.3),
     "Hazel": dict(BASE, stems=11, extra=0.15),
     "WoodFern": dict(BASE, planes=9, rise=60.0, bend=0.45),
     "LongGrass": dict(BASE, planes=3, lean=0.35, bend=0.55, extra=0.15, flower_height=1.25),
+    # the game's grass styles (the user, 10 October: fewer strands a card, fewer patches, each card at its own angle)
+    "GrassWisps": dict(BASE, planes=3, size=1.0, width=0.77, lean=0.35, bend=0.5, spread=1.8, spin=1.0, extra=0.0),
+    "GrassTufts": dict(BASE, planes=3, size=1.0, width=0.62, lean=0.3, bend=0.45, spread=1.3, spin=1.0, extra=0.0),
+    "GrassClumps": dict(BASE, planes=3, size=1.05, width=0.77, lean=0.3, bend=0.4, spread=1.0, spin=1.0, extra=0.0),
+    "GrassShort": dict(BASE, planes=3, size=0.6, width=0.5, lean=0.25, bend=0.3, spread=0.9, spin=1.0, extra=0.0),
     "WavyHairGrass": dict(BASE, planes=3, density=1.0, lean=0.35, bend=0.4, extra=0.35),
     "CommonBent": dict(BASE, planes=3, density=1.0, lean=0.3, bend=0.35, extra=0.4),
     "WoodSmallReed": dict(BASE, planes=3, density=1.0, lean=0.25, bend=0.45, extra=0.4, flower_height=1.7),
@@ -138,7 +145,10 @@ class Plant(Tree):
 
         for i in range(planes):
             foot = Vector((r.uniform(-1, 1), r.uniform(-1, 1), 0)) * 0.1  # not quite at one point: no star from above
-            self._bent_card(r, foot, az + i * math.pi / planes + r.uniform(-0.2, 0.2) * tilt, H * sh * r.uniform(0.85, 1.1), W * sw,
+            a = az + i * math.pi / planes + r.uniform(-0.2, 0.2) * tilt
+            if cfg["spin"] > 0:  # each card at an angle of its own, not spread evenly round
+                a += r.uniform(-1, 1) * cfg["spin"] * math.pi / 2
+            self._bent_card(r, foot, a, H * sh * r.uniform(0.85, 1.1), W * sw,
                             cfg["lean"] * r.uniform(0.5, 1.2), cfg["bend"], tilt, self.slot("leaves"), nrm)
         if self.flowering and cfg["extra"] > 0:
             fa = az + r.uniform(0, math.pi)
@@ -349,6 +359,10 @@ SPECIES = [  # key, builder, English name, Swedish name, Latin name, width in th
     ("Hazel", hazel, "Hazel", "Hassel", "Corylus avellana", 4.4, "hazel", "bush"),
     ("WoodFern", wood_fern, "Wood fern", "Skogsbräken", "Dryopteris carthusiana", 1.5, "fern", "fern"),
     ("LongGrass", long_grass, "Long grass", "Långt gräs", "Poa, Festuca, Agrostis", 0.9, "longgrass", "patch"),
+    ("GrassWisps", long_grass, "Grass: wisps", "Gräs: glesa strån", "Poa, Festuca, Agrostis", 0.8, "wisps", "patch"),
+    ("GrassTufts", long_grass, "Grass: tufts", "Gräs: tuvor", "Poa, Festuca, Agrostis", 0.7, "tufts", "patch"),
+    ("GrassClumps", long_grass, "Grass: clumps", "Gräs: klungor", "Poa, Festuca, Agrostis", 0.8, "clumps", "patch"),
+    ("GrassShort", long_grass, "Grass: short", "Gräs: kort", "Poa, Festuca, Agrostis", 0.6, "shortgrass", "patch"),
     ("WavyHairGrass", wavy_hair_grass, "Wavy hair-grass", "Kruståtel", "Avenella flexuosa", 0.9, "hairgrass", "grass"),
     ("CommonBent", common_bent, "Common bent", "Rödven", "Agrostis capillaris", 0.9, "bent", "grass"),
     ("WoodSmallReed", wood_small_reed, "Wood small-reed", "Piprör", "Calamagrostis arundinacea", 1.2, "smallreed", "grass"),
@@ -420,12 +434,35 @@ def card_image(card, n, extra=None):
     return img
 
 
+def grass_card_material(name):
+    """A grass card's material: the leaf card's (treegen.leaf_material), lit on both sides as its front is, as the
+    ground under it is, as the game lights its grass (shaders/grass.gdshader), rather than darker on its back."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = treegen.leaf_material(name)
+    nt = m.node_tree
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    flip = nt.nodes.new("ShaderNodeMath")  # 1 on the front, -1 on the back
+    flip.operation = "MULTIPLY_ADD"
+    flip.inputs[1].default_value = -2.0
+    flip.inputs[2].default_value = 1.0
+    normal = nt.nodes.new("ShaderNodeVectorMath")
+    normal.operation = "SCALE"
+    nt.links.new(geo.outputs["Backfacing"], flip.inputs[0])
+    nt.links.new(geo.outputs["Normal"], normal.inputs[0])
+    nt.links.new(flip.outputs[0], normal.inputs["Scale"])
+    nt.links.new(normal.outputs[0], nt.nodes["Principled BSDF"].inputs["Normal"])
+    return m
+
+
 def materials_for(key, cfg):
     """The plant's materials, with its chosen card and tint applied (the extra card tinted alike)."""
     card, extra = BY_KEY[key][6], extra_of(key)
-    mats = {"stems": stem_material(key), "leaves": treegen.leaf_material(f"Leaves {key}")}
+    card_material = grass_card_material if kind(key) == "patch" else treegen.leaf_material
+    mats = {"stems": stem_material(key), "leaves": card_material(f"Leaves {key}")}
     if extra:
-        mats["extra"] = treegen.leaf_material(f"{extra.capitalize()} {key}")
+        mats["extra"] = card_material(f"{extra.capitalize()} {key}")
     for slot, m in mats.items():
         if slot == "stems":
             continue
@@ -434,13 +471,54 @@ def materials_for(key, cfg):
         nodes["Tint"].inputs["Hue"].default_value = cfg["hue"]
         nodes["Tint"].inputs["Saturation"].default_value = cfg["saturation"]
         nodes["Tint"].inputs["Value"].default_value = cfg["brightness"]
+    if bpy.data.materials.get(f"Ground {key}"):  # a grass style's ground, tinted alike
+        ground_material(key, cfg)
     return mats
 
 
 # each plant's seed number, kept as it was when the portfolio had the dwarf shrubs first, so the plants still there
 # grow as they did
 SEED_INDEX = {"Raspberry": 3, "AlderBuckthorn": 4, "Hazel": 5, "WoodFern": 6, "WavyHairGrass": 7, "CommonBent": 8,
-              "WoodSmallReed": 9, "PurpleMoorGrass": 10, "CommonSedge": 11, "Cottongrass": 12, "LongGrass": 13}
+              "WoodSmallReed": 9, "PurpleMoorGrass": 10, "CommonSedge": 11, "Cottongrass": 12, "LongGrass": 13,
+              "GrassWisps": 14, "GrassTufts": 15, "GrassClumps": 16, "GrassShort": 17}
+
+
+GROUND_SHADE = 0.85  # the ground among the grass, darker in its shade, as the game has it (GrassField.ground_shade)
+
+
+def ground_material(key, cfg):
+    """A grass style's ground ("Ground <plant>"): its ground texture (make_plant_cards.py, ground_tile), repeating every
+    so many metres across, through the plant's tint as its cards are, so the grass and the ground under it match, and
+    in the grass's shade (GROUND_SHADE), as in the game. None for a plant without one."""
+    card = BY_KEY[key][6]
+    ground = _cards().get("grounds", {}).get(card)
+    if not ground:
+        return None
+    name = f"Ground {key}"
+    m = bpy.data.materials.get(name)
+    if m is None:
+        m = bpy.data.materials.new(name)
+        m.use_nodes = True
+        nt = m.node_tree
+        bsdf = nt.nodes["Principled BSDF"]
+        bsdf.inputs["Roughness"].default_value = 1.0
+        coords = nt.nodes.new("ShaderNodeTexCoord")
+        scale = nt.nodes.new("ShaderNodeMapping")
+        scale.inputs["Scale"].default_value = [1.0 / ground["metres"]] * 3
+        tex = nt.nodes.new("ShaderNodeTexImage")
+        tex.name = "Ground"
+        tex.image = bpy.data.images.load(os.path.join(TEXTURES, ground["file"]), check_existing=True)
+        tint = nt.nodes.new("ShaderNodeHueSaturation")
+        tint.name = "Tint"
+        nt.links.new(coords.outputs["Object"], scale.inputs["Vector"])
+        nt.links.new(scale.outputs["Vector"], tex.inputs["Vector"])
+        nt.links.new(tex.outputs["Color"], tint.inputs["Color"])
+        nt.links.new(tint.outputs["Color"], bsdf.inputs["Base Color"])
+    tint = m.node_tree.nodes["Tint"]
+    tint.inputs["Hue"].default_value = cfg["hue"]
+    tint.inputs["Saturation"].default_value = cfg["saturation"]
+    tint.inputs["Value"].default_value = cfg["brightness"] * GROUND_SHADE
+    return m
 
 
 def seed_for(key, variant, cfg):

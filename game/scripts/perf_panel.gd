@@ -150,12 +150,17 @@ func setup(d: Node) -> void:
 		func(v: bool) -> void: w.set_trees("fade_near_camera", v))
 	_choice(col, "bark", "Bark textures", [["On", true], ["Off", false]], Game.bark, func(v: bool) -> void: Game.bark = v)
 	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
-	_choice(col, "grass", "Grass", [["Long grass", true], ["As before", false]], w.grass.shown, func(v: bool) -> void: w.set_grass(v))
+	var styles := GrassField.STYLES.keys().map(func(k: String) -> Array: return [GrassField.STYLES[k], k])
+	_choice(col, "grass", "Grass (G)", styles, Game.grass, func(v: String) -> void: demo.show_grass(v))
 	_slider(col, "grass_density", "  how thick", 0.1, 1.0, 0.05, w.grass.density, percent,
 		func(v: float) -> void: w.grass.set_option("density", v))
 	_slider(col, "grass_height", "  how tall", 0.4, 1.6, 0.05, w.grass.height_scale, percent,
 		func(v: float) -> void: w.grass.set_option("height_scale", v))
 	_slider(col, "grass_reach", "  drawn out to", 15.0, 80.0, 5.0, w.grass.reach, "%d m", func(v: float) -> void: w.grass.set_option("reach", v))
+	_slider(col, "grass_ground", "  ground texture", 0.0, 2.0, 0.1, w.grass.ground_texture, percent,
+		func(v: float) -> void: w.grass.set_option("ground_texture", v))
+	_slider(col, "grass_shade", "  ground in its shade", 0.6, 1.0, 0.05, w.grass.ground_shade, percent,
+		func(v: float) -> void: w.grass.set_option("ground_shade", v))
 	_choice(col, "crown", "Crown cut, camera high", [["Near camera", "near"], ["All trees", "all"], ["Off", "off"]], w.crown_cut,
 		func(v: String) -> void: w.set_trees("crown_cut", v))
 	_slider(col, "crown_reach", "  near: reach", 0.4, 1.0, 0.05, w.crown_reach, percent, func(v: float) -> void: w.crown_reach = v)

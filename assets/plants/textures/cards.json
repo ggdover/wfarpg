@@ -30,6 +30,26 @@
    "With dry blades",
    "Lush, broad"
   ],
+  "wisps": [
+   "Even",
+   "Dry blades",
+   "Fuller"
+  ],
+  "tufts": [
+   "Even",
+   "Dry blades",
+   "Fuller"
+  ],
+  "clumps": [
+   "Even",
+   "Dry blades",
+   "Fuller"
+  ],
+  "shortgrass": [
+   "Even",
+   "Dry blades",
+   "Fuller"
+  ],
   "hairgrass": [
    "Fine tuft",
    "Dense tuft",
@@ -73,6 +93,10 @@
   "hazel": "nuts",
   "fern": null,
   "longgrass": "flowers",
+  "wisps": null,
+  "tufts": null,
+  "clumps": null,
+  "shortgrass": null,
   "hairgrass": "flowers",
   "bent": "flowers",
   "smallreed": "flowers",
@@ -112,6 +136,72 @@
   "longgrass_4_flowers": [
    0.4141,
    0.9961
+  ],
+  "wisps_1": [
+   1.0,
+   0.8516
+  ],
+  "wisps_2": [
+   1.0,
+   0.8008
+  ],
+  "wisps_3": [
+   1.0,
+   0.8047
+  ],
+  "tufts_1": [
+   1.0195,
+   0.8359
+  ],
+  "tufts_2": [
+   1.0195,
+   0.8652
+  ],
+  "tufts_3": [
+   1.0195,
+   0.8066
+  ],
+  "clumps_1": [
+   1.0,
+   0.8184
+  ],
+  "clumps_2": [
+   1.0,
+   0.832
+  ],
+  "clumps_3": [
+   1.0,
+   0.8516
+  ],
+  "shortgrass_1": [
+   1.0,
+   0.9102
+  ],
+  "shortgrass_2": [
+   1.0,
+   0.8301
+  ],
+  "shortgrass_3": [
+   1.0,
+   0.8809
   ]
+ },
+ "grounds": {
+  "wisps": {
+   "file": "wisps_ground.jpg",
+   "metres": 4.0
+  },
+  "tufts": {
+   "file": "tufts_ground.jpg",
+   "metres": 4.0
+  },
+  "clumps": {
+   "file": "clumps_ground.jpg",
+   "metres": 4.0
+  },
+  "shortgrass": {
+   "file": "shortgrass_ground.jpg",
+   "metres": 4.0
+  }
  }
 }

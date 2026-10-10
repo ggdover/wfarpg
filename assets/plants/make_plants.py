@@ -36,10 +36,12 @@ ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 TAU = math.tau
 ROWS = [  # name, plants, the camera's pitch down (degrees), its picture in previews/
     ("Bushes", ["Raspberry", "AlderBuckthorn", "Hazel"], 10, "row_bushes.png"),
-    ("Long grass and fern", ["LongGrass", "WoodFern"], 24, "row_grass_fern.png"),
+    ("Grass for the ground, and the fern", ["LongGrass", "GrassWisps", "GrassTufts", "GrassClumps", "GrassShort", "WoodFern"], 24,
+     "row_grass_fern.png"),
     ("Grasses", [s[0] for s in plantgen.SPECIES if s[7] == "grass"], 20, "row_grasses.png"),
 ]
 FLOOR = Vector((-60.0, 0.0, 0.0))  # the forest floor's middle
+FLOOR_GRASS = "GrassTufts"  # the grass covering the forest floor, on its ground
 
 LOADER = '''"""Registers the plant editor: the "Plants" tab in the 3D viewport's sidebar (press N).
 Its code is plant_editor.py and plantgen.py, next to this .blend (and ../trees/treegen.py)."""
@@ -124,6 +126,7 @@ def build():
                 plantgen.build_into(key, variant, settings[key], me)
                 ob = bpy.data.objects.new(f"{key}_{variant}", me)
                 ob.location = (x + w / 2, 0, 0)
+                ob.visible_shadow = sp[7] != "patch"  # the game's grass casts none
                 sub.objects.link(ob)
                 plants[(key, variant)] = ob
                 x += w + 0.3
@@ -266,11 +269,19 @@ def forest_floor(plants, coll):
     return trees
 
 
-def lawn(plants, coll, r, keep_out):
-    """The long grass over the whole floor, as in the game: a patch at every point of a jittered grid as far apart as
-    its Patch spacing says, turned and sized at random, a share of them with seed heads (variant B), none in the pool
-    or under the boulders."""
-    cfg = bpy.context.scene.plant_editor.plants["LongGrass"]
+def lawn(plants, coll, r, keep_out, key=FLOOR_GRASS):
+    """A grass for the ground over the whole floor, as in the game, on its ground texture: a patch at every point of a
+    jittered grid as far apart as its Patch spacing says, turned and sized at random, a share of them variant B (with
+    seed heads, if it has them), none in the pool or under the boulders."""
+    cfg = bpy.context.scene.plant_editor.plants[key]
+    mat = plantgen.ground_material(key, plant_editor.as_cfg(cfg))
+    if mat:
+        me = bpy.data.meshes.new("Forest floor ground")
+        me.from_pydata([(-8, -6, 0), (8, -6, 0), (8, 6, 0), (-8, 6, 0)], [], [(0, 1, 2, 3)])
+        me.materials.append(mat)
+        ob = bpy.data.objects.new("Forest floor ground", me)
+        ob.location = FLOOR + Vector((0, 0, 0.004))
+        coll.objects.link(ob)
     step = 0.5 * max(0.3, cfg.spread)
     nx, ny = int(16 / step), int(12 / step)
     for i in range(nx):
@@ -278,8 +289,9 @@ def lawn(plants, coll, r, keep_out):
             p = Vector((-8 + (i + 0.5 + r.uniform(-0.4, 0.4)) * step, -6 + (j + 0.5 + r.uniform(-0.4, 0.4)) * step, 0))
             if any((p - c).length < rad for c, rad in keep_out):
                 continue
-            src = plants[("LongGrass", "B" if r.random() < cfg.extra else "A")]
-            ob = bpy.data.objects.new("LongGrass (lawn)", src.data)
+            src = plants[(key, "B" if r.random() < (cfg.extra if plantgen.extra_of(key) else 0.5) else "A")]
+            ob = bpy.data.objects.new(key + " (lawn)", src.data)
+            ob.visible_shadow = False
             ob.location = FLOOR + p
             ob.rotation_euler = (0, 0, r.uniform(0, TAU))
             s = r.uniform(0.85, 1.15)
@@ -324,15 +336,25 @@ def render(scene, cams, plants, rows, stage):
             o.hide_render = True
         a, b = plants[(key, "A")], plants[(key, "B")]
         home = b.location.copy()
-        lawn_obs = []
-        if kind == "patch":  # a patch alone says little: a small lawn of them, as they're used, B among A
+        lawn_obs, under = [], []
+        if kind == "patch":  # a patch alone says little: a small lawn of them, as they're used, B among A, on its ground
             cfg = scene.plant_editor.plants[key]
             step = 0.5 * max(0.3, cfg.spread)
             r = random.Random(5)
+            mat = plantgen.ground_material(key, plant_editor.as_cfg(cfg))
+            if mat:
+                me = bpy.data.meshes.new("Tile ground")
+                me.from_pydata([(-0.6, -0.6, 0), (3.6, -0.6, 0), (3.6, 2.6, 0), (-0.6, 2.6, 0)], [], [(0, 1, 2, 3)])
+                me.materials.append(mat)
+                ground = bpy.data.objects.new("Tile ground", me)
+                ground.location = a.location + Vector((0, 0, 0.004))
+                stage.objects.link(ground)
+                under.append(ground)
             for i in range(int(3.0 / step)):
                 for j in range(int(2.0 / step)):
-                    src = b if r.random() < cfg.extra else a
+                    src = b if r.random() < (cfg.extra if plantgen.extra_of(key) else 0.5) else a
                     ob = bpy.data.objects.new(src.name + " (tile)", src.data)
+                    ob.visible_shadow = False
                     ob.location = a.location + Vector(((i + r.uniform(-0.3, 0.3)) * step, (j + r.uniform(-0.3, 0.3)) * step, 0))
                     ob.rotation_euler = (0, 0, r.uniform(0, TAU))
                     s = r.uniform(0.85, 1.15)
@@ -356,7 +378,7 @@ def render(scene, cams, plants, rows, stage):
         for o in hidden:
             o.hide_render = False
         b.location = home
-        for o in lawn_obs:
+        for o in lawn_obs + under:
             bpy.data.objects.remove(o, do_unlink=True)
         a.hide_render = b.hide_render = False
         bpy.data.objects.remove(cam, do_unlink=True)

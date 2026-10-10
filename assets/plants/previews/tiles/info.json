@@ -49,6 +49,46 @@
   "faces": 6,
   "cards": 6
  },
+ "GrassWisps": {
+  "name": "Grass: wisps",
+  "swedish": "Gr\u00e4s: glesa str\u00e5n",
+  "latin": "Poa, Festuca, Agrostis",
+  "kind": "patch",
+  "height": 0.37,
+  "across": 0.7,
+  "faces": 6,
+  "cards": 6
+ },
+ "GrassTufts": {
+  "name": "Grass: tufts",
+  "swedish": "Gr\u00e4s: tuvor",
+  "latin": "Poa, Festuca, Agrostis",
+  "kind": "patch",
+  "height": 0.34,
+  "across": 0.5,
+  "faces": 6,
+  "cards": 6
+ },
+ "GrassClumps": {
+  "name": "Grass: clumps",
+  "swedish": "Gr\u00e4s: klungor",
+  "latin": "Poa, Festuca, Agrostis",
+  "kind": "patch",
+  "height": 0.43,
+  "across": 0.6,
+  "faces": 6,
+  "cards": 6
+ },
+ "GrassShort": {
+  "name": "Grass: short",
+  "swedish": "Gr\u00e4s: kort",
+  "latin": "Poa, Festuca, Agrostis",
+  "kind": "patch",
+  "height": 0.26,
+  "across": 0.4,
+  "faces": 6,
+  "cards": 6
+ },
  "WavyHairGrass": {
   "name": "Wavy hair-grass",
   "swedish": "Krust\u00e5tel",

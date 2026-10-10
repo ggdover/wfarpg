@@ -35,6 +35,14 @@ uniform sampler2D detail_leaves : hint_default_black, filter_linear_mipmap_aniso
 // reach further out, the dirt and grass break up in patches a metre or two across, and more grass tufts grow in the
 // path, so it's less clear exactly where the path runs.
 uniform float wear_spread : hint_range(0.0, 1.0) = 0.0;
+// The grass's ground (scripts/grass.gd): a grass style's strands lying flat, as seen from above, laid over the green
+// ground (ground_green), its colour against its average (strokes_mean, linear), so the ground keeps its own colours
+// and gains the grass's texture, which its cards match. strokes_amount 0 leaves it off, as before the grass.
+uniform sampler2D strokes_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform vec3 strokes_mean = vec3(1.0);
+uniform float strokes_metres = 4.0;  // how far the texture reaches before it repeats
+uniform float strokes_amount = 0.0;
+uniform float strokes_shade = 1.0;  // the ground under the grass, darker in its shade, so its lighter strands show
 const float DETAIL_FAR[4] = float[](0.0, 28.0, 38.0, 50.0);
 global uniform vec2 mood_grade;
 
@@ -181,6 +189,10 @@ void gravel_baked(vec4 t, float aa, float density, float detail, out float stone
 void fragment() {
 	vec2 uv = (world_pos.xz - bounds.xy) / bounds.zw;
 	vec3 col = texture(grass_tex, uv).rgb;
+	if (strokes_amount > 0.0) {  // the grass's ground, on green ground
+		col *= mix(vec3(1.0), texture(strokes_tex, world_pos.xz / strokes_metres).rgb / strokes_mean * strokes_shade,
+				strokes_amount * ground_green(col));
+	}
 	vec4 m = texture(masks_tex, uv);
 	float e = m.r * 5.0 - 0.5;  // half-widths from the path's centre line
 	float patches = m.g - 0.5;

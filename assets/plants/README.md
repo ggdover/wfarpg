@@ -10,7 +10,11 @@ low-poly stems. Two variants of each:
 | Alder buckthorn | Brakved | Frangula alnus | bush: slender dark stems, glossy oval leaves, berries green, red and black at once |
 | Hazel | Hassel | Corylus avellana | bush: many stems from one wide foot, a full mass of broad round leaves, nuts in husks |
 | Wood fern | Skogsbräken | Dryopteris carthusiana | fern: a ring of fronds rising and arching over |
-| Long grass | Långt gräs | Poa, Festuca, Agrostis | a patch of thick, semi-long grass: cards of thin strands; B with seed heads. The game's grass |
+| Long grass | Långt gräs | Poa, Festuca, Agrostis | a patch of thick, semi-long grass: cards of thin strands; B with seed heads. The game's first try |
+| Grass: wisps | Gräs: glesa strån | Poa, Festuca, Agrostis | the game's subtlest grass: sparse long strands, on a ground of fine loose strands |
+| Grass: tufts | Gräs: tuvor | Poa, Festuca, Agrostis | tufts of strands fanning from their feet, on a ground of flattened tufts |
+| Grass: clumps | Gräs: klungor | Poa, Festuca, Agrostis | the thickest: a meadow of strands, on a ground combed one way a clump at a time |
+| Grass: short | Gräs: kort | Poa, Festuca, Agrostis | a short lawn, on a ground of short strokes |
 | Wavy hair-grass | Kruståtel | Avenella flexuosa | grass: the pine forest's, hair-thin curling blades, airy purple-silver flowers |
 | Common bent | Rödven | Agrostis capillaris | grass: the meadows', narrow blades, airy reddish flowers |
 | Wood small-reed | Piprör | Calamagrostis arundinacea | grass: tall at the forest's edge, broad arching blades |
@@ -25,14 +29,22 @@ small to count as a bush, so it's now a thicket nearly 3 m across. And they miss
 semi-long, to cover the green ground in the game and fold as the hero walks through: the long grass, which the game
 now has (`game/scripts/grass.gd`, below). (The juniper, dropped from the trees, could join the bushes.)
 
+The long grass in the game didn't blend into the ground, the user found: its cards showed as crossed planes, in
+colours of their own, over a ground too smooth. They asked for the grass in the ground's own colour, fewer strands
+a card so more of it is clear and the ground shows through, fewer patches, each card at its own angle, and the ground
+textured to match, and for a few versions to try. So there are four grass styles (wisps, tufts, clumps, short), each
+with a ground texture of its strands lying flat as seen from above, in the same colours as its cards: the game lays it
+over its green ground and colours both by the ground's own colour (`game/README.md`, The grass). The long grass stays
+as the first try, to compare.
+
 Open `plant_portfolio.blend` in Blender 5.2 to look at them. It opens on the bushes with Material Preview shading.
 The file holds:
 
 - `Bushes` and `Grasses`: one collection per plant with variants A and B, each one object on its own origin.
 - `Portfolio`: three rows, the bushes, the long grass and the fern, the grasses, with name signs and a 1.8 m person at
   the start of each; the ground, the sun and the cameras.
-- `Forest floor`: a patch of forest floor 16 by 12 m covered in the long grass, as the game's green ground is (a patch
-  as far apart as its Patch spacing says, a share of them with seed heads), with copies of the rest where each grows
+- `Forest floor`: a patch of forest floor 16 by 12 m covered in grass, as the game's green ground is: Tufts, on its
+  ground texture (a patch as far apart as its Patch spacing says), with copies of the rest where each grows
   (ferns in the spruce's shade, the bushes at the edges, moor-grass, sedge and cottongrass by a wet hollow), under four
   of the tree portfolio's trees, linked from `../trees/tree_portfolio.blend`. The plants share their mesh with those
   in `Bushes` and `Grasses`, so editing a plant changes its copies too. Its cameras look at it from the game's high
@@ -84,9 +96,13 @@ The long grass, a patch of it:
 | Lean | How far its cards lean out from upright |
 | Bend | How far they bend over halfway up (each card is bent once) |
 | Angle randomness | How much the cards' angles vary |
+| Card turn randomness | How far each card is turned its own way rather than spread evenly round (1: anywhere); the game turns and leans every card of every patch at random by as much again |
 | Patch spacing | How far apart the patches stand, on the forest floor and in the game: 0.5 m times this |
-| Patches with seed heads | The share of the patches that are variant B, with a card of seed heads, on the floor and in the game |
-| Seed head height | How tall the seed heads stand, against the strands |
+| Patches with seed heads | The long grass: the share of the patches that are variant B, with a card of seed heads, on the floor and in the game |
+| Seed head height | The long grass: how tall the seed heads stand, against the strands |
+
+The grass styles have no seed heads: their variant B is another patch of the same kind. Their colour sliders tint
+their ground texture as they do their cards.
 
 The grasses:
 
@@ -133,6 +149,12 @@ when they rebuild.
 - **The long grass:** a patch of three cards of strands crossing near its middle (their feet a little apart, so it's
   no star from above), each leaning a little and bent once halfway up; variant B has two cards of seed heads across
   each other among them. Its normals point mostly up.
+- **The grass styles:** patches as the long grass's, of two or three cards with fewer strands (12 to 30 a card, wider,
+  so they still show from the game's camera), each card turned its own way (Card turn randomness). Their cards and
+  their ground texture (`textures/<style>_ground.jpg`, 4 m across, seamless) are painted round one base colour, the
+  strands' feet in it and their tips about 1.5 times as light: the ground is the same strands lying flat as seen from
+  above (loose, as tufts, or combed in clumps), on lighter and darker blotches a clump of grass across, so it has
+  texture at the size the game's camera sees.
 - **The fern:** a ring of fronds from the middle, each a card bent in three, rising and arching over, its face up.
 - **Grasses:** tufts of crossed cards standing on the ground, each bent once halfway up, so it arches, leaning a little
   to one side; a share of the tufts carry two crossed cards of flowering stalks, taller and nearly straight. Their
@@ -148,7 +170,7 @@ when they rebuild.
 | `plantgen.py` | The generator: the eleven plants, their kinds, the default settings and the materials |
 | `plant_editor.py` | The editor panel; the .blend loads it through its `plant_editor_loader.py` text |
 | `make_plants.py` | Builds `plant_portfolio.blend` from the settings and renders `previews/` |
-| `make_plant_cards.py` | Draws the cards: `textures/<plant>_<n>.png`, their `_berries`, `_flowers` and `_nuts` versions, `textures/cards.json` (the designs' names, and the long grass's crops) and `previews/cards.png` |
+| `make_plant_cards.py` | Draws the cards: `textures/<plant>_<n>.png`, their `_berries`, `_flowers` and `_nuts` versions, the grass styles' grounds (`textures/<style>_ground.jpg`), `textures/cards.json` (the designs' names, the grass cards' crops and the grounds) and `previews/cards.png`, `previews/grounds.png` |
 | `make_sheet.py` | Lays out the portraits in `previews/tiles/` as `previews/portfolio.png` |
 | `plant_settings.json` | The editor's saved settings (written by **Save settings**) |
 
@@ -162,7 +184,8 @@ blender -b --factory-startup -P make_plants.py -- --no-render
 
 The plants use fixed seeds, so rebuilding gives the same plants (those left from the first version still grow as
 they did). `previews/` holds the latest renders: `portfolio.png` (both variants of each, captioned), `row_bushes.png`,
-`row_grass_fern.png` and `row_grasses.png`, `floor_game_view.png` and `floor_close.png`, and `cards.png`.
+`row_grass_fern.png` and `row_grasses.png`, `floor_game_view.png` and `floor_close.png`, `cards.png` and
+`grounds.png` (the grass styles' grounds, each with a card on it).
 
 The game builds its long grass from these settings too: after changing them, save, and rebuild the game's plants
 (`blender -b --factory-startup -P build_demo.py -- plants` in `game/tools`).
@@ -176,6 +199,10 @@ The game builds its long grass from these settings too: after changing them, sav
 | Hazel | 3.6 m | 4.4 m | 591 | 1764 |
 | Wood fern | 53 cm | 1.4 m | 27 | 27 |
 | Long grass, a patch | 37 cm | 0.8 m | 6 | 6 |
+| Grass: wisps, a patch | 37 cm | 0.7 m | 6 | 6 |
+| Grass: tufts, a patch | 34 cm | 0.5 m | 6 | 6 |
+| Grass: clumps, a patch | 43 cm | 0.6 m | 6 | 6 |
+| Grass: short, a patch | 26 cm | 0.4 m | 6 | 6 |
 | Wavy hair-grass | 51 cm | 0.7 m | 42 | 42 |
 | Common bent | 52 cm | 0.7 m | 34 | 34 |
 | Wood small-reed | 96 cm | 1.0 m | 28 | 28 |
