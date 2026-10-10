@@ -776,7 +776,11 @@ def build_trees():
             textures["berries"] = f"{card}_{int(cfg['card'])}_berries"
         for name in textures.values():
             copy_card(name, cfg, tex_dir)
-        outlines = {slot: card_outline(os.path.join(tex_dir, t + ".png")) for slot, t in textures.items()}
+        for slot, name in (("bark", f"bark_{key}"), ("bark_base", f"bark_{key}_base")):  # the trunk's (make_bark.py)
+            shutil.copyfile(os.path.join(TREES, "textures", name + ".png"), os.path.join(tex_dir, name + ".png"))
+            mipmapped(os.path.join(tex_dir, name + ".png"))
+            textures[slot] = name
+        outlines = {slot: card_outline(os.path.join(tex_dir, t + ".png")) for slot, t in textures.items() if not slot.startswith("bark")}
         for variant in "AB":
             square = {}  # (level, fewer, light) -> (mesh, ao) of the square-card version, for its trimmed twin
             for group, versions in TREE_VERSIONS.items():
@@ -799,16 +803,24 @@ def build_trees():
                         if sq_me is None:  # the square version of the fewer-card tree is built just for this
                             sq_me = bpy.data.meshes.new(name + "_square")
                             build_tree(key, variant, cfg, sq_me, level, None, fewer, light)
-                            sq_ao = bake_ao(sq_me, see_through={i for i, m in enumerate(sq_me.materials) if m.name != "Bark"})
+                            sq_ao = bake_ao(sq_me, see_through={i for i, m in enumerate(sq_me.materials) if not m.name.startswith("Bark")})
                         ao[name] = transfer_ao(sq_me, sq_ao, me)
                     else:
-                        ao[name] = bake_ao(me, see_through={i for i, m in enumerate(me.materials) if m.name != "Bark"})
+                        ao[name] = bake_ao(me, see_through={i for i, m in enumerate(me.materials) if not m.name.startswith("Bark")})
                         square[(level, fewer, light)] = (me, ao[name])
                     print(name, "cards", cards, "triangles", info[name]["triangles"], "mean ao %.2f" % ao[name].mean())
     for group, (objs, ao) in files.items():
         export_glb(objs, os.path.join(TREE_DIR, group + ".glb"), ao)
     with open(os.path.join(TREE_DIR, "trees.json"), "w") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)
+
+
+def mipmapped(path):
+    """Have Godot import a texture as 3D textures want, with mipmaps and compressed for the graphics card, so it doesn't
+    shimmer far off: its own guess at that only comes in the editor. Godot fills in the rest of the file."""
+    if not os.path.exists(path + ".import"):
+        with open(path + ".import", "w") as fh:
+            fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]\n\ncompress/mode=2\nmipmaps/generate=true\n')
 
 
 def copy_card(name, cfg, tex_dir):
@@ -927,10 +939,13 @@ def stump_mesh(src, name, seed):
             f.normal_flip()
     ring = bmesh.ops.inset_region(bm, faces=cap, thickness=0.22 * radius, depth=0.0, use_even_offset=True)["faces"]
     col = bm.loops.layers.float_color.get("Col")
+    uv = bm.loops.layers.uv.get("UVMap")
     for faces, colour in ((cap, STUMP_WOOD), (ring, STUMP_RING)):
         for f in faces:
             for loop in f.loops:
                 loop[col] = hex_linear(colour)
+                if uv is not None:
+                    loop[uv].uv = (-10.0, -10.0)  # plain wood, not the bark's texture (treegen.PLAIN)
     grow = 1.0 + STUMP_PROUD / max(radius, 0.02)
     for v in bm.verts:
         v.co.x = cx + (v.co.x - cx) * grow

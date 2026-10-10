@@ -32,8 +32,11 @@ General knowledge, public documentation, and third-party libraries and engines a
   the user dropped the juniper). Low-poly trunks and branches; leaf clumps are crossed planes (copies of a leaf card
   with alpha, crossing at the clump's centre). The spruce instead has pinnate sprays: spray cards along each branch
   on alternate sides, their twigs' bases on the branch. Its top must end in a cone, a spire of short, upturned shoots
-  round the leader, not a spray lying loose on top (the user's request). The user isn't happy with the mockups'
-  current trees and wants to swap them for these.
+  round the leader, not a spray lying loose on top (the user's request). The trunks carry painted bark textures
+  (`assets/trees/make_bark.py`), as the user asked for bark more like the real thing while keeping the low-poly feel:
+  after the reference sheet's bark swatches, in flat plates and crisp marks, each facet its own window of the texture,
+  with the rougher bark of the foot below (the birch's black, the pine's grey plates under its orange). The user isn't
+  happy with the mockups' current trees and wants to swap them for these.
 - Open trodden ground, like Tallmo's square, is worn the same way as the paths: an uneven, asymmetric outline (no clean
   ovals or other geometric shapes) and the same dirt, gravel and edges.
 - Camera: a high, isometric-style view by default. Holding the right mouse button orbits it around the hero (WoW style),

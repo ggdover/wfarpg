@@ -107,6 +107,7 @@ The final images shown on the board, by board section:
 | `renders/play_demo_spruce_top` | Trees: the spruce's top (the forest's edge from the meadow and the default camera, before and now; the portfolio's before and now sheet is `../assets/trees/previews/v4/spruce_top_before_after.png`) |
 | `renders/play_demo_spruce_light` | Play demo: lighter spruces (as tuned, Light and Lighter in the forest, and the trees side by side) |
 | `renders/play_demo_scenes` | Play demo: scenes (each scene as it opens, and close-ups) |
+| `renders/play_demo_bark` | Trees: bark (before and now, close up and in the scenes; the bark textures) |
 | `renders/play_demo_clear_view` | Play demo: trees out of the way (four scenes as they open, before and now; behind a pine; the open forest) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 

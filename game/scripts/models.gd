@@ -79,6 +79,8 @@ static func _material_for(model: String, surface: String, imported: Material) ->
 			var m := ShaderMaterial.new()
 			m.shader = load("res://shaders/lowpoly_pebble.gdshader")
 			return m)
+	if name.begins_with("Bark "):  # a portfolio tree's bark, textured: its trunk, its stump or its bare trunk
+		return _bark_material(name.substr(5), "trunk" if model.ends_with("_trunk") else ("stump" if model.ends_with("_stump") else "tree"))
 	if model.ends_with("_trunk"):  # a tree's bare trunk, which the x-ray leaves standing
 		return _cached("lowpoly_trunk", func() -> Material:
 			var m := ShaderMaterial.new()
@@ -121,6 +123,18 @@ const WATER := {
 	"Pool": {"shallow": Color("#3A3222"), "deep": Color("#161B21"), "clear": 0.35, "ripple": 0.004, "roughness": 0.02,
 		"specular": 0.7},
 }
+
+
+## A species' bark (shaders/bark*.gdshader) for a tree, which fades out of the way, its stump, or its bare trunk.
+static func _bark_material(species: String, part: String) -> Material:
+	return _cached("bark %s %s" % [species, part], func() -> Material:
+		var m := ShaderMaterial.new()
+		m.shader = load({"tree": "res://shaders/bark_fade.gdshader", "stump": "res://shaders/bark.gdshader",
+			"trunk": "res://shaders/bark_trunk.gdshader"}[part])
+		m.set_shader_parameter("roughness", 0.9)
+		m.set_shader_parameter("bark_upper", load("res://assets/trees/textures/bark_%s.png" % species))
+		m.set_shader_parameter("bark_foot", load("res://assets/trees/textures/bark_%s_base.png" % species))
+		return m)
 
 
 static func _leaf_material(texture: String) -> Material:

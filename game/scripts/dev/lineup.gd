@@ -1,7 +1,7 @@
 extends Node3D
 ## Dev: the old and new trees and the props in rows, lit like the mockups, for comparing with Blender renders.
 ## godot --path game res://scenes/dev/lineup.tscn -- --shot=out.png [--crown=0] [--models=Fern0,Reed0,...]
-## (--models: those models alone, in a row, the camera close)
+## (--models: those models alone, in a row, the camera close; with --trunks, 3 m apart, the camera low on their trunks)
 
 const LINEUP := [  # model, Blender x, y, scale
 	["ScotsPine_A", 0.0, 0.0, 1.0], ["NorwaySpruce_A", 9.0, 0.0, 1.0], ["SilverBirch_A", 18.0, 0.0, 1.0],
@@ -60,6 +60,11 @@ func _ready() -> void:
 				x += w + 0.4
 			pivot = Vector3(x * 0.5, 0.0, 0.0)
 			reach = x * 0.75 + 2.0
+			if "--trunks" in OS.get_cmdline_user_args():
+				for k in rows.size():
+					rows[k][1] = k * 3.0
+				pivot = Vector3((rows.size() - 1) * 1.5, 1.6, 0.0)
+				reach = rows.size() * 1.9 + 2.0
 	for row in rows:
 		var mi := MeshInstance3D.new()
 		mi.mesh = Models.mesh(row[0])
@@ -78,7 +83,7 @@ func _ready() -> void:
 	cam.fov = rad_to_deg(2.0 * atan(18.0 / 35.0))
 	cam.far = 600.0
 	var yaw := deg_to_rad(250.0)
-	var pitch := deg_to_rad(24.0)
+	var pitch := deg_to_rad(8.0 if "--trunks" in OS.get_cmdline_user_args() else 24.0)
 	var off_b := Vector3(cos(yaw) * cos(pitch), sin(yaw) * cos(pitch), sin(pitch)) * reach
 	cam.position = pivot + Vector3(off_b.x, off_b.z, -off_b.y)
 	cam.look_at(pivot + Vector3(0, reach / 13.0, 0))

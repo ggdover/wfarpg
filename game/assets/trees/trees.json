@@ -6,7 +6,7 @@
   "foot": 4.296,
   "height": 11.721,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -21,6 +21,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": true,
@@ -33,7 +35,7 @@
   "foot": 4.6,
   "height": 11.938,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -48,6 +50,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -60,7 +64,7 @@
   "foot": 4.035,
   "height": 11.621,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -75,6 +79,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -87,7 +93,7 @@
   "foot": 5.2,
   "height": 12.195,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -102,6 +108,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -114,7 +122,7 @@
   "foot": 4.498,
   "height": 11.725,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -129,6 +137,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -141,7 +151,7 @@
   "foot": 4.449,
   "height": 11.554,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -156,6 +166,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -168,7 +180,7 @@
   "foot": 3.992,
   "height": 11.249,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -183,6 +195,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -195,7 +209,7 @@
   "foot": 3.859,
   "height": 11.471,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -210,6 +224,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": true,
@@ -222,7 +238,7 @@
   "foot": 3.562,
   "height": 11.52,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -237,6 +253,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": true,
@@ -249,7 +267,7 @@
   "foot": 3.775,
   "height": 11.648,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -264,6 +282,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -276,7 +296,7 @@
   "foot": 3.32,
   "height": 11.461,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -291,6 +311,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -303,7 +325,7 @@
   "foot": 4.337,
   "height": 12.25,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -318,6 +340,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -330,7 +354,7 @@
   "foot": 3.533,
   "height": 11.698,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -345,6 +369,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -357,7 +383,7 @@
   "foot": 3.627,
   "height": 11.485,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -372,6 +398,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -384,7 +412,7 @@
   "foot": 3.095,
   "height": 11.229,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -399,6 +427,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": false,
@@ -411,7 +441,7 @@
   "foot": 3.219,
   "height": 11.174,
   "materials": [
-   "Bark",
+   "Bark Alder",
    "Leaves Alder"
   ],
   "max": [
@@ -426,6 +456,8 @@
   ],
   "species": "Alder",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Alder.png",
+   "bark_base": "res://assets/trees/textures/bark_Alder_base.png",
    "leaves": "res://assets/trees/textures/alder_10.png"
   },
   "thinnable": true,
@@ -438,7 +470,7 @@
   "foot": 3.213,
   "height": 15.079,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -453,6 +485,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": true,
@@ -465,7 +499,7 @@
   "foot": 3.555,
   "height": 15.493,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -480,6 +514,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -492,7 +528,7 @@
   "foot": 3.148,
   "height": 15.2,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -507,6 +543,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -519,7 +557,7 @@
   "foot": 4.132,
   "height": 16.017,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -534,6 +572,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -546,7 +586,7 @@
   "foot": 3.381,
   "height": 15.344,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -561,6 +601,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -573,7 +615,7 @@
   "foot": 3.344,
   "height": 15.083,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -588,6 +630,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -600,7 +644,7 @@
   "foot": 2.89,
   "height": 14.839,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -615,6 +659,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -627,7 +673,7 @@
   "foot": 2.816,
   "height": 14.9,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -642,6 +688,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": true,
@@ -654,7 +702,7 @@
   "foot": 3.242,
   "height": 14.95,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -669,6 +717,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": true,
@@ -681,7 +731,7 @@
   "foot": 3.626,
   "height": 15.376,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -696,6 +746,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -708,7 +760,7 @@
   "foot": 3.115,
   "height": 14.833,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -723,6 +775,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -735,7 +789,7 @@
   "foot": 4.25,
   "height": 15.844,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -750,6 +804,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -762,7 +818,7 @@
   "foot": 3.536,
   "height": 15.02,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -777,6 +833,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -789,7 +847,7 @@
   "foot": 3.372,
   "height": 14.904,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -804,6 +862,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -816,7 +876,7 @@
   "foot": 2.95,
   "height": 14.664,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -831,6 +891,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": false,
@@ -843,7 +905,7 @@
   "foot": 2.878,
   "height": 14.615,
   "materials": [
-   "Bark",
+   "Bark Aspen",
    "Leaves Aspen"
   ],
   "max": [
@@ -858,6 +920,8 @@
   ],
   "species": "Aspen",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Aspen.png",
+   "bark_base": "res://assets/trees/textures/bark_Aspen_base.png",
    "leaves": "res://assets/trees/textures/aspen_9.png"
   },
   "thinnable": true,
@@ -870,7 +934,7 @@
   "foot": 3.551,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -885,6 +949,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -897,7 +963,7 @@
   "foot": 0.4,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -912,6 +978,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -924,7 +992,7 @@
   "foot": 0.4,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -939,6 +1007,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -951,7 +1021,7 @@
   "foot": 0.4,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -966,6 +1036,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -978,7 +1050,7 @@
   "foot": 0.4,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -993,6 +1065,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1005,7 +1079,7 @@
   "foot": 0.4,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1020,6 +1094,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1032,7 +1108,7 @@
   "foot": 0.4,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1047,6 +1123,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1059,7 +1137,7 @@
   "foot": 0.4,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1074,6 +1152,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1086,7 +1166,7 @@
   "foot": 0.4,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1101,6 +1181,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1113,7 +1195,7 @@
   "foot": 3.551,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1128,6 +1210,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1140,7 +1224,7 @@
   "foot": 3.551,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1155,6 +1239,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1167,7 +1253,7 @@
   "foot": 3.551,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1182,6 +1268,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1194,7 +1282,7 @@
   "foot": 3.551,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1209,6 +1297,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1221,7 +1311,7 @@
   "foot": 3.551,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1236,6 +1326,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1248,7 +1340,7 @@
   "foot": 3.551,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1263,6 +1355,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1275,7 +1369,7 @@
   "foot": 3.551,
   "height": 16.274,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1290,6 +1384,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1302,7 +1398,7 @@
   "foot": 3.418,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1317,6 +1413,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1329,7 +1427,7 @@
   "foot": 0.4,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1344,6 +1442,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1356,7 +1456,7 @@
   "foot": 0.4,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1371,6 +1471,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1383,7 +1485,7 @@
   "foot": 0.4,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1398,6 +1500,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1410,7 +1514,7 @@
   "foot": 0.4,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1425,6 +1529,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1437,7 +1543,7 @@
   "foot": 0.4,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1452,6 +1558,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1464,7 +1572,7 @@
   "foot": 0.4,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1479,6 +1587,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1491,7 +1601,7 @@
   "foot": 0.4,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1506,6 +1616,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1518,7 +1630,7 @@
   "foot": 0.4,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1533,6 +1645,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1545,7 +1659,7 @@
   "foot": 3.418,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1560,6 +1674,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1572,7 +1688,7 @@
   "foot": 3.418,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1587,6 +1703,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": false,
@@ -1599,7 +1717,7 @@
   "foot": 3.418,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1614,6 +1732,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1626,7 +1746,7 @@
   "foot": 3.418,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1641,6 +1761,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1653,7 +1775,7 @@
   "foot": 3.418,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1668,6 +1790,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1680,7 +1804,7 @@
   "foot": 3.418,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1695,6 +1819,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1707,7 +1833,7 @@
   "foot": 3.418,
   "height": 16.536,
   "materials": [
-   "Bark",
+   "Bark NorwaySpruce",
    "Leaves NorwaySpruce"
   ],
   "max": [
@@ -1722,6 +1848,8 @@
   ],
   "species": "NorwaySpruce",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_NorwaySpruce.png",
+   "bark_base": "res://assets/trees/textures/bark_NorwaySpruce_base.png",
    "leaves": "res://assets/trees/textures/spruce_2.png"
   },
   "thinnable": true,
@@ -1734,7 +1862,7 @@
   "foot": 0.18,
   "height": 9.194,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -1750,6 +1878,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -1763,7 +1893,7 @@
   "foot": 0.18,
   "height": 9.441,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -1779,6 +1909,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -1792,7 +1924,7 @@
   "foot": 0.18,
   "height": 8.998,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -1808,6 +1940,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -1821,7 +1955,7 @@
   "foot": 0.18,
   "height": 9.874,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -1837,6 +1971,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -1850,7 +1986,7 @@
   "foot": 0.18,
   "height": 9.317,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -1866,6 +2002,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -1879,7 +2017,7 @@
   "foot": 0.18,
   "height": 9.304,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -1895,6 +2033,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -1908,7 +2048,7 @@
   "foot": 0.18,
   "height": 8.937,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -1924,6 +2064,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -1937,7 +2079,7 @@
   "foot": 0.18,
   "height": 8.839,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -1953,6 +2095,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -1966,7 +2110,7 @@
   "foot": 0.174,
   "height": 8.983,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -1982,6 +2126,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -1995,7 +2141,7 @@
   "foot": 0.174,
   "height": 9.232,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -2011,6 +2157,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -2024,7 +2172,7 @@
   "foot": 0.174,
   "height": 8.923,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -2040,6 +2188,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -2053,7 +2203,7 @@
   "foot": 0.174,
   "height": 9.755,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -2069,6 +2219,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -2082,7 +2234,7 @@
   "foot": 0.174,
   "height": 9.285,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -2098,6 +2250,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -2111,7 +2265,7 @@
   "foot": 0.174,
   "height": 9.206,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -2127,6 +2281,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -2140,7 +2296,7 @@
   "foot": 0.174,
   "height": 8.896,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -2156,6 +2312,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -2169,7 +2327,7 @@
   "foot": 0.174,
   "height": 8.768,
   "materials": [
-   "Bark",
+   "Bark Rowan",
    "Berries Rowan",
    "Leaves Rowan"
   ],
@@ -2185,6 +2343,8 @@
   ],
   "species": "Rowan",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_Rowan.png",
+   "bark_base": "res://assets/trees/textures/bark_Rowan_base.png",
    "berries": "res://assets/trees/textures/rowan_1_berries.png",
    "leaves": "res://assets/trees/textures/rowan_1.png"
   },
@@ -2198,7 +2358,7 @@
   "foot": 6.067,
   "height": 12.352,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2213,6 +2373,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": true,
@@ -2225,7 +2387,7 @@
   "foot": 5.961,
   "height": 12.7,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2240,6 +2402,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2252,7 +2416,7 @@
   "foot": 5.647,
   "height": 12.469,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2267,6 +2431,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2279,7 +2445,7 @@
   "foot": 6.655,
   "height": 13.168,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2294,6 +2460,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2306,7 +2474,7 @@
   "foot": 6.108,
   "height": 12.755,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2321,6 +2489,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2333,7 +2503,7 @@
   "foot": 5.769,
   "height": 12.47,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2348,6 +2518,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2360,7 +2532,7 @@
   "foot": 5.491,
   "height": 12.164,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2375,6 +2547,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2387,7 +2561,7 @@
   "foot": 5.828,
   "height": 12.176,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2402,6 +2576,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": true,
@@ -2414,7 +2590,7 @@
   "foot": 5.181,
   "height": 12.701,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2429,6 +2605,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": true,
@@ -2441,7 +2619,7 @@
   "foot": 5.499,
   "height": 12.952,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2456,6 +2634,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2468,7 +2648,7 @@
   "foot": 5.09,
   "height": 12.796,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2483,6 +2663,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2495,7 +2677,7 @@
   "foot": 6.113,
   "height": 13.41,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2510,6 +2692,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2522,7 +2706,7 @@
   "foot": 5.467,
   "height": 13.063,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2537,6 +2721,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2549,7 +2735,7 @@
   "foot": 5.238,
   "height": 13.002,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2564,6 +2750,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2576,7 +2764,7 @@
   "foot": 5.032,
   "height": 12.827,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2591,6 +2779,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": false,
@@ -2603,7 +2793,7 @@
   "foot": 4.946,
   "height": 12.547,
   "materials": [
-   "Bark",
+   "Bark ScotsPine",
    "Leaves ScotsPine"
   ],
   "max": [
@@ -2618,6 +2808,8 @@
   ],
   "species": "ScotsPine",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_ScotsPine.png",
+   "bark_base": "res://assets/trees/textures/bark_ScotsPine_base.png",
    "leaves": "res://assets/trees/textures/pine_1.png"
   },
   "thinnable": true,
@@ -2630,7 +2822,7 @@
   "foot": 0.224,
   "height": 10.435,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2645,6 +2837,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": true,
@@ -2657,7 +2851,7 @@
   "foot": 0.224,
   "height": 10.613,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2672,6 +2866,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2684,7 +2880,7 @@
   "foot": 0.224,
   "height": 10.489,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2699,6 +2895,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2711,7 +2909,7 @@
   "foot": 0.224,
   "height": 10.904,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2726,6 +2924,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2738,7 +2938,7 @@
   "foot": 0.224,
   "height": 10.715,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2753,6 +2953,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2765,7 +2967,7 @@
   "foot": 0.224,
   "height": 10.478,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2780,6 +2982,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2792,7 +2996,7 @@
   "foot": 0.224,
   "height": 10.377,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2807,6 +3011,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2819,7 +3025,7 @@
   "foot": 0.224,
   "height": 10.336,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2834,6 +3040,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": true,
@@ -2846,7 +3054,7 @@
   "foot": 0.23,
   "height": 10.275,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2861,6 +3069,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": true,
@@ -2873,7 +3083,7 @@
   "foot": 0.23,
   "height": 10.441,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2888,6 +3098,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2900,7 +3112,7 @@
   "foot": 0.23,
   "height": 10.342,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2915,6 +3127,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2927,7 +3141,7 @@
   "foot": 0.23,
   "height": 10.881,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2942,6 +3156,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2954,7 +3170,7 @@
   "foot": 0.23,
   "height": 10.663,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2969,6 +3185,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -2981,7 +3199,7 @@
   "foot": 0.23,
   "height": 10.447,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -2996,6 +3214,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -3008,7 +3228,7 @@
   "foot": 0.23,
   "height": 10.303,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -3023,6 +3243,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": false,
@@ -3035,7 +3257,7 @@
   "foot": 0.23,
   "height": 10.195,
   "materials": [
-   "Bark",
+   "Bark SilverBirch",
    "Leaves SilverBirch"
   ],
   "max": [
@@ -3050,6 +3272,8 @@
   ],
   "species": "SilverBirch",
   "textures": {
+   "bark": "res://assets/trees/textures/bark_SilverBirch.png",
+   "bark_base": "res://assets/trees/textures/bark_SilverBirch_base.png",
    "leaves": "res://assets/trees/textures/birch_4.png"
   },
   "thinnable": true,

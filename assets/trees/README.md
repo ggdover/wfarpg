@@ -55,8 +55,16 @@ rebuild.
 
 ## How the trees are built
 
-- **Trunk and branches:** low-poly tubes with 3 to 7 sides, flat shaded and coloured per face through the `Col`
-  colour attribute (material `Bark`).
+- **Trunk and branches:** low-poly tubes with 3 to 7 sides, flat shaded (material `Bark <tree>`). The branches are
+  coloured per face through the `Col` colour attribute.
+- **Bark:** the trunk carries the species' bark texture (`make_bark.py`), painted after the bark swatches on the
+  reference sheet in the low-poly style: flat plates and marks with crisp edges and a few tones, no photographic
+  noise. Each facet shows its own window of the texture at its real size (a texture is 1 m round by 2 m up), so the
+  pattern breaks at the facet edges, as the shading does, and the trunk stays faceted. The colour attribute tints
+  each facet a little (0.5 is no tint) and its alpha blends in the foot's rougher bark: the birch black and furrowed
+  for its lowest metre or so, the aspen dark, the pine's thick grey plates up to where its orange bark starts; the
+  foot texture's alpha is a noise, so the edge is ragged. Branch faces sit at UV (-10, -10), which keeps them plain.
+  The marks are drawn a little bigger than life where they'd vanish from the game's camera, 20 m off.
 - **Leaf clumps:** crossed planes. Each clump is several copies of the species' leaf card crossing at the clump's
   centre: one lying nearly flat, for the view from above, and the rest standing upright, spread evenly around. The
   leaf materials (`Leaves <tree>`) cut the card out at alpha 0.5, like alpha clip in a game engine, and draw both sides.
@@ -84,6 +92,7 @@ distance. The trees were tuned with that, so the game keeps it; fixing it would 
 | `tree_editor.py` | The editor panel; the .blend loads it through its `tree_editor_loader.py` text |
 | `make_trees.py` | Builds `tree_portfolio.blend` from the settings and renders `previews/` |
 | `make_leaf_cards.py` | Draws the leaf cards: `textures/<card>_<n>.png`, rowan berry versions, and `textures/cards.json` with their names and spray anchors |
+| `make_bark.py` | Paints the bark: `textures/bark_<tree>.png` and `bark_<tree>_base.png` (the foot), and `previews/bark.png` |
 | `make_sheet.py` | Lays out the portraits in `previews/tiles/` as `previews/portfolio.png` |
 | `tree_settings.json` | The editor's saved settings (written by **Save settings**) |
 
@@ -91,6 +100,7 @@ distance. The trees were tuned with that, so the game keeps it; fixing it would 
 
 ```sh
 python3 make_leaf_cards.py                          # the leaf cards and previews/leaf_cards.png (needs Pillow)
+python3 make_bark.py                                # the bark textures and previews/bark.png (needs Pillow)
 blender -b --factory-startup -P make_trees.py       # tree_portfolio.blend and the renders in previews/
 blender -b --factory-startup -P make_trees.py -- --no-render
 ```

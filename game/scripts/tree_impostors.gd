@@ -87,16 +87,21 @@ static func _bounds(mesh: Mesh) -> Array:
 	return [sqrt(r2), lo, hi]
 
 
-## The unlit material a surface is pictured with: its leaf card, or its vertex colours.
+## The unlit material a surface is pictured with: its leaf card, its bark's textures, or its vertex colours.
 func _bake_material(game: Material) -> Material:
 	var card: Variant = (game as ShaderMaterial).get_shader_parameter("card") if game is ShaderMaterial else null
-	var key: Variant = card if card else "bark"
+	var bark: Variant = (game as ShaderMaterial).get_shader_parameter("bark_upper") if game is ShaderMaterial else null
+	var key: Variant = card if card else (bark if bark else "bark")
 	if not _bake_materials.has(key):
 		var m := ShaderMaterial.new()
 		m.shader = load("res://shaders/impostor_bake.gdshader")
 		m.set_shader_parameter("leaf", card != null)
 		if card:
 			m.set_shader_parameter("card", card)
+		if bark:
+			m.set_shader_parameter("bark", true)
+			m.set_shader_parameter("bark_upper", bark)
+			m.set_shader_parameter("bark_foot", (game as ShaderMaterial).get_shader_parameter("bark_foot"))
 		_bake_materials[key] = m
 	return _bake_materials[key]
 

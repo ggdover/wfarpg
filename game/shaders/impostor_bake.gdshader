@@ -10,9 +10,17 @@ render_mode unshaded, cull_disabled;
 uniform sampler2D card : source_color, filter_linear_mipmap, repeat_disable;
 uniform bool leaf = false;
 uniform bool silhouette = false;
+// a portfolio tree's bark, textured as in the game (BARK in lowpoly.gdshaderinc)
+uniform bool bark = false;
+uniform sampler2D bark_upper : source_color, filter_linear_mipmap, repeat_enable;
+uniform sampler2D bark_foot : source_color, filter_linear_mipmap, repeat_enable;
 
 void fragment() {
 	vec4 c = leaf ? texture(card, UV) : vec4(srgb_to_linear(COLOR.rgb), silhouette ? 0.0 : 1.0);
+	if (bark && !leaf && UV.x > -5.0) {
+		vec4 foot = texture(bark_foot, UV);
+		c.rgb *= 2.0 * mix(texture(bark_upper, UV).rgb, foot.rgb, smoothstep(0.4, 0.6, COLOR.a + (foot.a - 0.5) * 0.6));
+	}
 	ALBEDO = silhouette ? vec3(1.0) : c.rgb * mix(1.0, UV2.x, 0.6);
 	ALPHA = c.a;
 	ALPHA_SCISSOR_THRESHOLD = 0.5;

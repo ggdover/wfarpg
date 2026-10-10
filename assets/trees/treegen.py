@@ -1,8 +1,10 @@
 """The tree generator: low-poly trees of the Swedish forest with crossed-plane leaf clumps.
 
 Used by make_trees.py (builds the portfolio .blend) and tree_editor.py (the editor panel in Blender). Every tree is
-one mesh with up to three materials: faceted bark coloured per face, the species' leaf card, and for rowan a card with
-berries. A tree is rebuilt in place from its species, variant and settings (see DEFAULTS), so the trees in the .blend,
+one mesh with up to three materials: faceted bark, the species' leaf card, and for rowan a card with berries. The
+trunk's bark is the species' bark texture (make_bark.py), each facet showing its own window of it at its real size,
+tinted a little per facet, with the rougher bark of the foot blended in below (the colour's alpha); the branches are
+coloured per face. A tree is rebuilt in place from its species, variant and settings (see DEFAULTS), so the trees in the .blend,
 and their linked copies in the grove, follow the settings.
 
 Leaf clumps are crossed planes: copies of a leaf card crossing at the clump's centre, one lying nearly flat for the
@@ -22,6 +24,8 @@ TEXTURES = os.path.join(HERE, "textures")
 SETTINGS = os.path.join(HERE, "tree_settings.json")
 TAU = math.tau
 UP = Vector((0, 0, 1))
+BARK_TILE = (1.0, 2.0)  # metres round and up the trunk a bark texture covers (make_bark.py)
+PLAIN = (-10.0, -10.0)  # the UV of a face without a texture: a branch's bark, coloured per face
 SPIRE = 0.45  # the spruce's top stays inside a cone from the leader's tip this wide: metres out per metre down
 
 # what each setting does is described in tree_editor.py, next to its slider
@@ -83,6 +87,7 @@ class Tree:
     def __init__(self, seed):
         self.seed = seed
         self.r = random.Random(seed)
+        self.rb = random.Random(seed * 7 + 3)  # the bark's mapping and tints: apart, so the trees' shapes stay as tuned
         self.v, self.f, self.mat, self.col, self.uv, self.nrm = [], [], [], [], [], []
         self.clumps = []
         self.branches = []  # branch lines that can carry pinnate sprays
@@ -101,14 +106,18 @@ class Tree:
         return len(self.v) - 1
 
     def face(self, idx, mat=0, col=(1, 1, 1, 1), uv=None, nrm=None):
+        """A face; col is its colour, or one per corner."""
         self.f.append(tuple(idx))
         self.mat.append(mat)
         self.col.append(col)
         self.uv.append(uv)
         self.nrm.append(nrm)
 
-    def tube(self, pts, radii, sides, colour):
-        """A tapered tube along pts, faceted; colour(i, k) gives segment i, side k. A zero end radius makes a point."""
+    def tube(self, pts, radii, sides, colour, foot=None):
+        """A tapered tube along pts, faceted; colour(i, k) gives segment i, side k. A zero end radius makes a point.
+        With foot, a trunk: its bark is the species' texture instead (to_mesh), each facet's column a window of it at
+        its own place round the texture, its real width and height; foot(s) gives how much of the foot's bark shows
+        s metres up the tube (the colour's alpha). colour is still called, so the trees' shapes stay as tuned."""
         n = len(pts)
         tang = [(pts[min(i + 1, n - 1)] - pts[max(i - 1, 0)]).normalized() for i in range(n)]
         ref = UP if abs(tang[0].z) < 0.9 else Vector((1, 0, 0))
@@ -126,15 +135,35 @@ class Tree:
                 continue
             rings.append([self.vert(pts[i] + (nrm * math.cos(rot0 + k * TAU / sides) + b * math.sin(rot0 + k * TAU / sides)) * radii[i])
                           for k in range(sides)])
+        s = [0.0]  # metres along the tube, and each ring's facet width
+        for i in range(1, n):
+            s.append(s[-1] + (pts[i] - pts[i - 1]).length)
+        wide = [2.0 * r * math.sin(math.pi / sides) for r in radii]
+        offset = [self.rb.uniform(0.0, BARK_TILE[0]) for _ in range(sides)]
+        tu, tv = BARK_TILE
         for i in range(n - 1):
             a, b = rings[i], rings[i + 1]
             for k in range(sides):
+                col = colour(i, k)
+                uv = None
+                if foot:
+                    tint = 0.5 * (1.0 + self.rb.uniform(-0.06, 0.06))
+                    col = [(tint, tint, tint, foot(s[i]))] * 2 + [(tint, tint, tint, foot(s[i + 1]))] * (1 if len(b) == 1 else 2)
+                    o = offset[k]
+                    if len(b) == 1:
+                        uv = [(o / tu, s[i] / tv), ((o + wide[i]) / tu, s[i] / tv), ((o + wide[i] / 2) / tu, s[i + 1] / tv)]
+                    else:
+                        uv = [(o / tu, s[i] / tv), ((o + wide[i]) / tu, s[i] / tv), ((o + wide[i + 1]) / tu, s[i + 1] / tv),
+                              (o / tu, s[i + 1] / tv)]
                 if len(b) == 1:
-                    self.face((a[k], a[(k + 1) % sides], b[0]), col=colour(i, k))
+                    self.face((a[k], a[(k + 1) % sides], b[0]), col=col, uv=uv)
                 else:
-                    self.face((a[k], a[(k + 1) % sides], b[(k + 1) % sides], b[k]), col=colour(i, k))
+                    self.face((a[k], a[(k + 1) % sides], b[(k + 1) % sides], b[k]), col=col, uv=uv)
         if len(rings[-1]) > 1:
-            self.face(rings[-1], col=colour(n - 2, 0))
+            col = colour(n - 2, 0)
+            if foot:
+                col = (0.5, 0.5, 0.5, 0.0)
+            self.face(rings[-1], col=col)
 
     def clump(self, c, size, card="leaves", squash=1.0, flat=1.0, hang=False):
         """Queue a leaf clump at c. squash scales the upright cards' height and flat the lying card; hang keeps the
@@ -338,10 +367,11 @@ class Tree:
         me.polygons.foreach_set("material_index", self.mat)
         me.polygons.foreach_set("use_smooth", [True] * len(self.f))  # the custom normals decide the shading
         col = me.color_attributes.new("Col", "FLOAT_COLOR", "CORNER")
-        col.data.foreach_set("color", [x for i, f in enumerate(self.f) for _ in f for x in self.col[i]])
+        col.data.foreach_set("color", [x for i, f in enumerate(self.f)
+                                       for c in (self.col[i] if isinstance(self.col[i], list) else [self.col[i]] * len(f)) for x in c])
         me.color_attributes.active_color = col
         uv = me.uv_layers.new(name="UVMap")
-        uv.data.foreach_set("uv", [x for i, f in enumerate(self.f) for p in (self.uv[i] or [(0.5, 0.5)] * len(f)) for x in p])
+        uv.data.foreach_set("uv", [x for i, f in enumerate(self.f) for p in (self.uv[i] or [PLAIN] * len(f)) for x in p])
         normals = []
         for i, f in enumerate(self.f):
             normals.extend(self.nrm[i] or [newell([self.v[j] for j in f])] * len(f))  # bark: one normal per face
@@ -379,6 +409,12 @@ def taper(r0, r1, n):
     return [r0 + (r1 - r0) * i / (n - 1) for i in range(n)]
 
 
+def foot_bark(height, soft=0.3, ground=0.3):
+    """For a trunk's tube: how much of the foot's rougher bark shows s metres up it (its tube starting ground metres
+    below the ground): all of it up to height metres above the ground, none above, over soft metres either side."""
+    return lambda s: 1.0 - smoothstep(height - soft, height + soft, s - ground)
+
+
 # ------------------------------------------------------------------ the species
 # each builder takes a seed and the settings; height scales the tree and width its branches
 def scots_pine(seed, cfg):
@@ -399,7 +435,7 @@ def scots_pine(seed, cfg):
             return pick(r, "#8E5A3A", "#7A5440")
         return pick(r, "#B5653A", "#C27A45", "#A85A32")
 
-    T.tube(pts, radii, 7, bark)
+    T.tube(pts, radii, 7, bark, foot_bark(split * (H + 0.3) - 0.3, 1.0))  # grey plates below, orange above
     for _ in range(r.randint(3, 6)):  # dead branch stubs down the trunk
         p = along(pts, r.uniform(0.25, 0.6))
         b = limb(r, p, direction(r.uniform(0, TAU), r.uniform(-0.2, 0.3)), r.uniform(0.4, 1.0), 2)
@@ -444,7 +480,7 @@ def silver_birch(seed, cfg):
             return pick(r, "#2A2826", "#3A3632")
         return pick(r, "#E6E2D8", "#DCD8CC", "#EFEBE2")
 
-    T.tube(pts, radii, 6, bark)
+    T.tube(pts, radii, 6, bark, foot_bark(T.rb.uniform(0.9, 1.6), 0.25))  # white, black and furrowed at the foot
     nb = r.randint(15, 20)
     az0 = r.uniform(0, TAU)
     for j in range(nb):
@@ -474,7 +510,7 @@ def norway_spruce(seed, cfg):
     H = r.uniform(14.0, 17.0) * cfg["height"]
     pts = trunk_line(r, H, 14, r.uniform(0.05, 0.2), 0.05)
     radii = [0.32 * (1 - i / 14) ** 1.05 + (0.08 if i == 0 else 0) for i in range(15)]
-    T.tube(pts, radii, 7, lambda i, k: pick(r, "#4A3F36", "#55493E", "#3F362F"))
+    T.tube(pts, radii, 7, lambda i, k: pick(r, "#4A3F36", "#55493E", "#3F362F"), foot_bark(T.rb.uniform(0.3, 0.6), 0.2))
     T.axis = pts
     apex = pts[-1] + UP * 0.3 * cfg["height"]  # the leader's tip
     slope = SPIRE * cfg["width"] / cfg["height"]
@@ -534,7 +570,7 @@ def aspen(seed, cfg):
             return pick(r, "#4A4A42", "#3E3E38")
         return pick(r, "#B9BCA8", "#A9AE98", "#C3C5B4")
 
-    T.tube(pts, radii, 6, bark)
+    T.tube(pts, radii, 6, bark, foot_bark(T.rb.uniform(0.6, 1.1), 0.25))
     nb = r.randint(13, 16)
     az0 = r.uniform(0, TAU)
     for j in range(nb):
@@ -563,7 +599,7 @@ def rowan(seed, cfg):
     berries = cfg["berries"]
     pts = trunk_line(r, H, 10, r.uniform(0.3, 0.7), 0.15)
     radii = [0.14 * (1 - i / 10) ** 1.1 + 0.03 + (0.05 if i == 0 else 0) for i in range(11)]
-    T.tube(pts, radii, 6, lambda i, k: pick(r, "#7A7568", "#8C8778", "#6A665B", "#7A806A"))
+    T.tube(pts, radii, 6, lambda i, k: pick(r, "#7A7568", "#8C8778", "#6A665B", "#7A806A"), foot_bark(T.rb.uniform(0.3, 0.6), 0.2))
     nb = r.randint(9, 12)
     az0 = r.uniform(0, TAU)
     for j in range(nb):
@@ -601,7 +637,7 @@ def alder(seed, cfg):
         def bark(i, k):
             return pick(r, "#2F2A26", "#26221F") if r.random() < 0.25 else pick(r, "#3E3832", "#4A433B", "#453E37")
 
-        T.tube(pts, radii, 6, bark)
+        T.tube(pts, radii, 6, bark, foot_bark(T.rb.uniform(0.5, 1.0), 0.3))
         nb = r.randint(8, 11)
         for j in range(nb):
             t = 0.36 + 0.59 * j / (nb - 1)
@@ -653,17 +689,73 @@ def card_anchor(card, n):
 
 
 # ------------------------------------------------------------------ materials
-def bark_material():
-    m = bpy.data.materials.get("Bark")
+def bark_material(key):
+    """The species' bark ("Bark <species>"), as the game draws it (shaders/lowpoly.gdshaderinc, BARK): on the trunk, its
+    bark texture, the foot's bark blended in below by the colour's alpha, through the foot texture's alpha (a noise, for
+    a ragged edge), tinted by the colour, twice over; on the branches (UV PLAIN), the colour itself."""
+    name = f"Bark {key}"
+    m = bpy.data.materials.get(name)
     if m:
         return m
-    m = bpy.data.materials.new("Bark")
+    m = bpy.data.materials.new(name)
     m.use_nodes = True
     nt = m.node_tree
-    bsdf = nt.nodes["Principled BSDF"]
-    a = nt.nodes.new("ShaderNodeAttribute")
-    a.attribute_name = "Col"
-    nt.links.new(a.outputs["Color"], bsdf.inputs["Base Color"])
+    N, L = nt.nodes, nt.links
+    bsdf = N["Principled BSDF"]
+
+    def sock(node, name, kind, out=False):
+        return [x for x in (node.outputs if out else node.inputs) if x.name == name and x.type == kind][0]
+
+    def maths(op, a, b):
+        n = N.new("ShaderNodeMath")
+        n.operation = op
+        for i, v in enumerate((a, b)):
+            if isinstance(v, (int, float)):
+                n.inputs[i].default_value = v
+            else:
+                L.new(v, n.inputs[i])
+        return n.outputs[0]
+
+    def mix(fac, a, b, blend="MIX"):
+        n = N.new("ShaderNodeMix")
+        n.data_type = "RGBA"
+        n.blend_type = blend
+        f = sock(n, "Factor", "VALUE")
+        if isinstance(fac, (int, float)):
+            f.default_value = fac
+        else:
+            L.new(fac, f)
+        for nm, v in (("A", a), ("B", b)):
+            if isinstance(v, tuple):
+                sock(n, nm, "RGBA").default_value = v
+            else:
+                L.new(v, sock(n, nm, "RGBA"))
+        return sock(n, "Result", "RGBA", out=True)
+
+    col = N.new("ShaderNodeAttribute")
+    col.attribute_name = "Col"
+    uv = N.new("ShaderNodeUVMap")
+    uv.uv_map = "UVMap"
+    tex = {}
+    for part, suffix in (("upper", ""), ("foot", "_base")):
+        img = bpy.data.images.load(os.path.join(TEXTURES, f"bark_{key}{suffix}.png"), check_existing=True)
+        img.alpha_mode = "CHANNEL_PACKED"
+        t = N.new("ShaderNodeTexImage")
+        t.image = img
+        t.extension = "REPEAT"
+        L.new(uv.outputs["UV"], t.inputs["Vector"])
+        tex[part] = t
+    ragged = maths("ADD", col.outputs["Alpha"], maths("MULTIPLY", maths("SUBTRACT", tex["foot"].outputs["Alpha"], 0.5), 0.6))
+    edge = N.new("ShaderNodeMapRange")
+    edge.interpolation_type = "SMOOTHSTEP"
+    edge.inputs["From Min"].default_value, edge.inputs["From Max"].default_value = 0.4, 0.6
+    L.new(ragged, edge.inputs["Value"])
+    bark = mix(edge.outputs["Result"], tex["upper"].outputs["Color"], tex["foot"].outputs["Color"])
+    tinted = mix(1.0, mix(1.0, bark, col.outputs["Color"], "MULTIPLY"), (2.0, 2.0, 2.0, 1.0), "MULTIPLY")
+    sep = N.new("ShaderNodeSeparateXYZ")
+    L.new(uv.outputs["UV"], sep.inputs[0])
+    on_trunk = maths("GREATER_THAN", sep.outputs["X"], -5.0)
+    L.new(mix(on_trunk, col.outputs["Color"], tinted), bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = 0.9
     return m
 
@@ -712,7 +804,7 @@ def leaf_material(name):
 def materials_for(key, cfg):
     """The species' materials, with its chosen card and tint applied."""
     card = BY_KEY[key][6]
-    mats = {"bark": bark_material(), "leaves": leaf_material(f"Leaves {key}")}
+    mats = {"bark": bark_material(key), "leaves": leaf_material(f"Leaves {key}")}
     if key == "Rowan":
         mats["berries"] = leaf_material(f"Berries {key}")
     for slot, m in mats.items():

@@ -561,6 +561,45 @@
   "y": 28,
   "z": 41
  },
+ "bk-about": {
+  "author": "claude",
+  "color": "paper",
+  "createdAt": 1791632305111,
+  "h": 1150,
+  "text": "# Bark\nYou asked for trunks that look more like real bark, the birch and aspen especially, which had big black and white blocks, while keeping the low-poly feel.\n\nEach species now has its own bark, painted after the bark swatches on your tree sheet, in the low-poly style: flat plates and marks with crisp edges and a few tones, no photo noise.\n- **Scots pine:** thick grey plates with orange inner bark in the fissures, turning to thin orange flakes higher up\n- **Silver birch:** white, with dark lenticels in bands, grey streaks and black scars with a brown heart; black and furrowed for its lowest metre or so, the edge ragged\n- **Aspen:** smooth, pale grey-green, with dark \"eyes\" and fine lines; a dark foot\n- **Norway spruce:** small grey-brown scales, orange-brown here and there\n- **Rowan:** mottled grey, with lichen and orange-brown patches\n- **Alder:** dark plates in long fissures\n\nThe trunks stay faceted: each facet shows its own window of the bark, at its real size, so the pattern breaks at the facet edges as the shading does. The marks are a little bigger than life, so they still read from the game's camera. The trees' shapes are just as you tuned them; the stumps keep their bark, and the far trees' pictures carry it too. The branches keep their plain colours.",
+  "type": "note",
+  "updatedAt": 1791632305111,
+  "w": 460,
+  "x": 28,
+  "y": 75940,
+  "z": 263
+ },
+ "bk-before": {
+  "ar": 0.711,
+  "assetId": "d995b86a2729af8717a204f7100fc4b8",
+  "author": "claude",
+  "caption": "Before and now: the trunks close up, three at a time, and with the camera low in the autumn hollow, on the pine heath and in the open forest.",
+  "createdAt": 1791632305111,
+  "type": "image",
+  "updatedAt": 1791632305111,
+  "w": 1100,
+  "x": 512,
+  "y": 75940,
+  "z": 264
+ },
+ "bk-textures": {
+  "ar": 5.272,
+  "assetId": "5464f4f9106cef6b78acd1eb0134ee4f",
+  "author": "claude",
+  "caption": "The bark textures, a metre round by 2 m up each: the trunk's, and the foot's beside it.",
+  "createdAt": 1791632305111,
+  "type": "image",
+  "updatedAt": 1791632305111,
+  "w": 1080,
+  "x": 1640,
+  "y": 75940,
+  "z": 265
+ },
  "bs-about": {
   "author": "claude",
   "color": "paper",
@@ -1971,6 +2010,19 @@
   "x": 960,
   "y": 0,
   "z": 2
+ },
+ "s-bark": {
+  "author": "claude",
+  "color": "moss",
+  "createdAt": 1791632305111,
+  "h": 1720,
+  "title": "Trees: bark",
+  "type": "frame",
+  "updatedAt": 1791632305111,
+  "w": 2740,
+  "x": 0,
+  "y": 75912,
+  "z": 43
  },
  "s-beside": {
   "author": "claude",

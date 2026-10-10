@@ -1,7 +1,8 @@
 // The mockups' low-poly material: faceted shapes coloured per face through the vertex colours, like LowPoly in
 // mockups/forest_cam.py and Bark in assets/trees/treegen.py. Define HERO_FADE before including it for things that
-// fade out when they're in the way of the camera, like trees, and NO_XRAY too for those the x-ray leaves alone. The
-// including shader declares the shader type.
+// fade out when they're in the way of the camera, like trees, and NO_XRAY too for those the x-ray leaves alone; and
+// BARK for a portfolio tree's bark (its trunk, stump and bare trunk), which textures the trunk. The including shader
+// declares the shader type.
 #include "res://shaders/common.gdshaderinc"
 
 uniform float roughness = 0.88;
@@ -20,6 +21,14 @@ instance uniform vec2 sight_veil = vec2(0.0);  // how see-through, and from how 
 #ifdef PEBBLE
 global uniform vec3 pebble_colour;
 #endif
+#ifdef BARK
+// The species' bark (assets/trees/make_bark.py), on the trunk's facets: each shows its own window of it, at its real
+// size (assets/trees/treegen.py, Tree.tube); the branches' faces sit at UV (-10, -10) and keep their colour. bark_foot
+// is the rougher bark of the trunk's foot, blended in by the colour's alpha, through its own alpha, a noise, so the
+// edge is ragged; the colour tints it, 0.5 for none.
+uniform sampler2D bark_upper : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D bark_foot : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+#endif
 
 void fragment() {
 #ifdef HERO_FADE
@@ -37,6 +46,13 @@ void fragment() {
 	}
 #endif
 	vec3 c = srgb_to_linear(COLOR.rgb);
+#ifdef BARK
+	if (UV.x > -5.0) {
+		vec4 foot = texture(bark_foot, UV);
+		float below = smoothstep(0.4, 0.6, COLOR.a + (foot.a - 0.5) * 0.6);
+		c *= 2.0 * mix(texture(bark_upper, UV).rgb, foot.rgb, below);
+	}
+#endif
 #ifdef PEBBLE
 	c = pebble_colour * dot(c, vec3(0.2126, 0.7152, 0.0722)) / 0.42;  // 0.42: the pebbles' average brightness
 #endif

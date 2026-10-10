@@ -4065,6 +4065,60 @@
     "With the crown cut the thick forest runs at 89 fps rather than 71, and the autumn hollow at 109 rather than 82: fewer leaves near the camera"
    ],
    "cover": "renders/play_demo_clear_view/behind_a_pine.jpg"
+  },
+  {
+   "id": "trees-bark",
+   "date": "2026-10-10",
+   "asked_at": "13:10",
+   "posted_at": "13:38",
+   "title": "Bark",
+   "section": "Trees: bark",
+   "asked": "Can we add some more interesting textures to the tree trunks? The aspen and birch just have big chunks that are black or white, but I'd like their bark to look more like it does in real life, while still keeping the low-poly feel and style of all the trees",
+   "changed": [
+    "Every species' trunk carries its own bark, painted after the bark swatches on the tree sheet in flat plates and crisp marks",
+    "The foot's rougher bark below, blended in with a ragged edge: the birch's black, the aspen's dark, the pine's grey plates under its orange",
+    "Each facet shows its own window of the bark at its real size, so the trunks stay faceted; the stumps and the far trees' pictures carry it too"
+   ],
+   "items": [
+    {
+     "id": "s-bark",
+     "type": "frame",
+     "status": "new",
+     "title": "Trees: bark",
+     "author": "claude"
+    },
+    {
+     "id": "bk-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Bark\nYou asked for trunks that look more like real bark, the birch and aspen especially, which had big black and white blocks, while keeping the low-poly feel.\n\nEach species now has its own bark, painted after the bark swatches on your tree sheet, in the low-poly style: flat plates and marks with crisp edges and a few tones, no photo noise.\n- **Scots pine:** thick grey plates with orange inner bark in the fissures, turning to thin orange flakes higher up\n- **Silver birch:** white, with dark lenticels in bands, grey streaks and black scars with a brown heart; black and furrowed for its lowest metre or so, the edge ragged\n- **Aspen:** smooth, pale grey-green, with dark \"eyes\" and fine lines; a dark foot\n- **Norway spruce:** small grey-brown scales, orange-brown here and there\n- **Rowan:** mottled grey, with lichen and orange-brown patches\n- **Alder:** dark plates in long fissures\n\nThe trunks stay faceted: each facet shows its own window of the bark, at its real size, so the pattern breaks at the facet edges as the shading does. The marks are a little bigger than life, so they still read from the game's camera. The trees' shapes are just as you tuned them; the stumps keep their bark, and the far trees' pictures carry it too. The branches keep their plain colours.",
+     "author": "claude"
+    },
+    {
+     "id": "bk-before",
+     "type": "image",
+     "status": "new",
+     "caption": "Before and now: the trunks close up, three at a time, and with the camera low in the autumn hollow, on the pine heath and in the open forest.",
+     "assetId": "d995b86a2729af8717a204f7100fc4b8",
+     "file": "renders/play_demo_bark/before_and_now.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "bk-textures",
+     "type": "image",
+     "status": "new",
+     "caption": "The bark textures, a metre round by 2 m up each: the trunk's, and the foot's beside it.",
+     "assetId": "5464f4f9106cef6b78acd1eb0134ee4f",
+     "file": "renders/play_demo_bark/textures.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "The first marks were life-size and vanished from the game's camera, a facet being a few pixels across; they're drawn a little bigger now",
+    "The bark's tints and mapping use a random stream of their own, so the trees' shapes, as tuned, didn't change"
+   ],
+   "cover": "renders/play_demo_bark/before_and_now.jpg"
   }
  ]
 }
