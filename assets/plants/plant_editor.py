@@ -63,7 +63,7 @@ def _card_items(self, context):
 
 
 def _plant_items(self, context):
-    return PLANT_ITEMS.get(self.group) or [("Blueberry", "Blueberry", "", 0, 0)]
+    return PLANT_ITEMS.get(self.group) or [("Raspberry", "Raspberry", "", 0, 0)]
 
 
 def _on_group(self, context):
@@ -73,7 +73,7 @@ def _on_group(self, context):
 
 
 class PlantSettings(bpy.types.PropertyGroup):
-    # name holds the plant's key, e.g. "Blueberry"
+    # name holds the plant's key, e.g. "Hazel"
     card: EnumProperty(name="Card", items=_card_items, update=_on_look,
                        description="Which card the plant's clumps, fronds or tufts use")
     size: FloatProperty(name="Card size", default=1.0, min=0.2, max=3.0, update=_on_shape,
@@ -83,7 +83,8 @@ class PlantSettings(bpy.types.PropertyGroup):
     density: FloatProperty(name="Clumps", default=1.0, min=0.2, max=6.0, update=_on_shape,
                            description="How many clumps grow at each spot. Above 1 they gather into patches (grass: more tufts)")
     spread: FloatProperty(name="Patch spread", default=1.0, min=0.0, max=2.0, update=_on_shape,
-                          description="How far a patch's clumps, or a grass's tufts, spread out")
+                          description="How far a patch's clumps, or a grass's tufts, spread out (long grass: how far "
+                                      "apart its patches stand, on the forest floor and in the game, 0.5 m times this)")
     upright: FloatProperty(name="Clump height", default=1.0, min=0.3, max=2.0, update=_on_shape,
                            description="Height of the upright cards. Lower makes flatter, pad-like clumps")
     flat: BoolProperty(name="Flat card on top", default=True, update=_on_shape,
@@ -118,8 +119,8 @@ class PlantSettings(bpy.types.PropertyGroup):
 
 class PlantEditor(bpy.types.PropertyGroup):
     group: EnumProperty(name="Group", update=_on_group, items=[
-        ("BUSHES", "Bushes", "Dwarf shrubs, bushes and the fern"),
-        ("GRASSES", "Grasses", "Grasses, sedge and cottongrass")])
+        ("BUSHES", "Bushes", "Bushes and the fern"),
+        ("GRASSES", "Grasses", "Long grass, the grasses, sedge and cottongrass")])
     plant: EnumProperty(name="Plant", items=_plant_items)
     plants: CollectionProperty(type=PlantSettings)
     live: BoolProperty(name="Update live", default=True,
@@ -254,6 +255,21 @@ class VIEW3D_PT_plant_editor(bpy.types.Panel):
             col = box.column(align=True)
             col.prop(s, "extra", text="Tufts in flower", slider=True)
             col.prop(s, "flower_height", slider=True)
+        elif kind == "patch":
+            box.label(text="Patch", icon="OUTLINER_OB_POINTCLOUD")
+            col = box.column(align=True)
+            col.prop(s, "size", text="Blade height", slider=True)
+            col.prop(s, "width", text="Card width", slider=True)
+            col.prop(s, "planes", text="Cards per patch", slider=True)
+            col.prop(s, "lean", slider=True)
+            col.prop(s, "bend", slider=True)
+            col.prop(s, "tilt", slider=True)
+            col.prop(s, "spread", text="Patch spacing", slider=True)
+            box = lay.box()
+            box.label(text="Seed heads", icon="OUTLINER_OB_FORCE_FIELD")
+            col = box.column(align=True)
+            col.prop(s, "extra", text="Patches with seed heads", slider=True)
+            col.prop(s, "flower_height", text="Seed head height", slider=True)
         elif kind == "fern":
             box.label(text="Fronds", icon="OUTLINER_OB_POINTCLOUD")
             col = box.column(align=True)
@@ -283,11 +299,10 @@ class VIEW3D_PT_plant_editor(bpy.types.Panel):
         box = lay.box()
         box.label(text="Plant", icon="OUTLINER_OB_FORCE_FIELD")
         col = box.column(align=True)
-        if kind in ("dwarf", "bush"):
+        if kind == "bush":
             col.prop(s, "height", slider=True)
             col.prop(s, "width", slider=True)
-            if kind == "bush":
-                col.prop(s, "stems", text="Canes" if key == "Raspberry" else "Stems", slider=True)
+            col.prop(s, "stems", text="Canes" if key == "Raspberry" else "Stems", slider=True)
             if extra:
                 col.prop(s, "extra", text=EXTRA_WORDS.get(extra, "Extra clumps"), slider=True)
         col.prop(s, "seed")

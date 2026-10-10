@@ -1,18 +1,16 @@
 # Plant portfolio
 
 Low-poly bushes and grasses of the Swedish forest, made the way the tree portfolio's trees are (`../trees`): their
-leaves, sprigs, fronds and blades are painted cards with alpha, crossed in clumps and tufts, on faceted low-poly stems.
-Two variants of each:
+leaves, fronds, strands and blades are painted cards with alpha, crossed in clumps, patches and tufts, on faceted
+low-poly stems. Two variants of each:
 
 | Plant | Swedish | Latin | Kind |
 |---|---|---|---|
-| Blueberry | Blåbär | Vaccinium myrtillus | dwarf shrub: a low mound of bright green sprigs, dark blue berries |
-| Lingonberry | Lingon | Vaccinium vitis-idaea | dwarf shrub: a dense mat of dark, glossy leaves, red berries in clusters |
-| Heather | Ljung | Calluna vulgaris | dwarf shrub: wiry sprigs; in flower, small pink-mauve bells, fine rather than in blocks |
-| Raspberry | Hallon | Rubus idaeus | bush: arching canes, toothed leaves with pale undersides, red berries |
+| Raspberry | Hallon | Rubus idaeus | bush: a thicket of arching canes, toothed leaves with pale undersides, red berries |
 | Alder buckthorn | Brakved | Frangula alnus | bush: slender dark stems, glossy oval leaves, berries green, red and black at once |
-| Hazel | Hassel | Corylus avellana | bush: many stems fanning out like a vase, broad round leaves, nuts in husks |
+| Hazel | Hassel | Corylus avellana | bush: many stems from one wide foot, a full mass of broad round leaves, nuts in husks |
 | Wood fern | Skogsbräken | Dryopteris carthusiana | fern: a ring of fronds rising and arching over |
+| Long grass | Långt gräs | Poa, Festuca, Agrostis | a patch of thick, semi-long grass: cards of thin strands; B with seed heads. The game's grass |
 | Wavy hair-grass | Kruståtel | Avenella flexuosa | grass: the pine forest's, hair-thin curling blades, airy purple-silver flowers |
 | Common bent | Rödven | Agrostis capillaris | grass: the meadows', narrow blades, airy reddish flowers |
 | Wood small-reed | Piprör | Calamagrostis arundinacea | grass: tall at the forest's edge, broad arching blades |
@@ -20,19 +18,25 @@ Two variants of each:
 | Common sedge | Hundstarr | Carex nigra | sedge: stiff blue-green blades by water, dark brown spikes |
 | Hare's-tail cottongrass | Tuvull | Eriophorum vaginatum | the bog's tussocks, white tufts of cotton |
 
-(The juniper, dropped from the trees, could join them as a bush.)
+What the user made of the first version (10 October): the wood fern can work in occasional places; blueberry,
+lingonberry and heather didn't represent anything they wanted, so they're gone; the buckthorn and the hazel were fine
+but thin at the bottom, so they're now much fuller, widest at the foot, about as big as before; the raspberry was too
+small to count as a bush, so it's now a thicket nearly 3 m across. And they missed plain strands of grass, thick and
+semi-long, to cover the green ground in the game and fold as the hero walks through: the long grass, which the game
+now has (`game/scripts/grass.gd`, below). (The juniper, dropped from the trees, could join the bushes.)
 
-Open `plant_portfolio.blend` in Blender 5.2 to look at them. It opens on the low plants with Material Preview shading.
+Open `plant_portfolio.blend` in Blender 5.2 to look at them. It opens on the bushes with Material Preview shading.
 The file holds:
 
 - `Bushes` and `Grasses`: one collection per plant with variants A and B, each one object on its own origin.
-- `Portfolio`: three rows, the low plants and the fern, the bushes, the grasses, with name signs and a 1.8 m person at
+- `Portfolio`: three rows, the bushes, the long grass and the fern, the grasses, with name signs and a 1.8 m person at
   the start of each; the ground, the sun and the cameras.
-- `Forest floor`: a patch of forest floor 16 by 12 m with copies of them all where each grows (blueberry under the
-  pines, lingonberry round a boulder, heather in the open, ferns in the spruce's shade, moor-grass, sedge and
-  cottongrass by a wet hollow), under four of the tree portfolio's trees, linked from `../trees/tree_portfolio.blend`.
-  The plants share their mesh with those in `Bushes` and `Grasses`, so editing a plant changes its copies too. Its
-  cameras look at it from the game's high camera and from close by.
+- `Forest floor`: a patch of forest floor 16 by 12 m covered in the long grass, as the game's green ground is (a patch
+  as far apart as its Patch spacing says, a share of them with seed heads), with copies of the rest where each grows
+  (ferns in the spruce's shade, the bushes at the edges, moor-grass, sedge and cottongrass by a wet hollow), under four
+  of the tree portfolio's trees, linked from `../trees/tree_portfolio.blend`. The plants share their mesh with those
+  in `Bushes` and `Grasses`, so editing a plant changes its copies too. Its cameras look at it from the game's high
+  camera and from close by.
 
 ## Plant editor
 
@@ -45,7 +49,7 @@ The editor is a **Plants** tab in the 3D viewport's sidebar, as the tree editor 
 Pick **Bushes** or **Grasses**, a plant, and one of its four cards from the thumbnails, then move the sliders. Both
 variants, and their copies on the forest floor, rebuild as you go.
 
-The bushes (blueberry, lingonberry, heather, raspberry, alder buckthorn, hazel) have the trees' clump sliders:
+The bushes (raspberry, alder buckthorn, hazel) have the trees' clump sliders:
 
 | Setting | What it does |
 |---|---|
@@ -56,7 +60,7 @@ The bushes (blueberry, lingonberry, heather, raspberry, alder buckthorn, hazel) 
 | Clump height | Height of the upright cards; lower makes flatter, pad-like clumps |
 | Angle randomness | How much the cards' angles vary |
 | Flat card on top | One card per clump lies nearly flat, so clumps look full from the high game camera |
-| Height, Width | Scale the plant: a dwarf shrub's mound, a bush's stems and branches |
+| Height, Width | Scale the bush: how high and how far out its dome reaches |
 | Stems (Canes) | The bushes: how many stems grow from the foot |
 | Berry clumps (Flowering clumps, Clumps with nuts) | The share of clumps with the card's berries, flowers or nuts |
 
@@ -69,6 +73,20 @@ The fern:
 | Frond angle | How steeply they rise from the ground |
 | Arch | How far they arch over (each frond is a card bent in three) |
 | Angle randomness | How much the fronds' angles and roll vary |
+
+The long grass, a patch of it:
+
+| Setting | What it does |
+|---|---|
+| Blade height | How tall the strands stand |
+| Card width | How wide each card of strands is |
+| Cards per patch | How many cards cross in the patch |
+| Lean | How far its cards lean out from upright |
+| Bend | How far they bend over halfway up (each card is bent once) |
+| Angle randomness | How much the cards' angles vary |
+| Patch spacing | How far apart the patches stand, on the forest floor and in the game: 0.5 m times this |
+| Patches with seed heads | The share of the patches that are variant B, with a card of seed heads, on the floor and in the game |
+| Seed head height | How tall the seed heads stand, against the strands |
 
 The grasses:
 
@@ -98,16 +116,23 @@ when they rebuild.
 - **Cards** (`make_plant_cards.py`): four designs per plant, 512 x 512 with alpha, in the tree cards' style: leaves as
   two flat halves, one lighter and one darker, crisp edges, no photographic noise; strokes are kept at least a few
   pixels wide, so thin needles and blades don't break up when the card is cut out. A bush's card is a sprig or a
-  cluster round the card's centre; a grass's tuft and the fern's frond grow from the middle of the card's foot. Each
+  cluster round the card's centre; a grass's tuft and the fern's frond grow from the middle of the card's foot; the
+  long grass's thin strands stand in a row all along it, each darker at its foot and lighter toward its tip, so
+  crossed copies make a patch rather than a star. Its cards are cropped to their strands (the empty top, and the
+  seed heads' empty sides), as every pixel of a card costs the game, empty or not; `cards.json` keeps how much each
+  kept, and the patch sizes its cards by that. Each
   bush's card has a version with its berries, flowers or nuts drawn on, and a share of its clumps use it (berries in
   patches, sitting on the bushes, as the board asks); a grass's flowers are a card of flowering stalks of their own.
   The transparent pixels carry the card's average colour, so filtered edges don't get dark fringes (unlike the trees'
   cards, see `../trees/README.md`).
-- **Dwarf shrubs:** a low mound of crossed clumps over a patch of ground, their feet at the ground toward its edge, a
-  few thin stems under them. The cards' normals point out from the mound's foot, so it shades as one rounded mound.
-- **Bushes:** stems from the ground, branching, with crossed clumps along and at the ends of the branches, as a small
-  tree's crown: the raspberry's canes arch over, the buckthorn holds its branches out level, the hazel's stems fan
-  out like a vase.
+- **Bushes:** stems from a wide foot, leaning out, branching all the way down, with crossed clumps along and at the
+  ends of the branches, filling a dome widest at its foot: the lowest branches are the longest, nearly level and
+  drooping to the ground, the higher ones shorter and rising, each as long as reaches the dome's outline at its tip's
+  height. The raspberry's canes arch up and over, and short new shoots round its edge fill it down to the ground. The
+  cards' normals point out from the bush's foot, so it shades as one rounded mass.
+- **The long grass:** a patch of three cards of strands crossing near its middle (their feet a little apart, so it's
+  no star from above), each leaning a little and bent once halfway up; variant B has two cards of seed heads across
+  each other among them. Its normals point mostly up.
 - **The fern:** a ring of fronds from the middle, each a card bent in three, rising and arching over, its face up.
 - **Grasses:** tufts of crossed cards standing on the ground, each bent once halfway up, so it arches, leaning a little
   to one side; a share of the tufts carry two crossed cards of flowering stalks, taller and nearly straight. Their
@@ -120,10 +145,10 @@ when they rebuild.
 
 | File | What it is |
 |---|---|
-| `plantgen.py` | The generator: the thirteen plants, their kinds, the default settings and the materials |
+| `plantgen.py` | The generator: the eleven plants, their kinds, the default settings and the materials |
 | `plant_editor.py` | The editor panel; the .blend loads it through its `plant_editor_loader.py` text |
 | `make_plants.py` | Builds `plant_portfolio.blend` from the settings and renders `previews/` |
-| `make_plant_cards.py` | Draws the cards: `textures/<plant>_<n>.png`, their `_berries`, `_flowers` and `_nuts` versions, `textures/cards.json` (the designs' names) and `previews/cards.png` |
+| `make_plant_cards.py` | Draws the cards: `textures/<plant>_<n>.png`, their `_berries`, `_flowers` and `_nuts` versions, `textures/cards.json` (the designs' names, and the long grass's crops) and `previews/cards.png` |
 | `make_sheet.py` | Lays out the portraits in `previews/tiles/` as `previews/portfolio.png` |
 | `plant_settings.json` | The editor's saved settings (written by **Save settings**) |
 
@@ -135,21 +160,22 @@ blender -b --factory-startup -P make_plants.py      # plant_portfolio.blend and 
 blender -b --factory-startup -P make_plants.py -- --no-render
 ```
 
-The plants use fixed seeds, so rebuilding gives the same plants. `previews/` holds the latest renders: `portfolio.png`
-(both variants of each, captioned), `row_plants.png`, `row_bushes.png` and `row_grasses.png`, `floor_game_view.png`
-and `floor_close.png`, and `cards.png`.
+The plants use fixed seeds, so rebuilding gives the same plants (those left from the first version still grow as
+they did). `previews/` holds the latest renders: `portfolio.png` (both variants of each, captioned), `row_bushes.png`,
+`row_grass_fern.png` and `row_grasses.png`, `floor_game_view.png` and `floor_close.png`, and `cards.png`.
+
+The game builds its long grass from these settings too: after changing them, save, and rebuild the game's plants
+(`blender -b --factory-startup -P build_demo.py -- plants` in `game/tools`).
 
 ## Sizes (variant A, with the saved settings)
 
 | Plant | Height | Across | Cards | Faces |
 |---|---|---|---|---|
-| Blueberry | 59 cm | 1.3 m | 96 | 152 |
-| Lingonberry | 41 cm | 1.0 m | 75 | 96 |
-| Heather | 69 cm | 1.3 m | 69 | 132 |
-| Raspberry | 1.4 m | 1.9 m | 105 | 280 |
-| Alder buckthorn | 2.8 m | 2.6 m | 114 | 459 |
-| Hazel | 3.5 m | 4.0 m | 198 | 823 |
+| Raspberry | 1.7 m | 3.0 m | 312 | 848 |
+| Alder buckthorn | 2.8 m | 2.9 m | 309 | 1020 |
+| Hazel | 3.6 m | 4.4 m | 591 | 1764 |
 | Wood fern | 53 cm | 1.4 m | 27 | 27 |
+| Long grass, a patch | 37 cm | 0.8 m | 6 | 6 |
 | Wavy hair-grass | 51 cm | 0.7 m | 42 | 42 |
 | Common bent | 52 cm | 0.7 m | 34 | 34 |
 | Wood small-reed | 96 cm | 1.0 m | 28 | 28 |
@@ -157,6 +183,8 @@ and `floor_close.png`, and `cards.png`.
 | Common sedge | 41 cm | 0.7 m | 32 | 32 |
 | Hare's-tail cottongrass | 46 cm | 0.5 m | 40 | 40 |
 
-Heights are to the top of the cards, flowers included. The low plants and grasses are about their real size, a
-little more; the bushes, like the trees, a little smaller than life, for the high game camera. They are not in the
-play demo yet: its bushes, berries, heather, ferns and grasses are still the mockups' faceted shapes.
+Heights are to the top of the cards, flowers included (the long grass's patch without its seed heads). The grasses
+are about their real size, a little more; the bushes, like the trees, a little smaller than life, for the high game
+camera (the hazel and the buckthorn about as big as in the first version, but full down to the ground). Only the long
+grass is in the play demo so far, covering its green ground: its bushes, berries, heather and ferns are still the
+mockups' faceted shapes.

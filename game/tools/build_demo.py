@@ -7,12 +7,14 @@ models  the mockups' low-poly kit (the old trees, rocks, plants and props) and t
         with the leaf cards they use and ambient occlusion baked into them (kit: the kit alone, not the trees)
 stumps  every tree's stump, which the game shows in place of a tree in the way, and its bare trunk, which its x-ray
         leaves standing, in assets/trees/stumps.glb
+plants  the plant portfolio's long grass, from assets/plants/plant_settings.json: a patch of it, without and with seed
+        heads, which the game sets all over the green ground (scripts/grass.gd), in assets/plants/plants.glb
 layout  where every tree, rock and plant stands, and an area's other things (walls), in data/areas/<area>.json; and
         its own models (water, stairs, bridges), if it has any, in assets/areas/<area>/extras.glb
 ground  the terrain's heights, the mockups' ground shader baked into textures, and the trees' shade on the ground
         (from the layout), in assets/areas/<area>
 
-With no stage named, all four run, in that order; layout and ground for every area in tools/areas (AREAS), or only
+With no stage named, all five run, in that order; layout and ground for every area in tools/areas (AREAS), or only
 for those named with --area. Each area is described by its module there.
 """
 import importlib
@@ -31,11 +33,13 @@ GAME = os.path.dirname(HERE)
 ROOT = os.path.dirname(GAME)
 MOCKUPS = os.path.join(ROOT, "mockups")
 TREES = os.path.join(ROOT, "assets", "trees")
-sys.path[:0] = [HERE, MOCKUPS, TREES]
+PLANTS = os.path.join(ROOT, "assets", "plants")
+sys.path[:0] = [HERE, MOCKUPS, TREES, PLANTS]
 import areas  # noqa: E402  (tools/areas: the demo's areas, one module each)
 
 KIT_DIR = os.path.join(GAME, "assets", "kit")
 TREE_DIR = os.path.join(GAME, "assets", "trees")
+PLANT_DIR = os.path.join(GAME, "assets", "plants")
 DATA_DIR = os.path.join(GAME, "data")
 # the area the layout and ground stages build (use_area): its module, name, and where its files go
 D = None
@@ -815,6 +819,45 @@ def build_trees():
         json.dump(info, fh, indent=1, sort_keys=True)
 
 
+def build_plants():
+    """The plant portfolio's long grass (assets/plants), as tuned in its plant_settings.json: a patch of it without
+    and with seed heads (variants A and B), which the game's grass (scripts/grass.gd) sets all over the green ground,
+    in assets/plants/plants.glb, with its cards (the editor's tint baked in) and plants.json: each patch's file and
+    cards, the cards' average colour where they're opaque (the game tints them to the ground under them), how far
+    apart the patches stand and what share of them has seed heads."""
+    import plantgen
+    cfg = plantgen.load_settings()["LongGrass"]
+    tex_dir = os.path.join(PLANT_DIR, "textures")
+    os.makedirs(tex_dir, exist_ok=True)
+    card = plantgen.BY_KEY["LongGrass"][6]
+    textures = {"leaves": f"{card}_{int(cfg['card'])}", "flowers": f"{card}_{int(cfg['card'])}_flowers"}
+    means = {}
+    for slot, name in textures.items():
+        copy_card(name, cfg, tex_dir, os.path.join(PLANTS, "textures"))
+        mipmapped(os.path.join(tex_dir, name + ".png"))
+        img = bpy.data.images.load(os.path.join(tex_dir, name + ".png"))
+        px = np.array(img.pixels[:], np.float32).reshape(-1, 4)  # Blender: linear
+        opaque = px[px[:, 3] >= 0.5, :3]
+        means[slot] = [round(float(v), 4) for v in opaque.mean(0)]
+        bpy.data.images.remove(img)
+    objs, info = [], {}
+    for variant in "AB":
+        name = f"LongGrass_{variant}"
+        me = bpy.data.meshes.new(name)
+        cards, faces = plantgen.build_into("LongGrass", variant, cfg, me)
+        ob = bpy.data.objects.new(name, me)
+        bpy.context.scene.collection.objects.link(ob)
+        objs.append(ob)
+        info[name] = dict(mesh_info(me, bark_slot=None), file="res://assets/plants/plants.glb", cards=cards,
+                          textures={slot: f"res://assets/plants/textures/{t}.png" for slot, t in textures.items()},
+                          card_mean=means, spacing=round(0.5 * max(0.3, cfg["spread"]), 3),
+                          seed_heads=round(float(cfg["extra"]), 3))
+        print(name, "cards", cards, "faces", faces)
+    export_glb(objs, os.path.join(PLANT_DIR, "plants.glb"))
+    with open(os.path.join(PLANT_DIR, "plants.json"), "w") as fh:
+        json.dump(info, fh, indent=1, sort_keys=True)
+
+
 def mipmapped(path):
     """Have Godot import a texture as 3D textures want, with mipmaps and compressed for the graphics card, so it doesn't
     shimmer far off: its own guess at that only comes in the editor. Godot fills in the rest of the file."""
@@ -823,9 +866,9 @@ def mipmapped(path):
             fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]\n\ncompress/mode=2\nmipmaps/generate=true\n')
 
 
-def copy_card(name, cfg, tex_dir):
+def copy_card(name, cfg, tex_dir, src_dir=os.path.join(TREES, "textures")):
     """Copy a leaf card for the game, with the editor's tint baked in (Blender's hue/saturation/value node)."""
-    src = os.path.join(TREES, "textures", name + ".png")
+    src = os.path.join(src_dir, name + ".png")
     dst = os.path.join(tex_dir, name + ".png")
     if (cfg["hue"], cfg["saturation"], cfg["brightness"]) == (0.5, 1.0, 1.0):
         shutil.copyfile(src, dst)
@@ -1801,10 +1844,11 @@ if __name__ == "__main__":
     for a in argv:
         if a.startswith("--area="):
             names = a[7:].split(",")
-    stages = [a for a in argv if not a.startswith("--")] or ["models", "stumps", "layout", "ground"]
+    stages = [a for a in argv if not a.startswith("--")] or ["models", "stumps", "plants", "layout", "ground"]
     for stage in stages:
-        if stage in ("models", "kit", "stumps"):  # the same for every area
-            {"models": build_models, "kit": lambda: build_models(trees=False), "stumps": build_stumps}[stage]()
+        if stage in ("models", "kit", "stumps", "plants"):  # the same for every area
+            {"models": build_models, "kit": lambda: build_models(trees=False), "stumps": build_stumps,
+             "plants": build_plants}[stage]()
             continue
         for name in names:
             use_area(name)

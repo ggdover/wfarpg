@@ -22,7 +22,12 @@ General knowledge, public documentation, and third-party libraries and engines a
 - Ground is a smooth, flat surface with painted textures (moss, grass patches, gravel on dirt paths, scattered small
   fallen leaves). Grass runs right up to the trees: no brown patches under them.
   Props such as trees, bushes and rocks are faceted low-poly shapes. Bushes and grasses, like the trees' leaves, are
-  crossed cards with alpha on faceted stems (the user asked for them so, 10 October): the plant portfolio.
+  crossed cards with alpha on faceted stems (the user asked for them so, 10 October): the plant portfolio. The green
+  ground, wherever it's outside the paths, is covered in thick, semi-long grass, crossed cards of thin strands, which
+  folds as the hero walks through it (the user, 10 October; `game/scripts/grass.gd`). Bushes are full and widest at
+  the foot, not thin there (the user, of the buckthorn and hazel); the raspberry must be big enough to count as a bush.
+  The wood fern can go in occasional places; blueberry, lingonberry and heather as made didn't represent anything the
+  user wanted, so they were dropped.
 - Paths are worn into the grass by feet, so they never end in a hard line: the grass thins out and turns trampled toward
   them, and the wear spreads out in patches, so it isn't clear exactly where a path runs. The mockups' dirt is a light
   tan (between wheat and desert sand), with gravel and pebbles in the same tones, so they read as texture rather than
@@ -94,12 +99,13 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   Python scripts, saved in `tree_portfolio.blend`, with a tree editor (a Trees tab in Blender's sidebar) for tuning
   leaf cards and clumps. The user's tuned settings are in `assets/trees/tree_settings.json`; build from them, not
   from the defaults in `treegen.py`. See its README. `assets/plants/` is the plant portfolio, made the same way:
-  thirteen bushes and grasses of the Swedish forest (blueberry, lingonberry, heather, raspberry, alder buckthorn,
-  hazel, wood fern; wavy hair-grass, common bent, wood small-reed, purple moor-grass, sedge, cottongrass) in
-  `plant_portfolio.blend`, with a plant editor (a Plants tab) and the user's settings in `plant_settings.json`. Not in
-  the game yet.
-- `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, a grey-box
-  hero, the camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
+  eleven bushes and grasses of the Swedish forest (raspberry, alder buckthorn, hazel, wood fern; the long grass;
+  wavy hair-grass, common bent, wood small-reed, purple moor-grass, sedge, cottongrass) in `plant_portfolio.blend`,
+  with a plant editor (a Plants tab) and the user's settings in `plant_settings.json`. Only the long grass is in the
+  game so far (built from those settings by `game/tools/build_demo.py`'s plants stage).
+- `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, the long
+  grass over the green ground (F2's Grass: As before shows the mockups' tufts instead), a grey-box hero, the camera
+  and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
   button switches): a small part of Storskogen (dense forest, a trail, a meadow with a rise), an open forest spaced as
   most of the game should be, a thick forest with one path cleared, a very big open field, an autumn hollow (a grove sunk in the ground, trees 1-4 m apart turning
   yellow, orange and red, the ground full of leaves), a river under 3-4 m cliffs with paths up and down to it, and, for

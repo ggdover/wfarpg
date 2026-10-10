@@ -1,63 +1,33 @@
 {
- "Blueberry": {
-  "name": "Blueberry",
-  "swedish": "Bl\u00e5b\u00e4r",
-  "latin": "Vaccinium myrtillus",
-  "kind": "dwarf",
-  "height": 0.59,
-  "across": 1.3,
-  "faces": 152,
-  "cards": 96
- },
- "Lingonberry": {
-  "name": "Lingonberry",
-  "swedish": "Lingon",
-  "latin": "Vaccinium vitis-idaea",
-  "kind": "dwarf",
-  "height": 0.41,
-  "across": 1.0,
-  "faces": 96,
-  "cards": 75
- },
- "Heather": {
-  "name": "Heather",
-  "swedish": "Ljung",
-  "latin": "Calluna vulgaris",
-  "kind": "dwarf",
-  "height": 0.69,
-  "across": 1.3,
-  "faces": 132,
-  "cards": 69
- },
  "Raspberry": {
   "name": "Raspberry",
   "swedish": "Hallon",
   "latin": "Rubus idaeus",
   "kind": "bush",
-  "height": 1.37,
-  "across": 1.9,
-  "faces": 280,
-  "cards": 105
+  "height": 1.67,
+  "across": 3.0,
+  "faces": 848,
+  "cards": 312
  },
  "AlderBuckthorn": {
   "name": "Alder buckthorn",
   "swedish": "Brakved",
   "latin": "Frangula alnus",
   "kind": "bush",
-  "height": 2.76,
-  "across": 2.6,
-  "faces": 459,
-  "cards": 114
+  "height": 2.8,
+  "across": 2.9,
+  "faces": 1020,
+  "cards": 309
  },
  "Hazel": {
   "name": "Hazel",
   "swedish": "Hassel",
   "latin": "Corylus avellana",
   "kind": "bush",
-  "height": 3.55,
-  "across": 4.0,
-  "faces": 823,
-  "cards": 198
+  "height": 3.63,
+  "across": 4.4,
+  "faces": 1764,
+  "cards": 591
  },
  "WoodFern": {
   "name": "Wood fern",
@@ -68,6 +38,16 @@
   "across": 1.4,
   "faces": 27,
   "cards": 27
+ },
+ "LongGrass": {
+  "name": "Long grass",
+  "swedish": "L\u00e5ngt gr\u00e4s",
+  "latin": "Poa, Festuca, Agrostis",
+  "kind": "patch",
+  "height": 0.37,
+  "across": 0.8,
+  "faces": 6,
+  "cards": 6
  },
  "WavyHairGrass": {
   "name": "Wavy hair-grass",

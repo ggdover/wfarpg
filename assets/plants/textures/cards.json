@@ -1,23 +1,5 @@
 {
  "names": {
-  "blueberry": [
-   "Leafy sprigs",
-   "Dense",
-   "Autumn red",
-   "Shaded, sparse"
-  ],
-  "lingonberry": [
-   "Shoots",
-   "Dense mat",
-   "New tips",
-   "Winter bronze"
-  ],
-  "heather": [
-   "Sprigs",
-   "Sparse sprigs",
-   "Late, fading",
-   "Dense"
-  ],
   "raspberry": [
    "Leaf cluster",
    "Arching cane",
@@ -41,6 +23,12 @@
    "Broad frond",
    "Young, light",
    "Autumn, rusty"
+  ],
+  "longgrass": [
+   "Thick, semi-long",
+   "Long, arching",
+   "With dry blades",
+   "Lush, broad"
   ],
   "hairgrass": [
    "Fine tuft",
@@ -80,18 +68,50 @@
   ]
  },
  "extras": {
-  "blueberry": "berries",
-  "lingonberry": "berries",
-  "heather": "flowers",
   "raspberry": "berries",
   "buckthorn": "berries",
   "hazel": "nuts",
   "fern": null,
+  "longgrass": "flowers",
   "hairgrass": "flowers",
   "bent": "flowers",
   "smallreed": "flowers",
   "moorgrass": "flowers",
   "sedge": "flowers",
   "cottongrass": "flowers"
+ },
+ "fits": {
+  "longgrass_1": [
+   1.0,
+   0.9043
+  ],
+  "longgrass_1_flowers": [
+   0.7578,
+   0.9434
+  ],
+  "longgrass_2": [
+   1.0,
+   0.8477
+  ],
+  "longgrass_2_flowers": [
+   0.3867,
+   0.9922
+  ],
+  "longgrass_3": [
+   1.0,
+   0.8926
+  ],
+  "longgrass_3_flowers": [
+   0.9766,
+   0.9258
+  ],
+  "longgrass_4": [
+   1.0,
+   0.8047
+  ],
+  "longgrass_4_flowers": [
+   0.4141,
+   0.9961
+  ]
  }
 }

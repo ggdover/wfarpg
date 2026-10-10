@@ -11,7 +11,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TILES = os.path.join(HERE, "previews", "tiles")
 FONT = os.path.join(HERE, "..", "..", "mockups", "fonts", "Cinzel.ttf")
 BG, INK, SOFT = (236, 232, 222), (52, 46, 38), (120, 108, 90)
-KINDS = {"dwarf": "dwarf shrub", "bush": "bush", "fern": "fern", "grass": "grass"}
+KINDS = {"bush": "bush", "fern": "fern", "grass": "grass", "patch": "a patch of it"}
 
 
 def font(size):

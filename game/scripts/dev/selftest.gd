@@ -85,6 +85,7 @@ func run(d: Node) -> void:
 	_check("Tab opens the list of scenes, and closes it", opened and not demo._scenes.visible,
 		"open %s, then %s" % [opened, demo._scenes.visible])
 	await _sight_checks()
+	await _grass_checks()
 	# the walls hold: walk west for a long time from near the west edge
 	hero.global_position = Vector3(-74.0, demo.world.height_at(-74.0, 0.0) + 0.2, 0.0)
 	hero.reset_physics_interpolation()
@@ -105,6 +106,41 @@ func run(d: Node) -> void:
 ## Is a portfolio tree's thinned version (Models.thinned) the same tree with fewer leaf cards? Every surface's vertices
 ## as its full version's, its triangles some of the full version's: THIN_KEEP of the leaf cards', and all the rest.
 ## Returns what's wrong, or "" if nothing is.
+## The long grass: it follows the hero's trail, keeps off rocks and logs, and F2's switch swaps it for the mockups'
+## tufts and back.
+func _grass_checks() -> void:
+	var w: DemoWorld = demo.world
+	var g := w.grass
+	var hero: Hero = demo.hero
+	var from := hero.global_position
+	Input.action_press("move_forward")
+	await _seconds(1.0)
+	Input.action_release("move_forward")
+	await _frames(2)
+	var now := hero.get_global_transform_interpolated().origin
+	var head := Vector2(g._trail[0].x, g._trail[0].y)
+	var walked := g._trail.size() >= 4 and g._trail.all(func(p: Vector3) -> bool: return p.z < g.recover + 0.5)
+	_check("the grass folds along the hero's trail: the trail starts at the hero and has the way it walked, newest first",
+		head.distance_to(Vector2(now.x, now.z)) < 0.05 and walked and g._trail[1].z <= g._trail[-1].z,
+		"%d points, the first %.2f m from the hero, %.1f m walked" % [g._trail.size(), head.distance_to(Vector2(now.x, now.z)), from.distance_to(now)])
+	var block: Image = (g._materials[0].get_shader_parameter("block_tex") as Texture2D).get_image()
+	var b: Array = w.ground["bounds"]
+	var under := 0
+	var inside := 0
+	for s: Array in w.layout["solids"]:
+		var t := Vector2i(floori((s[0] - b[0]) / GrassField.BLOCK_TEXEL), floori((s[2] - b[1]) / GrassField.BLOCK_TEXEL))
+		if t.x >= 0 and t.y >= 0 and t.x < block.get_width() and t.y < block.get_height():
+			inside += 1
+			under += 1 if block.get_pixel(t.x, t.y).r > 0.5 else 0
+	_check("no grass grows under the rocks and logs: the grass's mask covers them", under == inside and inside > 0, "%d of %d" % [under, inside])
+	demo._panel.choose("grass", false)
+	var before := not g._chunks[0].visible and w._old_grass.all(func(m: MultiMeshInstance3D) -> bool: return m.visible)
+	demo._panel.choose("grass", true)
+	var after := g._chunks[0].visible and w._old_grass.all(func(m: MultiMeshInstance3D) -> bool: return not m.visible)
+	_check("F2's Grass: As before shows the mockups' grass tufts instead, Long grass the long grass again", before and after,
+		"as before %s, long grass %s" % [before, after])
+
+
 static func _thinned_in_place(model: String) -> String:
 	var full := Models.mesh(model) as ArrayMesh
 	var thin := Models.thinned(model) as ArrayMesh

@@ -1,0 +1,72 @@
+{
+ "LongGrass_A": {
+  "card_mean": {
+   "flowers": [
+    0.5717,
+    0.4953,
+    0.3467
+   ],
+   "leaves": [
+    0.3985,
+    0.5313,
+    0.2468
+   ]
+  },
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.386,
+  "height": 0.353,
+  "max": [
+   0.369,
+   0.353,
+   0.31
+  ],
+  "min": [
+   -0.402,
+   -0.02,
+   -0.38
+  ],
+  "seed_heads": 0.15,
+  "spacing": 0.5,
+  "textures": {
+   "flowers": "res://assets/plants/textures/longgrass_1_flowers.png",
+   "leaves": "res://assets/plants/textures/longgrass_1.png"
+  }
+ },
+ "LongGrass_B": {
+  "card_mean": {
+   "flowers": [
+    0.5717,
+    0.4953,
+    0.3467
+   ],
+   "leaves": [
+    0.3985,
+    0.5313,
+    0.2468
+   ]
+  },
+  "cards": 10,
+  "faces": 10,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.405,
+  "height": 0.531,
+  "max": [
+   0.398,
+   0.531,
+   0.271
+  ],
+  "min": [
+   -0.384,
+   -0.02,
+   -0.451
+  ],
+  "seed_heads": 0.15,
+  "spacing": 0.5,
+  "textures": {
+   "flowers": "res://assets/plants/textures/longgrass_1_flowers.png",
+   "leaves": "res://assets/plants/textures/longgrass_1.png"
+  }
+ }
+}

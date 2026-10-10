@@ -4211,6 +4211,122 @@
     "The grasses' flowers are cards of their own, standing taller among the tufts, so the tuft cards can be filled by the blades"
    ],
    "cover": "../assets/plants/previews/v1/portfolio.jpg"
+  },
+  {
+   "id": "long-grass",
+   "date": "2026-10-10",
+   "asked_at": "20:18",
+   "posted_at": "21:35",
+   "title": "Long grass, and fuller bushes",
+   "section": "Plants: long grass in the game, fuller bushes",
+   "asked": "I like the \"wood fern\", I think this can work to have in occasional places. I don't think blueberry, lingonberry or heather really represent anything I want. I miss some asset that is just strands of grass. I want a card that is like thin strands of grass and then intersect multiple of these as \"crossed planes\" to create grass patches that can be added multiple times. Basically what I want is this grass looking like thick, semi-long grass that you walk through when you walk in any area outside the paths (anywhere where you have the green ground), and when you walk through them with your character they interact with it, so grass you touch with your player will fold. Also for the bushes I think \"alder buckthorn\" and hazel is fine. They are a bit thin at the bottom, but the overall size is fine, so basically I just want those bushes to be a lot thicker, so it's widest at the bottom. The \"raspberry bushes\" are too small to count as bushes",
+   "changed": [
+    "Long grass in the plant portfolio: a card of thin strands standing in a row along its foot, four designs and their seed heads; patches of three of them crossing, bent once, in the plant editor with sliders for its blades, cards, spacing and seed heads",
+    "The long grass in the play demo, wherever the ground is green outside the paths: thinning out toward the paths as the ground wears, off rocks, logs, water, boardwalks and steep ground, in the ground's colour where it stands",
+    "It folds as the hero walks through: away from its trail, a little lighter, a trodden lane that closes up within 1.6 s",
+    "F2: Grass (Long grass, or As before: the mockups' tufts), how thick, how tall, and how far it's drawn; about 1 ms a frame, up to 2 in the open field",
+    "The alder buckthorn and hazel full down to the ground, widest at the foot, about as big as before; the raspberry a thicket nearly 3 m across",
+    "Blueberry, lingonberry and heather taken out of the portfolio; the forest floor covered in the long grass"
+   ],
+   "items": [
+    {
+     "id": "s-longgrass",
+     "type": "frame",
+     "status": "new",
+     "title": "Plants: long grass in the game, fuller bushes",
+     "author": "claude"
+    },
+    {
+     "id": "lg-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Long grass, and fuller bushes\nYour verdict on the plants:\n- **Keep:** the wood fern, for occasional places\n- **Gone:** blueberry, lingonberry and heather, which didn't represent anything you wanted\n- **Fuller:** the buckthorn and hazel were fine but thin at the bottom\n- **Bigger:** the raspberry was too small to count as a bush\n\nYou also missed plain strands of grass, thick and semi-long, all over the green ground, folding as you walk through.\n\n**The long grass** is in the game now, wherever the ground is green, outside the paths:\n- Patches of three crossed cards of thin strands, about 0.4 m tall and half a metre apart, a few with seed heads\n- It thins out and grows shorter toward the paths, the same way the ground is worn, and stays off rocks, logs, water, boardwalks and steep ground\n- It takes the ground's colour where it stands, darker at the foot and lighter at the tips\n- **Folding:** grass the hero walks through lies over, away from it, a little lighter. That leaves a trodden lane, which closes up again within 1.6 s\n\n**F2:** Grass (Long grass, or As before: the mockups' tufts), how thick, how tall, and how far it's drawn.\n\n**Cost:** about 1 ms a frame in most views, up to 2 in the open field, where the whole screen is grass.\n\n**The bushes:** the buckthorn and hazel are full right down to the ground, widest at the foot, about as big as before. The raspberry is a thicket nearly 3 m across.\n\n**In the editor:** the long grass is under Grasses, with sliders for its blades, cards, spacing and seed heads. The game builds its grass from your saved settings.",
+     "author": "claude"
+    },
+    {
+     "id": "lg-before",
+     "type": "image",
+     "status": "new",
+     "caption": "The open forest and the start, from the game's camera: as before (left), and with the long grass (right).",
+     "assetId": "ce4f46a8e377f04548f0bee0fc55d373",
+     "file": "renders/play_demo_grass/before_and_now.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "lg-walk",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking through it: the grass folds away from the hero, leaving a lighter, trodden lane that closes up behind.",
+     "assetId": "f7d4cd8f6325e344dfc6b9456a74ec79",
+     "file": "renders/play_demo_grass/walking.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "lg-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Close up, with the camera low, in the open forest.",
+     "assetId": "8ddc6c00953f069411d3e8cd63e5fb4c",
+     "file": "renders/play_demo_grass/close_up.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "lg-sheet",
+     "type": "image",
+     "status": "new",
+     "caption": "The portfolio now: the bushes, the wood fern, the long grass (a small lawn of its patches) and the grasses.",
+     "assetId": "cd48c53ec1033e80c8ec5d091afffc9e",
+     "file": "../assets/plants/previews/v2/portfolio.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "lg-bushes",
+     "type": "image",
+     "status": "new",
+     "caption": "The bushes, before and now: the raspberry a thicket, the buckthorn and hazel full right down to the ground.",
+     "assetId": "8e528c61012086dcb5bcd26b517a8d05",
+     "file": "../assets/plants/previews/v2/bushes_before_and_now.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "lg-cards",
+     "type": "image",
+     "status": "new",
+     "caption": "The cards. The long grass's, the fifth row: thin strands in a row along the card, and seed heads.",
+     "assetId": "c530b2beb21da77497c487b9ae096713",
+     "file": "../assets/plants/previews/v2/cards.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "lg-floor",
+     "type": "image",
+     "status": "new",
+     "caption": "The portfolio's forest floor, covered in the long grass as the game's green ground is.",
+     "assetId": "e1c9505d782ff58aa0ae6a38e87b2536",
+     "file": "../assets/plants/previews/v2/floor_close.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/43_grass_white.jpg",
+     "caption": "The long grass's first look in the game: white, its card's average colour lost on the way to the shader, and stars of crossed cards from above"
+    },
+    {
+     "file": "renders/wip/44_grass_fold_test.jpg",
+     "caption": "Checking the folding, in false colours: blue within reach of the hero's trail, pink folding. It worked, but folded grass looked like any other grass from the camera, so it's a little lighter now, as a trodden lane is"
+    },
+    {
+     "file": "renders/wip/45_bushes_boxy.jpg",
+     "caption": "The bushes' first fuller version: the hazel came out as a box, its high branches reaching past its dome. Each branch now reaches the dome's outline at its own tip's height"
+    }
+   ],
+   "found": [
+    "The grass costs the graphics card its pixels, not its corners: drawn but thrown away, all its work on the corners took 0.2 ms, and the cards' pixels the rest, once in the depth pass and again lit, as the cut-out stops the card from skipping hidden layers early",
+    "So a patch that isn't drawn, or isn't on the screen, is dropped before it reads anything much, and the cards are cropped to what's on them",
+    "The seed heads' cards were about 90% empty; cropped to their stalks, the narrowest are 40% as wide as before, and the grass's own cards lost their empty tops"
+   ],
+   "cover": "renders/play_demo_grass/before_and_now.jpg"
   }
  ]
 }

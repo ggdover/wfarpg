@@ -6,7 +6,8 @@ tree cards' style (../trees/make_leaf_cards.py): leaves as two flat halves, one 
 
 The bushes' cards are a sprig or a cluster of leaves round the card's centre: plantgen.py crosses several copies at a
 clump's centre, as the trees do. The grasses' and the fern's grow from the middle of the card's foot, (0.5, 0.02),
-as a tuft or a frond stands on the ground. A bush's extra version is the same card with its berries, flowers or nuts
+as a tuft or a frond stands on the ground; the long grass's thin strands stand in a row all along it, a strip of
+grass, so crossed copies make a patch. A bush's extra version is the same card with its berries, flowers or nuts
 drawn on, and the bush mixes the two (the editor's share of them); a grass's is a card of flowering stalks alone, which
 stands taller among its tufts. The transparent pixels
 carry the card's average colour, so filtered edges don't get dark fringes.
@@ -30,8 +31,6 @@ FOOT = (0.5, 0.02)  # where a tuft or frond grows from on its card
 
 
 # ------------------------------------------------------------------ shapes
-OVAL = lambda t: math.sin(math.pi * min(t, 0.97)) ** 0.55               # blueberry, lingonberry
-OBOVATE = lambda t: t ** 0.55 * (1 - min(t, 0.99)) ** 0.45               # lingonberry: broadest beyond the middle
 OVATE = lambda t: min(t / 0.3, 1.0) ** 0.7 * (1 - t) ** 0.75             # raspberry leaflets: broad base, pointed
 BLADE = lambda t: min(1.0, 0.55 + t / 0.12 * 0.45) * (1 - t) ** 0.85     # a grass blade: narrow foot, long taper
 PINNULE = lambda t: math.sin(math.pi * t) ** 0.7
@@ -113,11 +112,6 @@ def blade(c, base, ang, length, width, curve, col, droop=0.0):
     return mid
 
 
-def spikelet(c, p, ang, length, width, col):
-    """A small lens: a grass's spikelet, a heather flower, a scale leaf."""
-    c.leaf(p, ang, length, width, PINNULE, col)
-
-
 def lens(c, p, ang, length, width, col):
     """A lens in one colour, with a lighter half: a seed head or a flower bud."""
     dx, dy = math.cos(ang), math.sin(ang)
@@ -165,133 +159,7 @@ class Plant(Card):
         super().__init__(palette, seed)
         self.spots = []  # (point, heading) where the extras go
         self.xr = random.Random(seed * 31 + 7)
-
-
-# ------------------------------------------------------------------ blueberry
-BLUEBERRY = ["#3F6E22", "#4A7A28", "#558530", "#609038", "#6C9A40"]
-
-
-def blueberry(v, extra=False):
-    """Angular green sprigs with small oval leaves; the berries single, dark blue with a bloom, under the leaves."""
-    pal = {3: ["#B8402A", "#C85A2E", "#A8342A", "#D07A34", "#8A3A2A"], 4: ["#4A7A2A", "#557F2E", "#5E8A34"]}.get(v, BLUEBERRY)
-    c = Plant(pal, 300 + v)
-    r = c.rng
-    sprigs = {1: 7, 2: 11, 3: 8, 4: 5}[v]
-    leaves = []
-    for k in range(sprigs):
-        a = math.radians(-60 + 300 * k / sprigs) + r.uniform(-0.2, 0.2)
-        p = (0.5 + r.uniform(-0.04, 0.04), 0.5 + r.uniform(-0.04, 0.04))
-        pts = [p]
-        h = a
-        for s in range(4):  # the stem zig-zags: angular, as blueberry's green stems are
-            h += (0.35 if s % 2 else -0.35) + r.uniform(-0.1, 0.1)
-            step = r.uniform(0.07, 0.1) * (1.0 if v != 2 else 0.8)
-            pts.append((pts[-1][0] + math.cos(h) * step, pts[-1][1] + math.sin(h) * step))
-        c.twig(pts, 0.006, "#4E7E2A")
-        for j in range(1, len(pts)):
-            for side in (1, -1):
-                if r.random() < (0.85 if v != 4 else 0.6):
-                    hh = heading(pts, j / (len(pts) - 1))
-                    leaves.append((r.random(), pts[j], hh + side * r.uniform(0.5, 1.0)))
-            c.spots.append((pts[j], heading(pts, j / (len(pts) - 1))))
-    for _, p, ang in sorted(leaves):
-        L = r.uniform(0.06, 0.085) * (0.85 if v == 2 else 1.0)
-        veined_leaf(c, p, ang, L, L * 0.33, OVAL, c.colour(), pairs=3, vein_angle=0.8, teeth=0.03, stalk=0.006)
-    if extra:
-        xr = c.xr
-        for p, h in xr.sample(c.spots, min(len(c.spots), 9)):
-            q = (p[0] + xr.uniform(-0.02, 0.02), p[1] - xr.uniform(0.01, 0.03))
-            c.twig([p, q], 0.003, "#5E6E2A")
-            dot(c, q, xr.uniform(0.018, 0.022), xr.choice([rgb("#2A3664"), rgb("#33417A"), rgb("#253058")]), rgb("#8494C0"))
-    return c
-
-
-# ------------------------------------------------------------------ lingonberry
-LINGON = ["#24451F", "#2B5025", "#325B2B", "#3A6631"]
-
-
-def lingonberry(v, extra=False):
-    """Short upright shoots thick with dark, glossy, rounded leaves; the berries bright red, in clusters at the tips."""
-    pal = {3: LINGON + ["#5E8A38", "#6E9A3C"], 4: ["#3A3424", "#4A3A28", "#5A2E26", "#2E3E24"]}.get(v, LINGON)
-    c = Plant(pal, 400 + v)
-    r = c.rng
-    shoots = {1: 9, 2: 14, 3: 9, 4: 9}[v]
-    leaves = []
-    for k in range(shoots):
-        a = math.radians(20 + 140 * k / max(1, shoots - 1)) + r.uniform(-0.15, 0.15)
-        base = (0.5 + r.uniform(-0.18, 0.18), 0.22 + r.uniform(-0.04, 0.06))
-        L = r.uniform(0.3, 0.46) * (0.8 if v == 2 else 1.0)
-        tw = curve_pts(base, a, L, r.uniform(-0.3, 0.3), 8)
-        c.twig(tw, 0.006, "#5A4632")
-        n = r.randint(7, 10)
-        for j in range(n):
-            f = 0.15 + 0.85 * j / n
-            leaves.append((f + r.uniform(-0.1, 0.1), at(tw, f), heading(tw, f) + (1 if j % 2 else -1) * r.uniform(0.4, 0.9), f))
-        c.spots.append((tw[-1], heading(tw, 1.0)))
-    for _, p, ang, f in sorted(leaves):
-        L = r.uniform(0.06, 0.08)
-        col = c.colour(["#5E8A38", "#6E9A3C"]) if (v == 3 and f > 0.75) else c.colour()
-        veined_leaf(c, p, ang, L, L * 0.36, OBOVATE, col, veins=False)
-        hl = (p[0] + math.cos(ang) * L * 0.45, p[1] + math.sin(ang) * L * 0.45)  # the gloss
-        lens(c, (hl[0] - math.cos(ang) * L * 0.15, hl[1] - math.sin(ang) * L * 0.15), ang, L * 0.3, L * 0.06, shade(col, 1.6))
-    if extra:
-        xr = c.xr
-        for p, h in xr.sample(c.spots, min(len(c.spots), 5)):
-            for _ in range(xr.randint(4, 7)):
-                q = (p[0] + xr.uniform(-0.035, 0.035), p[1] + xr.uniform(-0.03, 0.02))
-                c.twig([p, q], 0.0025, "#6A3A2A")
-            for _ in range(xr.randint(4, 7)):
-                q = (p[0] + xr.uniform(-0.035, 0.035), p[1] + xr.uniform(-0.03, 0.02))
-                dot(c, q, xr.uniform(0.016, 0.02), xr.choice([rgb("#B81E1E"), rgb("#CC2A22"), rgb("#D83A2A")]), rgb("#F07A60"))
-    return c
-
-
-# ------------------------------------------------------------------ heather
-HEATHER = ["#4A5A30", "#55663A", "#607044", "#6B7A4C"]
-
-
-def heather(v, extra=False):
-    """Wiry sprigs set thick with tiny scale leaves, in a low, bushy fan; in flower, small pink-mauve bells along their
-    upper part, fine rather than in blocks (the board: no blocky purple flower clumps)."""
-    pal = {3: ["#5A5A34", "#66663C", "#4E5430"], 4: ["#3E4E2A", "#4A5A30", "#55663A"]}.get(v, HEATHER)
-    c = Plant(pal, 500 + v)
-    r = c.rng
-    sprigs = {1: 22, 2: 14, 3: 22, 4: 32}[v]
-    for k in sorted(range(sprigs), key=lambda k: r.random()):
-        a = math.radians(30 + 120 * k / max(1, sprigs - 1)) + r.uniform(-0.12, 0.12)
-        base = (0.5 + r.uniform(-0.12, 0.12), 0.16 + r.uniform(-0.03, 0.05))
-        L = r.uniform(0.34, 0.55) * (0.85 if v == 4 else 1.0)
-        tw = curve_pts(base, a, L, (math.pi / 2 - a) * r.uniform(0.3, 0.7), 10)  # curving up
-        c.twig(tw, 0.008, "#5A4A3A")
-        branches = [tw]
-        for f in (0.3, 0.45, 0.6, 0.72):  # side shoots, turning up
-            if r.random() < 0.75:
-                side = r.choice((-1, 1))
-                br = curve_pts(at(tw, f), heading(tw, f) + side * r.uniform(0.35, 0.6), r.uniform(0.1, 0.2), -side * 0.4, 5)
-                c.twig(br, 0.006, "#5A4A3A")
-                branches.append(br)
-        for br in branches:
-            total = sum(math.dist(br[i], br[i + 1]) for i in range(len(br) - 1))
-            for j in range(int(total / 0.011)):
-                f = j * 0.011 / total
-                p, h = at(br, f), heading(br, f)
-                for side in (1, -1):
-                    c.needle(p, h + side * r.uniform(0.3, 0.55), r.uniform(0.022, 0.03), 0.009)
-            c.spots.append((br, 0))
-    if extra:
-        xr = c.xr
-        bloom = {3: ["#9A6A6A", "#8A6450", "#A07A68", "#86605A"]}.get(v, ["#A8789E", "#B888AE", "#94688C", "#C49ABC", "#8A5E84"])
-        for br, _ in c.spots:
-            if xr.random() < 0.5:  # not every sprig: the flowers stay fine, in among the green
-                continue
-            total = sum(math.dist(br[i], br[i + 1]) for i in range(len(br) - 1))
-            for j in range(int(total * 0.55 / 0.012)):
-                f = 0.45 + j * 0.012 / total
-                p, h = at(br, f), heading(br, f)
-                side = 1 if j % 2 else -1
-                q = (p[0] + math.cos(h + side * 1.3) * 0.007, p[1] + math.sin(h + side * 1.3) * 0.007)
-                lens(c, q, h + side * xr.uniform(0.5, 1.1), xr.uniform(0.018, 0.024), 0.009, rgb(xr.choice(bloom)))
-    return c
+        self.fit = None  # "top" or "box": crop the card to what's drawn on it (save)
 
 
 # ------------------------------------------------------------------ raspberry
@@ -682,15 +550,88 @@ def cottongrass(v, extra=False):
     return c
 
 
+# ------------------------------------------------------------------ long grass
+LONGGRASS = ["#4E7A2E", "#5A8636", "#66923E", "#72A048"]
+LONGGRASS_TIPS = ["#8EAE58", "#9AB862", "#A6BE6A"]
+STRAW = ["#B8A868", "#C8B878", "#A89858", "#BCAE70"]
+
+
+def strand(c, base, ang, length, width, curve, droop, col, tip):
+    """A thin strand of grass from base: tapering to a point, curving sideways (curve) and hanging (droop), its colour
+    running from col at its foot to tip at its end, so a card of them reads darker low down, as grass does."""
+    n = 16
+    pts = []
+    for i in range(n + 1):
+        t = i / n
+        bend = curve * length * t * t
+        pts.append((base[0] + math.cos(ang) * length * t - math.sin(ang) * bend,
+                    base[1] + math.sin(ang) * length * t + math.cos(ang) * bend - droop * length * t ** 2.2))
+    for i in range(n):
+        h = heading(pts, (i + 0.5) / n)
+        nx, ny = -math.sin(h), math.cos(h)
+        w0, w1 = width * (1 - i / n) ** 0.6, width * (1 - (i + 1) / n) ** 0.6
+        a, b = pts[i], pts[i + 1]
+        f = ((i + 0.5) / n) ** 1.3
+        colour = tuple(round(col[k] + (tip[k] - col[k]) * f) for k in range(3))
+        quad = [(a[0] + nx * w0, a[1] + ny * w0), (b[0] + nx * w1, b[1] + ny * w1),
+                (b[0] - nx * w1, b[1] - ny * w1), (a[0] - nx * w0, a[1] - ny * w0)]
+        c.d.polygon([c.px(q) for q in quad], fill=colour + (255,))
+
+
+def strands(c, n, length, spread, curve, droop, width, dry=0.0, tips=LONGGRASS_TIPS):
+    """A row of thin strands across the card, their feet spread along its foot: a strip of grass, not one tuft, so
+    crossed copies make a patch. The back ones darker and the front ones lighter, drawn back to front; those at the
+    card's sides lean out a little."""
+    r = c.rng
+    for k in range(n):
+        depth = k / max(1, n - 1)  # 0 at the back
+        x = r.uniform(0.05, 0.95)
+        a = math.pi / 2 + (0.5 - x) * 0.5 + r.gauss(0, spread)
+        L = length * r.uniform(0.55, 1.0)
+        if r.random() < dry:
+            col, tip = rgb(r.choice(STRAW)), shade(rgb(r.choice(STRAW)), 1.1)
+        else:
+            col = shade(c.colour(), 0.62 + 0.3 * depth)
+            tip = shade(rgb(r.choice(tips)), 0.85 + 0.2 * depth)
+        side = 1 if r.random() < 0.5 else -1
+        strand(c, (x, FOOT[1] + r.uniform(-0.01, 0.02)), a, L, width * r.uniform(0.8, 1.15),
+               side * abs(r.gauss(curve, curve * 0.5)), droop * (L / length) ** 2 * r.uniform(0.4, 1.3), col, tip)
+
+
+def longgrass(v, extra=False):
+    """Long grass, thick and semi-long, the grass the game's green ground grows: thin strands standing in a row along
+    the card's foot, so crossed copies make a patch. Its flowers: seed heads on thin stalks, the meadow's bent and
+    timothy."""
+    pal = {4: ["#3E6E26", "#4A7A2C", "#568634", "#62903C"]}.get(v, LONGGRASS)
+    c = Plant(pal, 1600 + v)
+    c.fit = "box" if extra else "top"
+    if extra:
+        r = c.rng
+        for k in range({1: 6, 2: 5, 3: 6, 4: 5}[v]):
+            stem = rgb(r.choice(["#7A8A4A", "#8A9452", "#9A9A5A"] if v != 3 else ["#A89858", "#B8A868"]))
+            pts = stalk(c, r, 0.95 * r.uniform(0.8, 1.0), r.gauss(0, 0.16), stem, 0.007)
+            if (v == 2 or v == 4) and k % 2 == 0:  # timothy: a dense cylinder of a head
+                spike(c, r, pts, 0.72, ["#A8B080", "#98A070", "#B4B88A"], width=0.013, size=0.8)
+            else:  # bent: an airy panicle, reddish-purple, or straw when dry
+                panicle(c, r, pts, 0.55, ["#9A6A5A", "#A87A68", "#8A5E58"] if v != 3 else ["#C0AE72", "#B09E62", "#D0C080"], 6, 0.12)
+        return c
+    n, length, spread, curve, droop, width, dry = {
+        1: (130, 0.95, 0.2, 0.15, 0.15, 0.010, 0.0),
+        2: (100, 0.98, 0.26, 0.3, 0.38, 0.010, 0.0),
+        3: (120, 0.95, 0.22, 0.18, 0.2, 0.010, 0.18),
+        4: (75, 0.92, 0.22, 0.25, 0.25, 0.016, 0.0),
+    }[v]
+    strands(c, n, length, spread, curve, droop, width, dry)
+    return c
+
+
 # ------------------------------------------------------------------ the list
 PLANTS = {  # card set: (draw, extra kind, the designs' names)
-    "blueberry": (blueberry, "berries", ["Leafy sprigs", "Dense", "Autumn red", "Shaded, sparse"]),
-    "lingonberry": (lingonberry, "berries", ["Shoots", "Dense mat", "New tips", "Winter bronze"]),
-    "heather": (heather, "flowers", ["Sprigs", "Sparse sprigs", "Late, fading", "Dense"]),
     "raspberry": (raspberry, "berries", ["Leaf cluster", "Arching cane", "Pale undersides", "Young, light"]),
     "buckthorn": (buckthorn, "berries", ["Leafy twig", "Fan cluster", "Painted mass", "Autumn"]),
     "hazel": (hazel, "nuts", ["Leafy twig", "Fan cluster", "Painted mass", "Autumn"]),
     "fern": (fern, None, ["Frond", "Broad frond", "Young, light", "Autumn, rusty"]),
+    "longgrass": (longgrass, "flowers", ["Thick, semi-long", "Long, arching", "With dry blades", "Lush, broad"]),
     "hairgrass": (hairgrass, "flowers", ["Fine tuft", "Dense tuft", "Golden, late summer", "Sparse"]),
     "bent": (bent, "flowers", ["Meadow tuft", "Tall, loose", "Dry", "Lush"]),
     "smallreed": (smallreed, "flowers", ["Arching blades", "Upright", "Late summer", "Full"]),
@@ -700,14 +641,30 @@ PLANTS = {  # card set: (draw, extra kind, the designs' names)
 }
 
 
-GRASSES = (hairgrass, bent, smallreed, moorgrass, sedge, cottongrass)  # their extra is a card of flowering stalks
+GRASSES = (longgrass, hairgrass, bent, smallreed, moorgrass, sedge, cottongrass)  # their extra is a card of flowering stalks
+
+
+FITS = {}  # card -> (width, height): the share of the drawing a card cropped to its strands keeps (Plant.fit)
 
 
 def save(c, name):
-    """Scaled down without premultiplying, so the edges keep the leaves' colours (not black)."""
+    """Scaled down without premultiplying, so the edges keep the leaves' colours (not black). A card that fits (the
+    long grass's) is first cropped to what's drawn on it, its foot kept: its empty top, and with "box" its empty sides
+    too, evenly round its middle, so the game doesn't draw pixels that are all thrown away; FITS keeps how much of
+    the drawing it kept, for plantgen.py to size the card by (cards.json)."""
     os.makedirs(OUT, exist_ok=True)
-    col = c.img.convert("RGB").resize((SIZE, SIZE), Image.LANCZOS)
-    alpha = c.img.getchannel("A").resize((SIZE, SIZE), Image.LANCZOS)
+    src = c.img
+    if c.fit:
+        n = src.width
+        k = n / SIZE  # what survives the cut at 0.5 once scaled down: the thin tips don't
+        small = src.getchannel("A").resize((SIZE, SIZE), Image.LANCZOS).point(lambda v: 255 if v >= 128 else 0).getbbox()
+        box = [v * k for v in small]
+        half = max(n / 2 - box[0], box[2] - n / 2) + n * 0.01 if c.fit == "box" else n / 2
+        top = max(0, box[1] - n * 0.01)
+        src = src.crop((round(n / 2 - half), round(top), round(n / 2 + half), n))
+        FITS[name] = (round(src.width / n, 4), round(src.height / n, 4))
+    col = src.convert("RGB").resize((SIZE, SIZE), Image.LANCZOS)
+    alpha = src.getchannel("A").resize((SIZE, SIZE), Image.LANCZOS)
     img = Image.merge("RGBA", (*col.split(), alpha))
     img.save(os.path.join(OUT, name + ".png"))
     return img
@@ -747,5 +704,6 @@ if __name__ == "__main__":
     os.makedirs(os.path.join(HERE, "previews"), exist_ok=True)
     sheet.save(os.path.join(HERE, "previews", "cards.png"))
     with open(os.path.join(OUT, "cards.json"), "w") as fh:  # the designs' names and extras, for the plant editor
-        json.dump({"names": {k: p[2] for k, p in PLANTS.items()}, "extras": {k: p[1] for k, p in PLANTS.items()}}, fh, indent=1)
+        json.dump({"names": {k: p[2] for k, p in PLANTS.items()}, "extras": {k: p[1] for k, p in PLANTS.items()}, "fits": FITS},
+                  fh, indent=1)
     print("wrote", len(made), "cards to", OUT)

@@ -3,6 +3,7 @@ extends SceneTree
 ## weighs on each alike: it flips between them every second or so and prints, for each, the graphics card's time per
 ## frame (the mean and median of its spells) and the frame rate. Then quits.
 ## godot --path game --script res://scripts/dev/abbench.gd -- --ab=bark=true,false [--spells=24] [--scene=open_forest]
+##   (a slider too: --ab=grass_reach=45,25)
 ##   [--pose=x,z,yaw,pitch,distance] [--set:option=value ...] (the other options as for the demo, scripts/demo.gd)
 
 var demo: Node
@@ -50,7 +51,10 @@ func _run() -> void:
 		fps[v] = []
 	for i in spells * values.size():
 		var v: Variant = values[i % values.size()]
-		panel.choose(key, v)
+		if panel._sliders.has(key):
+			panel.slide(key, v)
+		else:
+			panel.choose(key, v)
 		await _frames(15)
 		var t0 := Time.get_ticks_usec()
 		var total := 0.0

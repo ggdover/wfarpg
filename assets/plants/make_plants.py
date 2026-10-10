@@ -5,9 +5,10 @@
     blender -b --factory-startup -P make_plants.py -- --no-render   only the .blend
 
 The plants follow plant_settings.json (written by the plant editor's "Save settings"), or plantgen.DEFAULTS where it
-has nothing. The .blend has both variants of every plant side by side, in three rows (the low plants and the fern, the
-bushes, the grasses) with name signs and a person for scale, plus a patch of forest floor with copies of them all
-under a few of the tree portfolio's trees, seen from the game camera and from close by. The floor's plants are linked
+has nothing. The .blend has both variants of every plant side by side, in three rows (the bushes, the long grass and
+the fern, the grasses) with name signs and a person for scale, plus a patch of forest floor covered in the long grass,
+as the game's green ground is, with copies of the rest under a few of the tree portfolio's trees, seen from the game
+camera and from close by. The floor's plants are linked
 copies, so editing a plant updates them too; its trees are linked from ../trees/tree_portfolio.blend. The file also
 carries a small script that registers the plant editor (plant_editor.py) when Blender is allowed to run it.
 """
@@ -33,10 +34,10 @@ BLEND = os.path.join(HERE, "plant_portfolio.blend")
 TREES = os.path.join(HERE, "..", "trees", "tree_portfolio.blend")
 ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 TAU = math.tau
-ROWS = [  # name, plants, the camera's pitch down (degrees)
-    ("Low plants", ["Blueberry", "Lingonberry", "Heather", "WoodFern"], 24),
-    ("Bushes", ["Raspberry", "AlderBuckthorn", "Hazel"], 10),
-    ("Grasses", [s[0] for s in plantgen.SPECIES if s[7] == "grass"], 20),
+ROWS = [  # name, plants, the camera's pitch down (degrees), its picture in previews/
+    ("Bushes", ["Raspberry", "AlderBuckthorn", "Hazel"], 10, "row_bushes.png"),
+    ("Long grass and fern", ["LongGrass", "WoodFern"], 24, "row_grass_fern.png"),
+    ("Grasses", [s[0] for s in plantgen.SPECIES if s[7] == "grass"], 20, "row_grasses.png"),
 ]
 FLOOR = Vector((-60.0, 0.0, 0.0))  # the forest floor's middle
 
@@ -109,13 +110,13 @@ def build():
     groups = {g: collection(g.capitalize()) for g in plantgen.GROUPS}
     plants, rows = {}, {}
     x = 0.0
-    for name, keys, pitch in ROWS:
+    for name, keys, pitch, _file in ROWS:
         x0 = x
         person((x, 0, 0), stage, person_mat)
         x += 1.6
         for key in keys:
             sp = plantgen.BY_KEY[key]
-            group = "GRASSES" if sp[7] == "grass" else "BUSHES"
+            group = next(g for g, kinds in plantgen.GROUPS.items() if sp[7] in kinds)
             sub = bpy.data.collections.get(sp[2]) or collection(sp[2], groups[group])
             w = sp[5]
             for variant in "AB":
@@ -169,7 +170,7 @@ def build():
     f = FLOOR
     cams["Floor game"] = camera("Camera forest floor, game view", f + Vector((0, -11.5, 16.4)), f + Vector((0, 0.5, 0)), stage, lens=35)
     cams["Floor close"] = camera("Camera forest floor, close", f + Vector((1.0, -7.5, 1.5)), f + Vector((0, -1.0, 0.25)), stage, lens=30)
-    scene.camera = cams["Low plants"]
+    scene.camera = cams["Bushes"]
     scene.render.engine = "BLENDER_EEVEE"
     scene.eevee.taa_render_samples = 64
     scene.view_settings.view_transform = "AgX"
@@ -178,8 +179,8 @@ def build():
     loader.write(LOADER)
     loader.use_module = True  # runs when the file opens, if Blender is allowed to run its scripts
 
-    # open the file looking at the low plants with materials shown (press N for the sidebar and its Plants tab)
-    x0, x1, _, _ = rows["Low plants"]
+    # open the file looking at the bushes with materials shown (press N for the sidebar and its Plants tab)
+    x0, x1, _, _ = rows["Bushes"]
     for scr in bpy.data.screens:
         for area in scr.areas:
             if area.type == "VIEW_3D":
@@ -187,17 +188,18 @@ def build():
                 sp.shading.type = "MATERIAL"
                 sp.clip_end = 2000
                 r3d = sp.region_3d
-                r3d.view_location = ((x0 + x1) / 2, 0, 0.3)
-                r3d.view_distance = 16
+                r3d.view_location = ((x0 + x1) / 2, 0, 1.2)
+                r3d.view_distance = 22
                 r3d.view_rotation = Quaternion((0.82, 0.57, 0.0, 0.0)).normalized()
     return scene, cams, plants, rows, stage, trees
 
 
 def forest_floor(plants, coll):
-    """A patch of forest floor, 16 by 12 m, under a few of the portfolio's trees: blueberry under the pines, lingonberry
-    round a boulder, heather in the open, ferns in the spruce's shade, raspberry and buckthorn at the edge, hazel in a
-    corner, hair-grass all about, bent in the sun, small-reed along the edge, and moor-grass, sedge and cottongrass by a
-    wet hollow. Linked copies: they change with the plants."""
+    """A patch of forest floor, 16 by 12 m, under a few of the portfolio's trees, covered in long grass as the game's
+    green ground is (its patches as far apart as its Patch spacing says, a share with seed heads), but in the pool and
+    under the boulders: ferns in the spruce's shade, raspberry and buckthorn at the edge, hazel in a corner, hair-grass
+    and bent here and there, small-reed along the edge, and moor-grass, sedge and cottongrass by a wet hollow. Linked
+    copies: they change with the plants."""
     r = random.Random(17)
     f = FLOOR
     rock = flat_material("Granite", "#8C8A82", 0.85)
@@ -237,7 +239,8 @@ def forest_floor(plants, coll):
             coll.objects.link(ob)
             placed.append((Vector((x, y, 0)), 1.2))
             trees.append(ob)
-    for i, (x, y, s) in enumerate([(1.8, -0.6, 0.9), (-6.8, -4.2, 0.7), (6.6, 2.2, 0.6)]):
+    boulders = [(1.8, -0.6, 0.9), (-6.8, -4.2, 0.7), (6.6, 2.2, 0.6)]
+    for i, (x, y, s) in enumerate(boulders):
         boulder(f"Boulder {i}", f + Vector((x, y, s * 0.15)), s, coll, rock, 30 + i)
         placed.append((Vector((x, y, 0)), s + 0.3))
     pool = bpy.data.meshes.new("Pool")
@@ -249,25 +252,44 @@ def forest_floor(plants, coll):
     coll.objects.link(ob)
     placed.append((Vector((1.5, -4.2, 0)), 1.2))
 
-    put("Hazel", (-7.0, 3.5), 0.5, 1, 2.0)
-    put("AlderBuckthorn", (7.0, -0.8), 0.6, 1, 1.4)
-    put("Raspberry", (-7.0, -1.5), 1.0, 2, 1.1)
+    put("Hazel", (-6.0, 3.6), 0.4, 1, 2.0)
+    put("AlderBuckthorn", (6.4, -0.6), 0.5, 1, 1.5)
+    put("Raspberry", (-6.2, -1.6), 0.5, 1, 1.3)
     put("WoodFern", (4.5, 4.0), 2.0, 7, 0.9)
-    put("Lingonberry", (1.8, -0.6), 1.8, 11, 0.5)
-    put("Blueberry", (-3.0, 2.0), 3.0, 26, 0.6)
-    put("Heather", (4.4, -2.6), 1.7, 10, 0.55)
     put("PurpleMoorGrass", (1.5, -4.2), 2.1, 4, 0.45)
     put("CommonSedge", (1.5, -4.2), 1.9, 5, 0.4)
     put("Cottongrass", (2.4, -4.4), 2.0, 4, 0.4)
     put("WoodSmallReed", (7.2, -4.0), 1.2, 4, 0.55)
-    put("CommonBent", (-3.0, -3.8), 2.0, 14, 0.35)
-    put("WavyHairGrass", (0.0, 1.0), 7.5, 40, 0.4)
+    put("CommonBent", (-3.0, -3.8), 2.0, 6, 0.35)
+    put("WavyHairGrass", (0.0, 1.0), 7.5, 12, 0.4)
+    lawn(plants, coll, r, [(Vector((1.5, -4.2, 0)), 1.25)] + [(Vector(b[:2] + (0,)), b[2] + 0.1) for b in boulders])
     return trees
 
 
-def frame_pair(scene, key, plants, stage, pitch):
-    """A camera framing both variants of a plant, from the front and pitch degrees above."""
-    obs = [plants[(key, v)] for v in "AB"]
+def lawn(plants, coll, r, keep_out):
+    """The long grass over the whole floor, as in the game: a patch at every point of a jittered grid as far apart as
+    its Patch spacing says, turned and sized at random, a share of them with seed heads (variant B), none in the pool
+    or under the boulders."""
+    cfg = bpy.context.scene.plant_editor.plants["LongGrass"]
+    step = 0.5 * max(0.3, cfg.spread)
+    nx, ny = int(16 / step), int(12 / step)
+    for i in range(nx):
+        for j in range(ny):
+            p = Vector((-8 + (i + 0.5 + r.uniform(-0.4, 0.4)) * step, -6 + (j + 0.5 + r.uniform(-0.4, 0.4)) * step, 0))
+            if any((p - c).length < rad for c, rad in keep_out):
+                continue
+            src = plants[("LongGrass", "B" if r.random() < cfg.extra else "A")]
+            ob = bpy.data.objects.new("LongGrass (lawn)", src.data)
+            ob.location = FLOOR + p
+            ob.rotation_euler = (0, 0, r.uniform(0, TAU))
+            s = r.uniform(0.85, 1.15)
+            ob.scale = (s, s, s)
+            coll.objects.link(ob)
+
+
+def frame_pair(scene, key, plants, stage, pitch, obs=None):
+    """A camera framing both variants of a plant (or the objects obs), from the front and pitch degrees above."""
+    obs = obs or [plants[(key, v)] for v in "AB"]
     lo = Vector((min(o.location.x - o.dimensions.x / 2 for o in obs), min(o.location.y for o in obs), 0))
     hi = Vector((max(o.location.x + o.dimensions.x / 2 for o in obs), max(o.location.y for o in obs), max(o.dimensions.z for o in obs)))
     centre = Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, hi.z * 0.42))
@@ -281,10 +303,11 @@ def frame_pair(scene, key, plants, stage, pitch):
 def render(scene, cams, plants, rows, stage):
     os.makedirs(os.path.join(PREVIEWS, "tiles"), exist_ok=True)
     shots = [("Floor game", "floor_game_view.png", (1600, 900)), ("Floor close", "floor_close.png", (1600, 900))]
+    files = {name: file for name, _keys, _pitch, file in ROWS}
     for name, (x0, x1, pitch, tall) in rows.items():  # as tall as the row's plants and signs need
         size = max(0.16, min(0.42, 0.55 * tall))
         high = 1.3 * tall * math.cos(math.radians(pitch)) + 1.6 * size + 0.15 * tall + 0.25
-        shots.append((name, "row_" + name.split()[-1].lower() + ".png", (3200, max(480, min(1400, round(3200 * high / (x1 - x0 + 1.0)))))))
+        shots.append((name, files[name], (3200, max(480, min(1400, round(3200 * high / (x1 - x0 + 1.0)))))))
     for key, file, res in shots:
         scene.camera = cams[key]
         scene.render.resolution_x, scene.render.resolution_y = res
@@ -301,9 +324,27 @@ def render(scene, cams, plants, rows, stage):
             o.hide_render = True
         a, b = plants[(key, "A")], plants[(key, "B")]
         home = b.location.copy()
-        if kind != "bush":  # the low ones: B behind A and to its right, so the two fill the picture
+        lawn_obs = []
+        if kind == "patch":  # a patch alone says little: a small lawn of them, as they're used, B among A
+            cfg = scene.plant_editor.plants[key]
+            step = 0.5 * max(0.3, cfg.spread)
+            r = random.Random(5)
+            for i in range(int(3.0 / step)):
+                for j in range(int(2.0 / step)):
+                    src = b if r.random() < cfg.extra else a
+                    ob = bpy.data.objects.new(src.name + " (tile)", src.data)
+                    ob.location = a.location + Vector(((i + r.uniform(-0.3, 0.3)) * step, (j + r.uniform(-0.3, 0.3)) * step, 0))
+                    ob.rotation_euler = (0, 0, r.uniform(0, TAU))
+                    s = r.uniform(0.85, 1.15)
+                    ob.scale = (s, s, s)
+                    stage.objects.link(ob)
+                    lawn_obs.append(ob)
+            for o in (a, b):
+                o.hide_render = True
+            bpy.context.view_layer.update()  # their sizes, for framing them
+        elif kind != "bush":  # the low ones: B behind A and to its right, so the two fill the picture
             b.location = a.location + Vector((width * 0.75, width * 0.7, 0))
-        cam = frame_pair(scene, key, plants, stage, 22 if kind == "bush" else 36)
+        cam = frame_pair(scene, key, plants, stage, 22 if kind == "bush" else 36, lawn_obs or None)
         scene.camera = cam
         scene.render.filepath = os.path.join(PREVIEWS, "tiles", key + ".png")
         bpy.ops.render.render(write_still=True)
@@ -315,12 +356,15 @@ def render(scene, cams, plants, rows, stage):
         for o in hidden:
             o.hide_render = False
         b.location = home
+        for o in lawn_obs:
+            bpy.data.objects.remove(o, do_unlink=True)
+        a.hide_render = b.hide_render = False
         bpy.data.objects.remove(cam, do_unlink=True)
     with open(os.path.join(PREVIEWS, "tiles", "info.json"), "w") as fh:
         json.dump(info, fh, indent=1)
     done = subprocess.run(["python3", os.path.join(HERE, "make_sheet.py")])  # Pillow: the system Python
     print("RENDERED portfolio.png" if done.returncode == 0 else "make_sheet.py failed; run it with python3")
-    scene.camera = cams["Low plants"]
+    scene.camera = cams["Bushes"]
 
 
 if __name__ == "__main__":

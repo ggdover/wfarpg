@@ -223,6 +223,9 @@ var cone_power := 1.0
 var sight_clear := 0.0
 ## small plants and pebbles cast no shadows
 var plant_shadows := false
+## the long grass over the green ground (scripts/grass.gd), which folds as the hero walks through it
+var grass: GrassField
+var _old_grass: Array[MultiMeshInstance3D] = []  # the mockups' grass tufts, shown instead of it with set_grass(false)
 ## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
 var tree_lod := 0
 ## for measuring: kinds of tree not drawn at all (--hide=NorwaySpruce,ScotsPine; the layout's kinds)
@@ -242,6 +245,10 @@ func build(area: String, tree_set: String) -> void:
 	_build_extras()
 	_build_solids()
 	_build_walls()
+	grass = GrassField.new()
+	add_child(grass)
+	grass.build(self)
+	set_grass(true)
 	show_trees(tree_set)
 
 
@@ -290,6 +297,8 @@ func skip_faded(camera_pos: Vector3, radius: float) -> void:
 ## the cone. With "front" and "xray", the shaders also fade whatever of a tree comes near the camera. What's left of the
 ## trees is _leave's. Called every frame by the camera rig, with how long the frame took.
 func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
+	if grass:
+		grass.update(hero_pos, delta)
 	if _current == "":
 		return
 	var camera_pos := camera.global_position
@@ -1235,6 +1244,20 @@ func _shadow_caster(tree: Dictionary, names: Array) -> Mesh:
 func set_ground_param(param: String, value: Variant) -> void:
 	for mat: ShaderMaterial in _ground_materials.values():
 		mat.set_shader_parameter(param, value)
+	if grass:
+		grass.set_ground_param(param, value)
+
+
+## A ground parameter as the ground shader has it now (null for one left at its default).
+func ground_param(param: String) -> Variant:
+	return _ground_materials[BAKED].get_shader_parameter(param)
+
+
+## The long grass over the green ground (true), or the mockups' grass tufts as before it (false).
+func set_grass(on: bool) -> void:
+	grass.set_option("shown", on)
+	for mmi in _old_grass:
+		mmi.visible = not on
 
 
 ## How much small detail the ground draws: 3 high, 4 high from baked textures, 2 medium, 1 low, 0 none (see
@@ -1599,6 +1622,8 @@ func _build_props() -> void:
 			var mmi := _add_multimesh(root, model, groups[key], key, CHUNK, PLANT_RANGE if small else 0.0)
 			if plant and not plant_shadows:
 				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			if model.begins_with("Grass") or model.begins_with("TallGrass"):
+				_old_grass.append(mmi)
 
 
 func _add_multimesh(parent: Node3D, model: String, xforms: Array, chunk: Vector2i, size: float, range_end: float) -> MultiMeshInstance3D:
