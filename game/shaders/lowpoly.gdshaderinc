@@ -28,6 +28,7 @@ global uniform vec3 pebble_colour;
 // edge is ragged; the colour tints it, 0.5 for none.
 uniform sampler2D bark_upper : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D bark_foot : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+global uniform float bark_on;  // 0: the trunks plain, as before the bark (F2's Bark textures)
 #endif
 
 void fragment() {
@@ -47,10 +48,12 @@ void fragment() {
 #endif
 	vec3 c = srgb_to_linear(COLOR.rgb);
 #ifdef BARK
-	if (UV.x > -5.0) {
+	if (UV.x > -5.0 && bark_on > 0.5) {
 		vec4 foot = texture(bark_foot, UV);
 		float below = smoothstep(0.4, 0.6, COLOR.a + (foot.a - 0.5) * 0.6);
 		c *= 2.0 * mix(texture(bark_upper, UV).rgb, foot.rgb, below);
+	} else if (UV.x > -5.0) {  // plain, in the barks' average colours, their smallest mipmaps
+		c *= 2.0 * mix(textureLod(bark_upper, UV, 12.0).rgb, textureLod(bark_foot, UV, 12.0).rgb, smoothstep(0.4, 0.6, COLOR.a));
 	}
 #endif
 #ifdef PEBBLE

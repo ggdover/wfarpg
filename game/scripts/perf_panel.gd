@@ -148,6 +148,7 @@ func setup(d: Node) -> void:
 		func(v: float) -> void: w.set_trees("impostors_from", v))
 	_choice(col, "fade", "Fade trees near camera", [["On", true], ["Off", false]], w.fade_near_camera,
 		func(v: bool) -> void: w.set_trees("fade_near_camera", v))
+	_choice(col, "bark", "Bark textures", [["On", true], ["Off", false]], Game.bark, func(v: bool) -> void: Game.bark = v)
 	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
 	_choice(col, "crown", "Crown cut, camera high", [["Near camera", "near"], ["All trees", "all"], ["Off", "off"]], w.crown_cut,
 		func(v: String) -> void: w.set_trees("crown_cut", v))

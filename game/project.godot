@@ -68,6 +68,10 @@ hero_fade_on={
 "type": "float",
 "value": 0.0
 }
+bark_on={
+"type": "float",
+"value": 1.0
+}
 tree_fade_radius={
 "type": "float",
 "value": 0.0
