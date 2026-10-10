@@ -21,7 +21,8 @@ General knowledge, public documentation, and third-party libraries and engines a
 - Engine: Godot 4.7 (`~/.local/bin/godot`). 3D models: made in Blender 5.2. Art style: low-poly 3D.
 - Ground is a smooth, flat surface with painted textures (moss, grass patches, gravel on dirt paths, scattered small
   fallen leaves). Grass runs right up to the trees: no brown patches under them.
-  Props such as trees, bushes and rocks are faceted low-poly shapes.
+  Props such as trees, bushes and rocks are faceted low-poly shapes. Bushes and grasses, like the trees' leaves, are
+  crossed cards with alpha on faceted stems (the user asked for them so, 10 October): the plant portfolio.
 - Paths are worn into the grass by feet, so they never end in a hard line: the grass thins out and turns trampled toward
   them, and the wear spreads out in patches, so it isn't clear exactly where a path runs. The mockups' dirt is a light
   tan (between wheat and desert sand), with gravel and pebbles in the same tones, so they read as texture rather than
@@ -92,7 +93,11 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
 - `assets/`: game assets. `assets/trees/` is the tree portfolio: low-poly Swedish forest trees built in Blender by
   Python scripts, saved in `tree_portfolio.blend`, with a tree editor (a Trees tab in Blender's sidebar) for tuning
   leaf cards and clumps. The user's tuned settings are in `assets/trees/tree_settings.json`; build from them, not
-  from the defaults in `treegen.py`. See its README.
+  from the defaults in `treegen.py`. See its README. `assets/plants/` is the plant portfolio, made the same way:
+  thirteen bushes and grasses of the Swedish forest (blueberry, lingonberry, heather, raspberry, alder buckthorn,
+  hazel, wood fern; wavy hair-grass, common bent, wood small-reed, purple moor-grass, sedge, cottongrass) in
+  `plant_portfolio.blend`, with a plant editor (a Plants tab) and the user's settings in `plant_settings.json`. Not in
+  the game yet.
 - `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, a grey-box
   hero, the camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
   button switches): a small part of Storskogen (dense forest, a trail, a meadow with a rise), an open forest spaced as

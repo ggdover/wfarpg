@@ -167,5 +167,10 @@
  "340b73a9a4abba2be168da78574146db": "renders/play_demo_clear_view/behind_a_pine.jpg",
  "b7d1d401e3aa30da76a3bba15edb4c33": "renders/play_demo_clear_view/open_forest.jpg",
  "d995b86a2729af8717a204f7100fc4b8": "renders/play_demo_bark/before_and_now.jpg",
- "5464f4f9106cef6b78acd1eb0134ee4f": "renders/play_demo_bark/textures.jpg"
+ "5464f4f9106cef6b78acd1eb0134ee4f": "renders/play_demo_bark/textures.jpg",
+ "30ff516a2e33823ecd70774f0bbc7bdb": "../assets/plants/previews/v1/portfolio.jpg",
+ "de6b4784289686a8089c7fdd3fc022e0": "../assets/plants/previews/v1/floor_game_view.jpg",
+ "39e5a1b572164a7b252baac64579a54c": "../assets/plants/previews/v1/floor_close.jpg",
+ "99476bd46bef1443224e680f8e264f6b": "../assets/plants/previews/v1/rows.jpg",
+ "d908de90f9675d69afda959f40dfd440": "../assets/plants/previews/v1/cards.jpg"
 }

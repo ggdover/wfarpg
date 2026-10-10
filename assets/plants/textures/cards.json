@@ -1,0 +1,97 @@
+{
+ "names": {
+  "blueberry": [
+   "Leafy sprigs",
+   "Dense",
+   "Autumn red",
+   "Shaded, sparse"
+  ],
+  "lingonberry": [
+   "Shoots",
+   "Dense mat",
+   "New tips",
+   "Winter bronze"
+  ],
+  "heather": [
+   "Sprigs",
+   "Sparse sprigs",
+   "Late, fading",
+   "Dense"
+  ],
+  "raspberry": [
+   "Leaf cluster",
+   "Arching cane",
+   "Pale undersides",
+   "Young, light"
+  ],
+  "buckthorn": [
+   "Leafy twig",
+   "Fan cluster",
+   "Painted mass",
+   "Autumn"
+  ],
+  "hazel": [
+   "Leafy twig",
+   "Fan cluster",
+   "Painted mass",
+   "Autumn"
+  ],
+  "fern": [
+   "Frond",
+   "Broad frond",
+   "Young, light",
+   "Autumn, rusty"
+  ],
+  "hairgrass": [
+   "Fine tuft",
+   "Dense tuft",
+   "Golden, late summer",
+   "Sparse"
+  ],
+  "bent": [
+   "Meadow tuft",
+   "Tall, loose",
+   "Dry",
+   "Lush"
+  ],
+  "smallreed": [
+   "Arching blades",
+   "Upright",
+   "Late summer",
+   "Full"
+  ],
+  "moorgrass": [
+   "Summer tussock",
+   "Autumn gold",
+   "Fading",
+   "Wet meadow"
+  ],
+  "sedge": [
+   "Stiff tuft",
+   "Arching",
+   "Bluish",
+   "Brown tips"
+  ],
+  "cottongrass": [
+   "Wiry tuft",
+   "Dense",
+   "Autumn",
+   "Sparse"
+  ]
+ },
+ "extras": {
+  "blueberry": "berries",
+  "lingonberry": "berries",
+  "heather": "flowers",
+  "raspberry": "berries",
+  "buckthorn": "berries",
+  "hazel": "nuts",
+  "fern": null,
+  "hairgrass": "flowers",
+  "bent": "flowers",
+  "smallreed": "flowers",
+  "moorgrass": "flowers",
+  "sedge": "flowers",
+  "cottongrass": "flowers"
+ }
+}

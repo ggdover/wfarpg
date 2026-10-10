@@ -1,0 +1,132 @@
+{
+ "Blueberry": {
+  "name": "Blueberry",
+  "swedish": "Bl\u00e5b\u00e4r",
+  "latin": "Vaccinium myrtillus",
+  "kind": "dwarf",
+  "height": 0.59,
+  "across": 1.3,
+  "faces": 152,
+  "cards": 96
+ },
+ "Lingonberry": {
+  "name": "Lingonberry",
+  "swedish": "Lingon",
+  "latin": "Vaccinium vitis-idaea",
+  "kind": "dwarf",
+  "height": 0.41,
+  "across": 1.0,
+  "faces": 96,
+  "cards": 75
+ },
+ "Heather": {
+  "name": "Heather",
+  "swedish": "Ljung",
+  "latin": "Calluna vulgaris",
+  "kind": "dwarf",
+  "height": 0.69,
+  "across": 1.3,
+  "faces": 132,
+  "cards": 69
+ },
+ "Raspberry": {
+  "name": "Raspberry",
+  "swedish": "Hallon",
+  "latin": "Rubus idaeus",
+  "kind": "bush",
+  "height": 1.37,
+  "across": 1.9,
+  "faces": 280,
+  "cards": 105
+ },
+ "AlderBuckthorn": {
+  "name": "Alder buckthorn",
+  "swedish": "Brakved",
+  "latin": "Frangula alnus",
+  "kind": "bush",
+  "height": 2.76,
+  "across": 2.6,
+  "faces": 459,
+  "cards": 114
+ },
+ "Hazel": {
+  "name": "Hazel",
+  "swedish": "Hassel",
+  "latin": "Corylus avellana",
+  "kind": "bush",
+  "height": 3.55,
+  "across": 4.0,
+  "faces": 823,
+  "cards": 198
+ },
+ "WoodFern": {
+  "name": "Wood fern",
+  "swedish": "Skogsbr\u00e4ken",
+  "latin": "Dryopteris carthusiana",
+  "kind": "fern",
+  "height": 0.53,
+  "across": 1.4,
+  "faces": 27,
+  "cards": 27
+ },
+ "WavyHairGrass": {
+  "name": "Wavy hair-grass",
+  "swedish": "Krust\u00e5tel",
+  "latin": "Avenella flexuosa",
+  "kind": "grass",
+  "height": 0.51,
+  "across": 0.7,
+  "faces": 42,
+  "cards": 42
+ },
+ "CommonBent": {
+  "name": "Common bent",
+  "swedish": "R\u00f6dven",
+  "latin": "Agrostis capillaris",
+  "kind": "grass",
+  "height": 0.52,
+  "across": 0.7,
+  "faces": 34,
+  "cards": 34
+ },
+ "WoodSmallReed": {
+  "name": "Wood small-reed",
+  "swedish": "Pipr\u00f6r",
+  "latin": "Calamagrostis arundinacea",
+  "kind": "grass",
+  "height": 0.96,
+  "across": 1.0,
+  "faces": 28,
+  "cards": 28
+ },
+ "PurpleMoorGrass": {
+  "name": "Purple moor-grass",
+  "swedish": "Bl\u00e5t\u00e5tel",
+  "latin": "Molinia caerulea",
+  "kind": "grass",
+  "height": 0.67,
+  "across": 0.6,
+  "faces": 36,
+  "cards": 36
+ },
+ "CommonSedge": {
+  "name": "Common sedge",
+  "swedish": "Hundstarr",
+  "latin": "Carex nigra",
+  "kind": "grass",
+  "height": 0.41,
+  "across": 0.7,
+  "faces": 32,
+  "cards": 32
+ },
+ "Cottongrass": {
+  "name": "Hare's-tail cottongrass",
+  "swedish": "Tuvull",
+  "latin": "Eriophorum vaginatum",
+  "kind": "grass",
+  "height": 0.46,
+  "across": 0.5,
+  "faces": 40,
+  "cards": 40
+ }
+}
