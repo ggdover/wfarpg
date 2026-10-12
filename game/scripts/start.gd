@@ -70,7 +70,9 @@ func _ready() -> void:
 	keys.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(keys)
 	for a in OS.get_cmdline_user_args():  # for checking the screen from the command line
-		if a.begins_with("--shot="):
+		if a == "--play":  # straight into the demo, as the exported game can't be given demo.tscn to start in
+			_start.call_deferred(Game.tree_set)
+		elif a.begins_with("--shot="):
 			await get_tree().create_timer(0.5).timeout
 			get_viewport().get_texture().get_image().save_png(a.substr(7))
 			get_tree().quit()

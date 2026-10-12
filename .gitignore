@@ -16,3 +16,6 @@ __pycache__/
 # OS clutter
 .DS_Store
 Thumbs.db
+
+# the Windows export (game/tools/export_windows.sh)
+dist/

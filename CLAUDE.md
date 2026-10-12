@@ -127,7 +127,8 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   "Advanced settings", so new ones go there. Its models,
   ground textures and layouts are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
   portfolio and the areas in `game/tools/areas/` (one module each); rebuild them after changing any of those. See
-  `game/README.md`.
+  `game/README.md`. `game/tools/export_windows.sh` exports the whole demo for Windows as one file, `dist/wfarpg.exe`
+  (the user asked for a single binary to carry over to a Windows computer); rerun it after changing the demo.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building
   scenes in Blender in background mode. `mockups/act1_world.py` holds the Act 1 layout as data. See `mockups/README.md`
   for how to rerun them. Generated output goes to `mockups/build/` (ignored by git); curated final images live in
