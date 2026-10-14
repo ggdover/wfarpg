@@ -98,7 +98,7 @@ func _bog() -> void:
 	# folding round the hero's trail as the green grass does; As before brings those back
 	var g: GrassField = w.bog_grass
 	var hidden := w._old_sedge.all(func(m: MultiMeshInstance3D) -> bool: return not m.visible)
-	var head := Vector2(g._trail[0].x, g._trail[0].y) if g and not g._trail.is_empty() else Vector2.INF
+	var head := Vector2(w.trail.points[0].x, w.trail.points[0].y) if not w.trail.points.is_empty() else Vector2.INF
 	_check("the bog's grass grows on the bog, in place of its faceted tussocks and sedge, and follows the hero",
 		g != null and g.shown and g.style == GrassField.BOG and g._chunks.size() > 0 and g._chunks.size() < w.grass._chunks.size()
 		and w._old_sedge.size() > 0 and hidden and head.distance_to(Vector2(q.x, q.z)) < 0.1,
@@ -112,13 +112,28 @@ func _bog() -> void:
 
 
 func _autumn_hollow() -> void:
-	_place(Vector2(-44.0, 9.0))  # on the trail, up on the hollow's west rim
+	var w: DemoWorld = demo.world
+	_place(Vector2(-45.5, 7.5))  # up on the hollow's west rim
 	var y0: float = demo.hero.global_position.y
 	var lowest := [y0]
-	await _walk_along([Vector2(-32, 5), Vector2(-16, 1), Vector2(0, -2), Vector2(16, 2), Vector2(30, 0)], func() -> void:
+	# no paths: a way between the grove's trunks (planned round the layout's solids), through a pile of leaves
+	await _walk_along([Vector2(-44.0, 5.5), Vector2(-39.0, 3.0), Vector2(-37.5, 3.5), Vector2(-32.0, 4.5), Vector2(-30.0, 4.0),
+		Vector2(-29.0, 3.0), Vector2(-26.0, 4.0), Vector2(-24.5, 5.5), Vector2(-22.0, 5.0), Vector2(-12.5, 5.0), Vector2(-9.5, 7.5),
+		Vector2(-8.0, 8.0), Vector2(0.5, 2.0), Vector2(2.0, 0.5), Vector2(5.5, 0.0), Vector2(7.0, 0.5), Vector2(14.5, -1.0),
+		Vector2(15.0, -1.5), Vector2(23.0, -0.5), Vector2(28.5, -4.5)], func() -> void:
 		lowest[0] = minf(lowest[0], demo.hero.global_position.y))
-	_check("the trail goes down into the hollow and up out of it", y0 - lowest[0] > 1.5 and demo.hero.global_position.x > 28.0,
+	_check("the hero walks down into the hollow, between its trees, and up out of it", y0 - lowest[0] > 1.5 and demo.hero.global_position.x > 26.0,
 		"down %.2f m, to x %.1f" % [y0 - lowest[0], demo.hero.global_position.x])
+	# the leaves: in piles, stirring along the hero's trail; F2's As before, none
+	var leaves: LeafLitter = w.leaves
+	var count := int(leaves._material.get_shader_parameter("trail_count")) if leaves else -1
+	_check("the fallen leaves lie in piles, and stir along the hero's trail",
+		leaves != null and leaves.shown and leaves._chunks.size() > 0 and count == w.trail.points.size(),
+		"%d chunks of piles; trail %d points, the leaves' %d" % [leaves._chunks.size() if leaves else 0, w.trail.points.size(), count])
+	demo._panel.choose("leaves", false)
+	var before := not leaves.shown and leaves._chunks.all(func(m: MultiMeshInstance3D) -> bool: return not m.visible)
+	demo._panel.choose("leaves", true)
+	_check("F2's Fallen leaves, As before: no piles", before and leaves.shown, "before %s" % before)
 
 
 ## Put the hero at a spot (Godot's X and Z), with the camera straight over it.

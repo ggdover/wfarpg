@@ -4585,5 +4585,83 @@
   "x": 0,
   "y": 90322,
   "z": 48
+ },
+ "fl-about": {
+  "type": "note",
+  "text": "# Leaf-filled ground, and leaves that stir\nYou asked for the autumn hollow without paths, just leaf-filled ground and trees, and for a thick layer of leaves that shifts as you walk through it, a few leaves hopping up a centimetre or two; thin in places, now and then deep in piles.\n\n- **No paths** in the hollow now, and no faceted bracken or leaf piles in its grove: only the leaves on the ground and the trees (rocks and logs are still about)\n- **Piles of real leaves:** over the painted leaf ground, drifts and piles of small faceted leaves, folded along the midrib, in the same colours, up to 12 cm deep in their middles and thinning out at their edges, the ground under them darker. About a third of the grove; a thin one now and then up round the hollow\n- **Stirring:** where the hero steps, the leaves are pushed aside and the pile pressed down, they shake, and a few hop up 1-2 cm and fall back, turning over; it settles within a second and a half. In a deep pile the most; at a thin edge hardly any\n- **F2** (Advanced settings): Fallen leaves, Piles or none; how much lies in piles; how high the leaves hop\n\n**Cost per frame:** about 0.8 ms in the hollow.",
+  "color": "paper",
+  "x": 28,
+  "y": 94880,
+  "w": 460,
+  "h": 1500,
+  "z": 302,
+  "author": "claude",
+  "createdAt": 1792011182923,
+  "updatedAt": 1792011182923
+ },
+ "fl-close": {
+  "type": "image",
+  "assetId": "28dcb368806398e1b0ca1ceb2b4b1c56",
+  "ar": 3.336,
+  "x": 512,
+  "y": 95662,
+  "w": 2200,
+  "z": 304,
+  "caption": "Closer, before and now.",
+  "author": "claude",
+  "createdAt": 1792011182923,
+  "updatedAt": 1792011182923
+ },
+ "fl-hollow": {
+  "type": "image",
+  "assetId": "c95248a5997c9a05b2d05f154f9188ec",
+  "ar": 3.336,
+  "x": 512,
+  "y": 94880,
+  "w": 2200,
+  "z": 303,
+  "caption": "The autumn hollow from the game's camera, before and now.",
+  "author": "claude",
+  "createdAt": 1792011182923,
+  "updatedAt": 1792011182923
+ },
+ "fl-pile": {
+  "type": "image",
+  "assetId": "91196b2043b25e7b9347e67de183386e",
+  "ar": 1.508,
+  "x": 1632,
+  "y": 96444,
+  "w": 1080,
+  "z": 306,
+  "caption": "Standing in a deep pile.",
+  "author": "claude",
+  "createdAt": 1792011182923,
+  "updatedAt": 1792011182923
+ },
+ "fl-walk": {
+  "type": "image",
+  "assetId": "e6901c6fa4def5c7943faedcc8ad0868",
+  "ar": 1.333,
+  "x": 512,
+  "y": 96444,
+  "w": 1092,
+  "z": 305,
+  "caption": "Walking into a pile of leaves (a moving picture): the leaves round the hero's feet shift, and a few hop, as it passes.",
+  "author": "claude",
+  "createdAt": 1792011182923,
+  "updatedAt": 1792011182923
+ },
+ "s-fallenleaves": {
+  "type": "frame",
+  "title": "Autumn hollow: leaf-filled ground, and leaves that stir",
+  "color": "moss",
+  "x": 0,
+  "y": 94852,
+  "w": 2740,
+  "h": 2570,
+  "z": 49,
+  "author": "claude",
+  "createdAt": 1792011182923,
+  "updatedAt": 1792011182923
  }
 }

@@ -121,7 +121,9 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   grey-box hero, the camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
   button switches): a small part of Storskogen (dense forest, a trail, a meadow with a rise), an open forest spaced as
   most of the game should be, a thick forest with one path cleared, a very big open field, an autumn hollow (a grove sunk in the ground, trees 1-4 m apart turning
-  yellow, orange and red, the ground full of leaves), a river under 3-4 m cliffs with paths up and down to it, and, for
+  yellow, orange and red, no paths, only leaf-filled ground and trees, as the user asked, the leaves lying thick and
+  now and then in deep piles that stir as the hero walks through, a few leaves hopping 1-2 cm: `game/scripts/
+  leaf_litter.gd`), a river under 3-4 m cliffs with paths up and down to it, and, for
   the rest of `ref_imgs2/`, a forest lake, a bog, a pine heath, and fog and morning sunbeams. It runs with
   VSync off and no frame rate limit, as the user asked; its performance panel (F2) has a frame rate limit. The user
   wants a before and after switch in F2 for every optimization, to judge what it costs the look; the speed-ups (ground

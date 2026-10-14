@@ -163,6 +163,13 @@ func setup(d: Node) -> void:
 		func(v: float) -> void: w.set_grass_option("ground_texture", v))
 	_slider(col, "grass_shade", "  ground in its shade", 0.6, 1.0, 0.05, w.grass.ground_shade, percent,
 		func(v: float) -> void: w.set_grass_option("ground_shade", v))
+	var leaves: LeafLitter = w.leaves  # the autumn hollow's; null elsewhere, where these change nothing
+	_choice(col, "leaves", "Fallen leaves", [["Piles", true], ["As before", false]], leaves == null or leaves.shown,
+		func(v: bool) -> void: w.set_leaves(v))
+	_slider(col, "leaf_amount", "  in piles", 0.3, 2.0, 0.05, leaves.amount if leaves else 1.0, percent,
+		func(v: float) -> void: w.set_leaf_option("amount", v))
+	_slider(col, "leaf_hop", "  hop", 0.0, 0.08, 0.005, leaves.hop if leaves else 0.02,
+		func(v: float) -> String: return "%.1f cm" % (v * 100.0), func(v: float) -> void: w.set_leaf_option("hop", v))
 	_choice(col, "crown", "Crown cut, camera high", [["Near camera", "near"], ["All trees", "all"], ["Off", "off"]], w.crown_cut,
 		func(v: String) -> void: w.set_trees("crown_cut", v))
 	_slider(col, "crown_reach", "  near: reach", 0.4, 1.0, 0.05, w.crown_reach, percent, func(v: float) -> void: w.crown_reach = v)

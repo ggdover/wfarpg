@@ -183,6 +183,9 @@ def is_wide(path):
     return any(k in os.path.basename(path) for k in ("blueprint", "row_a", "row_b", "portfolio"))
 
 
+THUMB_FROM = 100_000  # bytes: a full web copy smaller than this is shown as its own thumbnail
+
+
 class Images:
     """Gives the src for a repo image: the file itself, or resized web copies when building for the web."""
 
@@ -202,6 +205,10 @@ class Images:
                 self.done.add(dst)
             return dst
         from PIL import Image
+        if thumb:  # a small enough full copy is its own thumbnail: one file fewer (an artifact holds at most 511)
+            full = self.src(path)
+            if os.path.getsize(os.path.join(self.web_dir, full)) < THUMB_FROM:
+                return full
         dst = f"img/{base}_{'t' if thumb else 'f'}.jpg"
         if dst not in self.done:
             im = Image.open(os.path.join(HERE, path)).convert("RGB")

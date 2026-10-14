@@ -111,6 +111,7 @@ The final images shown on the board, by board section:
 | `renders/play_demo_clear_view` | Play demo: trees out of the way (four scenes as they open, before and now; behind a pine; the open forest) |
 | `renders/play_demo_grass_size` | Plants: bigger grass, and natural path edges (strand sizes and counts, walking through, the user's marked screenshot, the dirt's edges before and now) |
 | `renders/play_demo_bog_grass` | Plants: Clumps, no green balls, and grass for the bog (the bog before and now, close up and walking; the bog grass in the portfolio and its cards; the open forest and the meadow without the green balls) |
+| `renders/play_demo_leaves` | Autumn hollow: leaf-filled ground, and leaves that stir (the hollow before and now, closer; walking into a pile, `walking_through_leaves.webp` animated; standing in a deep pile) |
 | `renders/wip` | Not on the board: in-between renders shown in the design history |
 
 ## History

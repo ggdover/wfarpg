@@ -4634,6 +4634,88 @@
     "The mockups' kit builds its models from one random sequence, so leaving the green balls out of it changed the logs, lichen, tussocks and cairn built after them; they're still built, and only left out of what the game gets",
     "The areas pick their plants from random numbers drawn up front, so leaving the green balls out of the layouts moved nothing else"
    ]
+  },
+  {
+   "id": "autumn-leaves",
+   "date": "2026-10-14",
+   "asked_at": "22:17",
+   "posted_at": "22:53",
+   "title": "Leaf-filled ground, and leaves that stir",
+   "section": "Autumn hollow: leaf-filled ground, and leaves that stir",
+   "asked": "Great. The autumn hollow scene is still missing something similar to the grass patches, but here I want something a bit different. Firstly I want the paths gone, it should just be this area with leaf filled ground and trees. And about the leaf ground, instead of having grass patches/clumps maed up of cross planes, I want kind of lick this thick layer of leafs and as you walk through these leaves it should shake them a bit, just like when you step into a pile of leaf they will move around a bit, maybe a few singular leafs fly up a bit, just 1-2 centimeters and then down the ground, so it looks like you are stepping around in thick leaves. Its okay that this is not just one thick layer of leaves over the whole area, some areas can be so thin it doesn't really cause that \"leaf shaking/roughing around\" effect, but then ocassinally you step on some areas that have some thicker patches/piles/areas of leaves and you get that effect, as if you're stepping into piles of leaves.",
+   "changed": [
+    "No paths in the autumn hollow, and no faceted bracken or leaf piles in its grove: leaf-filled ground and trees",
+    "Piles of real leaves over the painted leaf ground: small faceted kites folded along the midrib, in its colours, up to 12 cm deep, thinning at their edges, about a third of the grove",
+    "Where the hero steps, the leaves are pushed aside and the pile pressed down, they shake, and a few hop up 1-2 cm and fall back, turning over; it settles within a second and a half",
+    "F2: Fallen leaves (Piles or none), how much lies in piles, how high they hop",
+    "The hero's trail shared by the grass and the leaves; about 0.8 ms a frame in the hollow"
+   ],
+   "items": [
+    {
+     "id": "s-fallenleaves",
+     "type": "frame",
+     "status": "new",
+     "title": "Autumn hollow: leaf-filled ground, and leaves that stir",
+     "author": "claude"
+    },
+    {
+     "id": "fl-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Leaf-filled ground, and leaves that stir\nYou asked for the autumn hollow without paths, just leaf-filled ground and trees, and for a thick layer of leaves that shifts as you walk through it, a few leaves hopping up a centimetre or two; thin in places, now and then deep in piles.\n\n- **No paths** in the hollow now, and no faceted bracken or leaf piles in its grove: only the leaves on the ground and the trees (rocks and logs are still about)\n- **Piles of real leaves:** over the painted leaf ground, drifts and piles of small faceted leaves, folded along the midrib, in the same colours, up to 12 cm deep in their middles and thinning out at their edges, the ground under them darker. About a third of the grove; a thin one now and then up round the hollow\n- **Stirring:** where the hero steps, the leaves are pushed aside and the pile pressed down, they shake, and a few hop up 1-2 cm and fall back, turning over; it settles within a second and a half. In a deep pile the most; at a thin edge hardly any\n- **F2** (Advanced settings): Fallen leaves, Piles or none; how much lies in piles; how high the leaves hop\n\n**Cost per frame:** about 0.8 ms in the hollow.",
+     "author": "claude"
+    },
+    {
+     "id": "fl-hollow",
+     "type": "image",
+     "status": "new",
+     "caption": "The autumn hollow from the game's camera, before and now.",
+     "assetId": "c95248a5997c9a05b2d05f154f9188ec",
+     "file": "renders/play_demo_leaves/hollow.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "fl-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Closer, before and now.",
+     "assetId": "28dcb368806398e1b0ca1ceb2b4b1c56",
+     "file": "renders/play_demo_leaves/hollow_close.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "fl-walk",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking into a pile of leaves (a moving picture): the leaves round the hero's feet shift, and a few hop, as it passes.",
+     "assetId": "e6901c6fa4def5c7943faedcc8ad0868",
+     "file": "renders/play_demo_leaves/walking_through_leaves.webp",
+     "author": "claude"
+    },
+    {
+     "id": "fl-pile",
+     "type": "image",
+     "status": "new",
+     "caption": "Standing in a deep pile.",
+     "assetId": "91196b2043b25e7b9347e67de183386e",
+     "file": "renders/play_demo_leaves/deep_pile.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/51_leaves_too_sparse.jpg",
+     "caption": "The first piles: too few leaves to read as a thick layer, the bracken still standing among them. Now there are more of them, a little bigger, the ground under a pile darker"
+    },
+    {
+     "file": "renders/wip/52_leaves_stirring_map.jpg",
+     "caption": "Checking the stirring: where pixels changed between frames after the hero stopped in a pile. The leaves round its feet flip and shift, then those along the way it came, dying away"
+    }
+   ],
+   "found": [
+    "The first piles cost about 5.7 ms a frame: every corner of every leaf read the ground's textures. The piles don't move, so each patch now carries its pile's depth and the ground's height and slope, worked out as the area loads, and the faintest edges have no patch: about 0.8 ms",
+    "Without its paths the grove's trees stand 1-4 m apart, so the scene test now walks a way planned between their trunks"
+   ]
   }
  ]
 }

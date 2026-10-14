@@ -1,7 +1,8 @@
 """Autumn hollow: a grove of birch, aspen, rowan and alder in a hollow that sinks a few metres into the ground, its
 trees 1-4 m apart and turning yellow, orange and red, the ground in it deep in their fallen leaves (the leaves on the
 ground references). The forest round it is still mostly green, spruce and pine, its birches only starting to turn.
-About 125 x 100 m to walk; a trail crosses the hollow, and another leaves it to the north.
+About 125 x 100 m to walk. No paths: the user wants it just leaf-filled ground and trees (14 October); in the game the
+leaves lie thick in drifts and piles here and there, which stir as the hero walks through them (scripts/leaf_litter.gd).
 
 Coordinates are metres, +X east, +Y north, Z up (Blender's axes), as in storskogen.py.
 """
@@ -16,12 +17,8 @@ BOUNDARY = catmull_closed([(-60, -42), (-30, -52), (10, -50), (48, -46), (62, -2
                            (-28, 48), (-58, 36), (-64, 0)], 5)
 BAKE = (-80.0, 80.0, -68.0, 68.0)
 FAR_R = 230.0
-START = ((-18.0, -1.5), 15.0)  # in the grove, on the trail down into the hollow
-PATHS = {
-    "trail": (catmull_open([(-80, -10), (-62, -8), (-47, -9), (-32, -5), (-16, -1), (0, 2), (16, -2), (30, 0), (44, 8),
-                            (60, 10), (80, 14)]), 2.0, "trail"),
-    "north": (catmull_open([(0, 2), (6, 14), (4, 28), (-2, 40), (0, 54), (4, 68)]), 1.6, "trail"),
-}
+START = ((-18.0, -1.5), 15.0)  # in the grove, on the slope down into the hollow
+PATHS = {}  # none (the user, 14 October)
 HOLLOW = (4.0, 2.0)  # the hollow's middle
 HOLLOW_R = 36.0
 HOLLOW_DEPTH = 2.8
@@ -115,10 +112,8 @@ def populate(L):
     L.erratics_and_landmarks()
 
     def cover(i, x, y, r, pick, G, patch, lingon):
-        if G["litter"][i] > 0.6:  # in the hollow: bracken turned rust and gold, and leaves heaped up here and there
-            if patch[i] > 0.2:
-                return f"DryFern{pick % 3}" if r < 0.3 else None
-            return f"LeafPile{pick % 3}" if r < 0.025 else (f"DryFern{pick % 3}" if r < 0.05 else None)
+        if G["litter"][i] > 0.6:  # in the hollow: only the leaves (the user: leaf-filled ground and trees, 14 October),
+            return None  # which the game heaps up in piles of its own (scripts/leaf_litter.gd)
         if patch[i] > 0.25:
             return (f"Blueberry{pick % 3}" if r < 0.14 else f"Shrub{pick % 3}") if r < 0.4 else None
         if fbm(np.array([x / 8.0]), np.array([y / 8.0]), 2, 77)[0] > 0.3:

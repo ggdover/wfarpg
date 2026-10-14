@@ -24,6 +24,9 @@ uniform float leaf_amount = 1.0;  // more or fewer fallen leaves
 // one, times litter
 uniform sampler2D litter_tex : hint_default_black, filter_linear, repeat_disable;
 uniform float litter = 1.0;
+// where the leaves lie deep in piles (scripts/leaf_litter.gd, pile_at in its shader), the ground under them darker, in
+// their shade, so the gaps between them read as depth: leaf_piles is their amount, 0 for none
+uniform float leaf_piles = 0.0;
 #ifdef BAKED
 uniform sampler2D detail_small : hint_default_black, filter_linear_mipmap_anisotropic, repeat_enable;  // 4 m tile
 uniform sampler2D detail_big : hint_default_black, filter_linear_mipmap_anisotropic, repeat_enable;  // 4 m tile
@@ -311,6 +314,11 @@ void fragment() {
 	if (detail > 0.0) {
 		vec2 lv = (p + vec2(2.3, 7.7)) * 4.5;
 		float lit = litter * texture(litter_tex, uv).r;
+		if (leaf_piles > 0.0) {
+			float lo = 0.55 - 0.08 * (leaf_piles - 1.0);
+			float n = m.a + 0.35 * (m.g - 0.5) + 0.12 * (m.b - 0.5);
+			col *= mix(1.0, 0.6, texture(litter_tex, uv).r * smoothstep(lo, lo + 0.14, n));
+		}
 		float drift = mix((0.12 + map_s(m.a, 0.5, 0.75, 0.0, 0.2)) * leaf_amount, 0.97, lit);
 		float fade = (1.0 - smoothstep(0.3, 0.9, length(fwidth(lv)) * 4.0)) * detail;  // too small to see far off
 		float covered = 0.0;

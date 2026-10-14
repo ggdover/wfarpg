@@ -118,11 +118,13 @@ func _grass_checks() -> void:
 	Input.action_release("move_forward")
 	await _frames(2)
 	var now := hero.get_global_transform_interpolated().origin
-	var head := Vector2(g._trail[0].x, g._trail[0].y)
-	var walked := g._trail.size() >= 4 and g._trail.all(func(p: Vector3) -> bool: return p.z < g.recover + 0.5)
+	var trail: Array[Vector3] = w.trail.points
+	var head := Vector2(trail[0].x, trail[0].y)
+	var walked := trail.size() >= 4 and trail.all(func(p: Vector3) -> bool: return p.z < w.trail.keep + 0.5) \
+		and int(g._materials[0].get_shader_parameter("trail_count")) == trail.size()
 	_check("the grass folds along the hero's trail: the trail starts at the hero and has the way it walked, newest first",
-		head.distance_to(Vector2(now.x, now.z)) < 0.05 and walked and g._trail[1].z <= g._trail[-1].z,
-		"%d points, the first %.2f m from the hero, %.1f m walked" % [g._trail.size(), head.distance_to(Vector2(now.x, now.z)), from.distance_to(now)])
+		head.distance_to(Vector2(now.x, now.z)) < 0.05 and walked and trail[1].z <= trail[-1].z,
+		"%d points, the first %.2f m from the hero, %.1f m walked" % [trail.size(), head.distance_to(Vector2(now.x, now.z)), from.distance_to(now)])
 	var block: Image = (g._materials[0].get_shader_parameter("block_tex") as Texture2D).get_image()
 	var b: Array = w.ground["bounds"]
 	var under := 0

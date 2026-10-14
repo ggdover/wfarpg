@@ -227,6 +227,11 @@ var plant_shadows := false
 var grass: GrassField
 ## the bog's grass, on its golden ground, in an area with a bog (its bog_grass.png says where); null elsewhere
 var bog_grass: GrassField
+## autumn's fallen leaves lying thick, in piles that stir as the hero walks through, in an area with a litter of them
+## (its litter.png: the autumn hollow); null elsewhere
+var leaves: LeafLitter
+## the hero's trail, which the grass folds round and the leaves stir along
+var trail := HeroTrail.new()
 var _old_grass: Array[MultiMeshInstance3D] = []  # the mockups' grass tufts, shown instead of it with set_grass("before")
 var _old_sedge: Array[MultiMeshInstance3D] = []  # the mockups' faceted tussocks and sedge, shown instead of the bog's grass
 ## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
@@ -257,7 +262,12 @@ func build(area: String, tree_set: String) -> void:
 		bog_grass = GrassField.new()
 		add_child(bog_grass)
 		bog_grass.build(self, GrassField.BOG, mask, grass._block, grass._heights)
+	if ResourceLoader.exists(ground["dir"] + "litter.png"):
+		leaves = LeafLitter.new()
+		add_child(leaves)
+		leaves.build(self, load(ground["dir"] + "litter.png"), grass._block)
 	set_grass(Game.grass)
+	set_leaves(true)
 	show_trees(tree_set)
 
 
@@ -306,10 +316,14 @@ func skip_faded(camera_pos: Vector3, radius: float) -> void:
 ## the cone. With "front" and "xray", the shaders also fade whatever of a tree comes near the camera. What's left of the
 ## trees is _leave's. Called every frame by the camera rig, with how long the frame took.
 func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
+	trail.keep = maxf(grass.recover if grass else 0.0, leaves.settle if leaves else 0.0)
+	trail.update(hero_pos, delta)
 	if grass:
-		grass.update(hero_pos, delta)
+		grass.update(trail)
 	if bog_grass:
-		bog_grass.update(hero_pos, delta)
+		bog_grass.update(trail)
+	if leaves:
+		leaves.update(trail)
 	if _current == "":
 		return
 	var camera_pos := camera.global_position
@@ -1259,6 +1273,8 @@ func set_ground_param(param: String, value: Variant) -> void:
 		grass.set_ground_param(param, value)
 	if bog_grass:
 		bog_grass.set_ground_param(param, value)
+	if leaves:
+		leaves.set_ground_param(param, value)
 
 
 ## A ground parameter as the ground shader has it now (null for one left at its default).
@@ -1276,6 +1292,18 @@ func set_grass(style: String) -> void:
 		mmi.visible = not grass.shown
 	for mmi in _old_sedge:  # in an area with the bog's grass, its faceted tussocks and sedge go with "before"
 		mmi.visible = not (bog_grass and bog_grass.shown)
+
+
+## The fallen leaves' piles (LeafLitter), where the area has them, or none, as before.
+func set_leaves(on: bool) -> void:
+	if leaves:
+		leaves.set_option("shown", on)
+
+
+## One of the leaves' settings (LeafLitter.set_option: amount, hop, depth, reach), where the area has them.
+func set_leaf_option(option: String, value: Variant) -> void:
+	if leaves:
+		leaves.set_option(option, value)
 
 
 ## One of the grass's settings (GrassField.set_option: density, strand_size, height_scale, reach, ground_texture,

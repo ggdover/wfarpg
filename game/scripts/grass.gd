@@ -13,8 +13,8 @@ extends Node3D
 ## texture of the terrain's heights; turns, moves and sizes it, and every card of it, by where it stands; and keeps it
 ## only on green ground, out of the paths' wear and off steep ground, and where nothing lies: block_tex, made here,
 ## marks the rocks and logs (the layout's solids) and the area's own models, its water, boardwalks, jetties, steps and
-## bridges. It takes the ground's colour where it stands. The hero's trail, its last 12 m, goes to the shader every
-## frame, and the grass folds away from it and springs back.
+## bridges. It takes the ground's colour where it stands. The hero's trail, its last 12 m (scripts/hero_trail.gd), goes
+## to the shader every frame, and the grass folds away from it and springs back.
 ##
 ## A second field grows the bog's grass (BOG: golden sedge, the user's ask of 14 October) the same way, on the bog's
 ## golden ground instead of the green: where the area's bog_grass.png says (baked by tools/build_demo.py, only for an
@@ -30,9 +30,6 @@ const CHUNK := 16.0  ## metres across each chunk of grass
 const MAX_DENSITY := 3.0  ## the most strands F2's slider gives, against a style's as tuned
 const MAX_SIZE := 2.0  ## the biggest strands it gives
 const BLOCK_TEXEL := 0.25  ## metres per texel of block_tex
-const TRAIL := 24  ## the hero's positions kept for the grass to fold round (TRAIL in the shader): 12 m of them
-const TRAIL_STEP := 0.5  ## metres the hero walks between two of them
-const TRAIL_JUMP := 3.0  ## metres the hero can't walk in a frame: put somewhere else, it starts a new trail
 ## the ground shader's parameters the grass shares (DemoWorld.set_ground_param): those every field shares, and its
 ## ground texture's, which the ground shader has for each field under the field's prefix
 const SHARED_PARAMS := ["grass_tex", "masks_tex", "path_noise_tex", "canopy_tex", "canopy_strength", "wear_spread", "worn0",
@@ -76,7 +73,6 @@ var _chunks: Array[MultiMeshInstance3D] = []  # two a chunk: its A patches and i
 var _ground := {}  # the ground's parameters the grass shares, as last set
 var _heights: ImageTexture
 var _block: ImageTexture
-var _trail: Array[Vector3] = []  # x, z and its age in seconds; [0] is the hero now
 
 
 ## Make the field: on the green ground, or with mask, the bog's grass where it says (its chunks only where it says
@@ -268,33 +264,17 @@ static func _linear(srgb: Array) -> Vector3:
 	return Vector3(c.r, c.g, c.b)
 
 
-## Every frame: the hero's trail for the shader, newest first. A new point each TRAIL_STEP metres walked; the oldest
-## go once the grass there has stood up again.
-func update(hero_pos: Vector3, delta: float) -> void:
+## Every frame: the hero's trail for the shader (the world's, which keeps it as long as the grass takes to stand up
+## again).
+func update(trail: HeroTrail) -> void:
 	if not shown:
 		return
-	for i in _trail.size():
-		var p := _trail[i]
-		p.z += delta
-		_trail[i] = p
-	var here := Vector3(hero_pos.x, hero_pos.z, 0.0)
-	if _trail.is_empty() or Vector2(here.x - _trail[0].x, here.y - _trail[0].y).length() > TRAIL_JUMP:
-		_trail = [here, here]
-	_trail[0] = here
-	if Vector2(here.x - _trail[1].x, here.y - _trail[1].y).length() >= TRAIL_STEP:
-		_trail.insert(1, here)
-	while _trail.size() > TRAIL or (_trail.size() > 2 and _trail[-1].z > recover):
-		_trail.pop_back()
-	var points := PackedVector4Array()
-	var far := 0.0
-	for p in _trail:
-		points.append(Vector4(p.x, p.y, p.z, 0.0))
-		far = maxf(far, Vector2(p.x - here.x, p.y - here.y).length())
-	points.resize(TRAIL)
+	var points := trail.packed()
+	var far := trail.reach(fold_radius)
 	for m in _materials:
 		m.set_shader_parameter("trail", points)
-		m.set_shader_parameter("trail_count", _trail.size())
-		m.set_shader_parameter("trail_reach", far + fold_radius)
+		m.set_shader_parameter("trail_count", trail.points.size())
+		m.set_shader_parameter("trail_reach", far)
 
 
 ## The mask the field grows on, as an image (its pixels over the ground's bounds, rows from the north as the shader
