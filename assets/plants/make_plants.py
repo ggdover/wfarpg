@@ -36,12 +36,12 @@ ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 TAU = math.tau
 ROWS = [  # name, plants, the camera's pitch down (degrees), its picture in previews/
     ("Bushes", ["Raspberry", "AlderBuckthorn", "Hazel"], 10, "row_bushes.png"),
-    ("Grass for the ground, and the fern", ["LongGrass", "GrassWisps", "GrassTufts", "GrassClumps", "GrassShort", "WoodFern"], 24,
+    ("Grass for the ground, and the fern", ["LongGrass", "GrassWisps", "GrassTufts", "GrassClumps", "GrassShort", "GrassBog", "WoodFern"], 24,
      "row_grass_fern.png"),
     ("Grasses", [s[0] for s in plantgen.SPECIES if s[7] == "grass"], 20, "row_grasses.png"),
 ]
 FLOOR = Vector((-60.0, 0.0, 0.0))  # the forest floor's middle
-FLOOR_GRASS = "GrassTufts"  # the grass covering the forest floor, on its ground
+FLOOR_GRASS = "GrassClumps"  # the grass covering the forest floor, on its ground
 
 LOADER = '''"""Registers the plant editor: the "Plants" tab in the 3D viewport's sidebar (press N).
 Its code is plant_editor.py and plantgen.py, next to this .blend (and ../trees/treegen.py)."""

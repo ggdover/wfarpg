@@ -635,6 +635,11 @@ def longgrass(v, extra=False):
 GRASS_BASE = "#5E8A38"  # a strand's foot, and the ground's background
 GRASS_TIP = "#76A440"   # its tip: about 1.5 times as light as its foot, once the game has it in linear colour
 GRASS_DRY = "#98A44C"   # a dry strand's tip
+# The bog's grass (the user, 14 October: a yellow grass for the bog, that blends in and folds as the grass does): the
+# golden sedge of a Swedish bog, deergrass and last year's sedge, in fine strands fanning out from a tussock's foot and
+# arching over, golden toward their tips, a few pale and dry, a few still green; on a ground of the same strands lying
+# in stars round each tussock. The game colours it by the bog's golden ground, so only the tips against the feet count.
+BOG_COLOURS = dict(base="#9A8448", tip="#CDB65E", dry="#DCCD92", fresh="#8E9248")
 STYLES = {  # set: its card's strands (half-width and length as shares of the card), and its ground's (in metres)
     "wisps": dict(n=20, width=0.016, length=0.95, spread=0.26, curve=0.28, droop=0.32, tuft=False,
                   ground=dict(kind="loose", count=2600, length=(0.1, 0.24), width=0.008)),
@@ -644,7 +649,16 @@ STYLES = {  # set: its card's strands (half-width and length as shares of the ca
                    ground=dict(kind="clumps", count=240, blades=(20, 34), length=(0.12, 0.24), width=0.007)),
     "shortgrass": dict(n=26, width=0.024, length=0.92, spread=0.3, curve=0.2, droop=0.12, tuft=False,
                        ground=dict(kind="loose", count=5200, length=(0.04, 0.09), width=0.008)),
+    "boggrass": dict(n=34, width=0.013, length=0.95, spread=0.4, curve=0.35, droop=0.34, tuft=True, colours=BOG_COLOURS,
+                     ground=dict(kind="tufts", count=330, blades=(10, 18), length=(0.1, 0.24), width=0.007)),
 }
+
+
+def style_colours(s):
+    """A style's base (its strands' feet and its ground), tip and dry tip, and a fresh green one's, as RGB."""
+    c = s.get("colours", {})
+    return (rgb(c.get("base", GRASS_BASE)), rgb(c.get("tip", GRASS_TIP)), rgb(c.get("dry", GRASS_DRY)),
+            rgb(c["fresh"]) if "fresh" in c else None)
 GROUND_METRES = 4.0  # how far a ground texture reaches before it repeats
 GROUND_SIZE = 2048   # its pixels across
 
@@ -653,17 +667,19 @@ def grass_style(name, v):
     """A card of one of the game's grass styles (STYLES): fewer strands than the long grass's, in a row along the
     card's foot, or fanning out from its middle as a tuft; design 2 has some dry blades, 3 more strands."""
     s = STYLES[name]
-    c = Plant([GRASS_BASE], 1700 + 10 * list(STYLES).index(name) + v)
+    c = Plant([s.get("colours", {}).get("base", GRASS_BASE)], 1700 + 10 * list(STYLES).index(name) + v)
     c.fit = "box" if s["tuft"] else "top"
     r = c.rng
     n = round(s["n"] * (1.4 if v == 3 else 1.0))
-    base, tip, dry = rgb(GRASS_BASE), rgb(GRASS_TIP), rgb(GRASS_DRY)
+    base, tip, dry, fresh = style_colours(s)
     for k in range(n):
         x = 0.5 + r.gauss(0, 0.06) if s["tuft"] else r.uniform(0.06, 0.94)
         a = math.pi / 2 + (0.5 - x) * (0.5 if not s["tuft"] else 0.0) + r.gauss(0, s["spread"])
         L = s["length"] * r.uniform(0.55, 1.0)
         foot = shade(base, r.uniform(0.94, 1.04))
         end = shade(dry if (v == 2 and r.random() < 0.2) else tip, r.uniform(0.95, 1.05))
+        if fresh is not None and r.random() < 0.12:  # a few strands still green
+            foot, end = shade(fresh, r.uniform(0.92, 1.02)), shade(fresh, r.uniform(1.18, 1.32))
         side = 1 if r.random() < 0.5 else -1
         strand(c, (x, FOOT[1] + r.uniform(-0.01, 0.015)), a, L, s["width"] * r.uniform(0.8, 1.15),
                side * abs(r.gauss(s["curve"], s["curve"] * 0.5)), s["droop"] * (L / s["length"]) ** 2 * r.uniform(0.4, 1.3),
@@ -677,9 +693,10 @@ def ground_tile(name):
     every which way; tufts lie as stars from their middles; clumps lie combed one way, a clump at a time. Under them,
     lighter and darker blotches a clump of grass across."""
     g = STYLES[name]["ground"]
+    base, tip, dry, fresh = style_colours(STYLES[name])
     r = random.Random(1800 + list(STYLES).index(name))
     big = GROUND_SIZE * 2  # drawn at twice the size, for clean edges
-    img = Image.new("RGB", (big, big), rgb(GRASS_BASE))
+    img = Image.new("RGB", (big, big), base)
     # under the strands, lighter and darker blotches a clump of grass across (10 to 40 cm), so the ground has
     # texture at the size the game's camera sees, not only in strands too fine for it: drawn small, wrapped round and
     # blurred, then laid over the base colour
@@ -694,11 +711,10 @@ def ground_tile(name):
                 bd.ellipse([x + ox - rad, y + oy - rad * r.uniform(0.6, 1.0), x + ox + rad, y + oy + rad], fill=tone)
     blot = blot.filter(ImageFilter.GaussianBlur(low / GROUND_METRES * 0.05)).crop((low, low, 2 * low, 2 * low))
     blot = blot.resize((big, big), Image.BILINEAR)
-    img = Image.composite(Image.new("RGB", (big, big), shade(rgb(GRASS_BASE), 1.12)), img, blot.point(lambda v: max(0, v - 128) * 2))
-    img = Image.composite(Image.new("RGB", (big, big), shade(rgb(GRASS_BASE), 0.88)), img, blot.point(lambda v: max(0, 128 - v) * 2))
+    img = Image.composite(Image.new("RGB", (big, big), shade(base, 1.12)), img, blot.point(lambda v: max(0, v - 128) * 2))
+    img = Image.composite(Image.new("RGB", (big, big), shade(base, 0.88)), img, blot.point(lambda v: max(0, 128 - v) * 2))
     d = ImageDraw.Draw(img)
     m = big / GROUND_METRES  # pixels a metre
-    base, tip, dry = rgb(GRASS_BASE), rgb(GRASS_TIP), rgb(GRASS_DRY)
 
     def lie(x, y, ang, length, width, foot, end):
         """One strand lying from (x, y), metres, along ang: tapering, its colour running from foot to end."""
@@ -722,6 +738,8 @@ def ground_tile(name):
     def colours():
         foot = shade(base, r.uniform(0.86, 1.0))
         end = shade(dry if r.random() < 0.08 else tip, r.uniform(0.94, 1.06))
+        if fresh is not None and r.random() < 0.12:  # a few strands still green
+            foot, end = shade(fresh, r.uniform(0.86, 1.0)), shade(fresh, r.uniform(1.15, 1.3))
         return foot, end
 
     W = GROUND_METRES
@@ -753,6 +771,7 @@ PLANTS = {  # card set: (draw, extra kind, the designs' names)
     "tufts": (lambda v, extra=False: grass_style("tufts", v), None, ["Even", "Dry blades", "Fuller"]),
     "clumps": (lambda v, extra=False: grass_style("clumps", v), None, ["Even", "Dry blades", "Fuller"]),
     "shortgrass": (lambda v, extra=False: grass_style("shortgrass", v), None, ["Even", "Dry blades", "Fuller"]),
+    "boggrass": (lambda v, extra=False: grass_style("boggrass", v), None, ["Golden", "Pale, dry blades", "Fuller"]),
     "hairgrass": (hairgrass, "flowers", ["Fine tuft", "Dense tuft", "Golden, late summer", "Sparse"]),
     "bent": (bent, "flowers", ["Meadow tuft", "Tall, loose", "Dry", "Lush"]),
     "smallreed": (smallreed, "flowers", ["Arching blades", "Upright", "Late summer", "Full"]),

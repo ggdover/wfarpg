@@ -54,6 +54,8 @@ DEFAULTS = {
     "GrassTufts": dict(BASE, planes=3, size=1.0, width=0.62, lean=0.3, bend=0.45, spread=1.3, spin=1.0, extra=0.0),
     "GrassClumps": dict(BASE, planes=3, size=1.05, width=0.77, lean=0.3, bend=0.4, spread=1.0, spin=1.0, extra=0.0),
     "GrassShort": dict(BASE, planes=3, size=0.6, width=0.5, lean=0.25, bend=0.3, spread=0.9, spin=1.0, extra=0.0),
+    # the bog's golden sedge, the game's grass on the bog (the user, 14 October: a yellow grass that fits the bog)
+    "GrassBog": dict(BASE, planes=3, size=1.05, width=0.85, lean=0.35, bend=0.5, spread=0.9, spin=1.0, extra=0.0),
     "WavyHairGrass": dict(BASE, planes=3, density=1.0, lean=0.35, bend=0.4, extra=0.35),
     "CommonBent": dict(BASE, planes=3, density=1.0, lean=0.3, bend=0.35, extra=0.4),
     "WoodSmallReed": dict(BASE, planes=3, density=1.0, lean=0.25, bend=0.45, extra=0.4, flower_height=1.7),
@@ -363,6 +365,7 @@ SPECIES = [  # key, builder, English name, Swedish name, Latin name, width in th
     ("GrassTufts", long_grass, "Grass: tufts", "Gräs: tuvor", "Poa, Festuca, Agrostis", 0.7, "tufts", "patch"),
     ("GrassClumps", long_grass, "Grass: clumps", "Gräs: klungor", "Poa, Festuca, Agrostis", 0.8, "clumps", "patch"),
     ("GrassShort", long_grass, "Grass: short", "Gräs: kort", "Poa, Festuca, Agrostis", 0.6, "shortgrass", "patch"),
+    ("GrassBog", long_grass, "Grass: bog", "Gräs: myr", "Carex, Trichophorum, Molinia", 0.8, "boggrass", "patch"),
     ("WavyHairGrass", wavy_hair_grass, "Wavy hair-grass", "Kruståtel", "Avenella flexuosa", 0.9, "hairgrass", "grass"),
     ("CommonBent", common_bent, "Common bent", "Rödven", "Agrostis capillaris", 0.9, "bent", "grass"),
     ("WoodSmallReed", wood_small_reed, "Wood small-reed", "Piprör", "Calamagrostis arundinacea", 1.2, "smallreed", "grass"),
@@ -480,7 +483,7 @@ def materials_for(key, cfg):
 # grow as they did
 SEED_INDEX = {"Raspberry": 3, "AlderBuckthorn": 4, "Hazel": 5, "WoodFern": 6, "WavyHairGrass": 7, "CommonBent": 8,
               "WoodSmallReed": 9, "PurpleMoorGrass": 10, "CommonSedge": 11, "Cottongrass": 12, "LongGrass": 13,
-              "GrassWisps": 14, "GrassTufts": 15, "GrassClumps": 16, "GrassShort": 17}
+              "GrassWisps": 14, "GrassTufts": 15, "GrassClumps": 16, "GrassShort": 17, "GrassBog": 18}
 
 
 GROUND_SHADE = 0.85  # the ground among the grass, darker in its shade, as the game has it (GrassField.ground_shade)

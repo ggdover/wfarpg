@@ -27,10 +27,14 @@ General knowledge, public documentation, and third-party libraries and engines a
   walks through it (the user, 10 October; `game/scripts/grass.gd`). It must blend into the ground, not show as crossed
   planes: the cards in the ground's own colour, fewer strands a card so the ground shows through, fewer patches, each
   card at its own angle, and the ground under it textured to match (the user found the first try, thick grass in
-  colours of its own over a smooth ground, didn't). Four styles to try (G in the demo); the user hasn't chosen yet. The
-  user asked for the strands a bit taller and wider, so it's easier to see the hero walking through them, and for a
-  slider for more or fewer strands that keeps their colours (14 October): F2's strand size (140% by default, the
-  ground texture's strands scaled alike) and strands. Bushes are full and widest at
+  colours of its own over a smooth ground, didn't). Of the four styles to try (G in the demo), the user liked Clumps
+  best: the default (14 October). The user asked for the strands a bit taller and wider, so it's easier to see the
+  hero walking through them, and for a slider for more or fewer strands that keeps their colours (14 October): F2's
+  strand size (140% by default, the ground texture's strands scaled alike) and strands. The bog has its own grass,
+  golden sedge in tussocks with wet hollows between, blending in and folding the same way (the user asked for a
+  yellow grass that fits the bog, 14 October), in place of the mockups' faceted tussocks. The mockups' small faceted
+  green balls, the shrubs and the blueberry and lingonberry bushes, are gone: they didn't fit beside the strands (the
+  user, 14 October). Bushes are full and widest at
   the foot, not thin there (the user, of the buckthorn and hazel); the raspberry must be big enough to count as a bush.
   The wood fern can go in occasional places; blueberry, lingonberry and heather as made didn't represent anything the
   user wanted, so they were dropped.
@@ -108,13 +112,13 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   leaf cards and clumps. The user's tuned settings are in `assets/trees/tree_settings.json`; build from them, not
   from the defaults in `treegen.py`. See its README. `assets/plants/` is the plant portfolio, made the same way:
   bushes and grasses of the Swedish forest (raspberry, alder buckthorn, hazel, wood fern; the long grass and the
-  game's four grass styles; wavy hair-grass, common bent, wood small-reed, purple moor-grass, sedge, cottongrass) in
+  game's four grass styles and its bog grass; wavy hair-grass, common bent, wood small-reed, purple moor-grass, sedge, cottongrass) in
   `plant_portfolio.blend`, with a plant editor (a Plants tab) and the user's settings in `plant_settings.json`. Only
-  the grasses for the ground are in the game so far (built from those settings by `game/tools/build_demo.py`'s plants
+  the grasses for the ground (and the bog's) are in the game so far (built from those settings by `game/tools/build_demo.py`'s plants
   stage).
 - `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, grass over
-  the green ground in four styles (G, or F2's Grass; As before shows the mockups' tufts instead), a grey-box hero, the
-  camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
+  the green ground in four styles (G, or F2's Grass; As before shows the mockups' tufts instead) and the bog's own, a
+  grey-box hero, the camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
   button switches): a small part of Storskogen (dense forest, a trail, a meadow with a rise), an open forest spaced as
   most of the game should be, a thick forest with one path cleared, a very big open field, an autumn hollow (a grove sunk in the ground, trees 1-4 m apart turning
   yellow, orange and red, the ground full of leaves), a river under 3-4 m cliffs with paths up and down to it, and, for

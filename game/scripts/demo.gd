@@ -10,7 +10,7 @@ extends Node3D
 ##   --fps=seconds    measure the frame rate first and print it                       --selftest  try the controls
 ##   --scene=id       which scene (scripts/scenes.gd)       --scenetest  walk the scene's steps, bridges and jetties
 ##   --mood=name      the scene's area in another mood (scripts/mood.gd)
-##   --grass=style    the grass over the green ground: GrassTufts, GrassWisps, GrassClumps, GrassShort, LongGrass, before
+##   --grass=style    the grass over the green ground: GrassClumps, GrassWisps, GrassTufts, GrassShort, LongGrass, before
 ##   --walktest       walk the trail and print the frame times                       --treelod=1|2  lighter trees
 ##   --panel          open the performance panel (F2); --panel=advanced with its advanced settings shown
 ##   --set:option=value  a panel option or slider, e.g. --set:shadow_size=1024 --set:details=2 --set:tree_shadows=far

@@ -15,6 +15,7 @@ low-poly stems. Two variants of each:
 | Grass: tufts | Gräs: tuvor | Poa, Festuca, Agrostis | tufts of strands fanning from their feet, on a ground of flattened tufts |
 | Grass: clumps | Gräs: klungor | Poa, Festuca, Agrostis | the thickest: a meadow of strands, on a ground combed one way a clump at a time |
 | Grass: short | Gräs: kort | Poa, Festuca, Agrostis | a short lawn, on a ground of short strokes |
+| Grass: bog | Gräs: myr | Carex, Trichophorum, Molinia | the bog's golden sedge: fine strands fanning from a tussock's foot and arching over, a few pale and dry, a few still green, on a ground of them lying in stars |
 | Wavy hair-grass | Kruståtel | Avenella flexuosa | grass: the pine forest's, hair-thin curling blades, airy purple-silver flowers |
 | Common bent | Rödven | Agrostis capillaris | grass: the meadows', narrow blades, airy reddish flowers |
 | Wood small-reed | Piprör | Calamagrostis arundinacea | grass: tall at the forest's edge, broad arching blades |
@@ -35,7 +36,10 @@ a card so more of it is clear and the ground shows through, fewer patches, each 
 textured to match, and for a few versions to try. So there are four grass styles (wisps, tufts, clumps, short), each
 with a ground texture of its strands lying flat as seen from above, in the same colours as its cards: the game lays it
 over its green ground and colours both by the ground's own colour (`game/README.md`, The grass). The long grass stays
-as the first try, to compare.
+as the first try, to compare. The user liked clumps best (14 October), so the game has it by default, and the forest
+floor here is covered in it. They also asked for a yellow grass that fits the bog, made the same way: the bog grass,
+golden sedge, painted round a golden colour instead of the green, which the game grows on the bog's golden ground, in
+tussocks.
 
 Open `plant_portfolio.blend` in Blender 5.2 to look at them. It opens on the bushes with Material Preview shading.
 The file holds:
@@ -43,7 +47,7 @@ The file holds:
 - `Bushes` and `Grasses`: one collection per plant with variants A and B, each one object on its own origin.
 - `Portfolio`: three rows, the bushes, the long grass and the fern, the grasses, with name signs and a 1.8 m person at
   the start of each; the ground, the sun and the cameras.
-- `Forest floor`: a patch of forest floor 16 by 12 m covered in grass, as the game's green ground is: Tufts, on its
+- `Forest floor`: a patch of forest floor 16 by 12 m covered in grass, as the game's green ground is: Clumps, on its
   ground texture (a patch as far apart as its Patch spacing says), with copies of the rest where each grows
   (ferns in the spruce's shade, the bushes at the edges, moor-grass, sedge and cottongrass by a wet hollow), under four
   of the tree portfolio's trees, linked from `../trees/tree_portfolio.blend`. The plants share their mesh with those
@@ -203,6 +207,7 @@ The game builds its long grass from these settings too: after changing them, sav
 | Grass: tufts, a patch | 34 cm | 0.5 m | 6 | 6 |
 | Grass: clumps, a patch | 43 cm | 0.6 m | 6 | 6 |
 | Grass: short, a patch | 26 cm | 0.4 m | 6 | 6 |
+| Grass: bog, a patch | 42 cm | 0.7 m | 6 | 6 |
 | Wavy hair-grass | 51 cm | 0.7 m | 42 | 42 |
 | Common bent | 52 cm | 0.7 m | 34 | 34 |
 | Wood small-reed | 96 cm | 1.0 m | 28 | 28 |
@@ -212,6 +217,6 @@ The game builds its long grass from these settings too: after changing them, sav
 
 Heights are to the top of the cards, flowers included (the long grass's patch without its seed heads). The grasses
 are about their real size, a little more; the bushes, like the trees, a little smaller than life, for the high game
-camera (the hazel and the buckthorn about as big as in the first version, but full down to the ground). Only the long
-grass is in the play demo so far, covering its green ground: its bushes, berries, heather and ferns are still the
-mockups' faceted shapes.
+camera (the hazel and the buckthorn about as big as in the first version, but full down to the ground). Only the grass
+styles are in the play demo so far, covering its green ground, and the bog grass its bog: its heather and ferns are
+still the mockups' faceted shapes, and its faceted shrubs and berry bushes are gone.

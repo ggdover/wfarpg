@@ -10,8 +10,9 @@ var tree_set := "new"
 var scene := "storskogen"
 ## the paths' colour theme (scripts/path_themes.gd)
 var path_theme := "Forest earth"
-## the grass over the green ground (scripts/grass.gd, GrassField.STYLES; G and F2 change it)
-var grass := "GrassTufts"
+## the grass over the green ground (scripts/grass.gd, GrassField.STYLES; G and F2 change it): Clumps, the style the
+## user chose (14 October)
+var grass := "GrassClumps"
 ## the portfolio trees' bark textures, or their trunks plain as before them (F2's Bark textures)
 var bark := true:
 	set(v):

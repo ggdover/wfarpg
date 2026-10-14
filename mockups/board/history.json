@@ -4524,6 +4524,116 @@
     "The straight edges weren't in the bake: Godot had compressed the masks for the graphics card, as it does any texture by default, and the dirt's threshold turned the compression's blocks into rectangles",
     "More strands make the whole only a shade lighter, 2% at 300%, as the strands' tips cover more of the ground in their shade"
    ]
+  },
+  {
+   "id": "clumps-bog-grass",
+   "date": "2026-10-14",
+   "asked_at": "21:35",
+   "posted_at": "21:57",
+   "title": "Clumps, no green balls, and grass for the bog",
+   "section": "Plants: Clumps, no green balls, and grass for the bog",
+   "asked": "This is awesome. I like the one called \"clumps\" most. Lets make it the default. I think we can remove the little green ball loooking polygon green stuff, that sometimes have small blue and redd beeds on them looking like berries. All those small low-poly green balls don't fit in any more now that we have the grass strains so lets just remove them. I also want us to get some different yellow like grass type for the bog area, something that fits that swampy bog area, using same technique to blend in and interact with physics when the character move through it in the bog area.",
+   "changed": [
+    "Clumps is the default grass",
+    "The mockups' shrubs and blueberry and lingonberry bushes, the small faceted green balls, gone from every scene: about 23,000 of them, everything else where it stood",
+    "A bog grass in the plant portfolio: golden sedge, fine strands fanning from a tussock's foot and arching over, a few pale and dry, a few still green, with a ground texture of its own",
+    "In the bog, a second field of grass grows it wherever the golden ground is, not in the pools, blending in and folding as the green grass does, in tussocks with darker, wet hollows between",
+    "The bog's faceted tussocks and sedge hidden in its place; As before shows them again",
+    "Cost: the bog's grass 1.3 ms a frame with the green grass at its edge; Clumps 0.35 to 0.5 ms more than Tufts"
+   ],
+   "items": [
+    {
+     "id": "s-boggrass",
+     "type": "frame",
+     "status": "new",
+     "title": "Plants: Clumps, no green balls, and grass for the bog",
+     "author": "claude"
+    },
+    {
+     "id": "bg-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Clumps, no green balls, and grass for the bog\nYou liked Clumps best, asked for the small faceted green balls (some with blue or red berries) to go now that there are grass strands, and for a yellow grass for the bog that blends in and folds as the rest does.\n\n- **Clumps** is now the default (G still steps through the others)\n- **The green balls are gone** from every scene: the mockups' shrubs and blueberry and lingonberry bushes, about 23,000 of them. Every tree, rock and other plant stands where it stood. The heather (green with purple tops) and the flat moss pads are still there; say if they should go too\n- **The bog's grass:** golden sedge, made like the other grass styles in the plant portfolio (Grass: bog), with a ground texture of its own. It grows wherever the bog's golden ground is, not in its pools, and folds as the hero walks through it. It gathers in tussocks: thick and tall in clumps, with thin grass and darker, wet ground in the hollows between\n- **In its place**, the bog's faceted golden tussocks and spiky sedge are hidden, as the mockups' grass tufts are; As before (G) shows them again. The river and lake scenes still have theirs\n\n**Cost per frame:** the bog's grass, with the green grass at its edge, 1.3 ms; Clumps 0.35 to 0.5 ms more than Tufts.",
+     "author": "claude"
+    },
+    {
+     "id": "bg-bog",
+     "type": "image",
+     "status": "new",
+     "caption": "The bog from the game's camera, before and now.",
+     "assetId": "beb9ffb05d56ea54d9180c04ec682cbf",
+     "file": "renders/play_demo_bog_grass/bog.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "bg-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Closer: the faceted tussocks, and the bog's grass in their place.",
+     "assetId": "4716f37a3d52b1093d7b220a40780ad7",
+     "file": "renders/play_demo_bog_grass/bog_close.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "bg-walk",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking through the bog's grass: the lane folds behind the hero. At the bog's edge it turns into the green grass.",
+     "assetId": "5e765b0a3c0154dd8ed563b341ef39ff",
+     "file": "renders/play_demo_bog_grass/bog_walk.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "bg-portfolio",
+     "type": "image",
+     "status": "new",
+     "caption": "In the plant portfolio: Grass: bog, a small lawn of it on its ground, and its ground.",
+     "assetId": "ee71f91cba06333f77831a9f0a338a07",
+     "file": "renders/play_demo_bog_grass/bog_grass_portfolio.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "bg-cards",
+     "type": "image",
+     "status": "new",
+     "caption": "Its three cards: golden, pale and dry, and fuller; a few blades still green.",
+     "assetId": "3eaca9cc7d47d41572b5639004aaf9a1",
+     "file": "renders/play_demo_bog_grass/bog_grass_cards.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "bg-balls",
+     "type": "image",
+     "status": "new",
+     "caption": "The open forest, before (Tufts, with the green balls) and now (Clumps, without them).",
+     "assetId": "b221984214a79959eccc1056abbf3cb5",
+     "file": "renders/play_demo_bog_grass/no_green_balls.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "bg-balls-meadow",
+     "type": "image",
+     "status": "new",
+     "caption": "The meadow fork, before and now.",
+     "assetId": "c5ffbd72e0efb1471d3cd44524774c74",
+     "file": "renders/play_demo_bog_grass/no_green_balls_meadow.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/49_bog_grass_with_faceted_tussocks.jpg",
+     "caption": "The bog's grass first in the game, with the faceted tussocks and spiky sedge still standing in it: they looked as out of place beside the strands as the green balls did"
+    },
+    {
+     "file": "renders/wip/50_bog_grass_even.jpg",
+     "caption": "Without them, the bog's grass was an even golden meadow; it now gathers in tussocks, with darker, wet ground between"
+    }
+   ],
+   "found": [
+    "The mockups' kit builds its models from one random sequence, so leaving the green balls out of it changed the logs, lichen, tussocks and cairn built after them; they're still built, and only left out of what the game gets",
+    "The areas pick their plants from random numbers drawn up front, so leaving the green balls out of the layouts moved nothing else"
+   ]
   }
  ]
 }

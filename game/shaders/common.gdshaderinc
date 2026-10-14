@@ -28,6 +28,13 @@ float ground_green(vec3 lin) {
 			* smoothstep(0.28, 0.34, mx);
 }
 
+// The bog's tussocks, from the paths' masks (masks_tex, decoded: its tufts noise in blue, its patches noise in green):
+// 1 in a tussock, where the bog's grass grows thick and tall (shaders/grass.gdshader), 0 in the wet hollows between,
+// where it's thin and the ground darker (ground.gdshaderinc). Clumps of half a metre to a metre or so.
+float tussock_at(vec4 m) {
+	return smoothstep(-0.08, 0.1, (m.b - 0.5) + 0.6 * (m.g - 0.5) + 0.03);
+}
+
 // A random number, 0..1, for a cell of a 3D grid.
 float hash_cell3(vec3 c) {
 	uvec3 v = uvec3(ivec3(c)) * uvec3(1597334673u, 3812015801u, 2798796415u);

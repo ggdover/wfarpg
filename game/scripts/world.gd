@@ -225,7 +225,10 @@ var sight_clear := 0.0
 var plant_shadows := false
 ## the grass over the green ground (scripts/grass.gd), which folds as the hero walks through it
 var grass: GrassField
+## the bog's grass, on its golden ground, in an area with a bog (its bog_grass.png says where); null elsewhere
+var bog_grass: GrassField
 var _old_grass: Array[MultiMeshInstance3D] = []  # the mockups' grass tufts, shown instead of it with set_grass("before")
+var _old_sedge: Array[MultiMeshInstance3D] = []  # the mockups' faceted tussocks and sedge, shown instead of the bog's grass
 ## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
 var tree_lod := 0
 ## for measuring: kinds of tree not drawn at all (--hide=NorwaySpruce,ScotsPine; the layout's kinds)
@@ -248,6 +251,12 @@ func build(area: String, tree_set: String) -> void:
 	grass = GrassField.new()
 	add_child(grass)
 	grass.build(self, Game.grass)
+	if ResourceLoader.exists(ground["dir"] + "bog_grass.png"):
+		var mask: Texture2D = load(ground["dir"] + "bog_grass.png")
+		set_ground_param("bog_tex", mask)
+		bog_grass = GrassField.new()
+		add_child(bog_grass)
+		bog_grass.build(self, GrassField.BOG, mask, grass._block, grass._heights)
 	set_grass(Game.grass)
 	show_trees(tree_set)
 
@@ -299,6 +308,8 @@ func skip_faded(camera_pos: Vector3, radius: float) -> void:
 func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	if grass:
 		grass.update(hero_pos, delta)
+	if bog_grass:
+		bog_grass.update(hero_pos, delta)
 	if _current == "":
 		return
 	var camera_pos := camera.global_position
@@ -1246,6 +1257,8 @@ func set_ground_param(param: String, value: Variant) -> void:
 		mat.set_shader_parameter(param, value)
 	if grass:
 		grass.set_ground_param(param, value)
+	if bog_grass:
+		bog_grass.set_ground_param(param, value)
 
 
 ## A ground parameter as the ground shader has it now (null for one left at its default).
@@ -1254,11 +1267,23 @@ func ground_param(param: String) -> Variant:
 
 
 ## The grass over the green ground: one of the grass styles, or the long grass (GrassField.STYLES), or "before":
-## the mockups' grass tufts, as before it.
+## the mockups' grass tufts, as before it, and no bog grass either.
 func set_grass(style: String) -> void:
 	grass.set_style(style)
+	if bog_grass:
+		bog_grass.set_style(GrassField.BOG if grass.shown else "before")
 	for mmi in _old_grass:
 		mmi.visible = not grass.shown
+	for mmi in _old_sedge:  # in an area with the bog's grass, its faceted tussocks and sedge go with "before"
+		mmi.visible = not (bog_grass and bog_grass.shown)
+
+
+## One of the grass's settings (GrassField.set_option: density, strand_size, height_scale, reach, ground_texture,
+## ground_shade), for the bog's grass too.
+func set_grass_option(option: String, value: Variant) -> void:
+	grass.set_option(option, value)
+	if bog_grass:
+		bog_grass.set_option(option, value)
 
 
 ## How much small detail the ground draws: 3 high, 4 high from baked textures, 2 medium, 1 low, 0 none (see
@@ -1615,8 +1640,7 @@ func _build_props() -> void:
 			(groups[key] as Array).append(xf)
 		var small := model.begins_with("Pebble") or model.begins_with("Grass") or model.begins_with("Lichen") \
 			or model.begins_with("Sedge") or model.begins_with("LilyPad")
-		var plant := small or model.begins_with("Shrub") or model.begins_with("Blueberry") or model.begins_with("Lingonberry") \
-			or model.begins_with("TallGrass") or model.begins_with("Heather") or model.begins_with("MossMound") \
+		var plant := small or model.begins_with("TallGrass") or model.begins_with("Heather") or model.begins_with("MossMound") \
 			or model.begins_with("Fern") or model.begins_with("Reed") or model.begins_with("Tussock") \
 			or model.begins_with("DryFern") or model.begins_with("LeafPile")
 		for key: Vector2i in groups:
@@ -1625,6 +1649,8 @@ func _build_props() -> void:
 				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			if model.begins_with("Grass") or model.begins_with("TallGrass"):
 				_old_grass.append(mmi)
+			elif model.begins_with("Tussock") or model.begins_with("Sedge"):
+				_old_sedge.append(mmi)
 
 
 func _add_multimesh(parent: Node3D, model: String, xforms: Array, chunk: Vector2i, size: float, range_end: float) -> MultiMeshInstance3D:

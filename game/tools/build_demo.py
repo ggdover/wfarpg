@@ -143,11 +143,15 @@ def extend_ground_more(kit):
     gravel = ramp(noise(4.0, 2.0, 0.6, (12, 1, 0)), [(0.3, "#7E7466"), (0.55, "#9A8E78"), (0.78, "#B4A68A")])
     col = mix(broken("gravel", 1.0, 0.4, (1, 12, 0)), col, gravel)
     sedge = ramp(noise(1.8, 2.0, 0.6, (14, 7, 0)), [(0.3, "#8A7A44"), (0.5, "#A8914E"), (0.7, "#C2AB5E"), (0.85, "#CDB76A")])
-    col = mix(broken("sedge", 0.9, 0.45, (7, 14, 0)), col, sedge)
+    sedge_here = broken("sedge", 0.9, 0.45, (7, 14, 0))
+    sedge_here.node.name = "SedgeHere"  # where the golden sedge shows, for the bog's grass (bake_bog_grass)
+    col = mix(sedge_here, col, sedge)
     litter = ramp(noise(2.6, 3.0, 0.62, (17, 23, 0)), [(0.25, "#5E3A1E"), (0.42, "#8A5428"), (0.56, "#A86A2C"), (0.7, "#BD8A36"), (0.84, "#9A3E22")])
     col = mix(broken("litter", 0.6, 0.3, (23, 17, 0)), col, litter)
     bed = ramp(noise(1.0, 2.0, 0.5, (3, 8, 0)), [(0.3, "#2E3024"), (0.6, "#3A3A2E"), (0.8, "#4A4634")])
-    col = mix(sstep(attr("bed"), 0.2, 0.8), col, bed)
+    bed_here = sstep(attr("bed"), 0.2, 0.8)
+    bed_here.node.name = "BedHere"
+    col = mix(bed_here, col, bed)
     marker = N.new("NodeReroute")
     marker.name = "MoreLayers"
     L.new(col, path_in.inputs["Color"])
@@ -547,7 +551,10 @@ def build_models(trees=True):
     for group, items in kit_groups(kit).items():
         objs, ao = [], {}
         for name, make in items:
-            me = make()
+            me = make()  # a DROPPED plant too, for the kit's builders share one random sequence: the rest stay as they were
+            if name.rstrip("0123456789") in DROPPED:
+                bpy.data.meshes.remove(me)
+                continue
             me.name = name
             ob = bpy.data.objects.new(name, me)
             bpy.context.scene.collection.objects.link(ob)
@@ -1143,6 +1150,12 @@ def jittered(rng, box, cell):
     return (X + rng.uniform(0, cell, X.shape)).ravel(), (Y + rng.uniform(0, cell, Y.shape)).ravel()
 
 
+# the mockups' small faceted plants the game no longer has: the shrubs and the blueberry and lingonberry bushes, round
+# green balls (with blue or red berries) that didn't fit beside the grass's strands, the user found (14 October). The
+# areas still pick them where they did, so every other plant, rock and tree stands where it stood, but they're left out.
+DROPPED = ("Shrub", "Blueberry", "Lingonberry")
+
+
 class Layout:
     """What an area scatters: its trees, props and solids, and anything else it hands the game (extras: water,
     models of its own; see tools/areas). An area's populate(layout) fills it, with the helpers below; an area without
@@ -1160,7 +1173,10 @@ class Layout:
         return any(math.hypot(x - c[0], y - c[1]) < r + pad for c, r in self.clear)
 
     def add_prop(self, model, x, y, rot, s, sink=None, solid=None, z=None):
-        """A prop standing on the ground (or at height z), sunk into it as SINK says, solid out to solid x s."""
+        """A prop standing on the ground (or at height z), sunk into it as SINK says, solid out to solid x s. One of the
+        DROPPED plants is left out."""
+        if model.rstrip("0123456789") in DROPPED:
+            return
         sink = SINK.get(model.rstrip("0123456789"), SINK["plant"]) if sink is None else sink
         z = (self.ground(x, y) if z is None else z) - sink * s
         self.props.setdefault(model, []).append(to_godot((x, y, z)) + [round(float(rot), 3), round(float(s), 3)])
@@ -1605,6 +1621,7 @@ FAR = 330.0  # the outer ground reaches this far from the centre
 FAR_GRID = 5.0
 COLOUR_TEXEL = 0.04  # the ground's colour; the game's shader draws the gravel, grit and fallen leaves on top
 MASK_TEXEL = 0.1  # where the paths wear the grass, and the paths' dirt colour
+BOG_GRASS_TEXEL = 0.2  # where the bog's grass grows
 FAR_TEXEL = 0.5  # the outer ground's colour
 CANOPY_TEXEL = 0.25  # how much the trees shade the ground from the sky
 GROUND_LAYERS = ("pathw", "bog", "shore", "meadow", "field", "fieldbase", "yard", "paving", "ash", "darkfloor",
@@ -1848,6 +1865,35 @@ def bake_masks(kit):
     masks[..., 3] = np.where(d <= 0.04045, d / 12.92, ((d + 0.055) / 1.055) ** 2.4)
     save_pixels(masks, os.path.join(GROUND_DIR, "masks.png"), alpha=True)
     mipmapped(os.path.join(GROUND_DIR, "masks.png"), lossless=True)
+    bake_bog_grass(kit)
+
+
+def bake_bog_grass(kit):
+    """Where the bog's grass grows (the game's GrassBog, scripts/grass.gd): wherever the ground shows the golden sedge,
+    its edge broken up by noise as the ground paints it, and not under the pools: bog_grass.png, grey, linear, only
+    for an area with a sedge layer (the bog)."""
+    if "sedge" not in D.ground_masks(np.zeros(1), np.zeros(1)):
+        return
+
+    def socket(nt):
+        dry = nt.nodes.get("BakeNotBed") or nt.nodes.new("ShaderNodeMath")
+        dry.name = "BakeNotBed"
+        dry.operation = "SUBTRACT"
+        dry.inputs[0].default_value = 1.0
+        nt.links.new(nt.nodes["BedHere"].outputs[0], dry.inputs[1])
+        grows = nt.nodes.get("BakeBogGrass") or nt.nodes.new("ShaderNodeMath")
+        grows.name = "BakeBogGrass"
+        grows.operation = "MULTIPLY"
+        nt.links.new(nt.nodes["SedgeHere"].outputs[0], grows.inputs[0])
+        nt.links.new(dry.outputs[0], grows.inputs[1])
+        return grows.outputs[0]
+
+    show(kit, socket)
+    v = bake_view(D.BAKE, BOG_GRASS_TEXEL, None)[..., 0]  # sRGB-encoded, as baked: decoded, so the game reads it as is
+    v = np.where(v <= 0.04045, v / 12.92, ((v + 0.055) / 1.055) ** 2.4)
+    path = os.path.join(GROUND_DIR, "bog_grass.png")
+    save_pixels(np.clip(v, 0.0, 1.0), path)
+    mipmapped(path, lossless=True)
 
 
 def bake_litter(texel=0.25):

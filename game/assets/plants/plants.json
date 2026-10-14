@@ -1,4 +1,38 @@
 {
+ "GrassBog_A": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.331,
+  "height": 0.418,
+  "max": [
+   0.444,
+   0.418,
+   0.282
+  ],
+  "min": [
+   -0.305,
+   -0.02,
+   -0.389
+  ]
+ },
+ "GrassBog_B": {
+  "cards": 6,
+  "faces": 6,
+  "file": "res://assets/plants/plants.glb",
+  "foot": 0.357,
+  "height": 0.396,
+  "max": [
+   0.274,
+   0.396,
+   0.245
+  ],
+  "min": [
+   -0.4,
+   -0.02,
+   -0.361
+  ]
+ },
  "GrassClumps_A": {
   "cards": 6,
   "faces": 6,
@@ -170,6 +204,43 @@
   ]
  },
  "grass": {
+  "GrassBog": {
+   "card_foot": {
+    "leaves": [
+     0.5949,
+     0.5283,
+     0.2813
+    ]
+   },
+   "card_mean": {
+    "leaves": [
+     0.6591,
+     0.5954,
+     0.3113
+    ]
+   },
+   "ground": {
+    "mean": [
+     0.6165,
+     0.5299,
+     0.293
+    ],
+    "metres": 4.0,
+    "texture": "res://assets/plants/textures/boggrass_ground.jpg"
+   },
+   "height": 0.418,
+   "meshes": [
+    "GrassBog_A",
+    "GrassBog_B"
+   ],
+   "share_b": 0.5,
+   "spacing": 0.45,
+   "spin": 1.0,
+   "textures": {
+    "leaves": "res://assets/plants/textures/boggrass_1.png"
+   },
+   "title": "Grass: bog"
+  },
   "GrassClumps": {
    "card_foot": {
     "leaves": [

@@ -50,6 +50,11 @@
    "Dry blades",
    "Fuller"
   ],
+  "boggrass": [
+   "Golden",
+   "Pale, dry blades",
+   "Fuller"
+  ],
   "hairgrass": [
    "Fine tuft",
    "Dense tuft",
@@ -97,6 +102,7 @@
   "tufts": null,
   "clumps": null,
   "shortgrass": null,
+  "boggrass": null,
   "hairgrass": "flowers",
   "bent": "flowers",
   "smallreed": "flowers",
@@ -184,6 +190,18 @@
   "shortgrass_3": [
    1.0,
    0.8809
+  ],
+  "boggrass_1": [
+   1.0195,
+   0.9102
+  ],
+  "boggrass_2": [
+   1.0195,
+   0.832
+  ],
+  "boggrass_3": [
+   1.0195,
+   0.8184
   ]
  },
  "grounds": {
@@ -201,6 +219,10 @@
   },
   "shortgrass": {
    "file": "shortgrass_ground.jpg",
+   "metres": 4.0
+  },
+  "boggrass": {
+   "file": "boggrass_ground.jpg",
    "metres": 4.0
   }
  }

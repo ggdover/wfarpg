@@ -43,6 +43,14 @@ uniform vec3 strokes_mean = vec3(1.0);
 uniform float strokes_metres = 4.0;  // how far the texture reaches before it repeats
 uniform float strokes_amount = 0.0;
 uniform float strokes_shade = 1.0;  // the ground under the grass, darker in its shade, so its lighter strands show
+// The bog's grass's ground (scripts/grass.gd, its field on the bog): its strands lying flat, laid over the ground where
+// bog_tex says (the area's bog_grass.png), as the green ground's is; bog_strokes_amount 0 leaves it off.
+uniform sampler2D bog_tex : hint_default_black, filter_linear, repeat_disable;
+uniform sampler2D bog_strokes_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform vec3 bog_strokes_mean = vec3(1.0);
+uniform float bog_strokes_metres = 4.0;
+uniform float bog_strokes_amount = 0.0;
+uniform float bog_strokes_shade = 1.0;
 const float DETAIL_FAR[4] = float[](0.0, 28.0, 38.0, 50.0);
 global uniform vec2 mood_grade;
 
@@ -194,6 +202,11 @@ void fragment() {
 				strokes_amount * ground_green(col));
 	}
 	vec4 m = texture(masks_tex, uv);
+	if (bog_strokes_amount > 0.0) {  // the bog's grass's ground, where it grows, darker in the wet hollows between tussocks
+		float bog = bog_strokes_amount * texture(bog_tex, uv).r;
+		col *= mix(vec3(1.0), texture(bog_strokes_tex, world_pos.xz / bog_strokes_metres).rgb / bog_strokes_mean * bog_strokes_shade, bog)
+				* mix(1.0, 0.72, min(bog, 1.0) * (1.0 - tussock_at(m)));
+	}
 	float e = m.r * 5.0 - 0.5;  // half-widths from the path's centre line
 	float patches = m.g - 0.5;
 	float tufts = m.b - 0.5;

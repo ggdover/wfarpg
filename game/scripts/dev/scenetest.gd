@@ -1,7 +1,7 @@
 extends Node
 ## Dev: walks the hero through the scene's paths that matter (Game.scene): up the river's wooden steps and over its
 ## footbridge, out on the lake's jetty and into its shallows, along the bog's boardwalk, down into the autumn hollow;
-## checks that it gets there and stays on what it walks on, then quits.
+## checks that it gets there and stays on what it walks on (and, in the bog, that its grass grows there), then quits.
 ## godot --path game res://scenes/demo.tscn -- --scene=river_cliffs --scenetest
 
 var demo: Node
@@ -94,6 +94,21 @@ func _bog() -> void:
 	var q: Vector3 = demo.hero.global_position
 	_check("the boardwalk carries the hero across the bog", q.x > 45.0 and on[0] > on[1] * 0.9,
 		"to x %.1f, on it %d of %d frames" % [q.x, on[0], on[1]])
+	# the bog's grass: a field of its own, in the chunks the bog reaches, in place of the faceted tussocks and sedge,
+	# folding round the hero's trail as the green grass does; As before brings those back
+	var g: GrassField = w.bog_grass
+	var hidden := w._old_sedge.all(func(m: MultiMeshInstance3D) -> bool: return not m.visible)
+	var head := Vector2(g._trail[0].x, g._trail[0].y) if g and not g._trail.is_empty() else Vector2.INF
+	_check("the bog's grass grows on the bog, in place of its faceted tussocks and sedge, and follows the hero",
+		g != null and g.shown and g.style == GrassField.BOG and g._chunks.size() > 0 and g._chunks.size() < w.grass._chunks.size()
+		and w._old_sedge.size() > 0 and hidden and head.distance_to(Vector2(q.x, q.z)) < 0.1,
+		"%d chunks (the green grass %d); faceted ones hidden: %s; its trail %.2f m from the hero" % [g._chunks.size() if g else 0,
+		w.grass._chunks.size(), hidden, head.distance_to(Vector2(q.x, q.z))])
+	var style0 := Game.grass
+	demo.show_grass("before")
+	var before := not g.shown and w._old_sedge.all(func(m: MultiMeshInstance3D) -> bool: return m.visible)
+	demo.show_grass(style0)
+	_check("As before: the bog's faceted tussocks and sedge, and no bog grass", before and g.shown, "before %s" % before)
 
 
 func _autumn_hollow() -> void:

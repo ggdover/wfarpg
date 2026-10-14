@@ -44,6 +44,12 @@ uniform vec3 height_grid = vec3(-112.0, -88.0, 0.5);  // x and z of its first po
 uniform ivec2 height_size = ivec2(449, 353);
 // where something lies on the ground: 1 under rocks, logs, water and the area's own models, over the same bounds
 uniform sampler2D block_tex : filter_linear, repeat_disable;
+// where it grows: on the green ground, or (the bog's grass, scripts/grass.gd) where grow_tex says, over the same bounds
+uniform bool on_green = true;
+uniform sampler2D grow_tex : hint_default_white, filter_linear, repeat_disable;
+// 1 gathers it into tussocks, as the bog's sedge grows: thick and tall in clumps, thin and low in the hollows between
+// them (tussock_at in common.gdshaderinc)
+uniform float tussocks = 0.0;
 
 uniform float spacing = 0.5;  // metres between the grid's patches
 uniform float density : hint_range(0.0, 1.0) = 1.0;  // the share of the patches drawn
@@ -104,6 +110,7 @@ void vertex() {
 	// reading little: the graphics card's time goes on the patches' corners, every one of which works this out.
 	float keep = 0.0;
 	float worn = 0.0;
+	float clump = 1.0;
 	float g0 = 0.0;
 	vec2 slope = vec2(0.0);
 	if (far > 0.0 && pick < density && all(greaterThan(uv, vec2(0.0))) && all(lessThan(uv, vec2(1.0)))) {
@@ -119,7 +126,10 @@ void vertex() {
 			float sp = wear_spread;
 			float wear = max(map_s(e, 0.45, 1.9, 1.0 - 0.15 * sp, 0.0), 0.55 * sp * map_s(e, 1.0, 1.0 + 2.4 * max(sp, 0.01), 1.0, 0.0));
 			worn = map_s(e, 0.7, 2.1 + 1.4 * sp, 1.0, 0.0);
-			keep *= ground_green(ground_col) * (1.0 - smoothstep(0.15, 0.55, wear + 2.0 * (m.b - 0.5) + 1.2 * sp * (m.g - 0.5)));
+			float here = on_green ? ground_green(ground_col) : textureLod(grow_tex, uv, 0.0).r;
+			clump = mix(1.0, tussock_at(m), tussocks);
+			here *= mix(0.12, 1.0, clump);
+			keep *= here * (1.0 - smoothstep(0.15, 0.55, wear + 2.0 * (m.b - 0.5) + 1.2 * sp * (m.g - 0.5)));
 			if (pick < keep) {
 				slope = vec2(ground_at(foot + vec2(0.5, 0.0)) - g0, ground_at(foot + vec2(0.0, 0.5)) - g0) / 0.5;
 				keep *= 1.0 - smoothstep(0.6, 0.9, length(slope));
@@ -144,7 +154,8 @@ void vertex() {
 		mat2 turn = mat2(vec2(cos(a), sin(a)), vec2(-sin(a), cos(a)));
 		float s = mix(0.85, 1.15, rnd(cell, 5u)) * size;
 		vec2 xz = turn * local.xz * s;
-		float h = max(local.y, 0.0) * s * height_scale * mix(0.55, 1.0, smoothstep(0.0, 0.6, keep / max(density, 0.01))) * (1.0 - 0.45 * worn) * far;
+		float h = max(local.y, 0.0) * s * height_scale * mix(0.55, 1.0, smoothstep(0.0, 0.6, keep / max(density, 0.01))) * (1.0 - 0.45 * worn) * far
+				* mix(1.0, mix(0.6, 1.25, clump), tussocks);
 
 		// folded away from the hero's trail: tipped over about its foot, away from the trail and the way the hero
 		// walked, as far as the nearest part of the trail says, which springs back as it ages
@@ -197,8 +208,9 @@ void fragment() {
 	}
 	// the ground's own colour just under this pixel, in the grass's shade, trampled toward the paths as the ground is
 	vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	vec3 g = texture(grass_tex, (world.xz - bounds.xy) / bounds.zw).rgb;
-	float gg = strokes_amount > 0.0 ? strokes_amount * ground_green(g) : 0.0;
+	vec2 guv = (world.xz - bounds.xy) / bounds.zw;
+	vec3 g = texture(grass_tex, guv).rgb;
+	float gg = strokes_amount > 0.0 ? strokes_amount * (on_green ? ground_green(g) : texture(grow_tex, guv).r) : 0.0;
 	vec3 strands = mix(g * mix(1.0, strokes_shade, gg), v_worn_col, v_worn) * c.rgb / card_foot;  // their feet its colour
 	vec3 col = strands;
 	if (ground_tint > 0.0) {

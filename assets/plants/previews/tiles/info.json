@@ -89,6 +89,16 @@
   "faces": 6,
   "cards": 6
  },
+ "GrassBog": {
+  "name": "Grass: bog",
+  "swedish": "Gr\u00e4s: myr",
+  "latin": "Carex, Trichophorum, Molinia",
+  "kind": "patch",
+  "height": 0.44,
+  "across": 0.7,
+  "faces": 6,
+  "cards": 6
+ },
  "WavyHairGrass": {
   "name": "Wavy hair-grass",
   "swedish": "Krust\u00e5tel",

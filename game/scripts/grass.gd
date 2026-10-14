@@ -15,11 +15,17 @@ extends Node3D
 ## marks the rocks and logs (the layout's solids) and the area's own models, its water, boardwalks, jetties, steps and
 ## bridges. It takes the ground's colour where it stands. The hero's trail, its last 12 m, goes to the shader every
 ## frame, and the grass folds away from it and springs back.
+##
+## A second field grows the bog's grass (BOG: golden sedge, the user's ask of 14 October) the same way, on the bog's
+## golden ground instead of the green: where the area's bog_grass.png says (baked by tools/build_demo.py, only for an
+## area with a bog), with its own ground texture, which the ground shader lays there under its own names (bog_strokes_*).
 
 const PLANTS := "res://assets/plants/plants.json"
 ## the grasses to choose from, in F2's and G's order, and what they're called there; "before" is the mockups' tufts
 const STYLES := {"GrassWisps": "Wisps", "GrassTufts": "Tufts", "GrassClumps": "Clumps", "GrassShort": "Short",
 	"LongGrass": "First try", "before": "As before"}
+const DEFAULT := "GrassClumps"  ## the user's choice of them (14 October)
+const BOG := "GrassBog"  ## the bog's grass, which a field on its mask grows
 const CHUNK := 16.0  ## metres across each chunk of grass
 const MAX_DENSITY := 3.0  ## the most strands F2's slider gives, against a style's as tuned
 const MAX_SIZE := 2.0  ## the biggest strands it gives
@@ -27,13 +33,19 @@ const BLOCK_TEXEL := 0.25  ## metres per texel of block_tex
 const TRAIL := 24  ## the hero's positions kept for the grass to fold round (TRAIL in the shader): 12 m of them
 const TRAIL_STEP := 0.5  ## metres the hero walks between two of them
 const TRAIL_JUMP := 3.0  ## metres the hero can't walk in a frame: put somewhere else, it starts a new trail
-## the ground shader's parameters the grass shares (DemoWorld.set_ground_param)
-const GROUND_PARAMS := ["grass_tex", "masks_tex", "path_noise_tex", "canopy_tex", "canopy_strength", "wear_spread", "worn0",
-	"worn1", "strokes_tex", "strokes_mean", "strokes_metres", "strokes_amount", "strokes_shade"]
+## the ground shader's parameters the grass shares (DemoWorld.set_ground_param): those every field shares, and its
+## ground texture's, which the ground shader has for each field under the field's prefix
+const SHARED_PARAMS := ["grass_tex", "masks_tex", "path_noise_tex", "canopy_tex", "canopy_strength", "wear_spread", "worn0",
+	"worn1"]
+const STROKE_PARAMS := ["strokes_tex", "strokes_mean", "strokes_metres", "strokes_amount", "strokes_shade"]
 
 var world: DemoWorld
-## the grass shown: one of STYLES (DemoWorld.set_grass)
-var style := "GrassTufts"
+## where it grows: null on the green ground, or where a mask over the ground's bounds says (the bog's)
+var grows: Texture2D
+## the ground shader's names for this field's ground texture: "strokes_*" on the green ground, "bog_strokes_*" on the bog
+var prefix := ""
+## the grass shown: one of STYLES (DemoWorld.set_grass), or BOG
+var style := DEFAULT
 ## drawn: not "before"
 var shown := true
 ## how many strands, against the style's as tuned: its patches stand this much closer together (above 1) or further
@@ -67,14 +79,21 @@ var _block: ImageTexture
 var _trail: Array[Vector3] = []  # x, z and its age in seconds; [0] is the hero now
 
 
-func build(w: DemoWorld, first_style: String) -> void:
+## Make the field: on the green ground, or with mask, the bog's grass where it says (its chunks only where it says
+## anything). block and heights, if given, are another field's, to share.
+func build(w: DemoWorld, first_style: String, mask: Texture2D = null, block: ImageTexture = null, heights: ImageTexture = null) -> void:
 	world = w
-	name = "Grass"
+	grows = mask
+	prefix = "bog_" if mask else ""
+	name = "BogGrass" if mask else "Grass"
 	_info = JSON.parse_string(FileAccess.get_file_as_string(PLANTS))
-	_heights = _height_texture()
-	_block = _block_texture()
-	for param: String in GROUND_PARAMS:  # those the ground had before the grass was made
+	_heights = heights if heights else _height_texture()
+	_block = block if block else _block_texture()
+	for param: String in SHARED_PARAMS:  # those the ground had before the grass was made
 		_ground[param] = world.ground_param(param)
+	for param: String in STROKE_PARAMS:
+		_ground[param] = world.ground_param(prefix + param)
+	var where := _mask_image() if mask else null
 	# a chunk's box: its ground, low to high, and the tallest grass on it
 	var b: Array = world.ground["bounds"]
 	var tall := 0.0
@@ -84,6 +103,8 @@ func build(w: DemoWorld, first_style: String) -> void:
 		for cx in int(ceil(b[2] / CHUNK)):
 			var x0: float = b[0] + cx * CHUNK
 			var z0: float = b[1] + cz * CHUNK
+			if where and not _any_in(where, x0, z0):
+				continue
 			var lo := INF
 			var hi := -INF
 			for sz in 9:
@@ -103,10 +124,10 @@ func build(w: DemoWorld, first_style: String) -> void:
 	set_style(first_style)
 
 
-## Show one of STYLES: its patches in every chunk, its ground texture on the green ground; "before", none (the world
-## shows the mockups' tufts then, DemoWorld.set_grass).
+## Show one of STYLES (or BOG): its patches in every chunk, its ground texture on the ground it grows on; "before",
+## none (the world shows the mockups' tufts then, DemoWorld.set_grass).
 func set_style(which: String) -> void:
-	style = which if STYLES.has(which) else "GrassTufts"
+	style = which if STYLES.has(which) or which == BOG else DEFAULT
 	shown = style != "before"
 	if shown:
 		var s := _style(style)
@@ -118,13 +139,18 @@ func set_style(which: String) -> void:
 	_apply()
 
 
-## A ground parameter the grass shares with the ground shader (DemoWorld.set_ground_param).
+## A ground parameter the grass shares with the ground shader (DemoWorld.set_ground_param): one every field shares,
+## or this field's ground texture's, under its prefix.
 func set_ground_param(param: String, value: Variant) -> void:
-	if param in GROUND_PARAMS:
-		_ground[param] = value
-		for s: Dictionary in _styles.values():
-			for m: ShaderMaterial in s["materials"]:
-				m.set_shader_parameter(param, value)
+	var own := param if param in SHARED_PARAMS else ""
+	if param.begins_with(prefix) and param.substr(prefix.length()) in STROKE_PARAMS:
+		own = param.substr(prefix.length())
+	if own == "":
+		return
+	_ground[own] = value
+	for s: Dictionary in _styles.values():
+		for m: ShaderMaterial in s["materials"]:
+			m.set_shader_parameter(own, value)
 
 
 func set_option(option: String, value: Variant) -> void:
@@ -145,14 +171,14 @@ func _apply() -> void:
 	for mmi in _chunks:
 		mmi.visible = shown
 		mmi.visibility_range_end = reach + CHUNK * 0.75  # from the chunk's middle
-	# the style's ground texture on the green ground, for the ground and the grass's feet alike
+	# the style's ground texture on the ground it grows on, for the ground and the grass's feet alike
 	var ground: Variant = _style(style)["ground"] if shown else null
 	if ground:
-		world.set_ground_param("strokes_tex", ground["texture"])
-		world.set_ground_param("strokes_mean", ground["mean"])
-		world.set_ground_param("strokes_metres", ground["metres"] * strand_size)
-	world.set_ground_param("strokes_amount", ground_texture if ground else 0.0)
-	world.set_ground_param("strokes_shade", ground_shade)
+		world.set_ground_param(prefix + "strokes_tex", ground["texture"])
+		world.set_ground_param(prefix + "strokes_mean", ground["mean"])
+		world.set_ground_param(prefix + "strokes_metres", ground["metres"] * strand_size)
+	world.set_ground_param(prefix + "strokes_amount", ground_texture if ground else 0.0)
+	world.set_ground_param(prefix + "strokes_shade", ground_shade)
 
 
 ## A style's materials and multimeshes, made the first time it's shown.
@@ -184,6 +210,10 @@ func _style(key: String) -> Dictionary:
 		m.set_shader_parameter("height_size", world._size)
 		m.set_shader_parameter("block_tex", _block)
 		m.set_shader_parameter("bounds", Vector4(b[0], b[1], b[2], b[3]))
+		m.set_shader_parameter("on_green", grows == null)
+		m.set_shader_parameter("tussocks", 0.0 if grows == null else 1.0)  # the bog's sedge grows in tussocks
+		if grows:
+			m.set_shader_parameter("grow_tex", grows)
 		for param: String in _ground:
 			m.set_shader_parameter(param, _ground[param])
 		materials.append(m)
@@ -265,6 +295,30 @@ func update(hero_pos: Vector3, delta: float) -> void:
 		m.set_shader_parameter("trail", points)
 		m.set_shader_parameter("trail_count", _trail.size())
 		m.set_shader_parameter("trail_reach", far + fold_radius)
+
+
+## The mask the field grows on, as an image (its pixels over the ground's bounds, rows from the north as the shader
+## reads them).
+func _mask_image() -> Image:
+	var img := grows.get_image()
+	if img == null:  # without a graphics card to keep it on, as with --headless
+		img = Image.load_from_file(ProjectSettings.globalize_path(grows.resource_path))
+	if img.is_compressed():
+		img.decompress()
+	return img
+
+
+## Does the mask say anything in the chunk from (x0, z0), or within a metre round it?
+func _any_in(img: Image, x0: float, z0: float) -> bool:
+	var b: Array = world.ground["bounds"]
+	var size := Vector2(img.get_width(), img.get_height())
+	var p0 := ((Vector2(x0, z0) - Vector2(b[0], b[1]) - Vector2.ONE) / Vector2(b[2], b[3]) * size).floor()
+	var p1 := ((Vector2(x0, z0) - Vector2(b[0], b[1]) + Vector2.ONE * (CHUNK + 1.0)) / Vector2(b[2], b[3]) * size).ceil()
+	for y in range(maxi(0, int(p0.y)), mini(img.get_height(), int(p1.y)), 3):  # every third pixel: its shapes are bigger
+		for x in range(maxi(0, int(p0.x)), mini(img.get_width(), int(p1.x)), 3):
+			if img.get_pixel(x, y).r > 0.02:
+				return true
+	return false
 
 
 ## The terrain's heights as a texture, one texel per point of its grid: half floats, which the graphics card can
