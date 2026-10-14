@@ -47,6 +47,7 @@ uniform sampler2D block_tex : filter_linear, repeat_disable;
 
 uniform float spacing = 0.5;  // metres between the grid's patches
 uniform float density : hint_range(0.0, 1.0) = 1.0;  // the share of the patches drawn
+uniform float size = 1.0;  // how big each patch is, its cards and strands, against as tuned
 uniform float height_scale = 1.0;
 uniform float reach = 45.0;  // metres from the camera where the grass has sunk into the ground
 // how far each card of each patch is turned, at random, about the patch's middle (1: anywhere), and leaned over at
@@ -108,7 +109,7 @@ void vertex() {
 	if (far > 0.0 && pick < density && all(greaterThan(uv, vec2(0.0))) && all(lessThan(uv, vec2(1.0)))) {
 		g0 = ground_at(foot);
 		vec4 clip = PROJECTION_MATRIX * (VIEW_MATRIX * vec4(foot.x, g0 + 0.25, foot.y, 1.0));
-		if (clip.w > 0.0 && all(lessThan(abs(clip.xy), vec2(clip.w * 1.12 + 0.6)))) {  // the patch's reach past the edges
+		if (clip.w > 0.0 && all(lessThan(abs(clip.xy), vec2(clip.w * 1.12 + 0.6 * size)))) {  // the patch's reach past the edges
 			keep = density * (1.0 - smoothstep(0.03, 0.2, textureLod(block_tex, uv, 0.0).r));
 		}
 		if (pick < keep) {
@@ -141,7 +142,7 @@ void vertex() {
 		// the patch turned and sized at random; shorter where it's sparse (toward the paths) and trodden; sunk in far off
 		float a = rnd(cell, 4u) * TAU;
 		mat2 turn = mat2(vec2(cos(a), sin(a)), vec2(-sin(a), cos(a)));
-		float s = mix(0.85, 1.15, rnd(cell, 5u));
+		float s = mix(0.85, 1.15, rnd(cell, 5u)) * size;
 		vec2 xz = turn * local.xz * s;
 		float h = max(local.y, 0.0) * s * height_scale * mix(0.55, 1.0, smoothstep(0.0, 0.6, keep / max(density, 0.01))) * (1.0 - 0.45 * worn) * far;
 

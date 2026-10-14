@@ -4424,6 +4424,106 @@
     "Blender lit the grass cards' backs darker and let them cast shadows, so in the portfolio the grass looked darker than its ground; the game does neither, and the portfolio now matches it"
    ],
    "cover": "renders/play_demo_grass_styles/close_ups.jpg"
+  },
+  {
+   "id": "grass-size-edges",
+   "date": "2026-10-14",
+   "asked_at": "20:54",
+   "posted_at": "21:19",
+   "title": "Bigger grass, and natural path edges",
+   "section": "Plants: bigger grass, and natural path edges",
+   "asked": "I think we can make the grass strains a bit taller and wider in size, so its easier to notice that you'are walking through strains of grass, while still keeping it blended into the ground underneath. Maybe give me some slider where I can give it more or less grassstrains without changing the coloring of them. Also, I noticed how in alot of places where dirt and grass meet (dirt meaning the dirt brown ground comeing from the dirt path) that alot of the edges are very straight and perpendicular to each other, giving of a feel of the ground where the grass meets the dirt path to look very artificially and machine designed where I want it to be alot more natural looking. I've marked some of them with red lines in a screenshot in the image \"lele.png\" to give you an idea of what I mean.",
+   "changed": [
+    "The grass's strands 140% the size by default, taller and wider, and the strands lying flat in its ground texture as much bigger, so they still match: F2's strand size",
+    "F2's strands, 25% to 300%: the patches closer together or further apart, each as it was, so the strands keep their colours",
+    "The dirt's edges ragged instead of straight and at right angles: the paths' masks, compressed for the graphics card in blocks of 4 x 4 texels, are now kept as they were baked, in every area",
+    "Forest earth's darker patches of soil, drawn from the same masks, natural too",
+    "Cost: the bigger strands 0.3 to 0.5 ms a frame, the uncompressed masks about 0.2"
+   ],
+   "items": [
+    {
+     "id": "s-grasssize",
+     "type": "frame",
+     "status": "new",
+     "title": "Plants: bigger grass, and natural path edges",
+     "author": "claude"
+    },
+    {
+     "id": "gs-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Bigger grass, and natural path edges\nYou asked for the grass strands a bit taller and wider, so it's easier to notice walking through them, for a slider for more or fewer strands that keeps their colours, and for the edges where the dirt meets the grass to stop looking straight and machine-made.\n\n**The grass** (F2, under Advanced settings, beside Grass):\n- **Strand size**, now 140% by default: every card taller and wider, its strands with it, and the strands lying flat in the ground texture as much bigger, so they still match the ground\n- **Strands**, 25% to 300%: the patches closer together or further apart, each as it was. The strands keep their colours; at 300% the whole looks only 2% lighter, as less of the ground shows between them\n\n**The edges:** the shapes weren't the problem. The textures that say where the paths wear the grass were compressed for the graphics card, which stores every block of 4 × 4 texels (40 cm across) as two colours to mix between. Three unrelated noises packed into one texture can't share two colours, so they came out in blocks, and the dirt, drawn where they cross a threshold, followed the blocks' sides: straight lines at right angles, along the world's axes. Those textures are now kept exactly as they were baked, in every area, and the edges are ragged. Forest earth's darker patches of soil came from the same textures, so they're fixed too.\n\n**Cost per frame:** strands at 140% the size, 0.3 to 0.5 ms more; twice as many strands, 0.8 ms more, three times, 1.4; the uncompressed path textures, about 0.2 ms.",
+     "author": "claude"
+    },
+    {
+     "id": "gs-size",
+     "type": "image",
+     "status": "new",
+     "caption": "The strands at 100% the size (as before), 140% (now the default) and 200%, from the game's camera on the meadow.",
+     "assetId": "96fb24ccfe724ea12ced851f15ddc975",
+     "file": "renders/play_demo_grass_size/strand_size.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gs-strands",
+     "type": "image",
+     "status": "new",
+     "caption": "F2's strands at 50%, 100%, 200% and 300%: more grass, the same colours.",
+     "assetId": "db7b2bf72fd62ed97bb7b760c7be2571",
+     "file": "renders/play_demo_grass_size/strands.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gs-walk",
+     "type": "image",
+     "status": "new",
+     "caption": "Walking through the meadow, before and now: the lane behind the hero shows more.",
+     "assetId": "2422a96772353c492cb0403765a8180c",
+     "file": "renders/play_demo_grass_size/walking.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gs-marks",
+     "type": "image",
+     "status": "new",
+     "caption": "Your screenshot, the straight edges marked in red.",
+     "assetId": "74c89c5f355a5f1d8a951713ce645fa7",
+     "file": "renders/play_demo_grass_size/your_marks.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gs-edges-close",
+     "type": "image",
+     "status": "new",
+     "caption": "The same edges close up, before and now; below, the camera turned so the world's axes run up and across the screen, where the blocks show plainly.",
+     "assetId": "fec05e66ab7ef743c19db7dca3d480fd",
+     "file": "renders/play_demo_grass_size/path_edges_close.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "gs-edges",
+     "type": "image",
+     "status": "new",
+     "caption": "The meadow fork from the game's camera, before and now.",
+     "assetId": "5b77fd6faebca00969d8b7b2b88e924b",
+     "file": "renders/play_demo_grass_size/path_edges.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [
+    {
+     "file": "renders/wip/47_grass_sizes_tried.jpg",
+     "caption": "Strand sizes tried, close up: 100%, 130% and 160%. 130% was hard to tell from before and 160% read clearly as tufts; 140% is the default, and the slider has the rest"
+    },
+    {
+     "file": "renders/wip/48_path_masks_apart.jpg",
+     "caption": "Finding the straight edges: the paths' baked masks pulled apart (the distance from the path, two noises, and the dirt they make). No blocks in them, so the blocks came from how the game stored them"
+    }
+   ],
+   "found": [
+    "The straight edges weren't in the bake: Godot had compressed the masks for the graphics card, as it does any texture by default, and the dirt's threshold turned the compression's blocks into rectangles",
+    "More strands make the whole only a shade lighter, 2% at 300%, as the strands' tips cover more of the ground in their shade"
+   ]
   }
  ]
 }

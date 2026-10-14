@@ -3,20 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://qtrbsn3muwfu"
-path.s3tc="res://.godot/imported/path_noise.png-1b3b9fa162a39b58fa1a294af8ab117e.s3tc.ctex"
+path="res://.godot/imported/path_noise.png-1b3b9fa162a39b58fa1a294af8ab117e.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/areas/open_forest/path_noise.png"
-dest_files=["res://.godot/imported/path_noise.png-1b3b9fa162a39b58fa1a294af8ab117e.s3tc.ctex"]
+dest_files=["res://.godot/imported/path_noise.png-1b3b9fa162a39b58fa1a294af8ab117e.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

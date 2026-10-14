@@ -3,20 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cy4t5y1034opy"
-path.s3tc="res://.godot/imported/masks.png-5ec63669a4b079a288dcc5dcc22f0d69.s3tc.ctex"
+path="res://.godot/imported/masks.png-5ec63669a4b079a288dcc5dcc22f0d69.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/areas/bog/masks.png"
-dest_files=["res://.godot/imported/masks.png-5ec63669a4b079a288dcc5dcc22f0d69.s3tc.ctex"]
+dest_files=["res://.godot/imported/masks.png-5ec63669a4b079a288dcc5dcc22f0d69.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

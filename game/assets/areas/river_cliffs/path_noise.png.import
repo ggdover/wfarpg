@@ -3,20 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c2y7u1durp3sf"
-path.s3tc="res://.godot/imported/path_noise.png-462d0906c11b2cc067408805b70dc160.s3tc.ctex"
+path="res://.godot/imported/path_noise.png-462d0906c11b2cc067408805b70dc160.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/areas/river_cliffs/path_noise.png"
-dest_files=["res://.godot/imported/path_noise.png-462d0906c11b2cc067408805b70dc160.s3tc.ctex"]
+dest_files=["res://.godot/imported/path_noise.png-462d0906c11b2cc067408805b70dc160.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

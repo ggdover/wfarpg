@@ -6,6 +6,7 @@ extends Node3D
 ## For checking it from the command line (see README.md), after the scene path and "--":
 ##   --trees=old|new  which trees            --pose=x,z,yaw,pitch,distance[,facing]  where the hero and camera are
 ##   --shot=out.png   take a screenshot and quit (after --wait=frames, default 90)    --nohud  without the HUD
+##   --walk=seconds   walk forward that long before the screenshot, to see the grass fold round the hero
 ##   --fps=seconds    measure the frame rate first and print it                       --selftest  try the controls
 ##   --scene=id       which scene (scripts/scenes.gd)       --scenetest  walk the scene's steps, bridges and jetties
 ##   --mood=name      the scene's area in another mood (scripts/mood.gd)
@@ -32,6 +33,7 @@ var shadow_fit := true
 var shadow_cap := 70.0
 var _shot := ""
 var _wait := 90
+var _walk := 0.0
 var _measure := 0.0
 var _frames := 0
 var _time := 0.0
@@ -159,6 +161,10 @@ func _process(delta: float) -> void:
 	_fit_shadows()
 	if _shot == "":
 		return
+	if _walk > 0.0 and _wait <= 1:  # --walk: walking, until the screenshot
+		Input.action_press("move_forward")
+		_walk -= delta
+		return
 	_wait -= 1
 	if _wait == 0:
 		if _measure > 0.0:
@@ -215,6 +221,8 @@ func _read_args() -> void:
 			_shot = a.substr(7)
 		elif a.begins_with("--wait="):
 			_wait = int(a.substr(7))
+		elif a.begins_with("--walk="):
+			_walk = float(a.substr(7))
 		elif a.begins_with("--fps="):
 			_measure = float(a.substr(6))
 		elif a == "--nohud":

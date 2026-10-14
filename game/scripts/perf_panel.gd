@@ -152,8 +152,10 @@ func setup(d: Node) -> void:
 	var percent := func(v: float) -> String: return "%d%%" % roundi(v * 100.0)
 	var styles := GrassField.STYLES.keys().map(func(k: String) -> Array: return [GrassField.STYLES[k], k])
 	_choice(col, "grass", "Grass (G)", styles, Game.grass, func(v: String) -> void: demo.show_grass(v))
-	_slider(col, "grass_density", "  how thick", 0.1, 1.0, 0.05, w.grass.density, percent,
+	_slider(col, "grass_density", "  strands", 0.25, GrassField.MAX_DENSITY, 0.05, w.grass.density, percent,
 		func(v: float) -> void: w.grass.set_option("density", v))
+	_slider(col, "grass_size", "  strand size", 0.6, GrassField.MAX_SIZE, 0.05, w.grass.strand_size, percent,
+		func(v: float) -> void: w.grass.set_option("strand_size", v))
 	_slider(col, "grass_height", "  how tall", 0.4, 1.6, 0.05, w.grass.height_scale, percent,
 		func(v: float) -> void: w.grass.set_option("height_scale", v))
 	_slider(col, "grass_reach", "  drawn out to", 15.0, 80.0, 5.0, w.grass.reach, "%d m", func(v: float) -> void: w.grass.set_option("reach", v))

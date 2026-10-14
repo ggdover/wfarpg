@@ -27,7 +27,10 @@ General knowledge, public documentation, and third-party libraries and engines a
   walks through it (the user, 10 October; `game/scripts/grass.gd`). It must blend into the ground, not show as crossed
   planes: the cards in the ground's own colour, fewer strands a card so the ground shows through, fewer patches, each
   card at its own angle, and the ground under it textured to match (the user found the first try, thick grass in
-  colours of its own over a smooth ground, didn't). Four styles to try (G in the demo); the user hasn't chosen yet. Bushes are full and widest at
+  colours of its own over a smooth ground, didn't). Four styles to try (G in the demo); the user hasn't chosen yet. The
+  user asked for the strands a bit taller and wider, so it's easier to see the hero walking through them, and for a
+  slider for more or fewer strands that keeps their colours (14 October): F2's strand size (140% by default, the
+  ground texture's strands scaled alike) and strands. Bushes are full and widest at
   the foot, not thin there (the user, of the buckthorn and hazel); the raspberry must be big enough to count as a bush.
   The wood fern can go in occasional places; blueberry, lingonberry and heather as made didn't represent anything the
   user wanted, so they were dropped.
@@ -36,7 +39,9 @@ General knowledge, public documentation, and third-party libraries and engines a
   tan (between wheat and desert sand), with gravel and pebbles in the same tones, so they read as texture rather than
   contrasting spots. The user found that too much like sand. Of the play demo's path colour themes (P;
   `game/scripts/path_themes.gd`) they liked forest soil and brown earth best, and asked for a mix of the two: the
-  demo's default, "Forest earth", not yet confirmed. Avoid hard edges between ground textures in general.
+  demo's default, "Forest earth", not yet confirmed. Avoid hard edges between ground textures in general, and straight
+  ones: the user found the dirt's edges straight and at right angles, machine-made (14 October), from the paths' masks
+  compressed for the graphics card in blocks; textures the shaders threshold are imported losslessly.
 - Trees: Scots pine, silver birch, Norway spruce, aspen, rowan and alder (`ref_imgs/Trees of the Swedish Forest.png`;
   the user dropped the juniper). Low-poly trunks and branches; leaf clumps are crossed planes (copies of a leaf card
   with alpha, crossing at the clump's centre). The spruce instead has pinnate sprays: spray cards along each branch

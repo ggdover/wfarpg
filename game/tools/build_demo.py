@@ -23,6 +23,7 @@ import json
 import math
 import os
 import random
+import re
 import shutil
 import sys
 
@@ -937,12 +938,24 @@ def copy_ground(src, dst, cfg):
     return [round(float(v), 4) for v in px[:, :3].mean(0)]
 
 
-def mipmapped(path):
+def mipmapped(path, lossless=False):
     """Have Godot import a texture as 3D textures want, with mipmaps and compressed for the graphics card, so it doesn't
-    shimmer far off: its own guess at that only comes in the editor. Godot fills in the rest of the file."""
-    if not os.path.exists(path + ".import"):
-        with open(path + ".import", "w") as fh:
-            fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]\n\ncompress/mode=2\nmipmaps/generate=true\n')
+    shimmer far off: its own guess at that only comes in the editor. Godot fills in the rest of the file. Lossless
+    keeps every texel as it is, for a texture whose values the game thresholds (the paths' masks): the graphics card's
+    compression gives each block of 4 x 4 texels two colours to mix between, so unrelated noises packed into its
+    channels came out in blocks, and the dirt's edges, drawn where they cross a threshold, in straight lines along
+    the blocks, at right angles (the user, 14 October). An import Godot already wrote keeps its settings but that."""
+    mode = 0 if lossless else 2
+    if os.path.exists(path + ".import"):
+        with open(path + ".import") as fh:
+            text = fh.read()
+        fixed = re.sub(r"(?m)^compress/mode=\d+$", "compress/mode=%d" % mode, text)
+        if fixed != text:
+            with open(path + ".import", "w") as fh:
+                fh.write(fixed)
+        return
+    with open(path + ".import", "w") as fh:
+        fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]\n\ncompress/mode=%d\nmipmaps/generate=true\n' % mode)
 
 
 def copy_card(name, cfg, tex_dir, src_dir=os.path.join(TREES, "textures")):
@@ -1834,6 +1847,7 @@ def bake_masks(kit):
     d = drift[..., 0]  # the leaves' drift noise, in alpha: a texture's alpha is never sRGB-decoded, so store it linear
     masks[..., 3] = np.where(d <= 0.04045, d / 12.92, ((d + 0.055) / 1.055) ** 2.4)
     save_pixels(masks, os.path.join(GROUND_DIR, "masks.png"), alpha=True)
+    mipmapped(os.path.join(GROUND_DIR, "masks.png"), lossless=True)
 
 
 def bake_litter(texel=0.25):
@@ -1879,6 +1893,7 @@ def build_ground():
     bake_view(D.BAKE, getattr(D, "COLOUR_TEXEL", COLOUR_TEXEL), os.path.join(GROUND_DIR, "grass.jpg"), tiles=(4, 4), quality=92)
     show(kit, path_noise_socket)
     bake_view(D.BAKE, MASK_TEXEL, os.path.join(GROUND_DIR, "path_noise.png"))
+    mipmapped(os.path.join(GROUND_DIR, "path_noise.png"), lossless=True)
     bake_masks(kit)
     bpy.data.objects.remove(inner)
     bake_litter()

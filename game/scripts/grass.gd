@@ -21,6 +21,8 @@ const PLANTS := "res://assets/plants/plants.json"
 const STYLES := {"GrassWisps": "Wisps", "GrassTufts": "Tufts", "GrassClumps": "Clumps", "GrassShort": "Short",
 	"LongGrass": "First try", "before": "As before"}
 const CHUNK := 16.0  ## metres across each chunk of grass
+const MAX_DENSITY := 3.0  ## the most strands F2's slider gives, against a style's as tuned
+const MAX_SIZE := 2.0  ## the biggest strands it gives
 const BLOCK_TEXEL := 0.25  ## metres per texel of block_tex
 const TRAIL := 24  ## the hero's positions kept for the grass to fold round (TRAIL in the shader): 12 m of them
 const TRAIL_STEP := 0.5  ## metres the hero walks between two of them
@@ -34,9 +36,15 @@ var world: DemoWorld
 var style := "GrassTufts"
 ## drawn: not "before"
 var shown := true
-## the share of the grid's patches drawn
+## how many strands, against the style's as tuned: its patches stand this much closer together (above 1) or further
+## apart, each as it was, so the strands keep their colours and only how many of them there are changes (the user,
+## 14 October). The grid of patches is laid out anew for it (_lay_out).
 var density := 1.0
-## how tall, against the patches as tuned
+## how big the strands are, against as tuned: each card taller and wider, its strands too, and the strands lying flat
+## in the style's ground texture as much bigger, so they still match. 1.4 since the user asked for them a bit taller
+## and wider (14 October), so it's easier to see the hero walking through them
+var strand_size := 1.4
+## how tall, against the patches as tuned, on top of their size
 var height_scale := 1.0
 ## metres from the camera where it has sunk into the ground; the chunks are drawn out to this and their size
 var reach := 45.0
@@ -71,7 +79,7 @@ func build(w: DemoWorld, first_style: String) -> void:
 	var b: Array = world.ground["bounds"]
 	var tall := 0.0
 	for key: String in _info["grass"]:
-		tall = maxf(tall, float(_info["grass"][key]["height"]) * 1.6)
+		tall = maxf(tall, float(_info["grass"][key]["height"]) * 1.6 * MAX_SIZE)
 	for cz in int(ceil(b[3] / CHUNK)):
 		for cx in int(ceil(b[2] / CHUNK)):
 			var x0: float = b[0] + cx * CHUNK
@@ -89,6 +97,7 @@ func build(w: DemoWorld, first_style: String) -> void:
 				mmi.custom_aabb = AABB(Vector3(-1.0, lo - 0.5, -1.0), Vector3(CHUNK + 2.0, hi - lo + tall + 1.0, CHUNK + 2.0))
 				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 				mmi.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+				mmi.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF  # it never moves; laid out anew at once
 				add_child(mmi)
 				_chunks.append(mmi)
 	set_style(first_style)
@@ -102,6 +111,8 @@ func set_style(which: String) -> void:
 	if shown:
 		var s := _style(style)
 		_materials = s["materials"]
+		if s["density"] != density:
+			_lay_out(style)
 		for i in _chunks.size():
 			_chunks[i].multimesh = s["multimeshes"][i % 2]
 	_apply()
@@ -118,12 +129,14 @@ func set_ground_param(param: String, value: Variant) -> void:
 
 func set_option(option: String, value: Variant) -> void:
 	set(option, value)
+	if option == "density" and shown:
+		_lay_out(style)
 	_apply()
 
 
 func _apply() -> void:
 	for m in _materials:
-		m.set_shader_parameter("density", density)
+		m.set_shader_parameter("size", strand_size)
 		m.set_shader_parameter("height_scale", height_scale)
 		m.set_shader_parameter("reach", reach)
 		m.set_shader_parameter("fold_radius", fold_radius)
@@ -137,7 +150,7 @@ func _apply() -> void:
 	if ground:
 		world.set_ground_param("strokes_tex", ground["texture"])
 		world.set_ground_param("strokes_mean", ground["mean"])
-		world.set_ground_param("strokes_metres", ground["metres"])
+		world.set_ground_param("strokes_metres", ground["metres"] * strand_size)
 	world.set_ground_param("strokes_amount", ground_texture if ground else 0.0)
 	world.set_ground_param("strokes_shade", ground_shade)
 
@@ -171,20 +184,9 @@ func _style(key: String) -> Dictionary:
 		m.set_shader_parameter("height_size", world._size)
 		m.set_shader_parameter("block_tex", _block)
 		m.set_shader_parameter("bounds", Vector4(b[0], b[1], b[2], b[3]))
-		m.set_shader_parameter("spacing", g["spacing"])
 		for param: String in _ground:
 			m.set_shader_parameter(param, _ground[param])
 		materials.append(m)
-	# the grid of patches every chunk draws: jittered, a share of them B
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 1010
-	var spots := [[], []]
-	var spacing: float = g["spacing"]
-	var n := int(round(CHUNK / spacing))
-	for j in n:
-		for i in n:
-			var p := Vector3((i + 0.5 + rng.randf_range(-0.3, 0.3)) * spacing, 0.0, (j + 0.5 + rng.randf_range(-0.3, 0.3)) * spacing)
-			(spots[1 if rng.randf() < float(g["share_b"]) else 0] as Array).append(p)
 	var multimeshes := []
 	for k in 2:
 		var mesh := (meshes[g["meshes"][k]] as Mesh).duplicate() as ArrayMesh
@@ -195,15 +197,40 @@ func _style(key: String) -> Dictionary:
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
 		mm.mesh = mesh
-		mm.instance_count = (spots[k] as Array).size()
-		for i in mm.instance_count:
-			mm.set_instance_transform(i, Transform3D(Basis(), spots[k][i]))
 		multimeshes.append(mm)
 	var ground: Variant = null
 	if g["ground"]:
 		ground = {"texture": load(g["ground"]["texture"]), "mean": _linear(g["ground"]["mean"]), "metres": g["ground"]["metres"]}
-	_styles[key] = {"materials": materials, "multimeshes": multimeshes, "ground": ground}
+	_styles[key] = {"materials": materials, "multimeshes": multimeshes, "ground": ground, "density": -1.0}
+	_lay_out(key)
 	return _styles[key]
+
+
+## The grid of patches every chunk draws, for the density: n by n, jittered, a share of them B. The style's spacing
+## gives as tuned; n is the whole number that gives at least the density, and the shader draws the share of them that
+## makes it exactly that (density there). The same every time for the same n.
+func _lay_out(key: String) -> void:
+	var s: Dictionary = _styles[key]
+	var g: Dictionary = _info["grass"][key]
+	var tuned: float = g["spacing"]
+	var n := ceili(CHUNK * sqrt(density) / tuned)
+	var spacing := CHUNK / n
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1010
+	var spots := [[], []]
+	for j in n:
+		for i in n:
+			var p := Vector3((i + 0.5 + rng.randf_range(-0.3, 0.3)) * spacing, 0.0, (j + 0.5 + rng.randf_range(-0.3, 0.3)) * spacing)
+			(spots[1 if rng.randf() < float(g["share_b"]) else 0] as Array).append(p)
+	for k in 2:
+		var mm: MultiMesh = s["multimeshes"][k]
+		mm.instance_count = (spots[k] as Array).size()
+		for i in mm.instance_count:
+			mm.set_instance_transform(i, Transform3D(Basis(), spots[k][i]))
+	for m: ShaderMaterial in s["materials"]:
+		m.set_shader_parameter("spacing", spacing)
+		m.set_shader_parameter("density", minf(density * spacing * spacing / (tuned * tuned), 1.0))
+	s["density"] = density
 
 
 static func _linear(srgb: Array) -> Vector3:

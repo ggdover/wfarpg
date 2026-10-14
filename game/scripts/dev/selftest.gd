@@ -150,6 +150,33 @@ func _grass_checks() -> void:
 	_check("G steps through the grass styles and back", seen[-1] == seen[0] and seen.size() == GrassField.STYLES.size() + 1
 		and GrassField.STYLES.keys().all(func(k: String) -> bool: return k in seen), " → ".join(seen))
 	demo.show_grass(style0)
+	# F2's strands: the patches drawn, against as tuned, are as many times as many; each patch as it was
+	var drawn := func() -> float:
+		var s: Dictionary = g._styles[g.style]
+		var m: ShaderMaterial = s["materials"][0]
+		var n := 0
+		for mm: MultiMesh in s["multimeshes"]:
+			n += mm.instance_count
+		var tuned: float = g._info["grass"][g.style]["spacing"]
+		return n * float(m.get_shader_parameter("density")) / pow(GrassField.CHUNK / tuned, 2.0)
+	var counts := []
+	for d in [1.0, 2.0, 0.5]:
+		demo._panel.slide("grass_density", d)
+		counts.append(drawn.call())
+	demo._panel.slide("grass_density", 1.0)
+	_check("F2's strands: more or fewer patches of the same grass, as many times as many as tuned",
+		absf(counts[0] - 1.0) < 0.01 and absf(counts[1] - 2.0) < 0.01 and absf(counts[2] - 0.5) < 0.01,
+		"at 100%%, 200%%, 50%%: %.2f, %.2f, %.2f times as tuned" % counts)
+	# F2's strand size: the cards and the strands lying in the ground texture alike
+	var metres: float = g._info["grass"][g.style]["ground"]["metres"]
+	var sizes := []
+	var size0 := g.strand_size
+	for z in [1.0, 2.0]:
+		demo._panel.slide("grass_size", z)
+		sizes.append([float(g._materials[0].get_shader_parameter("size")), float(w.ground_param("strokes_metres")) / metres])
+	demo._panel.slide("grass_size", size0)
+	_check("F2's strand size: the grass's cards, and the strands in its ground texture as much",
+		sizes[0] == [1.0, 1.0] and sizes[1] == [2.0, 2.0], "at 100%%: %s, at 200%%: %s" % sizes)
 
 
 static func _thinned_in_place(model: String) -> String:
