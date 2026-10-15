@@ -22,6 +22,8 @@ const HERO_GAP := 6.0
 
 var hero: Node3D
 var world: DemoWorld
+## false holds the camera where it is while the hero walks on (the demo's --still, for recording)
+var follow := true
 var camera: Camera3D
 var orbiting := false
 var _cursor := Vector2.ZERO
@@ -76,7 +78,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	_pivot = _pivot.lerp(_hero_at() + Vector3(0, 1.4, 0), 1.0 - exp(-14.0 * delta))
+	if follow:
+		_pivot = _pivot.lerp(_hero_at() + Vector3(0, 1.4, 0), 1.0 - exp(-14.0 * delta))
 	_place()
 	if world:
 		world.update_sight(camera, _hero_at(), delta)

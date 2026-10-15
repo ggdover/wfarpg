@@ -1300,7 +1300,7 @@ func set_leaves(on: bool) -> void:
 		leaves.set_option("shown", on)
 
 
-## One of the leaves' settings (LeafLitter.set_option: amount, hop, depth, reach), where the area has them.
+## One of the leaves' settings (LeafLitter.set_option: amount, stir, hop, depth, reach), where the area has them.
 func set_leaf_option(option: String, value: Variant) -> void:
 	if leaves:
 		leaves.set_option(option, value)

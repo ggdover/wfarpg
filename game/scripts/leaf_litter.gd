@@ -24,14 +24,18 @@ var world: DemoWorld
 var shown := true
 ## how much of the litter lies in piles: 1 about a third of the grove's, up to 2 about half
 var amount := 1.0
-## metres a stirred leaf hops, at most: 1-2 cm, as the user asked
-var hop := 0.02
+## metres a kicked leaf flies up, most of them (a few higher): the user first asked for 1-2 cm, then for the stirring
+## to be much easier to see (15 October)
+var hop := 0.08
+## how much they stir, as tuned: pushed aside, pressed down, shaken, kicked up and out
+var stir := 1.0
 ## metres deep at a pile's thickest
 var depth := 0.12
 ## metres from the camera where the last of them has gone
 var reach := 32.0
-## seconds until the stirred leaves are still again (the hero's trail is kept at least as long)
-var settle := 1.5
+## seconds until the stirred leaves are still again, the lane through a pile filled in (the hero's trail is kept at
+## least as long)
+var settle := 3.0
 var _material: ShaderMaterial
 var _mesh: ArrayMesh
 var _chunks: Array[MultiMeshInstance3D] = []
@@ -77,6 +81,7 @@ func set_option(option: String, value: Variant) -> void:
 
 func _apply() -> void:
 	_material.set_shader_parameter("hop", hop)
+	_material.set_shader_parameter("stir", stir)
 	_material.set_shader_parameter("depth", depth)
 	_material.set_shader_parameter("reach", reach)
 	_material.set_shader_parameter("settle", settle)
@@ -92,7 +97,7 @@ func update(trail: HeroTrail) -> void:
 		return
 	_material.set_shader_parameter("trail", trail.packed())
 	_material.set_shader_parameter("trail_count", trail.points.size())
-	_material.set_shader_parameter("trail_reach", trail.reach(0.6))
+	_material.set_shader_parameter("trail_reach", trail.reach(0.8))
 
 
 ## The patches, in every chunk with a pile: at each point of the SPACING grid where the leaves lie any deeper than

@@ -2,11 +2,12 @@ class_name HeroTrail
 extends RefCounted
 ## The hero's trail, newest first, which the grass folds round (scripts/grass.gd) and the fallen leaves stir along
 ## (scripts/leaf_litter.gd): its position now, then a point every STEP metres it walked, each with how many seconds ago
-## the hero was there, kept for keep seconds, at most SIZE of them (SIZE in the shaders: 12 m). The world updates it
-## every frame (DemoWorld.update_sight); the fields hand it to their shaders.
+## the hero was there, kept for keep seconds, at most SIZE of them (SIZE in the shaders: 18 m, a little more than
+## the hero walks while a lane through the leaves fills in again). The world updates it every frame
+## (DemoWorld.update_sight); the fields hand it to their shaders.
 
 const SIZE := 24
-const STEP := 0.5  ## metres the hero walks between two points
+const STEP := 0.75  ## metres the hero walks between two points
 const JUMP := 3.0  ## metres the hero can't walk in a frame: put somewhere else, it starts a new trail
 
 ## seconds a point is kept: as long as anything along it is still moving (the world sets it)

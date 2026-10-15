@@ -168,8 +168,10 @@ func setup(d: Node) -> void:
 		func(v: bool) -> void: w.set_leaves(v))
 	_slider(col, "leaf_amount", "  in piles", 0.3, 2.0, 0.05, leaves.amount if leaves else 1.0, percent,
 		func(v: float) -> void: w.set_leaf_option("amount", v))
-	_slider(col, "leaf_hop", "  hop", 0.0, 0.08, 0.005, leaves.hop if leaves else 0.02,
-		func(v: float) -> String: return "%.1f cm" % (v * 100.0), func(v: float) -> void: w.set_leaf_option("hop", v))
+	_slider(col, "leaf_stir", "  stirring", 0.0, 2.0, 0.05, leaves.stir if leaves else 1.0, percent,
+		func(v: float) -> void: w.set_leaf_option("stir", v))
+	_slider(col, "leaf_hop", "  hop", 0.0, 0.2, 0.005, leaves.hop if leaves else 0.08,
+		func(v: float) -> String: return "%d cm" % roundi(v * 100.0), func(v: float) -> void: w.set_leaf_option("hop", v))
 	_choice(col, "crown", "Crown cut, camera high", [["Near camera", "near"], ["All trees", "all"], ["Off", "off"]], w.crown_cut,
 		func(v: String) -> void: w.set_trees("crown_cut", v))
 	_slider(col, "crown_reach", "  near: reach", 0.4, 1.0, 0.05, w.crown_reach, percent, func(v: float) -> void: w.crown_reach = v)

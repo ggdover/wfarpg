@@ -122,7 +122,8 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   button switches): a small part of Storskogen (dense forest, a trail, a meadow with a rise), an open forest spaced as
   most of the game should be, a thick forest with one path cleared, a very big open field, an autumn hollow (a grove sunk in the ground, trees 1-4 m apart turning
   yellow, orange and red, no paths, only leaf-filled ground and trees, as the user asked, the leaves lying thick and
-  now and then in deep piles that stir as the hero walks through, a few leaves hopping 1-2 cm: `game/scripts/
+  now and then in deep piles that stir as the hero walks through, plainly enough to notice (the user found a few
+  leaves hopping 1-2 cm too slight): a lane opens through the pile, leaves are kicked up; `game/scripts/
   leaf_litter.gd`), a river under 3-4 m cliffs with paths up and down to it, and, for
   the rest of `ref_imgs2/`, a forest lake, a bog, a pine heath, and fog and morning sunbeams. It runs with
   VSync off and no frame rate limit, as the user asked; its performance panel (F2) has a frame rate limit. The user

@@ -7,6 +7,8 @@ extends Node3D
 ##   --trees=old|new  which trees            --pose=x,z,yaw,pitch,distance[,facing]  where the hero and camera are
 ##   --shot=out.png   take a screenshot and quit (after --wait=frames, default 90)    --nohud  without the HUD
 ##   --walk=seconds   walk forward that long before the screenshot, to see the grass fold round the hero
+##   --walkdir=right  walk to the right instead (or left, back), across the screen
+##   --still          the camera stays where it is while the hero walks on
 ##   --seq=frames     instead of one screenshot, that many in a row from the start of the walk on (out_000.png, ...),
 ##                    the walk stopping after its seconds, 1/30 s of the game's time apart (time slowed to keep pace
 ##                    with saving them)
@@ -37,6 +39,8 @@ var shadow_cap := 70.0
 var _shot := ""
 var _wait := 90
 var _walk := 0.0
+var _walk_action := "move_forward"
+var _still := false
 var _seq := 0
 var _seq_done := 0
 var _measure := 0.0
@@ -166,13 +170,15 @@ func _process(delta: float) -> void:
 	_fit_shadows()
 	if _shot == "":
 		return
+	if (_seq > 0 or _walk > 0.0) and _wait <= 1 and _still:  # --still: the camera stays as it settled before the walk
+		rig.follow = false
 	if _seq > 0 and _wait <= 1:  # --seq: a screenshot every frame, walking for --walk seconds of them
 		Engine.time_scale = 1.0 / 30.0 / maxf(get_process_delta_time() / Engine.time_scale, 1e-3) if _seq_done > 0 else 0.3
 		if _walk > 0.0:
-			Input.action_press("move_forward")
+			Input.action_press(_walk_action)
 			_walk -= delta
 		else:
-			Input.action_release("move_forward")
+			Input.action_release(_walk_action)
 		get_viewport().get_texture().get_image().save_png(_shot.get_basename() + "_%03d.png" % _seq_done)
 		_seq_done += 1
 		if _seq_done >= _seq:
@@ -180,7 +186,7 @@ func _process(delta: float) -> void:
 			get_tree().quit()
 		return
 	if _walk > 0.0 and _wait <= 1:  # --walk: walking, until the screenshot
-		Input.action_press("move_forward")
+		Input.action_press(_walk_action)
 		_walk -= delta
 		return
 	_wait -= 1
@@ -241,6 +247,10 @@ func _read_args() -> void:
 			_wait = int(a.substr(7))
 		elif a.begins_with("--walk="):
 			_walk = float(a.substr(7))
+		elif a == "--still":
+			_still = true
+		elif a.begins_with("--walkdir="):
+			_walk_action = "move_" + {"right": "right", "left": "left", "back": "back"}.get(a.substr(10), "forward")
 		elif a.begins_with("--seq="):
 			_seq = int(a.substr(6))
 		elif a.begins_with("--fps="):
