@@ -4785,6 +4785,98 @@
    "found": [
     "To judge it, the demo can now hold the camera still while the hero walks across the view (--still, --walkdir=right), and record frames at an even pace (--seq)"
    ]
+  },
+  {
+   "id": "leaves-stay-bushes",
+   "date": "2026-10-15",
+   "asked_at": "19:11",
+   "posted_at": "19:42",
+   "title": "Leaves that stay put, more piles, room between the trees, and bushes",
+   "section": "Leaves that stay put, more piles, room between the trees, and bushes",
+   "asked": "I really like this amount of movement of the leaf piles now, really good. I don't like that the leaves magically move back in their original place after a moment, the leaves should only move when something or someone moves into them like the player character. I think we can also increase the number of piles alot more and make the trees more spaced out in the autumn hallow area and I also don't see that we use any bushes in any of the current scenes, I think its time to add some",
+   "changed": [
+    "The leaves stay where they're moved: a map of where they've been pushed, painted round the hero as it walks and never fading, keeps the lane open, the kicked leaves where they landed and the trodden pile pressed down; they move again only when walked into",
+    "About 200 piles in the autumn hollow, up from about 80, over 40% of its leaf ground",
+    "The hollow's trees 4-6 m apart, up from 1-4 m",
+    "Bushes in every scene: the plant portfolio's raspberry, alder buckthorn and hazel at the forests' edges, in glades and along the paths, from 7 in the thick forest to 145 by the river; turning yellow and red in the hollow; F2 Bushes switch",
+    "Cost: the bushes 0.5-0.6 ms a frame where there are many; the hollow's leaves 1.4 ms with all their piles"
+   ],
+   "items": [
+    {
+     "id": "ls-about",
+     "type": "note",
+     "status": "updated",
+     "changed": [
+      "text"
+     ],
+     "text": "# The leaves stir much more\nYou found the first stirring too slight to notice. Now, as the hero walks through a pile:\n\n- **A lane opens:** the leaves are swept out of its way, about 30 cm either side, banking up along its edges, the pile pressed down. It shows from the game's camera, and stays (since the next step: the leaves move only when someone moves into them)\n- **Leaves are kicked up:** about half of those near the step, most about 8 cm high and a few higher, out ahead and to the side; they flutter, turn over once or twice and catch the light as they go\n- **They shake**, more and for longer\n- **F2:** a new **stirring** slider sets how much of all this (100%); **hop** how high they fly (8 cm, up to 20)\n\n**Cost per frame:** 0.4 to 0.6 ms in the hollow.",
+     "author": "claude"
+    },
+    {
+     "id": "s-bushes",
+     "type": "frame",
+     "status": "new",
+     "title": "Leaves that stay put, more piles, room between the trees, and bushes",
+     "author": "claude"
+    },
+    {
+     "id": "bu-about",
+     "type": "note",
+     "status": "new",
+     "text": "# Leaves that stay put, more piles, room between the trees, and bushes\nYou liked the amount of movement, but not the leaves moving back to where they'd lain after a moment: they should only move when something moves into them. You also asked for a lot more piles, the hollow's trees further apart, and bushes in the scenes.\n\n- **The leaves stay where they're moved.** The ground keeps a map of where its leaves have been pushed, painted round the hero as it walks, never fading: the lane through a pile stays open, the kicked leaves stay where they landed, the trodden pile stays pressed down. They move again only when the hero walks back into them. Anyone else walking through them later can paint the same map\n- **More piles:** about 200 in the hollow, up from about 80, smaller and more spread out, over 40% of its leaf ground\n- **The hollow's trees 4-6 m apart**, up from 1-4 m: about 200 fewer of them\n- **Bushes in every scene:** the plant portfolio's raspberry, alder buckthorn and hazel, at the forests' edges, in their glades and along the paths, from 7 in the thick forest to 145 by the river; among the hollow's trees, turning yellow and red with them; mostly buckthorn by the lake and in the bog. They don't fade out of the way as the trees do, being low. F2 has a Bushes switch\n\n**Cost per frame:** the bushes 0.5 to 0.6 ms where there are many; the hollow's leaves 1.4 ms, with all their new piles.",
+     "author": "claude"
+    },
+    {
+     "id": "bu-lane",
+     "type": "image",
+     "status": "new",
+     "caption": "From the game's camera, held still (a moving picture): the lane through the pile stays open after the hero has gone.",
+     "assetId": "10040547266f1bf9c992541f17fb93a8",
+     "file": "renders/play_demo_bushes/lasting_lane_game_camera.webp",
+     "author": "claude"
+    },
+    {
+     "id": "bu-lane-close",
+     "type": "image",
+     "status": "new",
+     "caption": "Closer: kicked up, swept aside, and staying where they landed.",
+     "assetId": "57329681d4d2492d713ea17172c3a81f",
+     "file": "renders/play_demo_bushes/lasting_lane_close.webp",
+     "author": "claude"
+    },
+    {
+     "id": "bu-hollow",
+     "type": "image",
+     "status": "new",
+     "caption": "The autumn hollow before and now: the trees further apart, bushes turning with them, and more piles of leaves.",
+     "assetId": "0ada8e214b482dc6c902ff7f49f01775",
+     "file": "renders/play_demo_bushes/hollow_before_now.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "bu-scenes",
+     "type": "image",
+     "status": "new",
+     "caption": "Bushes in Storskogen, by the river, by the lake and at the bog's edge.",
+     "assetId": "a26245936f86da9b42944f56c19bcf1f",
+     "file": "renders/play_demo_bushes/bushes_in_scenes.jpg",
+     "author": "claude"
+    },
+    {
+     "id": "bu-open",
+     "type": "image",
+     "status": "new",
+     "caption": "Closer, in the open forest: alder buckthorn, hazel and raspberry.",
+     "assetId": "5e6919f749b9681949028be5cd3e131e",
+     "file": "renders/play_demo_bushes/bushes_open_forest.jpg",
+     "author": "claude"
+    }
+   ],
+   "wip": [],
+   "found": [
+    "Pushed straight out from the hero, the leaves in its way only shuffled forward ahead of it; pushed sideways from the way it walks, as feet do, they open a lane",
+    "The bushes are placed after everything else, on their own random numbers, so no tree, rock or plant moved in any scene"
+   ]
   }
  ]
 }

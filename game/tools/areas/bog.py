@@ -32,6 +32,8 @@ PATHS = {
 LONE_TREES = []
 ERRATICS = [((-52, 20), 1.3), ((54, 24), 1.2), ((10, -40), 1.4)]
 LANDMARKS = []
+
+BUSH_OPTIONS = dict(rate=0.6, kinds={"AlderBuckthorn": 0.6, "Raspberry": 0.2, "Hazel": 0.2})  # buckthorn likes it damp
 path_dist, inside, boundary_dist = paths_and_outline(PATHS, BOUNDARY)
 
 

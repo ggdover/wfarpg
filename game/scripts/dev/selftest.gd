@@ -169,6 +169,21 @@ func _grass_checks() -> void:
 	_check("F2's strands: more or fewer patches of the same grass, as many times as many as tuned",
 		absf(counts[0] - 1.0) < 0.01 and absf(counts[1] - 2.0) < 0.01 and absf(counts[2] - 0.5) < 0.01,
 		"at 100%%, 200%%, 50%%: %.2f, %.2f, %.2f times as tuned" % counts)
+	# the bushes: the plant portfolio's, with their own leaves (none of the trees' fades), and F2's switch
+	var bush_leaves: ShaderMaterial = null
+	for mmi in w._bushes:
+		for i in mmi.multimesh.mesh.get_surface_count():
+			var m := mmi.multimesh.mesh.surface_get_material(i)
+			if m is ShaderMaterial and (m as ShaderMaterial).shader.resource_path.ends_with("leaves.gdshader"):
+				bush_leaves = m
+	demo._panel.choose("bushes", false)
+	var hidden := w._bushes.all(func(m: MultiMeshInstance3D) -> bool: return not m.visible)
+	demo._panel.choose("bushes", true)
+	_check("bushes stand in the area, their leaves without the trees' fades, and F2's Bushes hides them",
+		w._bushes.size() > 0 and bush_leaves != null and not bush_leaves.get_shader_parameter("tree_fades") and hidden
+		and w._bushes.all(func(m: MultiMeshInstance3D) -> bool: return m.visible),
+		"%d chunks of bushes; their leaves' tree fades: %s; hidden with Off: %s" % [w._bushes.size(),
+		bush_leaves.get_shader_parameter("tree_fades") if bush_leaves else "none", hidden])
 	# F2's strand size: the cards and the strands lying in the ground texture alike
 	var metres: float = g._info["grass"][g.style]["ground"]["metres"]
 	var sizes := []

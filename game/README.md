@@ -10,7 +10,7 @@ the game with the Scenes button or **Tab**.
 | Open forest | The forest as most of the game should be, for an ARPG: the trees stand about 14 m apart, so one or two are on the screen at a time from the usual camera, the thick forest only beyond the edges; moss, heather, a glade, rocks and logs between, low rises and a hollow |
 | Thick forest | Dense spruce and pine all round, with one winding path cleared through it, like where Storskogen starts; its trees go see-through rather than to their stumps |
 | Open field | A very big, rolling meadow: copses of birch and aspen, lone trees, boulders, the forest only far off |
-| Autumn hollow | A grove of birch, aspen, rowan and alder in a hollow 2.8 m deep, 1–4 m between the trees, turning yellow, orange and red, no paths, only leaf-filled ground and trees: the leaves lie thick, here and there in deep piles that stir as the hero walks through them; the forest round it still mostly green |
+| Autumn hollow | A grove of birch, aspen, rowan and alder in a hollow 2.8 m deep, 4–6 m between the trees, turning yellow, orange and red, hazel and buckthorn among them turning too, no paths, only leaf-filled ground: the leaves lie thick, in some 200 piles that stir as the hero walks through them and stay where they were moved; the forest round it still mostly green |
 | River and cliffs | A little river, with a rapid, under a band of mossy cliffs 3.5–4 m high: wooden steps up them, a path up where they peter out, a path along the top, a footbridge over the river, and stepping stones from a gravel bank |
 | Forest lake | A still, dark lake with reflections: reeds, water lilies in a bay, a jetty, an island with pines. The hero can wade in the shallows |
 | Bog | An open wetland: tussocks of golden sedge (its own grass, folding as the hero walks through) between wet hollows and dark pools, stunted pines and birches, grey snags, a boardwalk across |
@@ -35,6 +35,15 @@ the wetland (the bog).
   and blueberry and lingonberry bushes, small faceted green balls (some with berries), are gone: the user found they
   didn't fit beside the grass's strands (14 October). The areas still pick them where they did, so everything else
   stands where it stood, but the layout leaves them out (`DROPPED` in `tools/build_demo.py`).
+- **Bushes:** the plant portfolio's raspberry, alder buckthorn and hazel (`assets/plants`), which the user asked to
+  see in the scenes (15 October): at the forests' edges and in their glades, where the trees stand neither thick nor
+  far apart, and along the paths, off them, on dry ground, clear of trunks and rocks (`Layout.bushes` in
+  `tools/build_demo.py`), from 7 in the thick forest to 145 by the river; across the open forest's glades, among the
+  autumn hollow's trees, turning yellow and red there, and mostly buckthorn by the lake and in the bog. They're placed
+  last, on random numbers of their own, so nothing else moved. Each is solid at its middle. Exported by the plants
+  stage with their cards and the shade inside them baked, like the trees' (`assets/plants/bushes.glb`), and drawn
+  with the trees' leaf shader, but none of the trees' fades (`tree_fades`): they're low enough not to be in the way.
+  F2's **Bushes** turns them off; they cost 0.5–0.6 ms a frame where there are many (the open forest, the river).
 - **The hero** is a grey box for now, with a dark band on its front.
 
 ## Running it
@@ -326,29 +335,36 @@ no paths, nor the mockups' faceted bracken and leaf piles in its grove (`tools/a
 ground has piles of leaves of their own (`scripts/leaf_litter.gd`, `shaders/leaf_litter.gdshader`):
 
 - **The thin layer** is the ground shader's fallen leaves, painted, two layers of them where the litter is.
-- **The piles** lie over it where the litter is and the leaves' drift noise runs high, broken up by the masks' other
-  noises: about a third of the grove, in drifts a metre to a few metres across, and now and then a thin one up round
+- **The piles** lie over it where the litter is, in piles a metre or two across (the masks' patches noise), more of
+  them where the leaves' drift noise runs high, their edges broken up: about 200 piles over 40% of the grove (the user
+  asked for a lot more of them, 15 October; there were about 80, over a third), and now and then a thin one up round
   the hollow. Their leaves are small faceted kites, 10–15 cm, folded along the midrib so their two halves catch the
   light differently, in the ground's leaf colours, a little darker the deeper in the pile; up to 12 cm deep in a
   pile's middle, fewer and flatter at its edges, and the ground under a pile darker, in its shade.
 - **How they're laid:** at every point of a 0.4 m grid that's in a pile, a patch of 48 leaves; each patch carries the
   pile's depth there and the ground's height and slope, worked out as the area loads (0.2 s), so its leaves read no
   textures but the trees' shade.
-- **Stirring:** within 0.75 m of the hero's trail (`scripts/hero_trail.gd`, which the grass folds round too). The
-  first try, a few leaves hopping 1–2 cm, was too slight to notice, the user found (15 October), so now:
-  - **A lane:** the leaves are swept out of a lane along the hero's way, none left within 0.3 m of it, crowding toward
-    its edges into low banks, and the pile pressed down. It shows from the game's camera, and lasts a second before
-    it fills in again, till 3 s after the hero passed.
-  - **Kicked up:** about half of those near the step, more the nearer it and the higher in the pile, are kicked up,
-    most about 8 cm and a few higher, and out 6–20 cm, ahead and to the side; they flutter, turn over once or twice,
-    catch the light as they go, and land a little way off.
-  - **Shaken** back and forth, dying away.
+- **Stirring:** the first try, a few leaves hopping 1–2 cm, was too slight to notice, the user found (15 October);
+  the stronger one after it was right, but its leaves slid back to where they'd lain, which they shouldn't: they
+  should move only when someone moves into them (the user, the same day). So where they've been moved is kept, in a
+  disturbance map over the piles (a 2D render target, 10 cm a texel, never cleared), which a brush paints round the
+  hero every frame (`shaders/leaf_stir.gdshader`; `LeafLitter.stir_at`, which could take anyone else walking
+  through them too), and the leaves read:
+  - **A lane:** as the hero comes alongside them, the leaves are swept sideways out of its way, none left within
+    0.3 m of it, crowding toward its edges into low banks, and the pile pressed down; those right in its way go to
+    one side or the other. It shows from the game's camera, and stays: the map only ever pushes leaves further, or
+    the other way where the hero walks through again, never back.
+  - **Kicked up:** about half of those near the step, more of those on top, are kicked up, most about 8 cm and a
+    few higher, and out 6–20 cm; they flutter, turn over once or twice, catch the light as they go, and land a little
+    way off, where they stay.
+  - **Shaken** back and forth, dying away. The flight and the shaking come from the hero's trail
+    (`scripts/hero_trail.gd`, which the grass folds round too), within 0.75 m of it, and die away within 1.5 s.
   - The deeper the pile, the more; at a thin edge, hardly at all.
 - **F2:** **Fallen leaves**, Piles or As before (none); **in piles**, how much of the litter lies in piles (100%, about
-  a third of the grove's); **stirring**, how much they stir, all of it (100%); **hop**, how high a kicked leaf flies
+  40% of the grove's, in about 200 piles); **stirring**, how much they stir, all of it (100%); **hop**, how high a kicked leaf flies
   (8 cm).
-- **Cost:** 0.4–0.6 ms a frame in the hollow, at its start and with the camera on a pile (measured on 15 October,
-  the machine quiet).
+- **Cost:** 1.4 ms a frame at the hollow's start (measured on 15 October, the machine quiet), with its 200 piles; with
+  the 80 before, 0.4–0.6. The disturbance map costs nothing measurable.
 
 ## The performance panel (F2)
 
@@ -378,6 +394,7 @@ takes effect at once:
 | Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
 | Bark textures | **On** (the default), or **Off**: the trunks plain, each in its bark's average colour, to see what the bark costs (nothing measurable, below) |
 | Grass (G) | **Wisps**, **Tufts**, **Clumps** (the default) or **Short**, the plant portfolio's grass styles over the green ground, each on its ground texture, folding as the hero walks through them; the **First try**; or **As before**: the mockups' grass tufts (above), and in the bog its faceted tussocks and sedge instead of its grass. The sliders below set the bog's grass too. **strands**: how many, against the style's as tuned, its patches closer together or further apart (25% to 300%; 100%); **strand size**: the cards and the strands in the ground texture alike (140%); **how tall** (100%); **drawn out to**: where it has sunk into the ground (45 m); **ground texture**: how strongly its ground texture shows (100%); **ground in its shade**: how light the ground among the grass stays (85%) |
+| Bushes | **On** (the default) or **Off**: the plant portfolio's bushes (above) |
 | Fallen leaves | In the autumn hollow: **Piles** (the default), its leaves lying deep here and there, a lane opening through a pile as the hero walks through and leaves kicked up, or **As before** (none). **in piles**: how much of the litter lies in piles (100%); **stirring**: how much they stir (100%); **hop**: how high a kicked leaf flies (8 cm). Above, The fallen leaves |
 | Crown cut, camera high | **Near camera** (the default): the trees near a high camera end lower the nearer they stand, out to a ball round the camera **reach** times as far across as the camera is from the hero (80%); **All trees**: every tree ends at a height (**trees end at**, 8 m), as the user wondered; or **Off**. Above |
 | Trees in the way | How trees get out of the way (above): **Line** in Clear view, the default in most scenes; **See-through** in Thick forest, with the presets at the panel's top to set what follows at once (**Thick forest**, the defaults, or **One tree is enough**: Leaves, the hero alone, 90% and 50%; both see-through by 50%, none hidden), how much of the area round the hero the trees must cover (**see-through at**, 40%) and how little before see-through trees turn solid again (**solid again below**, 20%, so they don't flicker), what covers it (**cover counts**: two trees or more hiding a point through the gaps between their leaves, the default, so a tree alone never goes see-through; one tree; or any part of a leaf card, as before), how far round the hero the area reaches (**area round hero**, 1.5 m), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, whether **see-through trees** are drawn with half their cards, each where it was (Fewer cards, the default, much faster deep in the forest) or all of them, and whether to **hide all but** the 1 or 2 see-through trees **nearest** the hero (off by default); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
@@ -594,7 +611,7 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions, and their stumps for when they're cut), rocks and plants, its own models (water, steps, bridges), colliders, walls |
 | `scripts/ground_detail.gd` | Bakes the ground's details into tiling textures at startup, for the Baked level |
 | `scripts/grass.gd`, `shaders/grass.gdshader` | The grass over the green ground, its styles, and its folding round the hero's trail; and the bog's grass, a second field of it |
-| `scripts/leaf_litter.gd`, `shaders/leaf_litter.gdshader` | The autumn hollow's piles of fallen leaves, and their stirring along the hero's trail |
+| `scripts/leaf_litter.gd`, `shaders/leaf_litter.gdshader`, `shaders/leaf_stir.gdshader` | The autumn hollow's piles of fallen leaves, their stirring along the hero's trail, and the disturbance map that keeps where they've been moved |
 | `scripts/hero_trail.gd` | The hero's trail, which the grass folds round and the leaves stir along |
 | `scripts/tree_impostors.gd`, `scripts/tree_shadow_pictures.gd` | Picture the new trees at startup: from the side, for the far trees, and their leaves from the sun, for their shadows |
 | `scripts/hero.gd`, `scripts/camera_rig.gd` | The hero and the camera |

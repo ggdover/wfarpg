@@ -24,6 +24,8 @@ KNOLLS = [((-18, 22), 13.0, 2.6), ((28, -26), 11.0, 2.0), ((40, 30), 9.0, 1.8), 
 LONE_TREES = []
 ERRATICS = [((4, 30), 1.4), ((-30, -36), 1.3)]
 LANDMARKS = []
+
+BUSH_OPTIONS = dict(rate=0.08, kinds={"Raspberry": 0.5, "AlderBuckthorn": 0.5})  # dry, open heath: only a few
 path_dist, inside, boundary_dist = paths_and_outline(PATHS, BOUNDARY)
 
 

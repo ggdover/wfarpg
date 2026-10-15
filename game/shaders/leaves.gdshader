@@ -8,6 +8,8 @@ render_mode cull_disabled, diffuse_lambert, specular_schlick_ggx;
 
 uniform sampler2D card : source_color, filter_linear_mipmap, repeat_disable;
 uniform float roughness = 0.75;
+// a tree's: fading out of the way, the crown cut and the rest; a bush's (the plant portfolio's) has none, as it's low
+uniform bool tree_fades = true;
 instance uniform float sight_fade = 0.0;  // fading out of the way (tree_fade in shaders/common.gdshaderinc)
 instance uniform vec2 sight_veil = vec2(0.0);  // how see-through, and from how high (veil_fade)
 instance uniform float sight_thin = 0.0;  // how see-through the cards its thinned version leaves out are
@@ -26,14 +28,16 @@ void fragment() {
 	if (c.a < 0.5) {  // most of a card is clear: let those pixels go before working out the fades
 		discard;
 	}
-	float fade = max(tree_fade(sight_fade, VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD),
-			xray_fade(SCREEN_UV, VIEWPORT_SIZE, VERTEX, VIEW_MATRIX, CAMERA_POSITION_WORLD));
-	vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	vec2 veil = vec2(UV2.y > 0.5 ? max(sight_veil.x, sight_thin) : sight_veil.x, sight_veil.y);
-	float soft = max(cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD), veil_fade(veil, 1e6, CAMERA_POSITION_WORLD));  // leaves all the way down
-	soft = max(soft, crown_fade(world, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD));
-	if (faded_out(fade, world) || faded_fine(soft, world, FRAGCOORD.xy)) {
-		discard;
+	if (tree_fades) {
+		float fade = max(tree_fade(sight_fade, VERTEX, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD),
+				xray_fade(SCREEN_UV, VIEWPORT_SIZE, VERTEX, VIEW_MATRIX, CAMERA_POSITION_WORLD));
+		vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+		vec2 veil = vec2(UV2.y > 0.5 ? max(sight_veil.x, sight_thin) : sight_veil.x, sight_veil.y);
+		float soft = max(cone_fade(SCREEN_UV, VERTEX, CAMERA_POSITION_WORLD), veil_fade(veil, 1e6, CAMERA_POSITION_WORLD));  // leaves all the way down
+		soft = max(soft, crown_fade(world, NODE_POSITION_WORLD, CAMERA_POSITION_WORLD));
+		if (faded_out(fade, world) || faded_fine(soft, world, FRAGCOORD.xy)) {
+			discard;
+		}
 	}
 	vec3 leaf = autumn_tint(c.rgb, autumn);
 	float grey = dot(leaf, vec3(0.2126, 0.7152, 0.0722));

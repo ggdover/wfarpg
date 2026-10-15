@@ -8,13 +8,15 @@
 // trees' shade. Leaf by leaf: its middle in CUSTOM0.xz, how deep in the pile it lies in CUSTOM0.y (0 at the bottom,
 // 1 on top), its own random number in CUSTOM0.w; its shape about its middle in VERTEX.
 //
-// Stirring: within stir_radius of the hero's trail (scripts/hero_trail.gd), so it's easy to see as the hero walks
-// through a pile (the user, 15 October: the first, of a few leaves hopping 1-2 cm, was too slight): the leaves are
-// swept aside out of a lane along the hero's way, about lane metres either side of it, heaping up a little along its
-// sides, and those left pressed down; they shake back and forth; and about half of those near the step are kicked up
-// (hop high, a few higher) and out, ahead and to the side, fluttering and turning over once or twice, catching the
-// light, to land a little way off. The lane stays a second, then fills in again till settle seconds after the hero
-// passed. The nearer the step and the deeper the pile, the more; stir scales it all.
+// Stirring, so it's easy to see as the hero walks through a pile (the user, 15 October: the first, of a few leaves
+// hopping 1-2 cm, was too slight), and lasting, the leaves staying where they were moved until something moves into
+// them again (the user, the same day: they shouldn't move back by themselves). Where they lie comes from the
+// disturbance map (field_tex, painted round the hero by shaders/leaf_stir.gdshader, never fading): swept out of a lane
+// along the hero's way, crowding into banks along its sides, the trodden pile pressed down, and the leaves that were
+// kicked up (about half of those there, more of those on top) landed a little way off. The moment of moving comes
+// from the hero's trail (scripts/hero_trail.gd), within stir_radius of it: they shake back and forth, and the kicked
+// ones fly up (hop high, a few higher), fluttering, turning over once or twice and catching the light, dying away
+// within settle seconds. The deeper the pile, the more; stir scales it all.
 shader_type spatial;
 render_mode cull_disabled, world_vertex_coords, diffuse_lambert, specular_schlick_ggx;
 
@@ -36,8 +38,13 @@ uniform vec4 trail[TRAIL];
 uniform int trail_count = 0;
 uniform float trail_reach = 0.0;
 uniform float stir_radius = 0.75;  // metres from the step a leaf still stirs
-uniform float lane = 0.3;  // metres either side of the hero's way swept clear
-uniform float settle = 3.0;  // seconds until it's all still again
+uniform float settle = 1.5;  // seconds until the stirring dies away
+
+// the disturbance map: where the leaves have been moved to (shaders/leaf_stir.gdshader), over field_rect (x, z of its
+// corner, its width and depth); it holds pushes up to field_max metres
+uniform sampler2D field_tex : filter_linear, repeat_disable;
+uniform vec4 field_rect = vec4(0.0, 0.0, 1.0, 1.0);
+uniform float field_max = 0.5;
 
 global uniform vec2 mood_grade;
 
@@ -102,13 +109,30 @@ void vertex() {
 		shape.y += dot(slope, shape.xz);  // lying along the slope
 		float y = g0 + 0.006 + deep * depth * p;
 
-		// stirred by the hero's steps: the newest part of the trail within stir_radius, how long ago it was there, and
-		// which way the hero went
+		float r1 = rnd(cell, 20u + leaf);
+		float r2 = rnd(cell, 21u + leaf);
+		float r3 = rnd(cell, 22u + leaf);
+		float r4 = rnd(cell, 24u + leaf);
+		float ra = rnd(cell, 23u + leaf) * TAU;
+		bool kicked = r2 < 0.45 * mix(0.5, 1.0, deep);  // about half of them, more of those on top, fly up when stepped
+		// where it's been moved to, and stays: pushed out of the lane, those on top the most, banked up along its sides;
+		// the trodden pile pressed down; a kicked leaf a little way off where it landed
+		vec2 fuv = (c - field_rect.xy) / field_rect.zw;
+		vec4 moved = all(greaterThan(fuv, vec2(0.0))) && all(lessThan(fuv, vec2(1.0))) ? textureLod(field_tex, fuv, 0.0)
+				: vec4(0.5, 0.5, 0.0, 1.0);
+		vec2 push = (moved.rg - 0.5) * 2.0 * field_max;
+		float trod = moved.b;
+		vec3 lift = vec3(0.0);
+		lift.xz = push;
+		lift.y = length(push) * 0.3 - depth * p * deep * 0.5 * trod;
+		if (kicked) {
+			lift.xz += normalize(push + vec2(cos(ra), sin(ra)) * 0.12 + vec2(1e-4, 0.0)) * (0.06 + 0.14 * r4) * trod;
+		}
+
+		// moving now, while the hero's trail there is fresh (its newest part within stir_radius, and how long ago it was
+		// there): shaken back and forth, and the kicked ones in the air, dying away
 		float s = 0.0;
 		float t = 0.0;
-		float dist = stir_radius;
-		vec2 away = vec2(0.0);
-		vec2 walked = vec2(0.0);
 		if (trail_count > 1 && distance(c, trail[0].xy) < trail_reach) {
 			for (int i = 0; i + 1 < TRAIL; i++) {
 				if (i + 1 >= trail_count) {
@@ -118,54 +142,26 @@ void vertex() {
 				vec2 sg = trail[i + 1].xy - p0;
 				float len2 = dot(sg, sg);
 				float f = len2 > 1e-6 ? clamp(dot(c - p0, sg) / len2, 0.0, 1.0) : 0.0;
-				vec2 off = c - (p0 + sg * f);
-				float d = length(off);
+				float d = length(c - (p0 + sg * f));
 				if (d < stir_radius) {
 					s = 1.0 - smoothstep(0.15, stir_radius, d);
-					dist = d;
 					t = mix(trail[i].z, trail[i + 1].z, f);
-					away = d > 1e-4 ? off / d : vec2(1.0, 0.0);
-					walked = len2 > 1e-6 ? -sg / sqrt(len2) : vec2(0.0);
 					break;
 				}
 			}
 		}
-		float deep_pile = smoothstep(0.05, 0.35, p);  // more in a deep pile
-		float sweep = 0.0;
-		if (s > 0.0) {  // swept: a leaf dist from the hero's way goes out by lane x (1 - smoothstep(0, stir_radius, dist)),
-			// so none is left within lane of it, and they crowd toward the edges without passing each other
-			sweep = lane * (1.0 - smoothstep(0.0, stir_radius, dist)) * deep_pile * min(stir, 2.0);
-		}
-		s *= deep_pile * (1.0 - smoothstep(settle * 0.85, settle, t)) * stir;
-		vec3 lift = vec3(0.0);
+		s *= smoothstep(0.05, 0.35, p) * (1.0 - smoothstep(settle * 0.6, settle, t)) * stir;  // more in a deep pile
 		float air = 0.0;
 		if (s > 0.0) {
-			float r1 = rnd(cell, 20u + leaf);
-			float r2 = rnd(cell, 21u + leaf);
-			float r3 = rnd(cell, 22u + leaf);
-			float r4 = rnd(cell, 24u + leaf);
-			float ra = rnd(cell, 23u + leaf) * TAU;
-			vec3 axis = vec3(cos(ra), 0.0, sin(ra));
-			float back = 1.0 - smoothstep(1.0, settle, t);  // swept, pressed and kicked, then easing back
-			// swept aside into banks along the lane, the pile pressed down, and shaken, less and less
-			lift.xz = away * sweep * back;
-			lift.y = (sweep * 0.3 - depth * p * deep * 0.5 * min(s, 1.0)) * back;
 			float angle = s * 0.7 * sin(t * 18.0 + r1 * TAU) * exp(-t * 2.5);
-			// about half of them, more the nearer the step and the higher in the pile, kicked up and out, ahead and to the
-			// side, fluttering and turning over once or twice (a whole turn or two, so they land as they lay), landing a
-			// little way off
-			float share = clamp(0.55 * s, 0.0, 0.9) * mix(0.5, 1.0, deep);
-			if (r2 < share) {
+			if (kicked) {  // up and down, fluttering, turning over once or twice (whole turns, so it lands as it lay)
 				float u = clamp((t - 0.1 * r3) / (0.45 + 0.35 * r1), 0.0, 1.0);
-				float arc = 4.0 * u * (1.0 - u);
-				vec2 kick = normalize(away * 0.8 + walked * 0.6 + vec2(1e-4, 0.0));
-				lift.y += hop * mix(0.4, 1.0, r3) * (r4 < 0.15 ? 1.7 : 1.0) * min(stir, 2.0) * arc;
-				lift.xz += kick * (0.06 + 0.14 * r4) * min(stir, 2.0) * smoothstep(0.0, 1.0, u) * back;
-				lift.xz += vec2(-kick.y, kick.x) * sin(u * PI * 3.0) * 0.025 * arc;  // fluttering
-				angle += u * TAU * (r2 < share * 0.4 ? 2.0 : 1.0);
-				air = arc;
+				air = 4.0 * u * (1.0 - u) * min(s * 1.5, 1.0);
+				lift.y += hop * mix(0.4, 1.0, r3) * (r4 < 0.15 ? 1.7 : 1.0) * min(stir, 2.0) * air;
+				lift.xz += vec2(-sin(ra), cos(ra)) * sin(u * PI * 3.0) * 0.025 * air;
+				angle += u * TAU * (r2 < 0.18 ? 2.0 : 1.0);
 			}
-			shape = turned(shape, axis, angle);
+			shape = turned(shape, vec3(cos(ra), 0.0, sin(ra)), angle);
 		}
 		VERTEX = vec3(c.x, y, c.y) + shape + lift;
 		// the colours of the leaves on the ground, a little darker the deeper in the pile, in its shade

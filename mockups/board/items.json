@@ -4666,7 +4666,7 @@
  },
  "ls-about": {
   "type": "note",
-  "text": "# The leaves stir much more\nYou found the first stirring too slight to notice. Now, as the hero walks through a pile:\n\n- **A lane opens:** the leaves are swept out of its way, about 30 cm either side, banking up along its edges, the pile pressed down. It shows from the game's camera, stays a second, then fills in over the next two\n- **Leaves are kicked up:** about half of those near the step, most about 8 cm high and a few higher, out ahead and to the side; they flutter, turn over once or twice and catch the light as they go\n- **They shake**, more and for longer\n- **F2:** a new **stirring** slider sets how much of all this (100%); **hop** how high they fly (8 cm, up to 20)\n\n**Cost per frame:** 0.4 to 0.6 ms in the hollow.",
+  "text": "# The leaves stir much more\nYou found the first stirring too slight to notice. Now, as the hero walks through a pile:\n\n- **A lane opens:** the leaves are swept out of its way, about 30 cm either side, banking up along its edges, the pile pressed down. It shows from the game's camera, and stays (since the next step: the leaves move only when someone moves into them)\n- **Leaves are kicked up:** about half of those near the step, most about 8 cm high and a few higher, out ahead and to the side; they flutter, turn over once or twice and catch the light as they go\n- **They shake**, more and for longer\n- **F2:** a new **stirring** slider sets how much of all this (100%); **hop** how high they fly (8 cm, up to 20)\n\n**Cost per frame:** 0.4 to 0.6 ms in the hollow.",
   "color": "paper",
   "x": 28,
   "y": 97590,
@@ -4675,7 +4675,7 @@
   "z": 307,
   "author": "claude",
   "createdAt": 1792081885720,
-  "updatedAt": 1792081885720
+  "updatedAt": 1792086156788
  },
  "ls-close": {
   "type": "image",
@@ -4715,5 +4715,96 @@
   "author": "claude",
   "createdAt": 1792081885720,
   "updatedAt": 1792081885720
+ },
+ "bu-about": {
+  "type": "note",
+  "text": "# Leaves that stay put, more piles, room between the trees, and bushes\nYou liked the amount of movement, but not the leaves moving back to where they'd lain after a moment: they should only move when something moves into them. You also asked for a lot more piles, the hollow's trees further apart, and bushes in the scenes.\n\n- **The leaves stay where they're moved.** The ground keeps a map of where its leaves have been pushed, painted round the hero as it walks, never fading: the lane through a pile stays open, the kicked leaves stay where they landed, the trodden pile stays pressed down. They move again only when the hero walks back into them. Anyone else walking through them later can paint the same map\n- **More piles:** about 200 in the hollow, up from about 80, smaller and more spread out, over 40% of its leaf ground\n- **The hollow's trees 4-6 m apart**, up from 1-4 m: about 200 fewer of them\n- **Bushes in every scene:** the plant portfolio's raspberry, alder buckthorn and hazel, at the forests' edges, in their glades and along the paths, from 7 in the thick forest to 145 by the river; among the hollow's trees, turning yellow and red with them; mostly buckthorn by the lake and in the bog. They don't fade out of the way as the trees do, being low. F2 has a Bushes switch\n\n**Cost per frame:** the bushes 0.5 to 0.6 ms where there are many; the hollow's leaves 1.4 ms, with all their new piles.",
+  "color": "paper",
+  "x": 28,
+  "y": 98770,
+  "w": 460,
+  "h": 1700,
+  "z": 310,
+  "author": "claude",
+  "createdAt": 1792086156788,
+  "updatedAt": 1792086156788
+ },
+ "bu-hollow": {
+  "type": "image",
+  "assetId": "0ada8e214b482dc6c902ff7f49f01775",
+  "ar": 3.336,
+  "x": 512,
+  "y": 99451,
+  "w": 2200,
+  "z": 313,
+  "caption": "The autumn hollow before and now: the trees further apart, bushes turning with them, and more piles of leaves.",
+  "author": "claude",
+  "createdAt": 1792086156788,
+  "updatedAt": 1792086156788
+ },
+ "bu-lane": {
+  "type": "image",
+  "assetId": "10040547266f1bf9c992541f17fb93a8",
+  "ar": 1.731,
+  "x": 512,
+  "y": 98770,
+  "w": 1092,
+  "z": 311,
+  "caption": "From the game's camera, held still (a moving picture): the lane through the pile stays open after the hero has gone.",
+  "author": "claude",
+  "createdAt": 1792086156788,
+  "updatedAt": 1792086156788
+ },
+ "bu-lane-close": {
+  "type": "image",
+  "assetId": "57329681d4d2492d713ea17172c3a81f",
+  "ar": 1.9,
+  "x": 1632,
+  "y": 98770,
+  "w": 1080,
+  "z": 312,
+  "caption": "Closer: kicked up, swept aside, and staying where they landed.",
+  "author": "claude",
+  "createdAt": 1792086156788,
+  "updatedAt": 1792086156788
+ },
+ "bu-open": {
+  "type": "image",
+  "assetId": "5e6919f749b9681949028be5cd3e131e",
+  "ar": 1.691,
+  "x": 1632,
+  "y": 100161,
+  "w": 1080,
+  "z": 315,
+  "caption": "Closer, in the open forest: alder buckthorn, hazel and raspberry.",
+  "author": "claude",
+  "createdAt": 1792086156788,
+  "updatedAt": 1792086156788
+ },
+ "bu-scenes": {
+  "type": "image",
+  "assetId": "a26245936f86da9b42944f56c19bcf1f",
+  "ar": 1.657,
+  "x": 512,
+  "y": 100161,
+  "w": 1092,
+  "z": 314,
+  "caption": "Bushes in Storskogen, by the river, by the lake and at the bog's edge.",
+  "author": "claude",
+  "createdAt": 1792086156788,
+  "updatedAt": 1792086156788
+ },
+ "s-bushes": {
+  "type": "frame",
+  "title": "Leaves that stay put, more piles, room between the trees, and bushes",
+  "color": "moss",
+  "x": 0,
+  "y": 98742,
+  "w": 2740,
+  "h": 2140,
+  "z": 51,
+  "author": "claude",
+  "createdAt": 1792086156788,
+  "updatedAt": 1792086156788
  }
 }

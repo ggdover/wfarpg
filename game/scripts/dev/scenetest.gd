@@ -113,14 +113,12 @@ func _bog() -> void:
 
 func _autumn_hollow() -> void:
 	var w: DemoWorld = demo.world
-	_place(Vector2(-45.5, 7.5))  # up on the hollow's west rim
+	_place(Vector2(-44.5, 8.5))  # up on the hollow's west rim
 	var y0: float = demo.hero.global_position.y
 	var lowest := [y0]
-	# no paths: a way between the grove's trunks (planned round the layout's solids), through a pile of leaves
-	await _walk_along([Vector2(-44.0, 5.5), Vector2(-39.0, 3.0), Vector2(-37.5, 3.5), Vector2(-32.0, 4.5), Vector2(-30.0, 4.0),
-		Vector2(-29.0, 3.0), Vector2(-26.0, 4.0), Vector2(-24.5, 5.5), Vector2(-22.0, 5.0), Vector2(-12.5, 5.0), Vector2(-9.5, 7.5),
-		Vector2(-8.0, 8.0), Vector2(0.5, 2.0), Vector2(2.0, 0.5), Vector2(5.5, 0.0), Vector2(7.0, 0.5), Vector2(14.5, -1.0),
-		Vector2(15.0, -1.5), Vector2(23.0, -0.5), Vector2(28.5, -4.5)], func() -> void:
+	# no paths: a way between the grove's trunks and bushes (planned round the layout's solids), through its leaves
+	await _walk_along([Vector2(-43.5, 6.5), Vector2(-38.5, 3.0), Vector2(-30.5, 3.0), Vector2(-29.5, 2.0), Vector2(5.0, -0.5),
+		Vector2(16.5, 0.0), Vector2(29.5, -2.5)], func() -> void:
 		lowest[0] = minf(lowest[0], demo.hero.global_position.y))
 	_check("the hero walks down into the hollow, between its trees, and up out of it", y0 - lowest[0] > 1.5 and demo.hero.global_position.x > 26.0,
 		"down %.2f m, to x %.1f" % [y0 - lowest[0], demo.hero.global_position.x])
@@ -130,10 +128,32 @@ func _autumn_hollow() -> void:
 	_check("the fallen leaves lie in piles, and stir along the hero's trail",
 		leaves != null and leaves.shown and leaves._chunks.size() > 0 and count == w.trail.points.size(),
 		"%d chunks of piles; trail %d points, the leaves' %d" % [leaves._chunks.size() if leaves else 0, w.trail.points.size(), count])
+	# where they were moved stays: the disturbance map on the hero's way, now and four seconds on
+	var spot := Vector2(16.5, 0.0)
+	var moved_now := _moved_at(leaves, spot)
+	await _seconds(4.0)
+	var moved_later := _moved_at(leaves, spot)
+	_check("the leaves stay where they were pushed, and the pile trodden, after the hero has gone",
+		moved_now.z > 0.5 and Vector2(moved_now.x, moved_now.y).length() > 0.05 and moved_now.is_equal_approx(moved_later),
+		"pushed %.2f m, trodden %.2f; four seconds on, pushed %.2f m, trodden %.2f" % [Vector2(moved_now.x, moved_now.y).length(),
+		moved_now.z, Vector2(moved_later.x, moved_later.y).length(), moved_later.z])
 	demo._panel.choose("leaves", false)
 	var before := not leaves.shown and leaves._chunks.all(func(m: MultiMeshInstance3D) -> bool: return not m.visible)
 	demo._panel.choose("leaves", true)
 	_check("F2's Fallen leaves, As before: no piles", before and leaves.shown, "before %s" % before)
+
+
+## The leaves' disturbance map at a spot (Godot's X and Z): how far they've been pushed there (x, y, metres) and how
+## trodden the pile is (z).
+func _moved_at(leaves: LeafLitter, spot: Vector2) -> Vector3:
+	var img := leaves._field.get_texture().get_image()
+	var px := Vector2i(((spot - leaves._field_rect.position) / LeafLitter.FIELD_TEXEL).floor())
+	var c := img.get_pixelv(px)
+	return Vector3((c.r - 0.5) * 2.0 * LeafLitter.FIELD_MAX, (c.g - 0.5) * 2.0 * LeafLitter.FIELD_MAX, c.b)
+
+
+func _seconds(t: float) -> void:
+	await demo.get_tree().create_timer(t).timeout
 
 
 ## Put the hero at a spot (Godot's X and Z), with the camera straight over it.

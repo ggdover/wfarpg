@@ -217,6 +217,7 @@ The game builds its long grass from these settings too: after changing them, sav
 
 Heights are to the top of the cards, flowers included (the long grass's patch without its seed heads). The grasses
 are about their real size, a little more; the bushes, like the trees, a little smaller than life, for the high game
-camera (the hazel and the buckthorn about as big as in the first version, but full down to the ground). Only the grass
-styles are in the play demo so far, covering its green ground, and the bog grass its bog: its heather and ferns are
+camera (the hazel and the buckthorn about as big as in the first version, but full down to the ground). In the play
+demo: the grass styles, covering its green ground, the bog grass its bog, and the three bushes, at the forests' edges
+and in their glades (exported by its plants stage into `game/assets/plants/bushes.glb`); its heather and ferns are
 still the mockups' faceted shapes, and its faceted shrubs and berry bushes are gone.

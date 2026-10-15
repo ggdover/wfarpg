@@ -881,8 +881,46 @@ def build_plants():
             share_b=round(float(cfg["extra"]), 3) if extra else 0.5, spin=round(float(cfg["spin"]), 3),
             height=max(info[m]["height"] for m in meshes))
     export_glb(objs, os.path.join(PLANT_DIR, "plants.glb"), ids)
+    info.update(build_bushes(settings, tex_dir))
     with open(os.path.join(PLANT_DIR, "plants.json"), "w") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)
+
+
+BUSHES = ("Raspberry", "AlderBuckthorn", "Hazel")  # the plant portfolio's bushes the game has (the user, 15 October)
+
+
+def build_bushes(settings, tex_dir):
+    """The plant portfolio's bushes, as tuned (BUSHES), two variants of each, in assets/plants/bushes.glb, with their
+    cards (the editor's tint baked in) and, like the trees, the shade inside them baked into their second UV map
+    (bake_ao). Returns their entries for plants.json: as a tree's, with their cards and their berries' or nuts' (both
+    the berries slot), and kind bush."""
+    import plantgen
+    res = "res://assets/plants/textures/"
+    objs, ao, info = [], {}, {}
+    for key in BUSHES:
+        cfg = settings[key]
+        card, extra = plantgen.BY_KEY[key][6], plantgen.extra_of(key)
+        textures = {"leaves": f"{card}_{int(cfg['card'])}"}
+        if extra:
+            textures["berries"] = f"{card}_{int(cfg['card'])}_{extra}"
+        for name in textures.values():
+            copy_card(name, cfg, tex_dir, os.path.join(PLANTS, "textures"))
+            mipmapped(os.path.join(tex_dir, name + ".png"))
+        for variant in "AB":
+            name = f"{key}_{variant}"
+            me = bpy.data.meshes.new(name)
+            cards, faces = plantgen.build_into(key, variant, cfg, me)
+            ob = bpy.data.objects.new(name, me)
+            bpy.context.scene.collection.objects.link(ob)
+            objs.append(ob)
+            stems = [i for i, m in enumerate(me.materials) if m.name.startswith("Stems")]
+            ao[name] = bake_ao(me, see_through={i for i in range(len(me.materials)) if i not in stems})
+            info[name] = dict(mesh_info(me, bark_slot=stems[0] if stems else None), file="res://assets/plants/bushes.glb",
+                              cards=cards, faces=faces, species=key, kind="bush",
+                              textures={slot: res + t + ".png" for slot, t in textures.items()})
+            print(name, "cards", cards, "faces", faces, "height", info[name]["height"], "mean ao %.2f" % ao[name].mean())
+    export_glb(objs, os.path.join(PLANT_DIR, "bushes.glb"), ao)
+    return info
 
 
 def card_numbers(me):
@@ -1138,7 +1176,7 @@ SINK = {"tree": 0.15, "sapling": 0.05, "Boulder": 0.25, "BigBoulder": 0.5, "Log"
 
 def load_info():
     info = {}
-    for path in (os.path.join(KIT_DIR, "kit.json"), os.path.join(TREE_DIR, "trees.json")):
+    for path in (os.path.join(KIT_DIR, "kit.json"), os.path.join(TREE_DIR, "trees.json"), os.path.join(PLANT_DIR, "plants.json")):
         with open(path) as fh:
             info.update(json.load(fh))
     return info
@@ -1172,14 +1210,18 @@ class Layout:
     def blocked(self, x, y, pad=0.0):
         return any(math.hypot(x - c[0], y - c[1]) < r + pad for c, r in self.clear)
 
-    def add_prop(self, model, x, y, rot, s, sink=None, solid=None, z=None):
-        """A prop standing on the ground (or at height z), sunk into it as SINK says, solid out to solid x s. One of the
-        DROPPED plants is left out."""
+    def add_prop(self, model, x, y, rot, s, sink=None, solid=None, z=None, tint=None):
+        """A prop standing on the ground (or at height z), sunk into it as SINK says, solid out to solid x s; tint, a
+        bush's autumn (how far its leaves have turned, and to what, as a tree's). One of the DROPPED plants is left
+        out."""
         if model.rstrip("0123456789") in DROPPED:
             return
         sink = SINK.get(model.rstrip("0123456789"), SINK["plant"]) if sink is None else sink
         z = (self.ground(x, y) if z is None else z) - sink * s
-        self.props.setdefault(model, []).append(to_godot((x, y, z)) + [round(float(rot), 3), round(float(s), 3)])
+        entry = to_godot((x, y, z)) + [round(float(rot), 3), round(float(s), 3)]
+        if tint:
+            entry += [round(float(tint[0]), 3), round(float(tint[1]), 3)]
+        self.props.setdefault(model, []).append(entry)
         if solid:
             self.solids.append(to_godot((x, y, z)) + [round(solid * s, 2), round(self.info[model]["height"] * s, 2)])
 
@@ -1233,6 +1275,47 @@ class Layout:
                 kind = D.SPECIES[k]
                 self.add_tree(kind, x, y, rng.uniform(*size), rng.uniform(0, math.tau), "near",
                               tint=tint(x, y, kind) if tint else None)
+
+    def bushes(self, rate=0.6, cell=5.0, kinds=None, tint=None, seed=0, density=None):
+        """The plant portfolio's bushes (BUSHES: raspberry, alder buckthorn, hazel; the user, 15 October), at the forest's
+        edges and in its glades, where the trees stand neither thick nor far apart, and along the paths, off them, on dry
+        ground, clear of trunks and rocks. On random numbers of their own (seed), after everything else, so nothing else
+        moves. kinds: each species' share; tint(x, y, kind), a bush's autumn, or None; density(X, Y) in place of the
+        area's (the trees' thickness the edges are judged by). An area sets these in BUSH_OPTIONS
+        (build_layout); BUSHES = {} there leaves them out."""
+        from areas.common import smoothstep
+        rng = np.random.default_rng(1500 + getattr(D, "SEED", 11) + seed)
+        kinds = kinds or {"Raspberry": 0.4, "AlderBuckthorn": 0.3, "Hazel": 0.3}
+        names, shares = list(kinds), np.array(list(kinds.values()), float)
+        X, Y = jittered(rng, D.BAKE, cell)
+        dens, pd, rim = (density or D.density)(X, Y), D.path_dist(X, Y), D.boundary_dist(X, Y)
+        edge = smoothstep(0.06, 0.3, dens) * (1 - smoothstep(0.55, 0.85, dens))
+        by_path = ((pd > 2.0) & (pd < 4.0)) * 0.6
+        r, pick, rot, size = (rng.uniform(0, 1, len(X)), rng.uniform(0, 1, len(X)), rng.uniform(0, math.tau, len(X)),
+                              rng.uniform(0.75, 1.05, len(X)))
+        X, Y = X + rng.uniform(-1.0, 1.0, len(X)), Y + rng.uniform(-1.0, 1.0, len(X))
+        near = {}  # what a bush keeps clear of: the trunks and the solids, in Blender's x and y, on a 4 m grid
+        for x, y_, z, rad, _h in self.solids:
+            near.setdefault((int(x // 4), int(-z // 4)), []).append((x, -z, rad))
+        water = getattr(D, "water_level", None)
+        placed = 0
+        for i in range(len(X)):
+            x, y = X[i], Y[i]
+            if pd[i] < 2.0 or rim[i] < -6.0 or r[i] >= rate * min(edge[i] + by_path[i], 1.0) or self.blocked(x, y, 1.5):
+                continue
+            if water is not None and self.ground(x, y) < float(water(np.array([x]), np.array([y]))[0]) + 0.15:
+                continue
+            gx, gy = int(x // 4), int(y // 4)
+            if any(math.hypot(x - sx, y - sy) < rad + 1.0 for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+                   for sx, sy, rad in near.get((gx + dx, gy + dy), [])):
+                continue
+            kind = names[int(np.searchsorted(np.cumsum(shares) / shares.sum(), pick[i]))]
+            model = f"{kind}_{'AB'[int(rng.integers(2))]}"
+            self.add_prop(model, x, y, rot[i], size[i], solid=min(self.info[model]["foot"] * 0.5, 0.6),
+                          tint=tint(x, y, kind) if tint else None)
+            near.setdefault((gx, gy), []).append((x, y, 1.0))
+            placed += 1
+        return placed
 
     def lone_trees(self):
         for kind, (x, y) in D.LONE_TREES:
@@ -1592,6 +1675,8 @@ def build_layout():
     model and the new one, so the two versions of the demo differ only in the trees."""
     L = Layout(load_info(), np.random.default_rng(getattr(D, "SEED", 11)))
     getattr(D, "populate", populate_default)(L)
+    if getattr(D, "BUSHES", True) != {}:  # the bushes, last, on their own random numbers (Layout.bushes)
+        print("bushes:", L.bushes(**getattr(D, "BUSH_OPTIONS", {})))
     (sx, sy), facing = D.START
     layout = {
         "about": "Written by tools/build_demo.py from tools/areas/%s.py. Positions are Godot's (metres, Y up); a prop is "

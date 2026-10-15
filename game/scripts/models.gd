@@ -2,13 +2,14 @@ class_name Models
 extends RefCounted
 ## The demo's models: the meshes in the .glb files that tools/build_demo.py exports, with the game's materials.
 ##
-## kit.json, trees.json and stumps.json list every model with its file, size and footprint. A portfolio tree's
-## surfaces are named after its Blender materials (Bark, Leaves <tree>, Berries Rowan); the kit's are LowPoly and
-## RuneDay. Every tree, old and new, has a stump, <model>_stump, shown in its place while it's in the way, and a bare
+## kit.json, trees.json, stumps.json and plants.json list every model with its file, size and footprint. A portfolio
+## tree's surfaces are named after its Blender materials (Bark, Leaves <tree>, Berries Rowan); a portfolio bush's
+## likewise (Stems, Leaves, Berries or Nuts <bush>); the kit's are LowPoly and RuneDay. Every tree, old and new, has a stump, <model>_stump, shown in its place while it's in the way, and a bare
 ## trunk, <model>_trunk, which the x-ray leaves standing. A portfolio tree's full version also has a thinned one, made
 ## as it loads (thinned).
 
-const INFO_FILES := ["res://assets/kit/kit.json", "res://assets/trees/trees.json", "res://assets/trees/stumps.json"]
+const INFO_FILES := ["res://assets/kit/kit.json", "res://assets/trees/trees.json", "res://assets/trees/stumps.json",
+	"res://assets/plants/plants.json"]
 
 static var info := {}
 static var _meshes := {}  # model -> mesh with the game's materials
@@ -65,9 +66,9 @@ static func is_tree(model: String) -> bool:
 
 static func _material_for(model: String, surface: String, imported: Material) -> Material:
 	var name := imported.resource_name if imported else surface
-	if name.begins_with("Leaves") or name.begins_with("Berries"):
-		var slot := "berries" if name.begins_with("Berries") else "leaves"
-		return _leaf_material(info[model]["textures"][slot])
+	if name.begins_with("Leaves") or name.begins_with("Berries") or name.begins_with("Nuts"):
+		var slot := "leaves" if name.begins_with("Leaves") else "berries"
+		return _leaf_material(info[model]["textures"][slot], info[model].get("kind", "") != "bush")
 	if name == "RuneDay":
 		return _cached("rune", func() -> Material:
 			var m := StandardMaterial3D.new()
@@ -137,11 +138,13 @@ static func _bark_material(species: String, part: String) -> Material:
 		return m)
 
 
-static func _leaf_material(texture: String) -> Material:
+## A leaf card's material: a tree's, which fades out of the way, or a bush's, which doesn't (tree_fades).
+static func _leaf_material(texture: String, tree := true) -> Material:
 	return _cached(texture, func() -> Material:
 		var m := ShaderMaterial.new()
 		m.shader = load("res://shaders/leaves.gdshader")
 		m.set_shader_parameter("card", load(texture))
+		m.set_shader_parameter("tree_fades", tree)
 		return m)
 
 

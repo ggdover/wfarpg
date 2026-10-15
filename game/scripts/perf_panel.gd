@@ -163,6 +163,7 @@ func setup(d: Node) -> void:
 		func(v: float) -> void: w.set_grass_option("ground_texture", v))
 	_slider(col, "grass_shade", "  ground in its shade", 0.6, 1.0, 0.05, w.grass.ground_shade, percent,
 		func(v: float) -> void: w.set_grass_option("ground_shade", v))
+	_choice(col, "bushes", "Bushes", [["On", true], ["Off", false]], true, func(v: bool) -> void: w.set_bushes(v))
 	var leaves: LeafLitter = w.leaves  # the autumn hollow's; null elsewhere, where these change nothing
 	_choice(col, "leaves", "Fallen leaves", [["Piles", true], ["As before", false]], leaves == null or leaves.shown,
 		func(v: bool) -> void: w.set_leaves(v))

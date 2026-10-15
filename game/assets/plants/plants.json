@@ -1,4 +1,50 @@
 {
+ "AlderBuckthorn_A": {
+  "cards": 309,
+  "faces": 1020,
+  "file": "res://assets/plants/bushes.glb",
+  "foot": 1.163,
+  "height": 2.511,
+  "kind": "bush",
+  "max": [
+   1.422,
+   2.511,
+   1.477
+  ],
+  "min": [
+   -1.44,
+   -0.292,
+   -1.444
+  ],
+  "species": "AlderBuckthorn",
+  "textures": {
+   "berries": "res://assets/plants/textures/buckthorn_1_berries.png",
+   "leaves": "res://assets/plants/textures/buckthorn_1.png"
+  }
+ },
+ "AlderBuckthorn_B": {
+  "cards": 312,
+  "faces": 1010,
+  "file": "res://assets/plants/bushes.glb",
+  "foot": 1.214,
+  "height": 2.473,
+  "kind": "bush",
+  "max": [
+   1.379,
+   2.473,
+   1.394
+  ],
+  "min": [
+   -1.16,
+   -0.239,
+   -1.466
+  ],
+  "species": "AlderBuckthorn",
+  "textures": {
+   "berries": "res://assets/plants/textures/buckthorn_1_berries.png",
+   "leaves": "res://assets/plants/textures/buckthorn_1.png"
+  }
+ },
  "GrassBog_A": {
   "cards": 6,
   "faces": 6,
@@ -169,6 +215,52 @@
    -0.284
   ]
  },
+ "Hazel_A": {
+  "cards": 591,
+  "faces": 1764,
+  "file": "res://assets/plants/bushes.glb",
+  "foot": 1.708,
+  "height": 3.007,
+  "kind": "bush",
+  "max": [
+   2.248,
+   3.007,
+   2.097
+  ],
+  "min": [
+   -2.146,
+   -0.622,
+   -2.035
+  ],
+  "species": "Hazel",
+  "textures": {
+   "berries": "res://assets/plants/textures/hazel_1_nuts.png",
+   "leaves": "res://assets/plants/textures/hazel_1.png"
+  }
+ },
+ "Hazel_B": {
+  "cards": 591,
+  "faces": 1764,
+  "file": "res://assets/plants/bushes.glb",
+  "foot": 1.666,
+  "height": 2.951,
+  "kind": "bush",
+  "max": [
+   2.16,
+   2.951,
+   2.081
+  ],
+  "min": [
+   -2.075,
+   -0.633,
+   -2.013
+  ],
+  "species": "Hazel",
+  "textures": {
+   "berries": "res://assets/plants/textures/hazel_1_nuts.png",
+   "leaves": "res://assets/plants/textures/hazel_1.png"
+  }
+ },
  "LongGrass_A": {
   "cards": 6,
   "faces": 6,
@@ -202,6 +294,52 @@
    -0.02,
    -0.451
   ]
+ },
+ "Raspberry_A": {
+  "cards": 312,
+  "faces": 848,
+  "file": "res://assets/plants/bushes.glb",
+  "foot": 1.22,
+  "height": 1.564,
+  "kind": "bush",
+  "max": [
+   1.431,
+   1.564,
+   1.531
+  ],
+  "min": [
+   -1.345,
+   -0.109,
+   -1.501
+  ],
+  "species": "Raspberry",
+  "textures": {
+   "berries": "res://assets/plants/textures/raspberry_1_berries.png",
+   "leaves": "res://assets/plants/textures/raspberry_1.png"
+  }
+ },
+ "Raspberry_B": {
+  "cards": 312,
+  "faces": 848,
+  "file": "res://assets/plants/bushes.glb",
+  "foot": 1.339,
+  "height": 1.525,
+  "kind": "bush",
+  "max": [
+   1.404,
+   1.525,
+   1.401
+  ],
+  "min": [
+   -1.58,
+   -0.109,
+   -1.6
+  ],
+  "species": "Raspberry",
+  "textures": {
+   "berries": "res://assets/plants/textures/raspberry_1_berries.png",
+   "leaves": "res://assets/plants/textures/raspberry_1.png"
+  }
  },
  "grass": {
   "GrassBog": {

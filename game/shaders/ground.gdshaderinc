@@ -315,8 +315,8 @@ void fragment() {
 		vec2 lv = (p + vec2(2.3, 7.7)) * 4.5;
 		float lit = litter * texture(litter_tex, uv).r;
 		if (leaf_piles > 0.0) {
-			float lo = 0.55 - 0.08 * (leaf_piles - 1.0);
-			float n = m.a + 0.35 * (m.g - 0.5) + 0.12 * (m.b - 0.5);
+			float lo = 0.52 - 0.06 * (leaf_piles - 1.0);
+			float n = 0.5 + 0.4 * (m.a - 0.5) + (m.g - 0.5) + 0.15 * (m.b - 0.5);
 			col *= mix(1.0, 0.6, texture(litter_tex, uv).r * smoothstep(lo, lo + 0.14, n));
 		}
 		float drift = mix((0.12 + map_s(m.a, 0.5, 0.75, 0.0, 0.2)) * leaf_amount, 0.97, lit);

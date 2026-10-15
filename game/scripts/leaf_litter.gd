@@ -7,6 +7,11 @@ extends Node3D
 ## it, of leaves of their own: small faceted kites, folded along the midrib, in the same colours
 ## (shaders/leaf_litter.gdshader).
 ##
+## Where they've been moved to is kept, so they stay where they were pushed and kicked until something moves into them
+## again (the user, 15 October: they shouldn't move back by themselves): a disturbance map over the piles, a 2D render
+## target (FIELD_TEXEL a texel) that's never cleared, which a brush (shaders/leaf_stir.gdshader) paints round the hero
+## every frame, and the leaves read (see the shaders). stir_at could take anyone else walking through them too.
+##
 ## The ground's textures say where the piles are (pile_at in the shader: where the litter is and the leaves' drift
 ## noise runs high, broken up), and how deep. Every CHUNK-metre square that has any draws a patch of PATCH_LEAVES
 ## leaves at each point of a SPACING grid that's in a pile (worked out here once, as the area loads, from the same
@@ -18,11 +23,15 @@ const SPACING := 0.4  ## metres between the grid's patches
 const PATCH_LEAVES := 48  ## leaves in a patch, in a disc PATCH_RADIUS across
 const PATCH_RADIUS := 0.3
 const MIN_PILE := 0.07  ## a pile shallower than this at a grid point has no patch there (it would draw hardly a leaf)
+const FIELD_TEXEL := 0.1  ## metres a texel of the disturbance map
+const FIELD_MAX := 0.5  ## metres of push it holds
+const STIR_RADIUS := 0.75  ## metres round a walker the leaves move (stir_radius in the shaders)
+const LANE := 0.3  ## metres a leaf right at the step is pushed, at stir 1: a lane that wide either side of the way
 
 var world: DemoWorld
 ## drawn: F2's Fallen leaves, Piles (or As before: none)
 var shown := true
-## how much of the litter lies in piles: 1 about a third of the grove's, up to 2 about half
+## how much of the litter lies in piles: 1 about 40% of the grove's, in about 200 piles; up to 2 nearly all of it
 var amount := 1.0
 ## metres a kicked leaf flies up, most of them (a few higher): the user first asked for 1-2 cm, then for the stirring
 ## to be much easier to see (15 October)
@@ -33,9 +42,8 @@ var stir := 1.0
 var depth := 0.12
 ## metres from the camera where the last of them has gone
 var reach := 32.0
-## seconds until the stirred leaves are still again, the lane through a pile filled in (the hero's trail is kept at
-## least as long)
-var settle := 3.0
+## seconds until the stirring dies away (the hero's trail is kept at least as long); where they've been moved stays
+var settle := 1.5
 var _material: ShaderMaterial
 var _mesh: ArrayMesh
 var _chunks: Array[MultiMeshInstance3D] = []
@@ -43,6 +51,13 @@ var _masks: Image
 var _litter: Image
 var _block: Image
 var _laid := -1.0  # the amount the patches were laid out for
+var _field: SubViewport  # the disturbance map
+var _field_rect: Rect2  # its world x and z, width and depth
+var _brush: ColorRect
+var _brush_copy: BackBufferCopy
+var _brush_material: ShaderMaterial
+var _last := Vector2.INF  # where the walker was the frame before, and which way it's heading
+var _heading := Vector2(1.0, 0.0)
 
 
 ## Make the field, given the ground's litter texture; block is the grass's mask of what lies on the ground
@@ -63,7 +78,101 @@ func build(w: DemoWorld, litter: Texture2D, block: ImageTexture) -> void:
 		set_ground_param(param, world.ground_param(param))
 	_mesh.surface_set_material(0, _material)
 	_lay_out()
+	_make_field()
 	_apply()
+
+
+## The disturbance map, over all the ground any pile could cover (the most there can be), filled with "not moved",
+## and its brush.
+func _make_field() -> void:
+	var b: Array = world.ground["bounds"]
+	var lo := Vector2(INF, INF)
+	var hi := -lo
+	var keep := amount
+	amount = 2.0
+	for j in int(b[3] / 1.0):
+		for i in int(b[2] / 1.0):
+			var uv := Vector2((i + 0.5) / b[2], (j + 0.5) / b[3])
+			if _pile(uv) > 0.0:
+				var at := Vector2(b[0] + i + 0.5, b[1] + j + 0.5)
+				lo = lo.min(at)
+				hi = hi.max(at)
+	amount = keep
+	if lo.x > hi.x:
+		return
+	_field_rect = Rect2(lo - Vector2(2.0, 2.0), hi - lo + Vector2(4.0, 4.0))
+	_field = SubViewport.new()
+	_field.name = "LeafField"
+	_field.size = Vector2i((_field_rect.size / FIELD_TEXEL).ceil())
+	_field.disable_3d = true
+	_field.use_hdr_2d = true  # float texels, read as they're written
+	_field.transparent_bg = true
+	_field.render_target_clear_mode = SubViewport.CLEAR_MODE_NEVER
+	_field.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(_field)
+	var fill := ColorRect.new()  # "not moved", drawn once
+	fill.size = Vector2(_field.size)
+	fill.material = ShaderMaterial.new()
+	(fill.material as ShaderMaterial).shader = _shader("shader_type canvas_item;\nrender_mode blend_disabled;\n"
+		+ "void fragment() { COLOR = vec4(0.5, 0.5, 0.0, 1.0); }")
+	_field.add_child(fill)
+	_brush_copy = BackBufferCopy.new()
+	_brush_copy.copy_mode = BackBufferCopy.COPY_MODE_RECT
+	_brush_copy.visible = false
+	_field.add_child(_brush_copy)
+	_brush = ColorRect.new()
+	_brush_material = ShaderMaterial.new()
+	_brush_material.shader = load("res://shaders/leaf_stir.gdshader")
+	_brush_material.set_shader_parameter("radius", STIR_RADIUS)
+	_brush_material.set_shader_parameter("max_push", FIELD_MAX)
+	_brush.material = _brush_material
+	_brush.visible = false
+	_field.add_child(_brush)
+	_material.set_shader_parameter("field_tex", _field.get_texture())
+	_material.set_shader_parameter("field_rect", Vector4(_field_rect.position.x, _field_rect.position.y, _field.size.x * FIELD_TEXEL,
+		_field.size.y * FIELD_TEXEL))
+	_material.set_shader_parameter("field_max", FIELD_MAX)
+	_material.set_shader_parameter("stir_radius", STIR_RADIUS)
+	_drop_fill.call_deferred(fill)
+
+
+func _drop_fill(fill: ColorRect) -> void:
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	fill.queue_free()
+
+
+static func _shader(code: String) -> Shader:
+	var sh := Shader.new()
+	sh.code = code
+	return sh
+
+
+## Someone walking through the leaves at pos (world x and z) this frame: the leaves round them are pushed out of the
+## way, and stay (the brush paints the disturbance map there).
+func stir_at(pos: Vector2, delta: float) -> void:
+	if _field == null:
+		return
+	var r := STIR_RADIUS + FIELD_TEXEL * 2.0
+	var inside := _field_rect.grow(r).has_point(pos) and shown
+	_brush.visible = inside
+	_brush_copy.visible = inside
+	if not inside:
+		return
+	var corner := ((pos - Vector2(r, r) - _field_rect.position) / FIELD_TEXEL).floor()
+	var size := Vector2.ONE * ceilf(2.0 * r / FIELD_TEXEL)
+	_brush.position = corner
+	_brush.size = size
+	_brush_copy.rect = Rect2(corner, size)
+	_brush_material.set_shader_parameter("rect_origin", _field_rect.position + corner * FIELD_TEXEL)
+	_brush_material.set_shader_parameter("rect_size", size * FIELD_TEXEL)
+	if _last.is_finite() and pos.distance_to(_last) > 0.002:
+		_heading = (pos - _last).normalized()
+	_last = pos
+	_brush_material.set_shader_parameter("walker", pos)
+	_brush_material.set_shader_parameter("heading", _heading)
+	_brush_material.set_shader_parameter("lane", LANE * minf(stir, 2.0))
+	_brush_material.set_shader_parameter("rate", 1.0 - exp(-delta * 18.0))
 
 
 ## A ground parameter the leaves share with the ground shader (DemoWorld.set_ground_param).
@@ -86,13 +195,17 @@ func _apply() -> void:
 	_material.set_shader_parameter("reach", reach)
 	_material.set_shader_parameter("settle", settle)
 	world.set_ground_param("leaf_piles", amount if shown else 0.0)  # the ground under them, in their shade
+	if _field:
+		_field.render_target_update_mode = SubViewport.UPDATE_ALWAYS if shown else SubViewport.UPDATE_DISABLED
 	for mmi in _chunks:
 		mmi.visible = shown
 		mmi.visibility_range_end = reach + CHUNK * 0.75
 
 
-## Every frame: the hero's trail for the shader.
-func update(trail: HeroTrail) -> void:
+## Every frame: the hero's trail for the shader, and the hero walking through the leaves.
+func update(trail: HeroTrail, delta: float) -> void:
+	if not trail.points.is_empty():
+		stir_at(Vector2(trail.points[0].x, trail.points[0].y), delta)
 	if not shown:
 		return
 	_material.set_shader_parameter("trail", trail.packed())
@@ -160,16 +273,18 @@ func _lay_out() -> void:
 			_chunks.append(mmi)
 
 
-## How deep the leaves lie at uv over the ground's bounds, 0..1: where the litter is, where the leaves' drift noise
-## (the masks' alpha, as the ground shader's fallen leaves have it) runs high, broken up by its other two noises. The
-## ground shader works out the same, to darken the ground under the piles.
+## How deep the leaves lie at uv over the ground's bounds, 0..1: where the litter is, in piles a metre or two across
+## (the masks' patches noise), more of them where the leaves' drift noise runs high (the masks' alpha, as the ground
+## shader's fallen leaves have it), their edges broken up by the tufts noise: about 200 piles over 40% of the autumn
+## hollow's grove (the user asked for a lot more of them, 15 October). The ground shader works out the same, to darken
+## the ground under the piles.
 func _pile(uv: Vector2) -> float:
 	var lit := _litter.get_pixel(int(uv.x * _litter.get_width()), int(uv.y * _litter.get_height())).r
 	if lit <= 0.0:
 		return 0.0
 	var m := _masks.get_pixel(int(uv.x * _masks.get_width()), int(uv.y * _masks.get_height()))
-	var noise := m.a + 0.35 * (_decode(m.g) - 0.5) + 0.12 * (_decode(m.b) - 0.5)
-	var lo := 0.55 - 0.08 * (amount - 1.0)
+	var noise := 0.5 + 0.4 * (m.a - 0.5) + (_decode(m.g) - 0.5) + 0.15 * (_decode(m.b) - 0.5)
+	var lo := 0.52 - 0.06 * (amount - 1.0)
 	return lit * smoothstep(lo, lo + 0.14, noise)
 
 

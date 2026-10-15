@@ -34,7 +34,8 @@ General knowledge, public documentation, and third-party libraries and engines a
   golden sedge in tussocks with wet hollows between, blending in and folding the same way (the user asked for a
   yellow grass that fits the bog, 14 October), in place of the mockups' faceted tussocks. The mockups' small faceted
   green balls, the shrubs and the blueberry and lingonberry bushes, are gone: they didn't fit beside the strands (the
-  user, 14 October). Bushes are full and widest at
+  user, 14 October). The portfolio's raspberry, alder buckthorn and hazel stand in every scene, at the forests' edges
+  and in their glades (the user asked for bushes, 15 October). Bushes are full and widest at
   the foot, not thin there (the user, of the buckthorn and hazel); the raspberry must be big enough to count as a bush.
   The wood fern can go in occasional places; blueberry, lingonberry and heather as made didn't represent anything the
   user wanted, so they were dropped.
@@ -120,11 +121,11 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   the green ground in four styles (G, or F2's Grass; As before shows the mockups' tufts instead) and the bog's own, a
   grey-box hero, the camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
   button switches): a small part of Storskogen (dense forest, a trail, a meadow with a rise), an open forest spaced as
-  most of the game should be, a thick forest with one path cleared, a very big open field, an autumn hollow (a grove sunk in the ground, trees 1-4 m apart turning
-  yellow, orange and red, no paths, only leaf-filled ground and trees, as the user asked, the leaves lying thick and
-  now and then in deep piles that stir as the hero walks through, plainly enough to notice (the user found a few
-  leaves hopping 1-2 cm too slight): a lane opens through the pile, leaves are kicked up; `game/scripts/
-  leaf_litter.gd`), a river under 3-4 m cliffs with paths up and down to it, and, for
+  most of the game should be, a thick forest with one path cleared, a very big open field, an autumn hollow (a grove sunk in the ground, trees 4-6 m apart turning
+  yellow, orange and red, no paths, only leaf-filled ground, trees and a few bushes, as the user asked, the leaves
+  lying thick in some 200 piles that stir as the hero walks through, plainly enough to notice (the user found a few
+  leaves hopping 1-2 cm too slight): a lane opens through the pile, leaves are kicked up; and they stay where they
+  were moved, moving only when someone moves into them (`game/scripts/leaf_litter.gd`)), a river under 3-4 m cliffs with paths up and down to it, and, for
   the rest of `ref_imgs2/`, a forest lake, a bog, a pine heath, and fog and morning sunbeams. It runs with
   VSync off and no frame rate limit, as the user asked; its performance panel (F2) has a frame rate limit. The user
   wants a before and after switch in F2 for every optimization, to judge what it costs the look; the speed-ups (ground

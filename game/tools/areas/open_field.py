@@ -25,6 +25,7 @@ LONE_TREES = [("ScotsPine", (30, 42)), ("ScotsPine", (-70, -52)), ("ScotsPine", 
 COPSES = [((-55, 55), 11.0), ((48, 72), 9.0), ((-80, -10), 10.0), ((35, -70), 8.0), ((85, 15), 7.0)]
 ERRATICS = [((15, 25), 1.6), ((-30, -40), 1.8), ((60, 10), 1.4), ((-60, 62), 1.5), ((-10, 48), 1.2), ((90, -60), 1.7)]
 LANDMARKS = [("Cairn", (20.0, 30.0), 0.0)]
+BUSH_OPTIONS = dict(rate=1.0)  # round its copses
 path_dist, inside, boundary_dist = paths_and_outline(PATHS, BOUNDARY)
 
 

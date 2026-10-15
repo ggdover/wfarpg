@@ -234,6 +234,8 @@ var leaves: LeafLitter
 var trail := HeroTrail.new()
 var _old_grass: Array[MultiMeshInstance3D] = []  # the mockups' grass tufts, shown instead of it with set_grass("before")
 var _old_sedge: Array[MultiMeshInstance3D] = []  # the mockups' faceted tussocks and sedge, shown instead of the bog's grass
+## the plant portfolio's bushes (raspberry, alder buckthorn, hazel), at the forests' edges and in their glades
+var _bushes: Array[MultiMeshInstance3D] = []
 ## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
 var tree_lod := 0
 ## for measuring: kinds of tree not drawn at all (--hide=NorwaySpruce,ScotsPine; the layout's kinds)
@@ -323,7 +325,7 @@ func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	if bog_grass:
 		bog_grass.update(trail)
 	if leaves:
-		leaves.update(trail)
+		leaves.update(trail, delta)
 	if _current == "":
 		return
 	var camera_pos := camera.global_position
@@ -1294,6 +1296,12 @@ func set_grass(style: String) -> void:
 		mmi.visible = not (bog_grass and bog_grass.shown)
 
 
+## The plant portfolio's bushes, or none, as before them (F2's Bushes).
+func set_bushes(on: bool) -> void:
+	for mmi in _bushes:
+		mmi.visible = on
+
+
 ## The fallen leaves' piles (LeafLitter), where the area has them, or none, as before.
 func set_leaves(on: bool) -> void:
 	if leaves:
@@ -1660,12 +1668,16 @@ func _build_props() -> void:
 	add_child(root)
 	for model: String in layout["props"]:
 		var groups := {}
+		var tints := {}  # a bush's autumn, if it has one (its entry's 6th and 7th numbers): each chunk the average of its own
 		for it: Array in layout["props"][model]:
 			var xf := Transform3D(Basis(Vector3.UP, it[3]).scaled(Vector3.ONE * it[4]), Vector3(it[0], it[1], it[2]))
 			var key := Vector2i(floori(it[0] / CHUNK), floori(it[2] / CHUNK))
 			if not groups.has(key):
 				groups[key] = []
+				tints[key] = Vector3.ZERO
 			(groups[key] as Array).append(xf)
+			if it.size() >= 7:
+				tints[key] += Vector3(it[5], it[6], 1.0)
 		var small := model.begins_with("Pebble") or model.begins_with("Grass") or model.begins_with("Lichen") \
 			or model.begins_with("Sedge") or model.begins_with("LilyPad")
 		var plant := small or model.begins_with("TallGrass") or model.begins_with("Heather") or model.begins_with("MossMound") \
@@ -1673,6 +1685,11 @@ func _build_props() -> void:
 			or model.begins_with("DryFern") or model.begins_with("LeafPile")
 		for key: Vector2i in groups:
 			var mmi := _add_multimesh(root, model, groups[key], key, CHUNK, PLANT_RANGE if small else 0.0)
+			if Models.info[model].get("kind", "") == "bush":
+				_bushes.append(mmi)
+			var tint: Vector3 = tints[key]
+			if tint.z > 0.0:
+				mmi.set_instance_shader_parameter("autumn", Vector2(tint.x, tint.y) / tint.z)
 			if plant and not plant_shadows:
 				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			if model.begins_with("Grass") or model.begins_with("TallGrass"):

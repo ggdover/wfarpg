@@ -29,6 +29,8 @@ RISES = [((-30, 22), 14.0, 2.4), ((40, -26), 12.0, 1.8), ((-24, -34), 10.0, -1.4
 LONE_TREES = []
 ERRATICS = [((-16, 14), 1.4), ((12, -24), 1.2), ((44, 30), 1.5)]
 LANDMARKS = []
+# bushes across its glades, not only at edges (its trees stand far apart all over): about one every 100 square metres
+BUSH_OPTIONS = dict(rate=0.25, density=lambda X, Y: np.full(np.shape(X), 0.3))
 path_dist, inside, boundary_dist = paths_and_outline(PATHS, BOUNDARY)
 
 

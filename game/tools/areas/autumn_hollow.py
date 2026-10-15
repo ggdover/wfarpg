@@ -92,6 +92,21 @@ def tint(x, y, kind):
     return None
 
 
+def bush_tint(x, y, kind):
+    """A bush's autumn, as a tree's: far on in the hollow, starting round it. Hazel turns yellow, alder buckthorn yellow
+    to red, raspberry orange to red."""
+    u, v = _tints.uniform(0, 1, 2)
+    g = float(grove(np.array([x]), np.array([y]))[0])
+    turn = 1.0 if g > 0.5 else 0.3 + 0.4 * u
+    hue = {"Hazel": 0.08 * v, "AlderBuckthorn": 0.3 + 0.6 * v, "Raspberry": 0.55 + 0.4 * v}[kind]
+    return (turn, hue)
+
+
+# bushes among the grove's trees as well as round it: hazel most, then buckthorn, a few raspberries, turning
+BUSH_OPTIONS = dict(rate=0.5, kinds={"Hazel": 0.5, "AlderBuckthorn": 0.3, "Raspberry": 0.2}, tint=bush_tint,
+                    density=lambda X, Y: np.maximum(density(X, Y), 0.45 * grove_density(X, Y)))
+
+
 def ground_masks(X, Y):
     X = np.asarray(X, dtype=float)
     Y = np.asarray(Y, dtype=float)
@@ -105,7 +120,7 @@ def ground_masks(X, Y):
 
 def populate(L):
     L.clear += [(START[0], 3.5)] + [(p, 2.0 * s + 1.0) for p, s in ERRATICS]
-    L.forest(cell=2.7, saplings=False, size=(0.8, 1.1), tint=tint, density=grove_density, kind=grove_kind)
+    L.forest(cell=5.0, saplings=False, size=(0.8, 1.1), tint=tint, density=grove_density, kind=grove_kind)  # trees 4-6 m apart (the user, 15 October)
     L.forest(cell=3.5, tint=tint)
     L.far_forest(tint=lambda x, y, kind: (0.4, 0.1) if kind == "SilverBirch" else None)
     L.rocks_and_logs(cell=7.0, rates=(0.07, 0.09, 0.12, 0.17, 0.185))
