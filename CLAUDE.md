@@ -45,7 +45,8 @@ General knowledge, public documentation, and third-party libraries and engines a
   contrasting spots. The user found that too much like sand. Of the play demo's path colour themes (P;
   `game/scripts/path_themes.gd`) they liked forest soil and brown earth best, and asked for a mix of the two: the
   demo's default, "Forest earth", not yet confirmed. Avoid hard edges between ground textures in general, and straight
-  ones: the user found the dirt's edges straight and at right angles, machine-made (14 October), from the paths' masks
+  ones: the user found the dirt's edges straight and at right angles, machine-made (14 October; their screenshot, the
+  edges marked in red, is `ref_imgs/dirt_straight_edges.png`), from the paths' masks
   compressed for the graphics card in blocks; textures the shaders threshold are imported losslessly.
 - Trees: Scots pine, silver birch, Norway spruce, aspen, rowan and alder (`ref_imgs/Trees of the Swedish Forest.png`;
   the user dropped the juniper). Low-poly trunks and branches; leaf clumps are crossed planes (copies of a leaf card
