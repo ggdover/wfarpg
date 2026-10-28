@@ -668,14 +668,14 @@ def load_settings():
     """The saved settings (tree_settings.json) over the defaults, per species."""
     saved = {}
     if os.path.exists(SETTINGS):
-        with open(SETTINGS) as fh:
+        with open(SETTINGS, encoding="utf-8") as fh:
             saved = json.load(fh)
     return {k: dict(DEFAULTS[k], **{n: v for n, v in saved.get(k, {}).items() if n in BASE}) for k in DEFAULTS}
 
 
 def _cards():
     path = os.path.join(TEXTURES, "cards.json")
-    return json.load(open(path)) if os.path.exists(path) else {}
+    return json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {}
 
 
 def card_names():

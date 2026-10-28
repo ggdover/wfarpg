@@ -3,8 +3,9 @@
 python3 hud_sharp.py <src_dir> <dst_dir> <shot> [<shot> ...]
 python3 hud_sharp.py --icons <dst_png>
 """
-import json, math, os, random, subprocess, sys
+import json, math, os, random, sys
 from PIL import Image, ImageDraw, ImageFilter
+import chrome
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 W, H = 1600, 900
@@ -518,15 +519,13 @@ def build_svg(info, name):
 def render_html(svg, out_png, w=W, h=H):
     html = f"<html><head><meta charset='utf-8'><style>{STYLE}</style></head><body>{svg}</body></html>"
     hp = os.path.join(HERE, "_hud2.html")
-    with open(hp, "w") as fh:
+    with open(hp, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(html)
-    subprocess.run(["google-chrome", "--headless=new", "--disable-gpu", "--no-sandbox", "--hide-scrollbars",
-                    "--default-background-color=00000000", f"--window-size={w},{h}", "--virtual-time-budget=2000",
-                    f"--screenshot={out_png}", "file://" + hp], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
+    chrome.screenshot(hp, out_png, w, h, "--default-background-color=00000000", "--virtual-time-budget=2000")
 
 
 def compose(src, dst, name):
-    info = json.load(open(os.path.join(src, name + ".json")))
+    info = json.load(open(os.path.join(src, name + ".json"), encoding="utf-8"))
     img = Image.open(os.path.join(src, name + ".png")).convert("RGBA")
     if img.size != (W, H):  # preview renders are smaller: scale them and their screen positions up to the HUD size
         k = W / img.size[0]

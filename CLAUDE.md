@@ -18,7 +18,7 @@ General knowledge, public documentation, and third-party libraries and engines a
 
 ## Project basics
 
-- Engine: Godot 4.7 (`~/.local/bin/godot`). 3D models: made in Blender 5.2. Art style: low-poly 3D.
+- Engine: Godot 4.7 (`godot` on PATH). 3D models: made in Blender 5.2 (`blender` on PATH). Art style: low-poly 3D.
 - Ground is a smooth, flat surface with painted textures (moss, grass patches, gravel on dirt paths, scattered small
   fallen leaves). Grass runs right up to the trees: no brown patches under them.
   Props such as trees, bushes and rocks are faceted low-poly shapes. Bushes and grasses, like the trees' leaves, are
@@ -87,6 +87,27 @@ General knowledge, public documentation, and third-party libraries and engines a
   Forest). Names other than Storskogen are suggestions the user has not confirmed. Target: 10–15 quests, 1–2 hours.
   Storskogen mixes open plains, dense forest, raised ground and hollows; every slope must be walkable (no ropes or ladders).
 
+## Linux and Windows
+
+The user develops and test-runs the project on both Linux (Ubuntu) and Windows, so everything in it must work the
+same on both; `README.md` has the setup for each. Keep it so:
+
+- The commands are the same on both: `godot`, `blender` and `python3` on PATH. Tools are Python scripts, not shell
+  scripts (`game/tools/export_windows.py`, `game/tools/checks.py`).
+- Python: build paths with `os.path` or `pathlib`, never by joining with `/` or `\` by hand, and never at fixed places
+  like `/tmp`, `~/.local` or `C:\`. Open text files with `encoding="utf-8"`, and write them with `newline="\n"` too,
+  so a file comes out the same on both. Find programs on PATH (`shutil.which`) or through an environment variable
+  (`GODOT`, `CHROME`, `PYTHON`), never by a name only Linux has, like `google-chrome` (`mockups/chrome.py`;
+  `system_python` in `assets/trees/make_trees.py` for the system's Python with Pillow, from Blender).
+- Blender: give it absolute paths (`os.path.abspath`) for whatever it saves or loads, such as an output folder from
+  the command line. On Windows it takes a relative path (one not starting with `//`) from the drive's root, `C:\`,
+  not from the working folder.
+- Godot: files through `res://` and `user://` (`ProjectSettings.globalize_path` for the OS's own path), and no
+  `OS.execute` of a program only one OS has.
+- Text files have LF line endings in every checkout (`.gitattributes`); add new binary file types there.
+- After changing the game or its tools, run `python3 game/tools/checks.py` and say which OS it ran on; a change to a
+  tool is tried on the OS at hand, and the other one's differences (paths, programs, line endings) thought through.
+
 ## Look & feel board
 
 The game's look and feel is being worked out on a shared whiteboard artifact:
@@ -108,6 +129,8 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
 
 ## Repository layout
 
+- `README.md`: what the project is, the tools it needs on Linux and Windows, and the commands to play, check, rebuild
+  and export it.
 - `ref_imgs/`: the user's reference images, the Act 1 layout sketch and the tree reference sheet.
 - `assets/`: game assets. `assets/trees/` is the tree portfolio: low-poly Swedish forest trees built in Blender by
   Python scripts, saved in `tree_portfolio.blend`, with a tree editor (a Trees tab in Blender's sidebar) for tuning
@@ -141,8 +164,10 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   "Advanced settings", so new ones go there. Its models,
   ground textures and layouts are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
   portfolio and the areas in `game/tools/areas/` (one module each); rebuild them after changing any of those. See
-  `game/README.md`. `game/tools/export_windows.sh` exports the whole demo for Windows as one file, `dist/wfarpg.exe`
-  (the user asked for a single binary to carry over to a Windows computer); rerun it after changing the demo.
+  `game/README.md`. `game/tools/checks.py` runs the demo's checks (the import, the selftest, each scene's
+  scenetest). `game/tools/export_windows.py` exports the whole demo for Windows as one file, `dist/wfarpg.exe` (the
+  user asked for a single binary to carry over to a Windows computer), on Linux or Windows; rerun it after changing
+  the demo.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building
   scenes in Blender in background mode. `mockups/act1_world.py` holds the Act 1 layout as data. See `mockups/README.md`
   for how to rerun them. Generated output goes to `mockups/build/` (ignored by git); curated final images live in

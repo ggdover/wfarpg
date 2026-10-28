@@ -7,7 +7,7 @@ import numpy as np
 import bpy
 import act1_world as A
 
-OUT = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv[:-1] else os.path.join(os.path.dirname(os.path.abspath(__file__)), "build", "act1")
+OUT = os.path.abspath(sys.argv[sys.argv.index("--") + 1]) if "--" in sys.argv[:-1] else os.path.join(os.path.dirname(os.path.abspath(__file__)), "build", "act1")  # Blender on Windows saves a relative path under C:\
 os.makedirs(OUT, exist_ok=True)
 
 
@@ -111,7 +111,7 @@ def bake(x0, x1, y0, y1, res, name, contours=True):
     wall = [[round(float(a), 1), round(float(b), 1), int(k)] for a, b, k in zip(TX[border], TY[border], kind[border])]
     info = dict(x0=x0, x1=x1, y0=y0, y1=y1, res=res, w=int(len(xs)), h=int(len(ys)), trees=trees, wall=wall,
                 hmin=float(H[walk].min()), hmax=float(H[walk].max()))
-    with open(os.path.join(OUT, name + ".json"), "w") as fh:
+    with open(os.path.join(OUT, name + ".json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(info, fh)
     print(name, X.shape, "trees", len(trees), "wall", len(wall), "%.1fs" % (time.time() - t))
     return H, walk
@@ -128,7 +128,7 @@ PY = a[1] + (b[1] - a[1]) * ts
 PH = A.height(PX, PY)
 dist = np.hypot(PX - a[0], PY - a[1])
 sl = np.degrees(np.arctan(np.abs(np.gradient(PH, dist))))
-with open(os.path.join(OUT, "profile.json"), "w") as fh:
+with open(os.path.join(OUT, "profile.json"), "w", encoding="utf-8", newline="\n") as fh:
     json.dump(dict(a=a, b=b, d=dist.round(2).tolist(), h=PH.round(2).tolist(), slope=sl.round(1).tolist()), fh)
 # global slope stat for the legend
 x = np.arange(-1400, 990, 2.0)
@@ -139,7 +139,7 @@ wk = A.walkable(X, Y, m)
 HH = A.height(X, Y, m)
 gy, gx = np.gradient(HH, 2.0)
 slope = np.degrees(np.arctan(np.hypot(gx, gy)))
-with open(os.path.join(OUT, "stats.json"), "w") as fh:
+with open(os.path.join(OUT, "stats.json"), "w", encoding="utf-8", newline="\n") as fh:
     json.dump(dict(max_slope=float(slope[wk].max()), p95=float(np.percentile(slope[wk], 95)),
                    walk_km2=float(wk.sum() * 4 / 1e6), zones={k: float(v.sum() * 4 / 1e6) for k, v in m.items()}), fh)
 print("done")

@@ -50,8 +50,9 @@ After a step that changes the board:
 | `hud_act.py` | Paints the HUD over rendered screenshots. |
 | `forest_cam.py` | The low-poly kit (plants, rocks, hero, wraiths, ground material, lighting, orbit camera) plus the earlier forest close-ups and camera-angle shots. `act1_shots.py` builds on it. |
 
-Requirements: Blender 5.2, Google Chrome (renders the HUD and blueprint labels) and Python 3 with Pillow. Run from this
-folder. Output goes to `build/`, which git ignores.
+Requirements, on Linux or Windows: Blender 5.2 and Python 3 with Pillow, as `blender` and `python3` on PATH (the
+repository's `README.md`), and Google Chrome or Chromium, which renders the HUD and blueprint labels (`chrome.py`
+finds it; `CHROME` points it at another). Run from this folder. Output goes to `build/`, which git ignores.
 
 ```sh
 blender -b --factory-startup --python act1_check.py

@@ -26,7 +26,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import plantgen  # noqa: E402  (puts ../trees on the path)
 import plant_editor  # noqa: E402
-from make_trees import camera, collection, flat_material, person, text  # noqa: E402
+from make_trees import camera, collection, flat_material, person, system_python, text  # noqa: E402
 from treegen import lin  # noqa: E402
 
 PREVIEWS = os.path.join(HERE, "previews")
@@ -382,10 +382,11 @@ def render(scene, cams, plants, rows, stage):
             bpy.data.objects.remove(o, do_unlink=True)
         a.hide_render = b.hide_render = False
         bpy.data.objects.remove(cam, do_unlink=True)
-    with open(os.path.join(PREVIEWS, "tiles", "info.json"), "w") as fh:
+    with open(os.path.join(PREVIEWS, "tiles", "info.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(info, fh, indent=1)
-    done = subprocess.run(["python3", os.path.join(HERE, "make_sheet.py")])  # Pillow: the system Python
-    print("RENDERED portfolio.png" if done.returncode == 0 else "make_sheet.py failed; run it with python3")
+    python = system_python()  # Pillow: the system Python
+    done = python and subprocess.run([*python, os.path.join(HERE, "make_sheet.py")])
+    print("RENDERED portfolio.png" if done and done.returncode == 0 else "make_sheet.py failed; run it with python3")
     scene.camera = cams["Bushes"]
 
 

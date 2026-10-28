@@ -8,7 +8,7 @@ from mathutils import Vector, Matrix, noise
 from bpy_extras.object_utils import world_to_camera_view
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-OUT = argv[0] if argv else os.path.join(os.path.dirname(os.path.abspath(__file__)), "build", "forest")
+OUT = os.path.abspath(argv[0]) if argv else os.path.join(os.path.dirname(os.path.abspath(__file__)), "build", "forest")  # Blender on Windows saves a relative path under C:\
 QUALITY = argv[1] if len(argv) > 1 else "preview"
 SHOTS = argv[2:] or ["day_path"]
 
@@ -1825,7 +1825,7 @@ def run(shot):
     scene.render.filepath = os.path.join(OUT, shot + ".png")
     if QUALITY != "json":
         bpy.ops.render.render(write_still=True)
-    with open(os.path.join(OUT, shot + ".json"), "w") as fh:
+    with open(os.path.join(OUT, shot + ".json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(hud, fh)
     print("RENDERED", shot)
 

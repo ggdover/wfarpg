@@ -13,6 +13,7 @@ import json
 import math
 import os
 import random
+import shutil
 import subprocess
 import sys
 
@@ -247,13 +248,24 @@ def render(scene, cams, trees, extras, stage):
         for o in hidden:
             o.hide_render = False
         bpy.data.objects.remove(cam, do_unlink=True)
-    with open(os.path.join(PREVIEWS, "tiles", "info.json"), "w") as fh:
+    with open(os.path.join(PREVIEWS, "tiles", "info.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(info, fh, indent=1)
     # the sheet with captions is drawn by make_sheet.py, which needs Pillow, so it runs in the system Python
-    done = subprocess.run(["python3", os.path.join(HERE, "make_sheet.py")])
-    print("RENDERED portfolio.png" if done.returncode == 0 else "make_sheet.py failed; run it with python3")
+    python = system_python()
+    done = python and subprocess.run([*python, os.path.join(HERE, "make_sheet.py")])
+    print("RENDERED portfolio.png" if done and done.returncode == 0 else "make_sheet.py failed; run it with python3")
     scene.camera = cams["Row A"]
     scene.render.resolution_x, scene.render.resolution_y = 2400, 1000
+
+
+def system_python():
+    """The system's Python 3 with Pillow, for the scripts that draw with it (Blender's own Python has no Pillow):
+    $PYTHON, or the first of python3, python and py -3 on PATH that has it, on Linux or Windows. None if none has."""
+    for cmd in ([[os.environ["PYTHON"]]] if os.environ.get("PYTHON") else []) + [["python3"], ["python"], ["py", "-3"]]:
+        exe = shutil.which(cmd[0])
+        if exe and subprocess.run([exe, *cmd[1:], "-c", "import PIL"], capture_output=True).returncode == 0:
+            return [exe, *cmd[1:]]
+    return None
 
 
 if __name__ == "__main__":

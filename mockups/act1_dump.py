@@ -14,5 +14,5 @@ out = dict(
     shots=[dict(id=s[0], zone=s[1], label=s[2], pos=list(s[3]), yaw=s[4], pitch=s[5], dist=s[6]) for s in A.SHOTS],
     hill=A.HILL, hollow=A.HOLLOW, lake=A.LAKE, esker=f(A.ESKER), farm=A.FARMSTEAD, courtyard=A.COURTYARD, arena=A.ARENA,
     houses=A.TOWN_HOUSES)
-json.dump(out, open(os.path.join(OUT, "world.json"), "w"))
+json.dump(out, open(os.path.join(OUT, "world.json"), "w", encoding="utf-8", newline="\n"))
 print("dumped")

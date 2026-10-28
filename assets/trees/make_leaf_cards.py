@@ -595,6 +595,6 @@ if __name__ == "__main__":
             dr.text((x + tile / 2, y + tile + 4), f"{v}  {NAMES[sp][v - 1]}", fill=(90, 80, 64), font=small, anchor="mt")
     os.makedirs(os.path.join(HERE, "previews"), exist_ok=True)
     sheet.save(os.path.join(HERE, "previews", "leaf_cards.png"))
-    with open(os.path.join(OUT, "cards.json"), "w") as fh:  # the design names and spray anchors, for the tree editor
+    with open(os.path.join(OUT, "cards.json"), "w", encoding="utf-8", newline="\n") as fh:  # the design names and spray anchors, for the tree editor
         json.dump({"names": NAMES, "anchors": ANCHORS}, fh, indent=1)
     print("wrote", len(made), "cards (and 5 rowan berry versions) to", OUT)

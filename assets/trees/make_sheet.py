@@ -21,7 +21,7 @@ def font(size):
 
 
 def main():
-    info = json.load(open(os.path.join(TILES, "info.json")))
+    info = json.load(open(os.path.join(TILES, "info.json"), encoding="utf-8"))
     tw, th, cap, pad, cols = 600, 750, 120, 28, 4
     keys = list(info)
     rows = (len(keys) + 1 + cols - 1) // cols  # one more slot for the leaf cards

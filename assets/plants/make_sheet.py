@@ -22,7 +22,7 @@ def font(size):
 
 
 def main():
-    info = json.load(open(os.path.join(TILES, "info.json")))
+    info = json.load(open(os.path.join(TILES, "info.json"), encoding="utf-8"))
     tw, th, cap, pad, cols = 700, 560, 124, 28, 4
     keys = list(info)
     rows = (len(keys) + cols - 1) // cols

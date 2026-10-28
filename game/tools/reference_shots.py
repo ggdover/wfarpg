@@ -25,7 +25,7 @@ argv = sys.argv[sys.argv.index("--") + 1:]
 B.use_area(next((a[7:] for a in argv if a.startswith("--area=")), "storskogen"))
 D = B.D
 argv = [a for a in argv if not a.startswith("--area=")]
-OUT, POSE = argv[0], [float(v) for v in argv[1].split(",")]
+OUT, POSE = os.path.abspath(argv[0]), [float(v) for v in argv[1].split(",")]  # Blender on Windows saves a relative path under C:\
 WHICH = argv[2] if len(argv) > 2 else "old"
 SAMPLES = int(argv[3]) if len(argv) > 3 else 48
 RADIUS = 160.0  # only what stands this close to the hero goes into the scene
@@ -77,7 +77,7 @@ def place(name, gx, gy, gz, rot, s):
     return ob
 
 
-with open(B.LAYOUT_PATH) as fh:
+with open(B.LAYOUT_PATH, encoding="utf-8") as fh:
     layout = json.load(fh)
 for t in layout["trees"]:
     ob = place(t[WHICH], *t["p"], t["r"], t["s_" + WHICH])

@@ -116,7 +116,7 @@ def record(step_id):
     now = datetime.datetime.now()
     data["steps"].append({"id": step_id, "date": now.strftime("%Y-%m-%d"), "asked_at": "", "posted_at": now.strftime("%H:%M"),
                           "title": "", "section": "", "asked": "", "changed": [], "items": items, "wip": []})
-    with open(HISTORY, "w", encoding="utf-8") as fh:
+    with open(HISTORY, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(data, fh, ensure_ascii=False, indent=1)
         fh.write("\n")
     counts = {}
@@ -545,7 +545,7 @@ def build(web_dir=None):
         out = os.path.join(web_dir, "index.html")
     else:
         out = os.path.join(HERE, "HISTORY.html")
-    with open(out, "w", encoding="utf-8") as fh:
+    with open(out, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(parts))
     print(f"wrote {out}: {len(steps)} steps, {n_imgs} images, {n_refs} references, {n_wip} earlier attempts, {len(notes)} notes")
 

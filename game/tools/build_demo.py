@@ -161,7 +161,7 @@ def load_kit():
     """The mockups' low-poly kit: forest_cam.py's materials and builders, with act1_shots.py's extra plants and ground
     layers, run the way act1_shots.py runs them, but without rendering any shots."""
     path = os.path.join(MOCKUPS, "act1_shots.py")
-    src = open(path).read()
+    src = open(path, encoding="utf-8").read()
     src = src[:src.index("# ------------------------------------------------------------------ shots")]
     kit = {"__file__": path, "__name__": "kit"}
     exec(compile(src, path, "exec"), kit)
@@ -565,7 +565,7 @@ def build_models(trees=True):
         export_glb(objs, os.path.join(KIT_DIR, group + ".glb"), ao)
         for ob in objs:
             bpy.data.objects.remove(ob)
-    with open(os.path.join(KIT_DIR, "kit.json"), "w") as fh:
+    with open(os.path.join(KIT_DIR, "kit.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)
     print("kit:", len(info), "models")
     if trees:
@@ -825,7 +825,7 @@ def build_trees():
                     print(name, "cards", cards, "triangles", info[name]["triangles"], "mean ao %.2f" % ao[name].mean())
     for group, (objs, ao) in files.items():
         export_glb(objs, os.path.join(TREE_DIR, group + ".glb"), ao)
-    with open(os.path.join(TREE_DIR, "trees.json"), "w") as fh:
+    with open(os.path.join(TREE_DIR, "trees.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)
 
 
@@ -882,7 +882,7 @@ def build_plants():
             height=max(info[m]["height"] for m in meshes))
     export_glb(objs, os.path.join(PLANT_DIR, "plants.glb"), ids)
     info.update(build_bushes(settings, tex_dir))
-    with open(os.path.join(PLANT_DIR, "plants.json"), "w") as fh:
+    with open(os.path.join(PLANT_DIR, "plants.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)
 
 
@@ -992,14 +992,14 @@ def mipmapped(path, lossless=False):
     the blocks, at right angles (the user, 14 October). An import Godot already wrote keeps its settings but that."""
     mode = 0 if lossless else 2
     if os.path.exists(path + ".import"):
-        with open(path + ".import") as fh:
+        with open(path + ".import", encoding="utf-8") as fh:
             text = fh.read()
         fixed = re.sub(r"(?m)^compress/mode=\d+$", "compress/mode=%d" % mode, text)
         if fixed != text:
-            with open(path + ".import", "w") as fh:
+            with open(path + ".import", "w", encoding="utf-8", newline="\n") as fh:
                 fh.write(fixed)
         return
-    with open(path + ".import", "w") as fh:
+    with open(path + ".import", "w", encoding="utf-8", newline="\n") as fh:
         fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]\n\ncompress/mode=%d\nmipmaps/generate=true\n' % mode)
 
 
@@ -1161,7 +1161,7 @@ def build_stumps():
         ao[name] = bake_ao(me)
         info[name] = dict(mesh_info(me, bark_slot=None), file="res://assets/trees/stumps.glb", tree=model)
     export_glb(objs, os.path.join(TREE_DIR, "stumps.glb"), ao)
-    with open(os.path.join(TREE_DIR, "stumps.json"), "w") as fh:
+    with open(os.path.join(TREE_DIR, "stumps.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(info, fh, indent=1, sort_keys=True)
 
 
@@ -1177,7 +1177,7 @@ SINK = {"tree": 0.15, "sapling": 0.05, "Boulder": 0.25, "BigBoulder": 0.5, "Log"
 def load_info():
     info = {}
     for path in (os.path.join(KIT_DIR, "kit.json"), os.path.join(TREE_DIR, "trees.json"), os.path.join(PLANT_DIR, "plants.json")):
-        with open(path) as fh:
+        with open(path, encoding="utf-8") as fh:
             info.update(json.load(fh))
     return info
 
@@ -1694,7 +1694,7 @@ def build_layout():
         if E.save(os.path.join(GROUND_DIR, "extras.glb")):
             layout["extras"] = "res://assets/areas/%s/extras.glb" % AREA
     os.makedirs(os.path.dirname(LAYOUT_PATH), exist_ok=True)
-    with open(LAYOUT_PATH, "w") as fh:
+    with open(LAYOUT_PATH, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(layout, fh, separators=(",", ":"))
     near = sum(1 for t in L.trees if t["ring"] == "near")
     print("layout %s: %d trees near, %d far, %d props, %d solids" % (AREA, near, len(L.trees) - near, sum(map(len, L.props.values())), len(L.solids)))
@@ -2034,7 +2034,7 @@ def build_ground():
     bpy.data.objects.remove(outer)
 
     # the trees' shade on the ground's sky light, for each tree set
-    with open(LAYOUT_PATH) as fh:
+    with open(LAYOUT_PATH, encoding="utf-8") as fh:
         trees = json.load(fh)["trees"]
     kit_meshes = {name: make() for items in kit_groups(kit).values() for name, make in items if name.startswith(("Pine", "TallSpruce", "Birch", "YoungSpruce"))}
     new_meshes = tree_meshes()
@@ -2059,7 +2059,7 @@ def build_ground():
         "far_bounds": [-FAR, -FAR, 2 * FAR, 2 * FAR], "far_grid": FAR_GRID, "far_size": [len(fxs), len(fys)],
         "far_heights": res + "heights_far.bin",
     }
-    with open(os.path.join(GROUND_DIR, "ground.json"), "w") as fh:
+    with open(os.path.join(GROUND_DIR, "ground.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(info, fh, indent=1)
     texel = getattr(D, "COLOUR_TEXEL", COLOUR_TEXEL)
     print("ground %s: %d x %d heights, colour %d x %d" % (AREA, len(xs), len(ys), round((D.BAKE[1] - D.BAKE[0]) / texel), round((D.BAKE[3] - D.BAKE[2]) / texel)))

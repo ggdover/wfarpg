@@ -25,7 +25,7 @@ HIDDEN, SHOWS = 0.15, 0.40
 
 def load(path):
     walks = defaultdict(list)
-    with open(path) as fh:
+    with open(path, encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
             walks[(row["scenario"], int(row["walk"]))].append(row)
     return walks

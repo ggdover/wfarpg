@@ -860,7 +860,7 @@ if __name__ == "__main__":
         sheet.paste(part, (x, pad))
         dr.text((x + side / 2, pad + side + 8), f"{name}: 2 m of its ground, a card on it", fill=(90, 80, 64), font=big, anchor="mt")
     sheet.save(os.path.join(HERE, "previews", "grounds.png"))
-    with open(os.path.join(OUT, "cards.json"), "w") as fh:  # the designs' names and extras, for the plant editor
+    with open(os.path.join(OUT, "cards.json"), "w", encoding="utf-8", newline="\n") as fh:  # the designs' names and extras, for the plant editor
         json.dump({"names": {k: p[2] for k, p in PLANTS.items()}, "extras": {k: p[1] for k, p in PLANTS.items()}, "fits": FITS,
                    "grounds": {k: {"file": f"{k}_ground.jpg", "metres": GROUND_METRES} for k in STYLES}}, fh, indent=1)
     print("wrote", len(made), "cards to", OUT)

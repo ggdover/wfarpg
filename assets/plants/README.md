@@ -186,6 +186,8 @@ blender -b --factory-startup -P make_plants.py      # plant_portfolio.blend and 
 blender -b --factory-startup -P make_plants.py -- --no-render
 ```
 
+The same on Linux and Windows, as for the trees (`../trees/README.md`, Rebuilding).
+
 The plants use fixed seeds, so rebuilding gives the same plants (those left from the first version still grow as
 they did). `previews/` holds the latest renders: `portfolio.png` (both variants of each, captioned), `row_bushes.png`,
 `row_grass_fern.png` and `row_grasses.png`, `floor_game_view.png` and `floor_close.png`, `cards.png` and

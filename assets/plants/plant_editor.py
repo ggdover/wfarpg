@@ -182,7 +182,7 @@ class PLANTS_OT_save(bpy.types.Operator):
 
     def execute(self, context):
         out = {s.name: as_cfg(s) for s in context.scene.plant_editor.plants}
-        with open(plantgen.SETTINGS, "w") as fh:
+        with open(plantgen.SETTINGS, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(out, fh, indent=1)
         self.report({"INFO"}, "Saved " + plantgen.SETTINGS)
         return {"FINISHED"}

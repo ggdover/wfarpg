@@ -1,12 +1,14 @@
 """Compose the Act 1 blueprints: baked terrain + trees + paths (PIL), annotations (SVG via headless Chrome)."""
-import json, math, os, subprocess
+import json, math, os
+from pathlib import Path
 from PIL import Image, ImageDraw
+import chrome
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 A1 = os.path.join(HERE, "build", "act1")
-D = json.load(open(os.path.join(A1, "world.json")))
-ST = json.load(open(os.path.join(A1, "stats.json")))
-PR = json.load(open(os.path.join(A1, "profile.json")))
+D = json.load(open(os.path.join(A1, "world.json"), encoding="utf-8"))
+ST = json.load(open(os.path.join(A1, "stats.json"), encoding="utf-8"))
+PR = json.load(open(os.path.join(A1, "profile.json"), encoding="utf-8"))
 
 TREE_COL = {0: ((47, 74, 41), (78, 108, 58)), 1: ((33, 56, 33), (56, 84, 50)), 2: ((111, 138, 64), (150, 172, 92)), 3: ((92, 83, 72), (128, 118, 104))}
 LETTERS = "ABCDEFGHIJ"
@@ -14,7 +16,7 @@ MOOD = {"day": "Daylight", "fog": "Fog", "golden": "Sunset", "dusk": "Dusk and f
 
 
 def paint_map(name, scale):
-    info = json.load(open(os.path.join(A1, name + ".json")))
+    info = json.load(open(os.path.join(A1, name + ".json"), encoding="utf-8"))
     base = Image.open(os.path.join(A1, name + ".png")).convert("RGB")
     W = int(round((info["x1"] - info["x0"]) * scale))
     H = int(round((info["y1"] - info["y0"]) * scale))
@@ -140,10 +142,9 @@ def render(svg, w, h, out):
             "@font-face{font-family:CinzelDeco;src:url(fonts/CinzelDecorative-Bold.ttf)}html,body{margin:0;background:#15120f}</style></head>"
             f"<body>{svg}</body></html>")
     hp = os.path.join(HERE, "_bp.html")
-    open(hp, "w").write(html)
-    subprocess.run(["google-chrome", "--headless=new", "--disable-gpu", "--no-sandbox", "--hide-scrollbars", f"--window-size={w},{h}",
-                    "--virtual-time-budget=4000", f"--screenshot={out}", "file://" + hp], check=True,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=180)
+    with open(hp, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(html)
+    chrome.screenshot(hp, out, w, h, "--virtual-time-budget=4000", timeout=180)
     print("wrote", out)
 
 
@@ -196,7 +197,7 @@ def overview():
          f'<text x="{ox}" y="58" font-family="Cinzel" font-weight="900" font-size="42" fill="{TXT}" letter-spacing="1">Act I — The Pine Forest</text>',
          f'<text x="{ox + 2}" y="92" font-family="Cinzel" font-weight="700" font-size="17" fill="{MUTED}" letter-spacing="1">Layout blueprint · zones traced from act1_layout.png · grid squares are 100 m · north is up</text>',
          f'<rect x="{ox - 3}" y="{oy - 3}" width="{MW + 6}" height="{MH + 6}" fill="none" stroke="{BRASS}" stroke-width="2"/>',
-         f'<image href="file://{mpath}" x="{ox}" y="{oy}" width="{MW}" height="{MH}"/>']
+         f'<image href="{Path(mpath).as_uri()}" x="{ox}" y="{oy}" width="{MW}" height="{MH}"/>']
     # 100 m grid
     for gx in range(-1400, 1000, 100):
         x, _ = T(gx, 0)
@@ -272,7 +273,7 @@ def storskogen():
          f'<text x="{ox}" y="56" font-family="CinzelDeco" font-size="40" fill="{TXT}">Storskogen</text>',
          f'<text x="{ox + 2}" y="88" font-family="Cinzel" font-weight="700" font-size="16" fill="{MUTED}" letter-spacing="1">The first zone · about 720 × 650 m · grid squares are 50 m · contours every 2 m</text>',
          f'<rect x="{ox - 3}" y="{oy - 3}" width="{MW + 6}" height="{MH + 6}" fill="none" stroke="{BRASS}" stroke-width="2"/>',
-         f'<image href="file://{mpath}" x="{ox}" y="{oy}" width="{MW}" height="{MH}"/>']
+         f'<image href="{Path(mpath).as_uri()}" x="{ox}" y="{oy}" width="{MW}" height="{MH}"/>']
     for gx in range(-300, 480, 50):
         x, _ = T(gx, 0)
         s.append(f'<line x1="{x:.1f}" y1="{oy}" x2="{x:.1f}" y2="{oy + MH}" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>')

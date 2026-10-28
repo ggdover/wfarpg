@@ -105,6 +105,10 @@ blender -b --factory-startup -P make_trees.py       # tree_portfolio.blend and t
 blender -b --factory-startup -P make_trees.py -- --no-render
 ```
 
+The same on Linux and Windows, with `blender` and `python3` on PATH (the repository's `README.md`). Blender's own
+Python has no Pillow, so `make_trees.py` has the system's draw the captioned sheet (`make_sheet.py`): the first of
+`python3`, `python` and `py -3` that has Pillow, or `PYTHON` if that's set.
+
 The trees use fixed seeds, so rebuilding gives the same trees. `previews/` always holds the latest renders; earlier
 renders that are on the look & feel board are kept in `previews/v1/`, `v2/`, `v3/` and so on.
 

@@ -48,7 +48,8 @@ the wetland (the bog).
 
 ## Running it
 
-It needs Godot 4.7, the standard build without .NET. This machine has it at `~/.local/bin/godot`.
+It needs Godot 4.7, the standard build without .NET, as `godot` on PATH. It runs the same on Linux and Windows, with
+the same commands (the repository's `README.md` has the setup for each):
 
 ```sh
 godot --path game                                  # from the repository root: plays the demo
@@ -62,23 +63,31 @@ godot --path game res://scenes/demo.tscn -- --scene=forest_lake   # straight int
 The first time, Godot imports the models and textures, which takes a minute. When running it from the command line
 without ever opening the editor, run `godot --headless --import --path game` once first.
 
-### On Windows
+To check it after a change, `python3 game/tools/checks.py` runs Godot's import, which must leave every file in the
+repository as it was, then the selftest and each scene's scenetest (`scripts/dev/`, below), each in the demo's
+window, a few minutes in all. It prints what failed, ends with how many checks passed, and exits with 1 if one
+failed. Name some to run only those: `import`, `selftest` or scene ids, e.g. `python3 game/tools/checks.py selftest bog`.
 
-`tools/export_windows.sh` (run it from anywhere) exports the whole demo for Windows as one file, `dist/wfarpg.exe` at
-the repository's root, about 300 MB, with everything packed into it (`export_presets.cfg`, the Windows preset). Copy it
-to the Windows computer and double-click it. It installs nothing; its settings, shader cache and F12 screenshots go to
-`%APPDATA%\Godot\app_userdata\wfarpg`. It needs a graphics card with Vulkan, which Windows drivers have had for years.
-Without Vulkan it falls back to Direct3D 12, which hasn't been tried. Windows may warn at the first run that the
-publisher is unknown (the file isn't signed): More info, then Run anyway.
+### The Windows build
+
+`tools/export_windows.py` (run it from anywhere, on Linux or Windows: `python3 game/tools/export_windows.py`) exports
+the whole demo for Windows as one file, `dist/wfarpg.exe` at the repository's root, about 300 MB, with everything
+packed into it (`export_presets.cfg`, the Windows preset). Copy it to a Windows computer and double-click it. It
+installs nothing; its settings, shader cache and F12 screenshots go to `%APPDATA%\Godot\app_userdata\wfarpg`. It
+needs a graphics card with Vulkan, which Windows drivers have had for years. Without Vulkan it falls back to Direct3D
+12, which hasn't been tried. Windows may warn at the first run that the publisher is unknown (the file isn't signed):
+More info, then Run anyway.
 
 - **Export templates:** the first time, the script fetches Godot's export templates for the version it runs (1.3 GB),
-  checks them against the release's SHA-512, and keeps only the Windows ones, in
-  `~/.local/share/godot/export_templates/`.
+  checks them against the release's SHA-512, and keeps only the Windows ones, where Godot looks for them:
+  `~/.local/share/godot/export_templates/` on Linux, `%APPDATA%\Godot\export_templates\` on Windows.
 - **Rebuild after changes:** the exe is a snapshot, so run the script again after changing the demo.
 - **Shader baker:** off. It bakes only when the editor has a GPU, not in a headless export, and a cold shader cache
   costs only about 2 s at the first run.
 - **Tested under Wine:** the exe ran here under Wine 10, on Vulkan. The start screen and the demo looked the same as
   the project run in Godot, at the same frame rate, and `--selftest` passed 59 of 59.
+- **Built and tested on Windows:** on Windows 11 (an RTX 4070 SUPER, on Vulkan), `export_windows.py` fetched the
+  templates and built the exe, and `wfarpg.exe -- --play --selftest` passed 62 of 62 (28 October).
 - **No scene path:** the exported game always opens on the start screen, as Godot's export templates won't take a
   scene to start in. So `--play` goes straight into the demo, with the other options as above:
 
@@ -621,6 +630,6 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
 | `shaders/` | Water (`water`: its colour from its depth, ripples moving with its flow, white water where it runs fast), the portfolio trees' bark (`bark_fade`, `bark` for stumps, `bark_trunk` for bare trunks: the species' bark texture on each facet of the trunk, the foot's blended in below, `BARK` in `lowpoly.gdshaderinc`; textures from `assets/trees/make_bark.py`), ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material (and `lowpoly_trunk` for the bare trunks trees leave, which neither the x-ray nor the fade near the camera touch), the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
 | `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it, and that the grass follows the hero's trail, keeps off the rocks and logs, changes with its F2 switch and G, and that F2's strands and strand size do what they say), `scenetest.gd` (`--scene=river_cliffs --scenetest`: walks the hero up the river's steps, over its bridge, out on the lake's jetty and into its shallows, along the bog's boardwalk and down into the autumn hollow, between its trees, and checks it gets there on what it walks on, in the bog that its grass grows there in place of the faceted tussocks and follows the hero, and in the hollow that its leaves lie in piles and stir along the hero's trail), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees, `--pitch=12` for the camera low), `paneltest.gd` (`--paneltest`), `veilbench.gd` (`godot --path game --script res://scripts/dev/veilbench.gd`: at random spots in the forest with the camera low, the slowest views, and what the see-through trees cost there with all their cards, half, or hidden; add `-- --poses=x,z,yaw,pitch,distance;...` for set views), `abbench.gd` (`godot --path game --script res://scripts/dev/abbench.gd -- --ab=bark=true,false`: one of the panel's settings at two values or more, a slider's too (`--ab=grass_density=1.0,0.5`), flipped every second in one run, so whatever else the machine is doing weighs on each alike; add `--scene=`, `--pose=` and `--set:` as for the demo, `--spells=24` for longer), `veiltune.gd` (`godot --headless --path game --script res://scripts/dev/veiltune.gd -- --out=rows.csv`: playtests for when trees go see-through, walking the hero under every tree standing alone, along the trail and to random forest spots, writing for each step how much of the area round the hero each way of measuring covers, and how much of the hero shows; `python3 tools/veiltune.py rows.csv` plays the settings over them), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender; `-- --models=Rowan_A,Alder_A --trunks` for trunks close up) |
-| `tools/` | The Blender build scripts, the areas (`tools/areas`), `veiltune.py` (above) and `export_windows.sh` (On Windows, above) (Godot ignores this folder) |
+| `tools/` | The Blender build scripts, the areas (`tools/areas`), `veiltune.py` (above), `checks.py` (Running it, above) and `export_windows.py` (The Windows build, above) (Godot ignores this folder) |
 | `export_presets.cfg` | The Windows export: one .exe with the game packed in |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

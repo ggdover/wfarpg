@@ -160,7 +160,7 @@ class TREES_OT_save(bpy.types.Operator):
 
     def execute(self, context):
         out = {s.name: as_cfg(s) for s in context.scene.tree_editor.trees}
-        with open(treegen.SETTINGS, "w") as fh:
+        with open(treegen.SETTINGS, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(out, fh, indent=1)
         self.report({"INFO"}, "Saved " + treegen.SETTINGS)
         return {"FINISHED"}

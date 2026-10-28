@@ -1,0 +1,22 @@
+# Text files have LF line endings, in the repository and in every checkout, on Linux and Windows alike: Godot,
+# Blender's Python and bash all write LF. (Git for Windows would otherwise check them out with CRLF, and every file
+# Godot rewrites, such as the .import files, would then show as changed.)
+* text=auto eol=lf
+
+# Windows batch files need CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files are never converted
+*.bin binary
+*.blend binary
+*.exe binary
+*.glb binary
+*.jpeg binary
+*.jpg binary
+*.otf binary
+*.png binary
+*.tpz binary
+*.ttf binary
+*.webp binary
+*.zip binary

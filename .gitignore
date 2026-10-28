@@ -17,5 +17,5 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# the Windows export (game/tools/export_windows.sh)
+# the Windows export (game/tools/export_windows.py)
 dist/

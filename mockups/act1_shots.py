@@ -5,7 +5,7 @@ Reuses the low-poly kit (materials, builders, lighting helpers) from forest_cam.
 import os, sys, math, json, random
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-_src = open(os.path.join(HERE, "forest_cam.py")).read()
+_src = open(os.path.join(HERE, "forest_cam.py"), encoding="utf-8").read()
 exec(_src[:_src.index("# ---------------------------------------------------------------- shots")])
 
 import numpy as np
@@ -1348,7 +1348,7 @@ def run_act(shot_id):
     scene.render.filepath = os.path.join(OUT, shot_id + ".png")
     if QUALITY != "json":
         bpy.ops.render.render(write_still=True)
-    with open(os.path.join(OUT, shot_id + ".json"), "w") as fh:
+    with open(os.path.join(OUT, shot_id + ".json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(hud, fh)
     print("RENDERED", shot_id)
 
