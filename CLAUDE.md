@@ -97,7 +97,8 @@ same on both; `README.md` has the setup for each. Keep it so:
 - Python: build paths with `os.path` or `pathlib`, never by joining with `/` or `\` by hand, and never at fixed places
   like `/tmp`, `~/.local` or `C:\`. Open text files with `encoding="utf-8"`, and write them with `newline="\n"` too,
   so a file comes out the same on both. Find programs on PATH (`shutil.which`) or through an environment variable
-  (`GODOT`, `CHROME`, `PYTHON`), never by a name only Linux has, like `google-chrome` (`mockups/chrome.py`;
+  (`GODOT`, `CHROME`, `PYTHON`), Godot in `~/.local/bin` too (for a terminal opened before PATH changed), never by
+  a name only Linux has, like `google-chrome` (`mockups/chrome.py`;
   `system_python` in `assets/trees/make_trees.py` for the system's Python with Pillow, from Blender).
 - Blender: give it absolute paths (`os.path.abspath`) for whatever it saves or loads, such as an output folder from
   the command line. On Windows it takes a relative path (one not starting with `//`) from the drive's root, `C:\`,

@@ -22,10 +22,12 @@ KEEP = ("templates/version.txt", "templates/windows_*_x86_64*.exe")  # the Windo
 
 
 def godot():
-    """Godot 4.7: $GODOT, else godot on PATH (on Windows, its console build or a godot.cmd that runs it)."""
-    exe = os.environ.get("GODOT") or shutil.which("godot")
+    """Godot 4.7: $GODOT, else godot on PATH (on Windows, its console build or a godot.cmd that runs it), else the one
+    in ~/.local/bin, which a terminal opened before that went on PATH doesn't see."""
+    exe = (os.environ.get("GODOT") or shutil.which("godot")
+           or shutil.which("godot", path=os.path.join(os.path.expanduser("~"), ".local", "bin")))
     if not exe:
-        sys.exit("Godot 4.7 not found: put godot on PATH, or set GODOT to it (README.md)")
+        sys.exit("Godot 4.7 not found: put godot on PATH (and reopen the terminal), or set GODOT to it (README.md)")
     return exe
 
 

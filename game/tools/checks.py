@@ -7,6 +7,7 @@ repository, the selftest tries the controls (scripts/dev/selftest.gd), and each 
 
 GODOT=... to use another Godot 4.7. Exits with 1 if a check fails.
 """
+import collections
 import os
 import re
 import shutil
@@ -19,10 +20,12 @@ ROOT = os.path.dirname(GAME)
 
 
 def godot():
-    """Godot 4.7: $GODOT, else godot on PATH (on Windows, its console build or a godot.cmd that runs it)."""
-    exe = os.environ.get("GODOT") or shutil.which("godot")
+    """Godot 4.7: $GODOT, else godot on PATH (on Windows, its console build or a godot.cmd that runs it), else the one
+    in ~/.local/bin, which a terminal opened before that went on PATH doesn't see."""
+    exe = (os.environ.get("GODOT") or shutil.which("godot")
+           or shutil.which("godot", path=os.path.join(os.path.expanduser("~"), ".local", "bin")))
     if not exe:
-        sys.exit("Godot 4.7 not found: put godot on PATH, or set GODOT to it (README.md)")
+        sys.exit("Godot 4.7 not found: put godot on PATH (and reopen the terminal), or set GODOT to it (README.md)")
     return exe
 
 
@@ -38,13 +41,18 @@ def changed_files():
 
 
 def run(name, *args):
-    """Runs Godot on the game with args, printing its failures, errors and tallies as they come. True if it passed."""
+    """Runs Godot on the game with args, printing its failures, errors and tallies as they come, and if it fails, its
+    exit code and last lines. True if it passed."""
     start = time.time()
+    last = collections.deque(maxlen=12)
     with subprocess.Popen([godot(), "--path", GAME, *args], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                           encoding="utf-8", errors="replace") as p:
         for line in p.stdout:
+            last.append(line.rstrip())
             if line.startswith(("FAIL", "ERROR", "SCRIPT ERROR")) or re.match(r"(self|scene)test.*passed", line):
                 print("    " + line.rstrip())
+    if p.returncode != 0:
+        print(f"    Godot exited with {p.returncode}, after:", *last, sep="\n      ")
     print(f"{'ok  ' if p.returncode == 0 else 'FAIL'}  {name}  ({time.time() - start:.0f} s)", flush=True)
     return p.returncode == 0
 

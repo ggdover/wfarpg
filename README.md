@@ -19,7 +19,9 @@ both. The commands in the READMEs are the same on both too, given these tools on
 
 Run the commands from the repository's root, or from the folder a README names, in any terminal: bash on Linux;
 PowerShell, cmd or Git Bash on Windows. `GODOT`, `CHROME` and `PYTHON` point the tools at another Godot, Chrome or
-Python.
+Python. A terminal that was open when PATH changed keeps the old PATH until it's reopened; on Windows, so does every
+new terminal of an app that was already running (an editor, the Claude app) until the app is restarted. The tools
+look for `godot` in `~/.local/bin` too, so they find it either way.
 
 On Windows, Godot comes as two programs, and the console build is the one for the command line: its output and exit
 code reach the terminal, and it opens the game's window all the same. To have it as `godot`, put a `godot.cmd` in a
