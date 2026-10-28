@@ -58,6 +58,7 @@ godot --path game res://scenes/demo.tscn -- --trees=old   # straight into the de
 godot --path game res://scenes/demo.tscn -- --theme=Brown_earth   # with one of the path colours (_ for spaces)
 godot --path game res://scenes/demo.tscn -- --grass=GrassClumps    # with one of the grasses (GrassField.STYLES)
 godot --path game res://scenes/demo.tscn -- --scene=forest_lake   # straight into a scene (its id in scripts/scenes.gd)
+godot --path game --screen 0                       # on screen 0 rather than the primary (Godot counts them from 0)
 ```
 
 The first time, Godot imports the models and textures, which takes a minute. When running it from the command line
@@ -67,6 +68,7 @@ To check it after a change, `python3 game/tools/checks.py` runs Godot's import, 
 repository as it was, then the selftest and each scene's scenetest (`scripts/dev/`, below), each in the demo's
 window, a few minutes in all. It prints what failed, ends with how many checks passed, and exits with 1 if one
 failed. Name some to run only those: `import`, `selftest` or scene ids, e.g. `python3 game/tools/checks.py selftest bog`.
+`--screen=N` opens the window on screen N instead of the primary, to keep it off the one you're working on.
 
 ### The Windows build
 

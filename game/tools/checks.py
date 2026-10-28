@@ -4,6 +4,7 @@ repository, the selftest tries the controls (scripts/dev/selftest.gd), and each 
 
     python3 game/tools/checks.py                      all of them
     python3 game/tools/checks.py import selftest bog  only these (scenes by their ids in scripts/scenes.gd)
+    python3 game/tools/checks.py --screen=0 ...       the window on screen 0, not the primary (Godot's --screen)
 
 GODOT=... to use another Godot 4.7. Exits with 1 if a check fails.
 """
@@ -69,7 +70,11 @@ def check_import():
 
 if __name__ == "__main__":
     ids = scenes()
-    wanted = sys.argv[1:] or ["import", "selftest", *ids]
+    screens = [a.removeprefix("--screen=") for a in sys.argv[1:] if a.startswith("--screen=")]
+    if not all(s.isdigit() for s in screens):
+        sys.exit("--screen= takes a screen's number: 0 is the first, as Godot counts them")
+    window = ["--screen", screens[-1]] if screens else []  # where the demo's window opens
+    wanted = [a for a in sys.argv[1:] if not a.startswith("--screen=")] or ["import", "selftest", *ids]
     unknown = [w for w in wanted if w not in ("import", "selftest", *ids)]
     if unknown:
         sys.exit(f"no such check: {' '.join(unknown)} (import, selftest, or a scene: {' '.join(ids)})")
@@ -78,8 +83,9 @@ if __name__ == "__main__":
         if w == "import":
             results.append(check_import())
         elif w == "selftest":
-            results.append(run("selftest", "res://scenes/demo.tscn", "--", "--selftest"))
+            results.append(run("selftest", *window, "res://scenes/demo.tscn", "--", "--selftest"))
         else:
-            results.append(run(f"scenetest {w}", "res://scenes/demo.tscn", "--", f"--scene={w}", "--scenetest"))
+            results.append(run(f"scenetest {w}", *window, "res://scenes/demo.tscn", "--", f"--scene={w}",
+                               "--scenetest"))
     print(f"{results.count(True)} of {len(results)} checks passed")
     sys.exit(0 if all(results) else 1)
