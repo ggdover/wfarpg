@@ -140,6 +140,9 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
 
 - `README.md`: what the project is, the tools it needs on Linux and Windows, and the commands to play, check, rebuild
   and export it.
+- `CHANGELOG.md`: the project's milestones, newest first, each tagged in git (`v1.0`, the forest demo, 1 November).
+  When the user calls a milestone, it gets a section at the top (its date and tag, what it brings since the last one,
+  what's left for later) and an annotated tag on the commit that adds it.
 - `ref_imgs/`: the user's reference images, the Act 1 layout sketch and the tree reference sheet.
 - `assets/`: game assets. `assets/trees/` is the tree portfolio: low-poly Swedish forest trees built in Blender by
   Python scripts, saved in `tree_portfolio.blend`, with a tree editor (a Trees tab in Blender's sidebar) for tuning
