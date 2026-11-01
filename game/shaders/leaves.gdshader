@@ -1,6 +1,8 @@
 // The tree portfolio's leaf cards: the card's colour, cut out at alpha 0.5 like the leaf materials in
 // assets/trees/treegen.py, drawn on both sides. They fade out when they're in the way of the camera. As a tree goes
 // see-through, the cards its thinned version leaves out (scripts/models.gd, Models.thinned; UV2.y = 1) go first.
+// In the wind (common.gdshaderinc) a tree's crown sways with its trunk and its leaves flutter; a bush sways, and shakes
+// and rustles as the hero pushes through it (scripts/bushes.gd).
 shader_type spatial;
 render_mode cull_disabled, diffuse_lambert, specular_schlick_ggx;
 
@@ -22,6 +24,19 @@ uniform float ao_light_affect = 0.2;
 // faces instead, for brighter, flatter crowns than in the mockups.
 uniform bool crown_normals = false;
 global uniform vec2 mood_grade;
+
+void vertex() {
+	vec3 p = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	vec3 foot = MODEL_MATRIX[3].xyz;
+	vec3 move;
+	if (tree_fades) {  // a tree
+		move = tree_sway(p, foot) + leaf_flutter(p, wind_force(foot.xz), 0.02);
+	} else {  // a bush: how the hero has pushed it, from scripts/bushes.gd
+		move = bush_sway(p, foot, INSTANCE_CUSTOM) + leaf_flutter(p, wind_force(foot.xz), 0.012)
+				+ leaf_flutter(p * 1.7, INSTANCE_CUSTOM.z, 0.03);
+	}
+	VERTEX += to_model(move, MODEL_MATRIX);
+}
 
 void fragment() {
 	vec4 c = texture(card, UV);

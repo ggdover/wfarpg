@@ -17,10 +17,13 @@ extends Node3D
 ##   --mood=name      the scene's area in another mood (scripts/mood.gd)
 ##   --grass=style    the grass over the green ground: GrassClumps, GrassWisps, GrassTufts, GrassShort, LongGrass, before
 ##   --walktest       walk the trail and print the frame times                       --treelod=1|2  lighter trees
-##   --panel          open the performance panel (F2); --panel=advanced with its advanced settings shown
+##   --panel          open the performance panel (F2); --panel=advanced with its advanced settings shown, =all with
+##                    every category of them open too
 ##   --set:option=value  a panel option or slider, e.g. --set:shadow_size=1024 --set:details=2 --set:tree_shadows=far
 ##                       --set:shadow_cap=40 --set:fps=60 (the frame rate limit) --set:path_wear=0
-##                       --set:preset=thick|one (a preset at the panel's top)
+##                       --set:preset=thick|one (one of the panel's presets, Trees in the way's Preset)
+##   --windclock=seconds  the wind's clock at that as the screenshot is taken (or the walk or --seq starts), for
+##                        pictures of a gust passing (scripts/wind.gd, gust_at)
 ##   for measuring what costs what: --hide=NorwaySpruce,ScotsPine (kinds of tree not drawn), --noshadow, --nofade,
 ##   --flatground, --canopy=0..1, --bump=0..1, --sun:property=value, --env:property=value, --vp:property=value
 
@@ -38,6 +41,7 @@ var shadow_fit := true
 var shadow_cap := 70.0
 var _shot := ""
 var _wait := 90
+var _wind_clock := -1.0  # --windclock: the wind's clock as the screenshot is taken
 var _walk := 0.0
 var _walk_action := "move_forward"
 var _still := false
@@ -69,6 +73,7 @@ func _ready() -> void:
 		world.set_ground_param(param, scene["ground"][param])
 	PathThemes.apply(world, Game.path_theme)
 	hero = Hero.new()
+	hero.world = world
 	add_child(hero)
 	hero.global_position = world.start_position() + Vector3(0, 0.1, 0)
 	var f := deg_to_rad(float(world.layout["start"]["facing"]))  # degrees anticlockwise from east, Blender's way
@@ -90,10 +95,12 @@ func _ready() -> void:
 			var walk: Node = load("res://scripts/dev/walktest.gd").new()
 			add_child(walk)
 			walk.run(self)
-		elif a == "--panel" or a == "--panel=advanced":
+		elif a == "--panel" or a == "--panel=advanced" or a == "--panel=all":
 			_panel.visible = true
-			if a == "--panel=advanced":
+			if a != "--panel":
 				_panel.show_advanced(true)
+			if a == "--panel=all":
+				_panel.open_all()
 		elif a == "--paneltest":
 			var test: Node = load("res://scripts/dev/paneltest.gd").new()
 			add_child(test)
@@ -170,6 +177,9 @@ func _process(delta: float) -> void:
 	_fit_shadows()
 	if _shot == "":
 		return
+	if _wind_clock >= 0.0 and _wait <= 2:  # the frame before the screenshot, so the wind's clock is that as it's taken
+		world.wind.clock = _wind_clock
+		_wind_clock = -1.0
 	if (_seq > 0 or _walk > 0.0) and _wait <= 1 and _still:  # --still: the camera stays as it settled before the walk
 		rig.follow = false
 	if _seq > 0 and _wait <= 1:  # --seq: a screenshot every frame, walking for --walk seconds of them
@@ -278,6 +288,8 @@ func _read_args() -> void:
 				_panel.slide(kv[0], float(v))
 			else:
 				_panel.choose(kv[0], kv[1] if v == null else v)
+		elif a.begins_with("--windclock="):
+			_wind_clock = float(a.substr(12))
 		elif a.begins_with("--bump="):
 			world.set_ground_param("bump_strength", float(a.substr(7)))
 		elif a.begins_with("--canopy="):

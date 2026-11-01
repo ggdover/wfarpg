@@ -17,6 +17,10 @@
 // from the hero's trail (scripts/hero_trail.gd), within stir_radius of it: they shake back and forth, and the kicked
 // ones fly up (hop high, a few higher), fluttering, turning over once or twice and catching the light, dying away
 // within settle seconds. The deeper the pile, the more; stir scales it all.
+//
+// In the wind's gusts (wind_gust in common.gdshaderinc), the leaves lying loose, on top of a pile or alone at its thin
+// edge, shiver where they lie, tugged a little along the wind and back; now and then one lifts, turns over and lands
+// where it lay, so the wind leaves them where they were moved.
 shader_type spatial;
 render_mode cull_disabled, world_vertex_coords, diffuse_lambert, specular_schlick_ggx;
 
@@ -162,6 +166,20 @@ void vertex() {
 				angle += u * TAU * (r2 < 0.18 ? 2.0 : 1.0);
 			}
 			shape = turned(shape, vec3(cos(ra), 0.0, sin(ra)), angle);
+		}
+		// the wind's gusts: the loose leaves shiver, tugged along the wind and back; one in twenty lifts and turns over
+		float g = wind.z > 0.0 ? min(wind_gust(c) * wind.z, 2.0) : 0.0;
+		float loose = max(smoothstep(0.55, 0.9, deep), 1.0 - smoothstep(0.1, 0.3, p));
+		if (g > 0.0 && loose > 0.0) {
+			float shiver = g * loose * sin(wind.w * (8.0 + 6.0 * r1) + r3 * TAU);
+			shape = turned(shape, vec3(-sin(ra), 0.0, cos(ra)), 0.3 * shiver);
+			lift.xz += wind.xy * (0.02 * g * loose * (0.6 + 0.4 * sin(wind.w * 4.0 + r4 * TAU)));
+			if (r1 < 0.05) {
+				float up = smoothstep(0.55, 0.95, g) * loose * max(sin(wind.w * 2.2 + r2 * TAU), 0.0);
+				lift += vec3(wind.x * 0.04, 0.05, wind.y * 0.04) * up;
+				shape = turned(shape, vec3(cos(ra), 0.0, sin(ra)), up * PI);
+				air = max(air, up);
+			}
 		}
 		VERTEX = vec3(c.x, y, c.y) + shape + lift;
 		// the colours of the leaves on the ground, a little darker the deeper in the pile, in its shade

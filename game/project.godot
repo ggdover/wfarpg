@@ -108,3 +108,11 @@ cone_style={
 "type": "float",
 "value": 1.0
 }
+wind={
+"type": "vec4",
+"value": Vector4(1, 0, 0, 0)
+}
+wind_gusts={
+"type": "vec2",
+"value": Vector2(0, 13.2)
+}

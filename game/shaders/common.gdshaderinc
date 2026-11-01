@@ -194,3 +194,80 @@ vec3 autumn_tint(vec3 c, vec2 autumn) {
 	float lum = dot(c, vec3(0.2126, 0.7152, 0.0722));
 	return mix(c, tone * clamp(lum * 7.0, 0.2, 1.4), autumn.x);
 }
+
+// The wind (scripts/wind.gd sets it every frame): which way it blows along the ground (x, z, a unit vector), how much
+// it moves things (0 still, 1 as tuned: F2's Wind, movement), and its clock, in seconds; and its gusts (wind_gusts):
+// how much harder than a gust the strongest blow (0.6 as tuned, F2's strong gusts), and how many metres apart they
+// come (F2's gusts every, times WIND_SPEED).
+global uniform vec4 wind;
+global uniform vec2 wind_gusts;
+const float WIND_SPEED = 4.0;  // metres a second the gusts travel
+const float WIND_BREEZE = 0.15;  // how hard it blows between the gusts, against a gust
+
+// How hard the wind gusts at a point on the ground: 0 calm, 1 a gust, up to 1 + wind_gusts.x the strongest. Gust
+// fronts sweep across the ground with the wind, the grass waving as each passes: at any spot one every few seconds
+// (3.3 s as tuned, so never 5 s without one: the user, 1 November), with calm between. They're waves along the wind,
+// their timing and shape bent by smooth noise (value noise, as games make wind with), so they come neither evenly nor
+// in straight lines; and each one's strength is noise too, blown along with it, so they differ: some milder, most as
+// tuned, and where a third, slower noise, 60 m across, runs high, now and then a strong one. Wind.gust_at works out
+// the same.
+float wind_gust(vec2 xz) {
+	float along = dot(xz, wind.xy);
+	float warp = value_noise3(vec3(along / 30.0, dot(xz, vec2(-wind.y, wind.x)) / 18.0, wind.w * 0.1)) - 0.5;
+	float phase = (along - wind.w * WIND_SPEED) / max(wind_gusts.y, 1.0) + 0.6 * warp;
+	float gust = smoothstep(0.45, 0.95, 0.5 + 0.5 * cos(TAU * phase));
+	if (gust <= 0.0) {
+		return 0.0;
+	}
+	vec2 p = xz - wind.xy * (wind.w * WIND_SPEED);
+	gust *= 0.6 + 0.4 * smoothstep(0.3, 0.6, value_noise3(vec3(p / 20.0 + 5.0, wind.w * 0.05 + 5.0)));
+	if (wind_gusts.x > 0.0) {
+		gust *= 1.0 + wind_gusts.x * smoothstep(0.5, 0.75, value_noise3(vec3(p / 60.0 + 31.0, wind.w * 0.03 + 31.0)));
+	}
+	return gust;
+}
+
+// How hard the wind blows at a point as the plants feel it: a light breeze always, and the gusts; 0 when it's still,
+// without working out the gusts.
+float wind_force(vec2 xz) {
+	return wind.z > 0.0 ? wind.z * (WIND_BREEZE + wind_gust(xz)) : 0.0;
+}
+
+// A move in the world (world metres), as a move of VERTEX in the model's own space, for a model turned and scaled the
+// same every way (m: MODEL_MATRIX).
+vec3 to_model(vec3 move, mat4 m) {
+	return transpose(mat3(m)) * move / dot(m[0].xyz, m[0].xyz);
+}
+
+// A tree swaying in the wind: how far its point at p moves, world metres, its foot at foot. Nothing at the foot, more
+// the higher up (as the square of the height: some 17 cm at 20 m in a full gust); it leans with the wind and sways
+// slowly back and forth about that, each tree in its own time. Its trunk, branches and leaves alike, so the leaves
+// stay on the branches (shaders/leaves.gdshader, SWAY in lowpoly.gdshaderinc).
+vec3 tree_sway(vec3 p, vec3 foot) {
+	float h = max(p.y - foot.y, 0.0) / 20.0;
+	float phase = dot(foot.xz, vec2(0.37, 0.71));
+	float sway = 0.7 + 0.3 * sin(wind.w * 1.3 + phase) + 0.1 * sin(wind.w * 2.9 + phase * 1.7);
+	return vec3(wind.x, 0.0, wind.y) * (0.15 * wind_force(foot.xz) * sway * h * h);
+}
+
+// A bush swaying in the wind, and shaking as the hero pushes through it: how far its point at p moves, world metres,
+// its foot at foot. shake is what scripts/bushes.gd keeps for it (its multimesh's INSTANCE_CUSTOM): how far its top is
+// pushed along the ground (x, z, metres), how much its leaves rustle (0..1), and its height in metres. Nothing at its
+// foot, more the higher up; it leans with the wind (6 cm at the top in a full gust) and sways back and forth about
+// that, quicker than a tree.
+vec3 bush_sway(vec3 p, vec3 foot, vec4 shake) {
+	float h = clamp((p.y - foot.y) / max(shake.w, 0.5), 0.0, 1.2);
+	float phase = dot(foot.xz, vec2(0.53, 0.29));
+	float sway = 0.7 + 0.3 * sin(wind.w * 2.6 + phase) + 0.12 * sin(wind.w * 5.3 + phase * 1.9);
+	vec2 move = wind.xy * (0.05 * wind_force(foot.xz) * sway) + shake.xy;
+	return vec3(move.x, 0.0, move.y) * h * h;
+}
+
+// Leaves fluttering: a quick, small shiver of a leaf card's point at p, reach metres at force 1 (wind_force, or a
+// bush's rustle). The points move each in their own time, neighbours nearly alike, so a card ripples rather than
+// jitters.
+vec3 leaf_flutter(vec3 p, float force, float reach) {
+	float phase = dot(p, vec3(2.3, 1.7, 3.1));
+	float t = wind.w * 9.0;
+	return vec3(sin(t + phase), 0.6 * sin(t * 1.3 + phase * 1.4), cos(t * 0.9 + phase * 1.2)) * (reach * force);
+}

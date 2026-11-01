@@ -1,8 +1,9 @@
 // The mockups' low-poly material: faceted shapes coloured per face through the vertex colours, like LowPoly in
 // mockups/forest_cam.py and Bark in assets/trees/treegen.py. Define HERO_FADE before including it for things that
 // fade out when they're in the way of the camera, like trees, and NO_XRAY too for those the x-ray leaves alone; and
-// BARK for a portfolio tree's bark (its trunk, stump and bare trunk), which textures the trunk. The including shader
-// declares the shader type.
+// BARK for a portfolio tree's bark (its trunk, stump and bare trunk), which textures the trunk. SWAY sways it in the
+// wind as a tree (a trunk and its branches, with its leaves: tree_sway in common.gdshaderinc); BUSH as a bush's stems,
+// which shake too as the hero pushes through (bush_sway). The including shader declares the shader type.
 #include "res://shaders/common.gdshaderinc"
 
 uniform float roughness = 0.88;
@@ -29,6 +30,19 @@ global uniform vec3 pebble_colour;
 uniform sampler2D bark_upper : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D bark_foot : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 global uniform float bark_on;  // 0: the trunks plain, as before the bark (F2's Bark textures)
+#endif
+
+#ifdef SWAY
+void vertex() {
+	vec3 p = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	VERTEX += to_model(tree_sway(p, MODEL_MATRIX[3].xyz), MODEL_MATRIX);
+}
+#endif
+#ifdef BUSH
+void vertex() {
+	vec3 p = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	VERTEX += to_model(bush_sway(p, MODEL_MATRIX[3].xyz, INSTANCE_CUSTOM), MODEL_MATRIX);
+}
 #endif
 
 void fragment() {

@@ -40,10 +40,13 @@ the wetland (the bog).
   far apart, and along the paths, off them, on dry ground, clear of trunks and rocks (`Layout.bushes` in
   `tools/build_demo.py`), from 7 in the thick forest to 145 by the river; across the open forest's glades, among the
   autumn hollow's trees, turning yellow and red there, and mostly buckthorn by the lake and in the bog. They're placed
-  last, on random numbers of their own, so nothing else moved. Each is solid at its middle. Exported by the plants
+  last, on random numbers of their own, so nothing else moved. The hero walks into them, a little slower there, and
+  they shake as it pushes through (below, Wind, and walking into bushes). Exported by the plants
   stage with their cards and the shade inside them baked, like the trees' (`assets/plants/bushes.glb`), and drawn
   with the trees' leaf shader, but none of the trees' fades (`tree_fades`): they're low enough not to be in the way.
   F2's **Bushes** turns them off; they cost 0.5–0.6 ms a frame where there are many (the open forest, the river).
+- **The wind** now and then sends a gust through, swaying the trees and bushes, leaning the grass and stirring the
+  fallen leaves (below).
 - **The hero** is a grey box for now, with a dark band on its front.
 
 ## Running it
@@ -233,10 +236,10 @@ place (`tools/reference_shots.py`).
     goes, but the trees in the way vanish rather than stay half there. Walking the trail with the camera low, keeping 1
     takes the slowest 5% of frames from 44-46 fps to 50-51 and the slowest 1% from 40-43 to 46, hiding 2.8 trees a
     frame on average.
-  - At the top of the panel, **Trees in the way** sets them all at once: **Clear view** (above), **Thick forest** (these) or **One
-    tree is enough** (one tree's leaves hiding 90% of the hero alone; solid again below 50%: from the same playtests, one
-    tree hiding the hero goes see-through 98% of the time, and needlessly half as often as the way before), the one in
-    use marked. Under its advanced settings, each on its own: **see-through at** (40%),
+  - The panel's **Preset**, the first setting under Trees in the way, sets them all at once: **Clear view** (above),
+    **Thick forest** (these) or **One tree is enough** (one tree's leaves hiding 90% of the hero alone; solid again
+    below 50%: from the same playtests, one tree hiding the hero goes see-through 98% of the time, and needlessly half
+    as often as the way before), the one in use marked. Under it, each on its own: **see-through at** (40%),
     **solid again below** (20%), **cover counts** (Two trees, Leaves or Whole cards), **area round hero** (1.5 m), **see-through by** (50%; 0% for never), **show the area**, which draws it over
     the view with its points, red where the trees cover them, and how much of it they cover, with how much they must
     cover to go see-through, or, once they are (its outline red), how little before they come back
@@ -385,48 +388,106 @@ ground has piles of leaves of their own (`scripts/leaf_litter.gd`, `shaders/leaf
 - **Cost:** 1.4 ms a frame at the hollow's start (measured on 15 October, the machine quiet), with its 200 piles; with
   the 80 before, 0.4–0.6. The disturbance map costs nothing measurable.
 
+## Wind, and walking into bushes
+
+The user asked for the bushes to react when the hero runs into them, and for the wind to move the trees' leaves, the
+bushes, the grass and the autumn hollow's leaf piles now and then (1 November):
+
+- **The wind** (`scripts/wind.gd`) blows one way, 20° south of east, and its gusts are worked out where each thing
+  stands (`wind_gust` in `shaders/common.gdshaderinc`). Gust fronts sweep across the ground with the wind at 4 m/s,
+  the grass waving as each passes: at any spot one every 3.3 s or so, never 5 s without one, each lasting about a
+  second, with a light breeze between. The first gusts, patches of noise, came about one every 20 s, which the user
+  found far too seldom (1 November). The fronts are waves along the wind, their timing and shape bent by smooth noise,
+  as games make wind (value noise, Perlin noise's simpler cousin), so they come neither evenly nor in straight lines.
+- **The gusts differ,** so it isn't always the same amount of movement (the user, 1 November): each one's strength is
+  noise too, blown along with it, about two in five milder, a third as tuned, and about one in seven strong, up to 60%
+  harder, where a third, slower noise, 60 m across, runs high. The wind hands the shaders its direction, how much it
+  moves things and its clock every frame, and its gusts' strength and spacing (the global uniforms `wind` and
+  `wind_gusts`); `Wind.gust_at` works out the same gusts, for the selftest, and `--windclock=seconds` sets the clock
+  as a screenshot is taken, for pictures of a gust passing.
+- **Trees** sway, trunk, branches and leaves together, so the leaves stay on the branches: nothing at the foot, more
+  the higher up, some 17 cm at 20 m in a gust and a little more in a strong one, leaning with the wind and swaying
+  slowly about that, each tree in its own time; and their leaves flutter a couple of centimetres (`tree_sway` and
+  `leaf_flutter`, and `SWAY` in `lowpoly.gdshaderinc` for the trunks).
+- **Bushes** sway the same way, quicker, 6 cm at the top in a gust, their stems with their leaves
+  (`shaders/bush_stems.gdshader`).
+- **The grass** leans over as a gust passes, up to 30° in a gust and more in a strong one, though never over on its
+  side, waving about that, each card in its own time; where the hero's trail folds it, the fold has it instead.
+- **The leaf piles:** in a gust, the leaves lying loose, on top of a pile or alone at its thin edge, shiver where they
+  lie, tugged a little along the wind and back; now and then one lifts, turns over and lands where it lay, so the
+  wind leaves them where the hero moved them.
+- **Walking into a bush:** bushes aren't solid any more. The layout still lists them among its solids, so no grass
+  grows under them, but the game gives them no collider. In one, the hero walks a little slower: 15% in its middle
+  part, less toward its edge (`scripts/bushes.gd`). As the hero pushes through, the bush leans away from it and along
+  the way it walks, up to about 10 cm at the top, and springs back, shaking a little as it settles, its leaves
+  rustling: each bush a damped spring, handed to its shaders through its multimesh's custom data.
+- **F2:** under **Wind**, **Blowing**, On or Off; its **movement**, how much it moves the grass, leaves, bushes and
+  trees (100%, up to 300%); **gusts every**, about how many seconds apart they come (3.3 s); and **strong gusts**, how
+  much harder the strongest blow (+60%; +0% makes every gust alike). Under Bushes, how much they **shake as the hero
+  walks in** (100%) and how much they **slow the hero by** (15%).
+- **Cost:** next to nothing: 0.01–0.05 ms a frame on the graphics card, wind on against off, in the thick forest,
+  Storskogen, the open field and the autumn hollow (`abbench.gd`, 1 November, with the gust fronts).
+
 ## The performance panel (F2)
 
-At the top, three presets for the trees in the way: **Clear view** (the default in most scenes: any tree in the way goes to
-its stump, and the crown cut), **Thick forest** (see-through, the thick forest's scenes' default) and **One tree is
-enough** (under Trees in the way, above), all with the crown cut and the spruces' leaves Lighter (below). Each scene
-starts with its own (`scripts/scenes.gd`, view). The one in use is marked, from the start, until any setting under the advanced
-settings changes, from the panel or by T, P or F4: the settings are then no longer the preset's. Then a frame-time
-graph of the last 3 seconds (one bar per frame: green is faster than 60 fps, amber than 30, red slower), with the frame
-rate now, on average, and in the slowest 5% and 1% of frames, and below it how long the graphics card takes per frame,
-the triangles drawn and the draw calls. Every other setting is under **Show advanced settings**, hidden at first, and
-takes effect at once:
+At the top, a frame-time graph of the last 3 seconds (one bar per frame: green is faster than 60 fps, amber than 30, red
+slower), with the frame rate now, on average, and in the slowest 5% and 1% of frames, and below it how long the
+graphics card takes per frame, the triangles drawn and the draw calls. The settings are under **Show advanced
+settings**, hidden at first, and take effect at once. They're sorted into categories, in the order below, each opened
+and closed by its header (they stay open from scene to scene; `--panel=all` opens them all). Resting the mouse on a
+setting shows a hint, a sentence or three on what it does, as a player would want to know; and a setting that
+matters only with some choice of another shows only then: the cone's with Cone, the see-through ones with
+See-through, the shadows' with Shadows on (the user asked for the settings in better order, with hints, 1 November).
+No setting is named as its category is (the user, the same day).
+
+The first setting under Trees in the way is its **Preset**, three ways to set them all at once: **Clear view** (the
+default in most scenes: any tree in the way goes to its stump, and the crown cut), **Thick forest** (see-through, the
+thick forest's scenes' default) and **One tree is enough** (under Trees in the way, above), all with the crown cut and
+the spruces' leaves Lighter (below). Each scene starts with its own (`scripts/scenes.gd`, view). The one in use is
+marked, from the start, until any setting changes, from the panel or by T, P or F4: the settings are then no longer
+the preset's. It was at the panel's top, above the graph, until the user asked for it in its category (1 November):
 
 | Switch | What it does |
 |---|---|
 | Speed-ups | **All as before** and **All on** flip every speed-up (below, under Speed) between how it was before it and now, to compare the look and the frame rate |
-| Trees | The old or the new trees (as T) |
-| Path colours | The paths' colour theme (as P) |
-| Path wear spread | How far the paths' wear spreads into the grass: 0 as in the mockups, up to 1 (the default), where the trampled grass, bare patches and stray stones reach further out and break up in patches, so it's less clear exactly where a path runs |
+| **Trees in the way** | |
+| Preset | **Clear view**, **Thick forest** or **One tree is enough**: the settings below, set one of three ways at once (above), the one in use marked |
+| How they go | How trees in the way of the hero get out of it (above); its settings show only with the ways they belong to: **Line** in Clear view, the default in most scenes; **See-through** in Thick forest, with the Preset above to set what follows at once (**Thick forest**, the defaults, or **One tree is enough**: Leaves, the hero alone, 90% and 50%; both see-through by 50%, none hidden), how much of the area round the hero the trees must cover (**see-through at**, 40%) and how little before see-through trees turn solid again (**solid again below**, 20%, so they don't flicker), what covers it (**cover counts**: two trees or more hiding a point through the gaps between their leaves, the default, so a tree alone never goes see-through; one tree; or any part of a leaf card, as before), how far round the hero the area reaches (**area round hero**, 1.5 m), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, whether **see-through trees** are drawn with half their cards, each where it was (Fewer cards, the default, much faster deep in the forest) or all of them, and whether to **hide all but** the 1 or 2 see-through trees **nearest** the hero (off by default); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
+| Treetops, camera high | **Near camera** (the default): the trees near a high camera end lower the nearer they stand, out to a ball round the camera **reach** times as far across as the camera is from the hero (80%); **All trees**: every tree ends at a height (**trees end at**, 8 m), as the user wondered; or **Off**. Above |
+| Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
+| **Trees** | |
+| Which trees (T) | The old or the new trees (as T) |
+| Bark textures | **On** (the default), or **Off**: the trunks plain, each in its bark's average colour, to see what the bark costs (nothing measurable, below) |
 | Leaf cards | Square cards, or cards trimmed to an outline round their leaves (the default): the same look, fewer pixels to draw |
 | Cards per clump | As tuned, or about half as many (a little bigger): sparser crowns |
 | Spruce leaves | **As tuned**, **Light** or **Lighter** (the default, chosen as the spruces still look really good so; also with the presets, and among the speed-ups): the spruces with two copies of each spray instead of four, near and in their first lighter version, and their shadows cast by their trunks alone, with the picture of their leaves; Lighter also sets the sprays half as far again apart along the branches. The spruce costs more to draw than every other tree together (below, under Speed) |
-| Tree shadows from | What casts a new tree's shadow: one of its versions (the full, mid or far one), its trunk and branches with a picture of its leaves as the sun sees them (**Pictures**, the default; under Speed), or nothing |
-| from trees within | Only the trees within this far of the camera cast shadows: all, 60 m (the default), 40 m or 25 m |
 | Lighter trees from | Where the new trees switch to their lighter versions |
 | Far trees as pictures | From how far the new trees are drawn as pictures (under Speed): never, 120 m, 90 m (the default) or 60 m |
-| Fade trees near camera | The mockups' fade of trees near a high camera, though never within 6 m of the hero. Off by default, as trees should only go once they block the view |
-| Bark textures | **On** (the default), or **Off**: the trunks plain, each in its bark's average colour, to see what the bark costs (nothing measurable, below) |
-| Grass (G) | **Wisps**, **Tufts**, **Clumps** (the default) or **Short**, the plant portfolio's grass styles over the green ground, each on its ground texture, folding as the hero walks through them; the **First try**; or **As before**: the mockups' grass tufts (above), and in the bog its faceted tussocks and sedge instead of its grass. The sliders below set the bog's grass too. **strands**: how many, against the style's as tuned, its patches closer together or further apart (25% to 300%; 100%); **strand size**: the cards and the strands in the ground texture alike (140%); **how tall** (100%); **drawn out to**: where it has sunk into the ground (45 m); **ground texture**: how strongly its ground texture shows (100%); **ground in its shade**: how light the ground among the grass stays (85%) |
-| Bushes | **On** (the default) or **Off**: the plant portfolio's bushes (above) |
-| Fallen leaves | In the autumn hollow: **Piles** (the default), its leaves lying deep here and there, a lane opening through a pile as the hero walks through and leaves kicked up, or **As before** (none). **in piles**: how much of the litter lies in piles (100%); **stirring**: how much they stir (100%); **hop**: how high a kicked leaf flies (8 cm). Above, The fallen leaves |
-| Crown cut, camera high | **Near camera** (the default): the trees near a high camera end lower the nearer they stand, out to a ball round the camera **reach** times as far across as the camera is from the hero (80%); **All trees**: every tree ends at a height (**trees end at**, 8 m), as the user wondered; or **Off**. Above |
-| Trees in the way | How trees get out of the way (above): **Line** in Clear view, the default in most scenes; **See-through** in Thick forest, with the presets at the panel's top to set what follows at once (**Thick forest**, the defaults, or **One tree is enough**: Leaves, the hero alone, 90% and 50%; both see-through by 50%, none hidden), how much of the area round the hero the trees must cover (**see-through at**, 40%) and how little before see-through trees turn solid again (**solid again below**, 20%, so they don't flicker), what covers it (**cover counts**: two trees or more hiding a point through the gaps between their leaves, the default, so a tree alone never goes see-through; one tree; or any part of a leaf card, as before), how far round the hero the area reaches (**area round hero**, 1.5 m), how see-through they go (**see-through by**, 50%; 0% for never), **show the area** on the screen, whether **see-through trees** are drawn with half their cards, each where it was (Fewer cards, the default, much faster deep in the forest) or all of them, and whether to **hide all but** the 1 or 2 see-through trees **nearest** the hero (off by default); the **Cone**, with sliders for its **soft share** (30%), how big it is **round the hero** (2.5 times the hero) and how long it stays **wide** (1, evenly), and whether it **fades in** a dither (the default) or patches; whole trees in **Front** of the hero; the **X-ray**'s window; the lower middle up to 6 m past the hero (**Area**, **past hero**); only those in the way of the hero (**Line**); or none. With Front, **leave** their stumps (the default), their trunks, or nothing. **A tree goes by** where it stands in the area (the default) or any part of it. Sliders: the area's **width** and how far **from the top** it starts; how far from the camera trees fade (**near the camera**, a share of the way to the hero); and for In front, how far in front of the hero they must stand (**by at least**). **Clear round the hero** also keeps the ground that far round the hero clear of trees in the way; 0 m, the default, is the hero alone |
-| Render scale | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
-| Antialiasing, VSync, Shadows | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
-| Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
-| Shadow distance | How far from the camera shadows reach. **Fit the view** follows what the camera sees, up to the slider's distance, so the shadows round the hero never go; **Fixed** uses the slider's distance |
-| Shadow resolution | The size of the sun's shadow map: less detailed, softer-edged shadows at 1024 and 512, but all of them still there |
-| Shadow softness | Hard, low or high: how many samples soften the shadows' edges |
-| Shadow cascades | 1, 2 or 4: more cascades keep near shadows sharp while reaching far, for more drawing |
+| Tree shadows from | What casts a new tree's shadow: one of its versions (the full, mid or far one), its trunk and branches with a picture of its leaves as the sun sees them (**Pictures**, the default; under Speed), or nothing |
+| from trees within | Only the trees within this far of the camera cast shadows: all, 60 m (the default), 40 m or 25 m |
+| **Grass** | |
+| Which grass (G) | **Wisps**, **Tufts**, **Clumps** (the default) or **Short**, the plant portfolio's grass styles over the green ground, each on its ground texture, folding as the hero walks through them; the **First try**; or **As before**: the mockups' grass tufts (above), and in the bog its faceted tussocks and sedge instead of its grass. The sliders below set the bog's grass too. **strands**: how many, against the style's as tuned, its patches closer together or further apart (25% to 300%; 100%); **strand size**: the cards and the strands in the ground texture alike (140%); **how tall** (100%); **drawn out to**: where it has sunk into the ground (45 m); **ground texture**: how strongly its ground texture shows (100%); **ground in its shade**: how light the ground among the grass stays (85%) |
+| **Bushes and fallen leaves** | |
+| Bushes | **On** (the default) or **Off**: the plant portfolio's bushes (above). **shake as the hero walks in**: how much a bush shakes as the hero pushes through it (100%); **slow the hero by**: how much slower the hero walks in a bush's middle part (15%). Above, Wind, and walking into bushes |
+| Fallen leaves | In the autumn hollow (elsewhere they don't show): **Piles** (the default), its leaves lying deep here and there, a lane opening through a pile as the hero walks through and leaves kicked up, or **As before** (none). **in piles**: how much of the litter lies in piles (100%); **stirring**: how much they stir (100%); **hop**: how high a kicked leaf flies (8 cm). Above, The fallen leaves |
+| **Wind** | |
+| Blowing | The wind, **On** (the default) or **Off**: the gusts that sway the trees, bushes and grass and stir the leaf piles. **movement**: how much the wind moves them, the gusts and the breeze between them alike (100%, up to 300%); **gusts every**: about how many seconds apart the gusts come (3.3 s, so never 5 s without one); **strong gusts**: how much harder than a gust the strongest gusts blow, about one in seven (+60%; +0% makes every gust alike). Above, Wind, and walking into bushes |
+| **Ground and paths** | |
+| Path colours (P) | The paths' colour theme (as P) |
+| Path wear spread | How far the paths' wear spreads into the grass: 0 as in the mockups, up to 1 (the default), where the trampled grass, bare patches and stray stones reach further out and break up in patches, so it's less clear exactly where a path runs |
 | Ground details | How much the ground shader draws on the paths and the grass (below) |
+| **Light and shadows** | |
+| Shadows | The sun's shadows, on or off; the four settings under it show only while they're on |
+| Shadows: distance | How far from the camera shadows reach. **Fit the view** follows what the camera sees, up to the slider's distance, so the shadows round the hero never go; **Fixed** uses the slider's distance |
+| Shadows: resolution | The size of the sun's shadow map: less detailed, softer-edged shadows at 1024 and 512, but all of them still there |
+| Shadows: softness | Hard, low or high: how many samples soften the shadows' edges |
+| Shadows: cascades | 1, 2 or 4: more cascades keep near shadows sharp while reaching far, for more drawing |
 | Ambient occlusion | Godot's screen-space ambient occlusion: off, or very low to high quality |
 | Haze | The fog |
+| **Screen and frame rate** | |
+| Render scale (F4) | 100%, 75% or 50% of the window's pixels, scaled up with FSR |
+| Antialiasing, VSync | Godot's own settings. VSync starts off, so the frame rate isn't held to the screen's |
+| Frame rate limit | The most frames a second to draw, from 30 to 250; at the slider's right end, none (the default) |
 
 The ground details come at five levels, each its own compiled shader, so a lower level doesn't pay for what it skips:
 
@@ -627,7 +688,8 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scenes/start.tscn`, `scenes/demo.tscn` | The start screen and the demo |
 | `scripts/demo.gd` | The demo: builds the scene, the HUD, and the command-line options for checking it |
 | `scripts/scenes.gd`, `scripts/scene_picker.gd` | The scenes (an area in a mood each), and the list to pick one from, on the start screen and in the game |
-| `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions, and their stumps for when they're cut), rocks and plants, its own models (water, steps, bridges), colliders, walls |
+| `scripts/world.gd` | The area: terrain and collider, trees (with their lighter versions, and their stumps for when they're cut), rocks and plants, its own models (water, steps, bridges), colliders (none for the bushes), walls |
+| `scripts/wind.gd`, `scripts/bushes.gd` | The wind, whose gusts the shaders work out (`wind_gust` in `shaders/common.gdshaderinc`); and the bushes as the hero meets them, slower in them, and shaking as it pushes through |
 | `scripts/ground_detail.gd` | Bakes the ground's details into tiling textures at startup, for the Baked level |
 | `scripts/grass.gd`, `shaders/grass.gdshader` | The grass over the green ground, its styles, and its folding round the hero's trail; and the bog's grass, a second field of it |
 | `scripts/leaf_litter.gd`, `shaders/leaf_litter.gdshader`, `shaders/leaf_stir.gdshader` | The autumn hollow's piles of fallen leaves, their stirring along the hero's trail, and the disturbance map that keeps where they've been moved |
@@ -638,8 +700,8 @@ A pose is the hero's Godot X and Z, then the camera's yaw, pitch and distance, a
 | `scripts/path_themes.gd` | The paths' colour themes |
 | `scripts/models.gd`, `scripts/mood.gd` | Loading the models with the game's materials, and the trees' thinned versions; the light |
 | `scripts/game.gd` | Settings shared by the scenes, and the controls |
-| `shaders/` | Water (`water`: its colour from its depth, ripples moving with its flow, white water where it runs fast), the portfolio trees' bark (`bark_fade`, `bark` for stumps, `bark_trunk` for bare trunks: the species' bark texture on each facet of the trunk, the foot's blended in below, `BARK` in `lowpoly.gdshaderinc`; textures from `assets/trees/make_bark.py`), ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material (and `lowpoly_trunk` for the bare trunks trees leave, which neither the x-ray nor the fade near the camera touch), the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
-| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it, with mouse events of its own, so the real mouse neither spoils a check nor gets taken; and that the grass follows the hero's trail, keeps off the rocks and logs, changes with its F2 switch and G, and that F2's strands and strand size do what they say), `scenetest.gd` (`--scene=river_cliffs --scenetest`: walks the hero up the river's steps, over its bridge, out on the lake's jetty and into its shallows, along the bog's boardwalk and down into the autumn hollow, between its trees, and checks it gets there on what it walks on, in the bog that its grass grows there in place of the faceted tussocks and follows the hero, and in the hollow that its leaves lie in piles and stir along the hero's trail), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees, `--pitch=12` for the camera low), `paneltest.gd` (`--paneltest`), `veilbench.gd` (`godot --path game --script res://scripts/dev/veilbench.gd`: at random spots in the forest with the camera low, the slowest views, and what the see-through trees cost there with all their cards, half, or hidden; add `-- --poses=x,z,yaw,pitch,distance;...` for set views), `abbench.gd` (`godot --path game --script res://scripts/dev/abbench.gd -- --ab=bark=true,false`: one of the panel's settings at two values or more, a slider's too (`--ab=grass_density=1.0,0.5`), flipped every second in one run, so whatever else the machine is doing weighs on each alike; add `--scene=`, `--pose=` and `--set:` as for the demo, `--spells=24` for longer), `veiltune.gd` (`godot --headless --path game --script res://scripts/dev/veiltune.gd -- --out=rows.csv`: playtests for when trees go see-through, walking the hero under every tree standing alone, along the trail and to random forest spots, writing for each step how much of the area round the hero each way of measuring covers, and how much of the hero shows; `python3 tools/veiltune.py rows.csv` plays the settings over them), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender; `-- --models=Rowan_A,Alder_A --trunks` for trunks close up) |
+| `shaders/` | Water (`water`: its colour from its depth, ripples moving with its flow, white water where it runs fast), the portfolio trees' bark (`bark_fade`, `bark` for stumps, `bark_trunk` for bare trunks: the species' bark texture on each facet of the trunk, the foot's blended in below, `BARK` in `lowpoly.gdshaderinc`; textures from `assets/trees/make_bark.py`), ground (`ground.gdshaderinc`, compiled at five levels of detail: `ground`, `ground_baked`, `ground_medium`, `ground_low`, `ground_flat`; `detail_bake` bakes the details), leaves, the low-poly material (and `lowpoly_trunk` for the bare trunks trees leave, which neither the x-ray nor the fade near the camera touch, and `bush_stems` for the bushes' stems), the wind's sway and flutter (`common.gdshaderinc`), the trees' pictures (`impostor`, `shadow_picture`, and `impostor_bake`, which takes them), sky, Blender's noise |
+| `scripts/dev/` | `selftest.gd` (`--selftest` tries every control and checks it, with mouse events of its own, so the real mouse neither spoils a check nor gets taken; and that the grass follows the hero's trail, keeps off the rocks and logs, changes with its F2 switch and G, and that F2's strands and strand size do what they say; that the wind gusts now and then, its noise the shaders', and F2 stills it; and that the hero walks into a bush and through it, slower in its middle, the bush shaking and settling again), `scenetest.gd` (`--scene=river_cliffs --scenetest`: walks the hero up the river's steps, over its bridge, out on the lake's jetty and into its shallows, along the bog's boardwalk and down into the autumn hollow, between its trees, and checks it gets there on what it walks on, in the bog that its grass grows there in place of the faceted tussocks and follows the hero, and in the hollow that its leaves lie in piles and stir along the hero's trail), `walktest.gd` (`--walktest` walks the trail and prints the frame times; add `--treelod=1` or `2` to try the lighter trees, `--pitch=12` for the camera low), `paneltest.gd` (`--paneltest`), `veilbench.gd` (`godot --path game --script res://scripts/dev/veilbench.gd`: at random spots in the forest with the camera low, the slowest views, and what the see-through trees cost there with all their cards, half, or hidden; add `-- --poses=x,z,yaw,pitch,distance;...` for set views), `abbench.gd` (`godot --path game --script res://scripts/dev/abbench.gd -- --ab=bark=true,false`: one of the panel's settings at two values or more, a slider's too (`--ab=grass_density=1.0,0.5`), flipped every second in one run, so whatever else the machine is doing weighs on each alike; add `--scene=`, `--pose=` and `--set:` as for the demo, `--spells=24` for longer), `veiltune.gd` (`godot --headless --path game --script res://scripts/dev/veiltune.gd -- --out=rows.csv`: playtests for when trees go see-through, walking the hero under every tree standing alone, along the trail and to random forest spots, writing for each step how much of the area round the hero each way of measuring covers, and how much of the hero shows; `python3 tools/veiltune.py rows.csv` plays the settings over them), `sightaudit.gd` (`godot --path game --script res://scripts/dev/sightaudit.gd`: at random spots and camera angles, how much of the hero the trees still cover, and how early hidden trees go, from their pixels; add `-- --mode=veil` or another way of cutting trees) and `lineup.gd` (models in rows, for comparing with Blender; `-- --models=Rowan_A,Alder_A --trunks` for trunks close up) |
 | `tools/` | The Blender build scripts, the areas (`tools/areas`), `veiltune.py` (above), `play.py` and `checks.py` (Running it, above), `export_windows.py` (The Windows build, above), and `godot.py`, which finds Godot and the screen to open on for them (Godot ignores this folder) |
 | `export_presets.cfg` | The Windows export: one .exe with the game packed in |
 | `assets/`, `data/` | Generated models, textures, heights and layout; Cinzel in `assets/fonts` (SIL Open Font License) |

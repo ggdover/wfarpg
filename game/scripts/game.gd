@@ -18,6 +18,9 @@ var bark := true:
 	set(v):
 		bark = v
 		RenderingServer.global_shader_parameter_set("bark_on", 1.0 if v else 0.0)
+## the F2 panel's categories that are open (scripts/perf_panel.gd), kept while the game runs, so switching scenes
+## keeps them open
+var open_categories := {}
 
 const KEYS := {
 	"move_forward": [KEY_W, KEY_UP], "move_back": [KEY_S, KEY_DOWN],

@@ -38,7 +38,15 @@ General knowledge, public documentation, and third-party libraries and engines a
   and in their glades (the user asked for bushes, 15 October). Bushes are full and widest at
   the foot, not thin there (the user, of the buckthorn and hazel); the raspberry must be big enough to count as a bush.
   The wood fern can go in occasional places; blueberry, lingonberry and heather as made didn't represent anything the
-  user wanted, so they were dropped.
+  user wanted, so they were dropped. The hero walks into the bushes, just a little slower in them, and a bush shakes
+  ever so slightly as it pushes through (the user, 1 November; `game/scripts/bushes.gd`, no colliders for them).
+- Wind: gusts blow through, and the trees' leaves, the bushes, the grass and the autumn hollow's leaf piles move with
+  them, the trees and bushes swaying, the grass leaning, the loose leaves shivering in place (the user, 1 November;
+  `game/scripts/wind.gd`, `wind_gust` in `game/shaders/common.gdshaderinc`). At least one gust in any 5 seconds (the
+  user found the first, about one every 20 s, far too seldom): gust fronts every 3.3 s or so, bent by noise as games
+  make wind. The gusts differ, some milder and now and then a stronger one, so it isn't always the same amount of
+  movement, and F2 has sliders for how much the wind moves things, how often it gusts and how strong the strong gusts
+  are (the user, the same day).
 - Paths are worn into the grass by feet, so they never end in a hard line: the grass thins out and turns trampled toward
   them, and the wear spreads out in patches, so it isn't clear exactly where a path runs. The mockups' dirt is a light
   tan (between wheat and desert sand), with gravel and pebbles in the same tones, so they read as texture rather than
@@ -160,9 +168,12 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   than every other tree together; for more frames in the forest, which the user asked for as a new setting that leaves
   the others as they are, F2's "Spruce leaves" has Light and Lighter (two copies of each spray instead of four, and
   further apart). The user found the spruces look really good with Lighter, so it's the default, and both see-through
-  presets and "All on" set it. At the top of F2 are the
-  see-through presets, the one in use marked until a setting changes; the user wants every other setting hidden under
-  "Advanced settings", so new ones go there. Its models,
+  presets and "All on" set it. The user wants F2's settings hidden under "Advanced settings", sorted into categories
+  that open and close, every setting with a hint shown as the mouse rests on it: what it does for a player, two or
+  three sentences at most; and no setting named as its category is (the user, 1 November). So a new setting goes in
+  its category under Advanced, with such a hint, and shows only when it matters (`_when` in `perf_panel.gd`). The
+  see-through presets are the first setting under Trees in the way, its Preset, the one in use marked until a
+  setting changes; they were at the panel's top until the user asked for them there (the same day). Its models,
   ground textures and layouts are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
   portfolio and the areas in `game/tools/areas/` (one module each); rebuild them after changing any of those. See
   `game/README.md`. `game/tools/checks.py` runs the demo's checks (the import, the selftest, each scene's

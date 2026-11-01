@@ -236,6 +236,11 @@ var _old_grass: Array[MultiMeshInstance3D] = []  # the mockups' grass tufts, sho
 var _old_sedge: Array[MultiMeshInstance3D] = []  # the mockups' faceted tussocks and sedge, shown instead of the bog's grass
 ## the plant portfolio's bushes (raspberry, alder buckthorn, hazel), at the forests' edges and in their glades
 var _bushes: Array[MultiMeshInstance3D] = []
+## the bushes as the hero meets them: it walks into them, a little slower, and they shake (scripts/bushes.gd)
+var bushes := Bushes.new()
+## the wind, which sways the trees, the bushes and the grass and stirs the fallen leaves (scripts/wind.gd)
+var wind: Wind
+const BUSH_REACH := 0.85  ## how far a bush reaches out, against its leaves' outline: they're thin at its edge
 ## for measuring: draw the new trees' lighter versions up close too (--treelod=1 or 2)
 var tree_lod := 0
 ## for measuring: kinds of tree not drawn at all (--hide=NorwaySpruce,ScotsPine; the layout's kinds)
@@ -250,6 +255,9 @@ func build(area: String, tree_set: String) -> void:
 			hidden_kinds = a.substr(7).split(",")
 	layout = JSON.parse_string(FileAccess.get_file_as_string(LAYOUT % area))
 	ground = JSON.parse_string(FileAccess.get_file_as_string(GROUND % area))
+	wind = Wind.new()
+	wind.name = "Wind"
+	add_child(wind)
 	_build_terrain()
 	_build_props()
 	_build_extras()
@@ -320,6 +328,7 @@ func skip_faded(camera_pos: Vector3, radius: float) -> void:
 func update_sight(camera: Camera3D, hero_pos: Vector3, delta: float) -> void:
 	trail.keep = maxf(grass.recover if grass else 0.0, leaves.settle if leaves else 0.0)
 	trail.update(hero_pos, delta)
+	bushes.update(hero_pos, delta)
 	if grass:
 		grass.update(trail)
 	if bog_grass:
@@ -1298,6 +1307,7 @@ func set_grass(style: String) -> void:
 
 ## The plant portfolio's bushes, or none, as before them (F2's Bushes).
 func set_bushes(on: bool) -> void:
+	bushes.shown = on
 	for mmi in _bushes:
 		mmi.visible = on
 
@@ -1666,6 +1676,7 @@ func _build_props() -> void:
 	var root := Node3D.new()
 	root.name = "Props"
 	add_child(root)
+	Models.load_info()
 	for model: String in layout["props"]:
 		var groups := {}
 		var tints := {}  # a bush's autumn, if it has one (its entry's 6th and 7th numbers): each chunk the average of its own
@@ -1683,10 +1694,17 @@ func _build_props() -> void:
 		var plant := small or model.begins_with("TallGrass") or model.begins_with("Heather") or model.begins_with("MossMound") \
 			or model.begins_with("Fern") or model.begins_with("Reed") or model.begins_with("Tussock") \
 			or model.begins_with("DryFern") or model.begins_with("LeafPile")
+		var bush: bool = Models.info[model].get("kind", "") == "bush"
 		for key: Vector2i in groups:
-			var mmi := _add_multimesh(root, model, groups[key], key, CHUNK, PLANT_RANGE if small else 0.0)
-			if Models.info[model].get("kind", "") == "bush":
+			var mmi := _add_multimesh(root, model, groups[key], key, CHUNK, PLANT_RANGE if small else 0.0, bush)
+			if bush:  # each one, for the hero to walk into (bushes)
 				_bushes.append(mmi)
+				var info: Dictionary = Models.info[model]
+				var reach: float = (info["max"][0] - info["min"][0] + info["max"][2] - info["min"][2]) * 0.25 * BUSH_REACH
+				for i in (groups[key] as Array).size():
+					var xf: Transform3D = groups[key][i]
+					var s := xf.basis.get_scale().x
+					bushes.add(xf.origin, reach * s, float(info["height"]) * s, mmi.multimesh, i)
 			var tint: Vector3 = tints[key]
 			if tint.z > 0.0:
 				mmi.set_instance_shader_parameter("autumn", Vector2(tint.x, tint.y) / tint.z)
@@ -1698,10 +1716,12 @@ func _build_props() -> void:
 				_old_sedge.append(mmi)
 
 
-func _add_multimesh(parent: Node3D, model: String, xforms: Array, chunk: Vector2i, size: float, range_end: float) -> MultiMeshInstance3D:
+## custom: the instances carry custom data (INSTANCE_CUSTOM), as a bush's do.
+func _add_multimesh(parent: Node3D, model: String, xforms: Array, chunk: Vector2i, size: float, range_end: float, custom := false) -> MultiMeshInstance3D:
 	var centre := Vector3((chunk.x + 0.5) * size, 0.0, (chunk.y + 0.5) * size)
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_custom_data = custom
 	mm.mesh = Models.mesh(model)
 	mm.instance_count = xforms.size()
 	for i in xforms.size():
@@ -1746,7 +1766,16 @@ func _build_solids() -> void:
 	body.name = "Solids"
 	body.collision_layer = LAYER_SOLID
 	add_child(body)
+	# the bushes are among the layout's solids, so no grass grows under them, but the hero walks into them (bushes)
+	Models.load_info()
+	var bush_feet := {}
+	for model: String in layout["props"]:
+		if Models.info[model].get("kind", "") == "bush":
+			for it: Array in layout["props"][model]:
+				bush_feet[Vector3i(roundi(it[0] * 100.0), roundi(it[1] * 100.0), roundi(it[2] * 100.0))] = true
 	for s: Array in layout["solids"]:
+		if bush_feet.has(Vector3i(roundi(s[0] * 100.0), roundi(s[1] * 100.0), roundi(s[2] * 100.0))):
+			continue
 		var shape := CylinderShape3D.new()
 		shape.radius = s[3]
 		shape.height = s[4] + 1.0

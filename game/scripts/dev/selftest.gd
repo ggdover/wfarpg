@@ -96,6 +96,8 @@ func run(d: Node) -> void:
 		"open %s, then %s" % [opened, demo._scenes.visible])
 	await _sight_checks()
 	await _grass_checks()
+	await _wind_and_bush_checks()
+	await _panel_checks()
 	# the walls hold: walk west for a long time from near the west edge
 	hero.global_position = Vector3(-74.0, demo.world.height_at(-74.0, 0.0) + 0.2, 0.0)
 	hero.reset_physics_interpolation()
@@ -204,6 +206,219 @@ func _grass_checks() -> void:
 	demo._panel.slide("grass_size", size0)
 	_check("F2's strand size: the grass's cards, and the strands in its ground texture as much",
 		sizes[0] == [1.0, 1.0] and sizes[1] == [2.0, 2.0], "at 100%%: %s, at 200%%: %s" % sizes)
+
+
+## The wind: the shaders get it every frame, its clock running; its noise is the shaders' (values worked out apart, in
+## Python, from the shaders' code); over ten minutes at two spots it gusts every few seconds, never 5 s without one,
+## with calm between, the gusts differing, some milder and now and then a strong one; F2's strong gusts makes them all
+## alike at 0, its gusts every spaces them out, its movement sets how much the wind moves things, and Wind stills it.
+## The bushes: the hero walks into one and through it rather than being stopped, a little slower in its middle, as
+## F2's slow the hero by says; the bush shakes as the hero pushes through, and settles once it has gone.
+func _wind_and_bush_checks() -> void:
+	var w: DemoWorld = demo.world
+	var hero: Hero = demo.hero
+	var rig: CameraRig = demo.rig
+	var clock0 := w.wind.clock
+	await _frames(5)
+	var sent := w.wind.sent
+	_check("the wind: the shaders get which way it blows, how much it moves things, and its clock, which runs",
+		Vector2(sent.x, sent.y).is_equal_approx(w.wind.direction) and is_equal_approx(sent.z, w.wind.strength) and sent.w > clock0,
+		"%s, the clock from %.2f" % [sent, clock0])
+	var noise := [Wind.noise(Vector3(1.3, -2.7, 0.4)), Wind.noise(Vector3(-5.5, 3.25, 17.0)), Wind.noise(Vector3(100.1, -42.9, 3.3))]
+	var gusts := [w.wind.gust_at(5.0, -3.0, 10.4), w.wind.gust_at(-40.0, 22.0, 11.0), w.wind.gust_at(60.0, 61.0, 10.0),
+		w.wind.gust_at(5.0, -3.0, 26.6)]  # the last in a strong gust
+	var want := [0.602991, 0.594963, 0.640007, 0.505381, 0.251243, 0.579023, 1.4032]
+	var off := 0.0
+	for k in want.size():
+		off = maxf(off, absf((noise + gusts)[k] - want[k]))
+	_check("the wind's noise is the shaders' value noise, its gusts theirs, a strong one too",
+		off < 1e-4 and w.wind.direction.is_equal_approx(Vector2.from_angle(deg_to_rad(20.0))) and is_equal_approx(w.wind.strong, 0.6) and is_equal_approx(w.wind.every, 3.3),
+		"off by at most %.6f" % off)
+	var spread := _gusts(w.wind, 5.0, -3.0)
+	var there := _gusts(w.wind, -71.0, 4.6)
+	_check("the wind gusts every few seconds, never 5 s without one, with calm between: over ten minutes at two spots",
+		spread["longest"] < 5.0 and there["longest"] < 5.0 and spread["peaks"].size() >= 120 and spread["calm"] > 0.25,
+		"%.1f and %.1f gusts a minute, at most %.1f s and %.1f s without one, calm %d%% of the time" % [spread["peaks"].size() / 10.0,
+		there["peaks"].size() / 10.0, spread["longest"], there["longest"], roundi(spread["calm"] * 100.0)])
+	var peaks: Array = spread["peaks"]
+	var strong := peaks.filter(func(p: float) -> bool: return p >= 1.3).size()
+	var mild := peaks.filter(func(p: float) -> bool: return p < 0.9).size()
+	_check("the gusts differ: some milder, most as tuned, and now and then, one in three at most, a strong one, up to 60% stronger",
+		strong >= 1 and strong * 3 <= peaks.size() and mild >= 1 and peaks.max() > 1.5 and peaks.max() <= 1.6 + 1e-4,
+		"%d of %d gusts strong, %d milder, the strongest %.2f" % [strong, peaks.size(), mild, peaks.max()])
+	demo._panel.slide("wind_strong", 0.0)
+	var alike: Array = _gusts(w.wind, 5.0, -3.0)["peaks"]
+	demo._panel.slide("wind_strong", 0.6)
+	demo._panel.slide("wind_every", 6.0)
+	var spaced: Array = _gusts(w.wind, 5.0, -3.0)["peaks"]
+	demo._panel.slide("wind_every", 3.3)
+	demo._panel.slide("wind_strength", 2.0)
+	await _frames(3)
+	var twice := w.wind.sent.z
+	demo._panel.slide("wind_strength", 1.0)
+	_check("F2's strong gusts at 0 makes every gust alike, none past a gust; gusts every spaces them out; movement is how much the wind moves things",
+		alike.max() <= 1.0 + 1e-4 and is_equal_approx(w.wind.strong, 0.6) and spaced.size() >= 80 and spaced.size() <= 120
+		and is_equal_approx(w.wind.every, 3.3) and twice == 2.0,
+		"the strongest %.2f; every 6 s, %.1f gusts a minute; movement at 200%%: %.2f" % [alike.max(), spaced.size() / 10.0, twice])
+	demo._panel.choose("wind", false)
+	await _frames(3)
+	var still := w.wind.sent.z
+	demo._panel.choose("wind", true)
+	await _frames(3)
+	_check("F2's Wind stills it: the shaders get it at no strength, and as strong again after", still == 0.0 and w.wind.sent.z == w.wind.strength,
+		"off %.2f, on %.2f" % [still, w.wind.sent.z])
+	# the bushes: one with open ground either side, walked straight through
+	var way := _bush_to_walk_through()
+	_check("a bush with open ground either side of it, to walk through", not way.is_empty(), "%d bushes" % w.bushes._bushes.size())
+	if way.is_empty():
+		return
+	var b: Array = w.bushes._bushes[way[0]]
+	var dir: Vector2 = way[1]
+	var middle := Vector2(b[0], b[1])
+	var mm: MultiMesh = b[4]
+	_place_hero(middle - dir * 3.5)
+	rig.yaw = rad_to_deg(atan2(dir.y, -dir.x))  # W walks that way (CameraRig.ground_forward)
+	await _frames(10)
+	var free := []
+	var inside := []
+	var leaned := 0.0
+	var last := hero.global_position
+	Input.action_press("move_forward")
+	for f in 150:
+		await demo.get_tree().physics_frame
+		var now := hero.global_position
+		var at := Vector2(now.x, now.z)
+		var step := at.distance_to(Vector2(last.x, last.z))
+		last = now
+		if f < 3:  # setting off
+			continue
+		if w.bushes.speed_at(now) == 1.0:
+			free.append(step)
+		elif at.distance_to(middle) < 0.3 * b[2]:
+			inside.append(step)
+		var shake := mm.get_instance_custom_data(b[5])
+		leaned = maxf(leaned, Vector2(shake.r, shake.g).length())
+		if (at - middle).dot(dir) > 3.0:
+			break
+	Input.action_release("move_forward")
+	var through: bool = (Vector2(last.x, last.z) - middle).dot(dir) > b[2]
+	var ratio := _mean(inside) / maxf(_mean(free), 1e-6)
+	_check("the hero walks into a bush and on through it, rather than being stopped", through,
+		"%.1f m past its middle" % (Vector2(last.x, last.z) - middle).dot(dir))
+	_check("in a bush the hero walks a little slower: in its middle, as much as F2's slow the hero by says",
+		absf(ratio - (1.0 - w.bushes.drag)) < 0.04 and inside.size() >= 3 and free.size() >= 5,
+		"%d%% of its speed (%d steps in the bush, %d clear of it)" % [roundi(ratio * 100.0), inside.size(), free.size()])
+	_check("the bush shakes as the hero pushes through, its top leaning a few centimetres", leaned > 0.02 and leaned < 0.2,
+		"%.1f cm" % (leaned * 100.0))
+	await _seconds(4.0)
+	var after := mm.get_instance_custom_data(b[5])
+	_check("the bush settles again once the hero has gone", Vector2(after.r, after.g).length() < 0.001 and after.b < 0.01
+		and not w.bushes._moving.has(way[0]) and is_equal_approx(after.a, b[3]), "%s" % after)
+
+
+## A bush near the hero that it can walk straight through, with open ground either side: [the bush, the way]. The way
+## is clear of everything solid (trees, rocks, walls) for 3.5 m either side of its middle, and gentle underfoot.
+func _bush_to_walk_through() -> Array:
+	var w: DemoWorld = demo.world
+	var hero: Hero = demo.hero
+	var at := Vector2(hero.global_position.x, hero.global_position.z)
+	var order := range(w.bushes._bushes.size())
+	order.sort_custom(func(i: int, j: int) -> bool:
+		return at.distance_to(Vector2(w.bushes._bushes[i][0], w.bushes._bushes[i][1])) < at.distance_to(Vector2(w.bushes._bushes[j][0], w.bushes._bushes[j][1])))
+	var mask := hero.collision_mask
+	hero.collision_mask = DemoWorld.LAYER_SOLID  # only what's solid, not the ground
+	var found := []
+	for i: int in order:
+		var middle := Vector2(w.bushes._bushes[i][0], w.bushes._bushes[i][1])
+		for k in 8:
+			var dir := Vector2.from_angle(k * TAU / 8.0)
+			var from := middle - dir * 3.5
+			var gentle := true
+			for s in 14:  # every half metre along the way
+				var p := from + dir * (s * 0.5)
+				gentle = gentle and absf(w.height_at(p.x + dir.x * 0.5, p.y + dir.y * 0.5) - w.height_at(p.x, p.y)) < 0.15
+			var start := Transform3D(Basis(), Vector3(from.x, w.height_at(from.x, from.y) + 0.1, from.y))
+			if gentle and not hero.test_move(start, Vector3(dir.x, 0.0, dir.y) * 7.0):
+				found = [i, dir]
+				break
+		if not found.is_empty():
+			break
+	hero.collision_mask = mask
+	return found
+
+
+## The F2 panel's advanced settings: sorted into categories, closed at first, each opened and closed by its header;
+## every setting with a hint of one to three sentences, which shows as the mouse rests on its row; and the settings
+## that matter only with some choice of another show only then: the cone's with the Cone, the see-through ones with
+## See-through, and none of them with Line.
+func _panel_checks() -> void:
+	var panel: PerfPanel = demo._panel
+	var closed: bool = panel._categories.values().all(func(c: Array) -> bool: return not (c[1] as Control).visible)
+	var head: Button = panel._categories["grass"][0]
+	head.pressed.emit()
+	var opened: bool = (panel._categories["grass"][1] as Control).visible and Game.open_categories["grass"]
+	head.pressed.emit()
+	var shut: bool = not (panel._categories["grass"][1] as Control).visible and not Game.open_categories["grass"]
+	_check("the F2 panel: its advanced settings in %d categories, closed at first, each opened and closed by its header" % panel._categories.size(),
+		closed and opened and shut and panel._categories.size() >= 6, "closed at first: %s; opened: %s; closed again: %s" % [closed, opened, shut])
+	var keys: Array = panel._groups.keys() + panel._sliders.keys() + ["preset", "theme"]
+	var bad := []
+	for key: String in keys:
+		var hint: String = panel._hints.get(key, "")
+		var row: Control = panel._rows.get(key)
+		if hint == "" or not hint.ends_with(".") or hint.split(". ").size() > 3 or row == null or row.tooltip_text.replace("\n", " ") != hint:
+			bad.append(key)
+	_check("the F2 panel: every setting has a hint of one to three sentences, shown on its row", bad.is_empty(),
+		"%d settings, without a fit hint: %s" % [keys.size(), ", ".join(bad) if bad else "none"])
+	var same := []  # settings named as their category is
+	for cat: Array in panel._categories.values():
+		for row: Node in (cat[1] as Node).get_children():
+			if row.get_child_count() > 0 and row.get_child(0) is Label \
+					and (row.get_child(0) as Label).text.strip_edges().to_lower() == (cat[2] as String).to_lower():
+				same.append(cat[2])
+	var preset: Control = panel._rows["preset"]
+	var first: bool = preset.get_parent() == panel._categories["view"][1] and preset.get_index() == 0
+	_check("the F2 panel: the trees-in-the-way preset is the first setting of its category, and no setting is named as its category is",
+		first and panel._preset_buttons.size() == 3 and same.is_empty(),
+		"the preset %s; named as their category: %s" % ["first in Trees in the way" if first else "elsewhere", ", ".join(same) if same else "none"])
+	var sight0: String = panel._values["sight"]
+	var shown := func(key: String) -> bool: return (panel._rows[key] as Control).visible
+	var seen := {}
+	for way: String in ["cone", "veil", "line"]:
+		panel.choose("sight", way)
+		seen[way] = [shown.call("cone_soft"), shown.call("veil_cover"), shown.call("leave")]
+	panel.choose("sight", sight0)
+	panel.use_preset("clear")
+	_check("the F2 panel: settings that matter only with some choice show only then: the cone's with the Cone, see-through's with See-through, leave with Line",
+		seen["cone"] == [true, false, false] and seen["veil"] == [false, true, false] and seen["line"] == [false, false, true],
+		"cone soft share, see-through at, leave shown with: %s" % seen)
+
+
+## The wind at (x, z) over ten minutes of its clock, every tenth of a second: the share of the time it's calm, each
+## gust's peak (a gust: 0.5 or more), and the longest it went without one, in seconds.
+static func _gusts(wind: Wind, x: float, z: float) -> Dictionary:
+	var calm := 0
+	var peaks := []
+	var peak := 0.0
+	var without := 0.0
+	var longest := 0.0
+	for i in 6000:
+		var g := wind.gust_at(x, z, i * 0.1)
+		calm += 1 if g < 0.05 else 0
+		if g >= 0.5:
+			peak = maxf(peak, g)
+			without = 0.0
+		else:
+			if peak > 0.0:
+				peaks.append(peak)
+				peak = 0.0
+			without += 0.1
+			longest = maxf(longest, without)
+	return {"calm": calm / 6000.0, "peaks": peaks, "longest": longest}
+
+
+static func _mean(values: Array) -> float:
+	return values.reduce(func(sum: float, v: float) -> float: return sum + v, 0.0) / maxf(values.size(), 1.0)
 
 
 static func _thinned_in_place(model: String) -> String:

@@ -4,7 +4,8 @@ extends CharacterBody3D
 ##
 ## As on the look & feel board: WASD walks it, relative to the camera (W away from it), and it faces the way it walks.
 ## Holding the left mouse button stands in for attacking: the hero turns to face the cursor and walks slower, in any
-## direction, so the facing and the speeds can be tried out before there are attacks.
+## direction, so the facing and the speeds can be tried out before there are attacks. In a bush it walks a little
+## slower (scripts/bushes.gd).
 
 @export var speed := 5.5
 @export var attack_speed := 0.55  ## share of the speed while attacking
@@ -12,6 +13,7 @@ extends CharacterBody3D
 @export var gravity := 24.0
 
 var camera_rig: CameraRig
+var world: DemoWorld
 var attacking := false
 var facing := 0.0  ## radians about Y; 0 faces -Z (north)
 
@@ -58,7 +60,7 @@ func _physics_process(delta: float) -> void:
 		dir = dir.normalized()
 	attacking = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not camera_rig.orbiting \
 		and (camera_rig.selftest or get_viewport().gui_get_hovered_control() == null)  # not while clicking the HUD
-	var spd := speed * (attack_speed if attacking else 1.0)
+	var spd := speed * (attack_speed if attacking else 1.0) * (world.bushes.speed_at(global_position) if world else 1.0)
 	velocity.x = dir.x * spd
 	velocity.z = dir.z * spd
 	if is_on_floor():

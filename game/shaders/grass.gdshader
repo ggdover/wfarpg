@@ -10,7 +10,8 @@
 // against its feet's, card_foot); and up from its foot the card turns from the ground itself, texture and all (the
 // grass's ground, strokes_tex, which the ground shader lays over the green ground too) into its strands, so where it
 // meets the ground there's no line. It's lit as the ground is. It folds away from the hero's trail (trail), over and
-// down, a little lighter, and springs back up in recover seconds. Far off it sinks into the ground, by reach.
+// down, a little lighter, and springs back up in recover seconds. In the wind it leans over as the gusts pass, waving
+// (wind_gust in common.gdshaderinc). Far off it sinks into the ground, by reach.
 shader_type spatial;
 render_mode cull_disabled, world_vertex_coords, diffuse_lambert, specular_schlick_ggx;
 
@@ -71,6 +72,7 @@ uniform float fold_inner = 0.5;
 uniform float fold_angle = 1.4;  // radians, at most
 uniform float recover = 1.6;  // seconds after the hero has gone until it stands up again
 uniform float fold_sheen = 0.3;  // how much lighter folded grass looks, its blades lying flat: a trodden lane
+uniform float wind_lean = 0.35;  // radians it leans over in a full gust, the wind as tuned
 
 global uniform vec2 mood_grade;
 
@@ -183,8 +185,13 @@ void vertex() {
 			}
 		}
 		v_fold = fold;
-		float bend = fold * fold_angle;
-		xz += away * h * sin(bend);
+		// leaned over by the wind as the gusts pass, waving about that, each card in its own time; where the hero's
+		// trail folds it, the fold has it instead
+		float wave = 1.0 + 0.35 * sin(wind.w * 3.1 + rnd(cell, 11u) * TAU + UV2.x * 40.0);
+		vec2 lean = wind.xy * (wind_lean * wind_force(foot) * wave * (1.0 - fold)) + away * (fold * fold_angle);
+		float bend = min(length(lean), 1.45);  // never over on its side, whatever the wind
+		vec2 way = bend > 1e-5 ? normalize(lean) : vec2(0.0);
+		xz += way * h * sin(bend);
 		h *= cos(bend);
 		// on the ground: at the foot's height, along its slope
 		VERTEX = vec3(foot.x + xz.x, g0 + dot(slope, xz) + h, foot.y + xz.y);

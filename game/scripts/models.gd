@@ -82,6 +82,11 @@ static func _material_for(model: String, surface: String, imported: Material) ->
 			return m)
 	if name.begins_with("Bark "):  # a portfolio tree's bark, textured: its trunk, its stump or its bare trunk
 		return _bark_material(name.substr(5), "trunk" if model.ends_with("_trunk") else ("stump" if model.ends_with("_stump") else "tree"))
+	if info[model].get("kind", "") == "bush":  # a bush's stems, which sway and shake with its leaves
+		return _cached("bush_stems", func() -> Material:
+			var m := ShaderMaterial.new()
+			m.shader = load("res://shaders/bush_stems.gdshader")
+			return m)
 	if model.ends_with("_trunk"):  # a tree's bare trunk, which the x-ray leaves standing
 		return _cached("lowpoly_trunk", func() -> Material:
 			var m := ShaderMaterial.new()
