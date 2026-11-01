@@ -16,19 +16,11 @@ import tempfile
 import urllib.request
 import zipfile
 
+import godot
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "dist", "wfarpg.exe")
 KEEP = ("templates/version.txt", "templates/windows_*_x86_64*.exe")  # the Windows templates, from the .tpz
-
-
-def godot():
-    """Godot 4.7: $GODOT, else godot on PATH (on Windows, its console build or a godot.cmd that runs it), else the one
-    in ~/.local/bin, which a terminal opened before that went on PATH doesn't see."""
-    exe = (os.environ.get("GODOT") or shutil.which("godot")
-           or shutil.which("godot", path=os.path.join(os.path.expanduser("~"), ".local", "bin")))
-    if not exe:
-        sys.exit("Godot 4.7 not found: put godot on PATH (and reopen the terminal), or set GODOT to it (README.md)")
-    return exe
 
 
 def templates_dir(version):
@@ -70,7 +62,7 @@ def fetch_templates(version, dest):
 
 
 if __name__ == "__main__":
-    exe = godot()
+    exe = godot.exe()
     out = subprocess.run([exe, "--version"], capture_output=True, encoding="utf-8", check=True).stdout
     version = ".".join(out.strip().split(".")[:4])  # 4.7.2.stable.official.ed1daf0bf -> 4.7.2.stable
     templates = templates_dir(version)

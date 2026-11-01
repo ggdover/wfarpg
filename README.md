@@ -44,11 +44,15 @@ exec "/c/<Godot's folder>/Godot_v4.7.2-stable_win64_console.exe" "$@"
 
 ```sh
 godot --path game                   # the demo; the first run imports its models and textures
+python3 game/tools/play.py          # the same, on the monitor the Claude app is on
 python3 game/tools/checks.py        # the checks: the import, the selftest and every scene's scenetest
 ```
 
 `game/README.md` has the demo's controls and options. The checks open the demo's window for each of them, a few
-minutes in all, and end with how many passed: run them after a change, on whichever machine is at hand.
+minutes in all, and end with how many passed: run them after a change, on whichever machine is at hand. Like
+`play.py`, they open it on the monitor the Claude app is on, to keep it off the one you're working on (found on
+Windows; elsewhere, or with no Claude window, on the primary screen), and say first which screen that is;
+`--screen=primary` puts either on the primary.
 
 ## Rebuilding and exporting
 

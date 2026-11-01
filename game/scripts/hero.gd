@@ -57,7 +57,7 @@ func _physics_process(delta: float) -> void:
 	if dir.length() > 1.0:
 		dir = dir.normalized()
 	attacking = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not camera_rig.orbiting \
-		and get_viewport().gui_get_hovered_control() == null  # not while clicking the HUD
+		and (camera_rig.selftest or get_viewport().gui_get_hovered_control() == null)  # not while clicking the HUD
 	var spd := speed * (attack_speed if attacking else 1.0)
 	velocity.x = dir.x * spd
 	velocity.z = dir.z * spd

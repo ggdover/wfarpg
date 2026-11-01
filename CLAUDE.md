@@ -93,7 +93,7 @@ The user develops and test-runs the project on both Linux (Ubuntu) and Windows, 
 same on both; `README.md` has the setup for each. Keep it so:
 
 - The commands are the same on both: `godot`, `blender` and `python3` on PATH. Tools are Python scripts, not shell
-  scripts (`game/tools/export_windows.py`, `game/tools/checks.py`).
+  scripts (`game/tools/export_windows.py`, `checks.py`, `play.py`; `godot.py` finds Godot for them).
 - Python: build paths with `os.path` or `pathlib`, never by joining with `/` or `\` by hand, and never at fixed places
   like `/tmp`, `~/.local` or `C:\`. Open text files with `encoding="utf-8"`, and write them with `newline="\n"` too,
   so a file comes out the same on both. Find programs on PATH (`shutil.which`) or through an environment variable
@@ -166,9 +166,9 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   ground textures and layouts are generated in Blender by `game/tools/build_demo.py` from the mockups' kit, the tree
   portfolio and the areas in `game/tools/areas/` (one module each); rebuild them after changing any of those. See
   `game/README.md`. `game/tools/checks.py` runs the demo's checks (the import, the selftest, each scene's
-  scenetest). `game/tools/export_windows.py` exports the whole demo for Windows as one file, `dist/wfarpg.exe` (the
-  user asked for a single binary to carry over to a Windows computer), on Linux or Windows; rerun it after changing
-  the demo.
+  scenetest), and `game/tools/play.py` starts the demo; either opens on the Claude app's monitor by default.
+  `game/tools/export_windows.py` exports the whole demo for Windows as one file, `dist/wfarpg.exe` (the user asked
+  for a single binary to carry over to a Windows computer), on Linux or Windows; rerun it after changing the demo.
 - `mockups/`: concept tools, not game code. Python scripts generate every mockup screenshot and blueprint by building
   scenes in Blender in background mode. `mockups/act1_world.py` holds the Act 1 layout as data. See `mockups/README.md`
   for how to rerun them. Generated output goes to `mockups/build/` (ignored by git); curated final images live in

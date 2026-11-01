@@ -12,6 +12,13 @@ func run(d: Node) -> void:
 	marked_at_start = (demo._panel as PerfPanel).preset_in_use()
 	var hero: Hero = demo.hero
 	var rig: CameraRig = demo.rig
+	# the controls are driven with mouse events of the test's own, so the real mouse neither spoils a check nor gets
+	# taken: the window may be on a screen someone is working at (game/tools/checks.py opens it on the Claude app's
+	# monitor). Each event goes on its own: accumulated, the test's drag would be merged with the real mouse's
+	# movements in the same frame
+	rig.selftest = true
+	rig.selftest_cursor = _cursor()
+	Input.use_accumulated_input = false
 	await _frames(30)
 	# W walks away from the camera
 	var start := hero.global_position
@@ -37,6 +44,9 @@ func run(d: Node) -> void:
 	var pitch0 := rig.pitch
 	_mouse_button(MOUSE_BUTTON_RIGHT, true)
 	var motion := InputEventMouseMotion.new()
+	motion.device = CameraRig.SELFTEST_DEVICE
+	motion.position = _cursor()
+	motion.global_position = motion.position
 	motion.relative = Vector2(80, -40)
 	Input.parse_input_event(motion)
 	await _frames(3)
@@ -566,11 +576,17 @@ func _check(what: String, ok: bool, detail: String) -> void:
 
 func _mouse_button(button: MouseButton, pressed: bool) -> void:
 	var ev := InputEventMouseButton.new()
+	ev.device = CameraRig.SELFTEST_DEVICE
 	ev.button_index = button
 	ev.pressed = pressed
-	ev.position = demo.get_viewport().get_visible_rect().size * Vector2(0.7, 0.3)
+	ev.position = _cursor()
 	ev.global_position = ev.position
 	Input.parse_input_event(ev)
+
+
+## Where the test's own mouse cursor is, in the viewport.
+func _cursor() -> Vector2:
+	return demo.get_viewport().get_visible_rect().size * Vector2(0.7, 0.3)
 
 
 func _key(key: Key) -> void:

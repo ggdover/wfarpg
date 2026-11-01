@@ -19,6 +19,8 @@ extends Node3D
 @export var sensitivity := 0.25  ## degrees per pixel of mouse movement
 ## how far short of the hero (along the ground) the fade of trees near a high camera stops, in metres
 const HERO_GAP := 6.0
+## the device of the selftest's own mouse events (scripts/dev/selftest.gd)
+const SELFTEST_DEVICE := 77
 
 var hero: Node3D
 var world: DemoWorld
@@ -26,6 +28,11 @@ var world: DemoWorld
 var follow := true
 var camera: Camera3D
 var orbiting := false
+## true while the selftest drives the controls with mouse events of its own: the real mouse is ignored, orbiting
+## leaves the real cursor alone, and the hero faces selftest_cursor (in the viewport). Its window may be on a screen
+## someone is working at (game/tools/checks.py opens it on the Claude app's monitor).
+var selftest := false
+var selftest_cursor := Vector2.ZERO
 var _cursor := Vector2.ZERO
 var _pivot := Vector3.ZERO
 
@@ -57,11 +64,15 @@ func _hero_at() -> Vector3:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if selftest and event is InputEventMouse and event.device != SELFTEST_DEVICE:
+		return  # the real mouse
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_RIGHT:
 			orbiting = mb.pressed
-			if mb.pressed:
+			if selftest:
+				pass  # the real cursor stays where it is
+			elif mb.pressed:
 				_cursor = get_viewport().get_mouse_position()
 				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 			else:
@@ -114,7 +125,7 @@ func ground_forward() -> Vector3:
 
 ## Where the mouse cursor points on the ground.
 func cursor_on_ground() -> Vector3:
-	var m := get_viewport().get_mouse_position()
+	var m := selftest_cursor if selftest else get_viewport().get_mouse_position()
 	var from := camera.project_ray_origin(m)
 	var to := from + camera.project_ray_normal(m) * 400.0
 	var q := PhysicsRayQueryParameters3D.create(from, to, DemoWorld.LAYER_GROUND)
