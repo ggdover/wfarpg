@@ -19,3 +19,7 @@ Thumbs.db
 
 # the Windows export (game/tools/export_windows.py)
 dist/
+
+# the hero and run portfolios' builds (assets/characters/README.md): the Tripo3D models extracted from ref_model/,
+# the game's .glb files, the run clips and the gallery
+assets/characters/build/

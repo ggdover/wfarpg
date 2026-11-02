@@ -85,6 +85,24 @@ General knowledge, public documentation, and third-party libraries and engines a
   leaves must not move as it fades: it keeps half of its own cards where they are and the rest dissolve. The user's
   earlier ideas and complaints are in `ref_imgs/tree_disappear/`; the cone (`camera_view.png`) and the earlier ways of
   cutting trees are in F2 to compare.
+- Characters: every character in the game is to be a detailed model, from Tripo3D for now, made low-poly by decimation
+  or retopology (the user's plan, 1 November; `assets/characters/lowpoly.py`). The player character is an ARPG's
+  starting hero, a man without much gear or armour; the user's Tripo3D models of him (5k and 20k triangles, rigged) are
+  in `ref_model/`. The hero portfolio has them as made, decimated, painted in fewer colours, retopologized, and our own
+  built by script after them, all on the 20k model's skeleton. The user kept five (Faceted 3000, 1500 and 800, Painted
+  1500, Retopology) and asked for rigging and running animations for them, about fifty combinations to narrow down
+  (2 November): the run portfolio, runs made by script (`assets/characters/runs.py`: planted feet, IK legs, at the
+  hero's 5.5 m/s) on seven rigs (`rigs.py`), each on all five models. Of its first ten runs the user found they all
+  seemed to run on their toes, and asked that every foot plant heel first, the forefoot coming down only a moment
+  after; for forty more runs, fifty to narrow down; and for a simpler gallery, each run shown once from the side and
+  once in the play demo (the same day). So every run lands heel first and stays flat till after mid-stance; the fifty
+  are in six families (`FAMILIES`; Natural keeps the rhythm measured in real runners at that speed, the others are
+  styled), and the gallery shows each on Faceted 1500 with bone heat's rig, where the user marks them
+  (`assets/characters/README.md`). The user's marks there decide what comes next. A run editor (a Runs tab in
+  `run_portfolio.blend`'s sidebar) tunes a run; the user's tuning goes in `run_settings.json`, which `runs.py` reads
+  over its own numbers: build from it. After changing a run, run
+  `blender -b --factory-startup -P assets/characters/check_runs.py` (planted feet, heel first and flat a good while,
+  reach, jerks, no arm through the body, no two runs alike, every run within the editor's sliders).
 - HUD: rustic Norse ARPG style (hammered iron, brass, runes, knotwork) with a red life orb, a blue mana orb, painted
   ability icons and fantasy lettering (Cinzel in the mockups). Keep it sharp and detailed, not smooth or cartoonish:
   hard edges and cut corners instead of rounded ones, fine texture instead of soft gradients, slim orb rims.
@@ -152,7 +170,12 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   game's four grass styles and its bog grass; wavy hair-grass, common bent, wood small-reed, purple moor-grass, sedge, cottongrass) in
   `plant_portfolio.blend`, with a plant editor (a Plants tab) and the user's settings in `plant_settings.json`. Only
   the grasses for the ground (and the bog's) are in the game so far (built from those settings by `game/tools/build_demo.py`'s plants
-  stage).
+  stage). `assets/characters/` is the hero portfolio: the player character as the user's Tripo3D models and seven
+  low-poly versions, in `hero_portfolio.blend`, built by `make_heroes.py` (which extracts the models from `ref_model/`
+  into `build/`, not kept in git), with renders in `previews/`; and the run portfolio built from it by `make_runs.py`
+  (the runs in `runs.py`, the rigs in `rigs.py`, a run editor in `run_editor.py`): `run_portfolio.blend`, the game's
+  .glb files, a side clip of each run and a gallery in `build/runs/`, with each run's recording in the play demo
+  (`record_runs.py`). See its README.
 - `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, grass over
   the green ground in four styles (G, or F2's Grass; As before shows the mockups' tufts instead) and the bog's own, a
   grey-box hero, the camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
