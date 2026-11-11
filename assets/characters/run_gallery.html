@@ -266,14 +266,16 @@ function seg(id, key, then) {
 }
 
 // ---- the clips: fetched whole and played from memory (a page's files may not answer the byte ranges a looping video
-// asks for), only while on screen, and let go again once many are held ----
+// asks for), only while on screen, and let go again once many are held; asking each time whether a clip has changed,
+// so one recorded again shows at once, not the browser's old copy ----
 const blobs = new Map(), held = new Set();
 let fromMemory = true;  // until a clip won't play from memory: then straight from the files
 const rate = () => +view.rate || 1;
 function load(v) {
   const url = v.dataset.src;
   if (!fromMemory) { if (v.getAttribute("src") !== url) v.src = url; return; }
-  if (!blobs.has(url)) blobs.set(url, fetch(url).then(r => r.ok ? r.blob() : Promise.reject(r.status))
+  if (!blobs.has(url)) blobs.set(url, fetch(url, { cache: "no-cache" })
+    .then(r => r.ok ? r.blob() : Promise.reject(r.status))
     .then(b => URL.createObjectURL(b)).catch(() => url));
   blobs.get(url).then(src => {
     if (!v.dataset.on || v.getAttribute("src") === src) return;

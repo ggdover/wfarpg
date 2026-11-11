@@ -5,9 +5,10 @@ zoomed in to ZOOM m, as the player can with the mouse wheel (or, with --views=ne
 shows beside the run's side clip. The runs are the build's (build/runs/runs.json, from make_runs.py), on Faceted 1500
 with bone heat's rig unless asked otherwise.
 
-    python3 record_runs.py [--model=2] [--rig=heat] [--runs=athletic,heroic] [--views=far,near]
+    python3 record_runs.py [--model=2] [--rig=heat] [--runs=athletic,heroic] [--views=far,near] [--screen=1]
 
-The same on Linux and Windows: it runs game/tools/play.py and blender from PATH.
+The same on Linux and Windows: it runs game/tools/play.py and blender from PATH. --screen goes to play.py: the screen
+the demo's window opens on (the Claude app's by default).
 """
 import json
 import os
@@ -38,8 +39,9 @@ def main():
             name = run + ("_near" if view == "near" else "")
             avi = os.path.join(OUT, name + ".avi")
             mp4 = os.path.join(OUT, name + ".mp4")
-            subprocess.run([sys.executable, os.path.join(ROOT, "game", "tools", "play.py"), "--write-movie", avi,
-                            "--fixed-fps", "30", "--script", "res://scripts/dev/runs.gd", "--", "--scene=open_field",
+            subprocess.run([sys.executable, os.path.join(ROOT, "game", "tools", "play.py"), "--write-movie", avi]
+                           + ([f"--screen={opts['screen']}"] if "screen" in opts else [])
+                           + ["--fixed-fps", "30", "--script", "res://scripts/dev/runs.gd", "--", "--scene=open_field",
                             f"--model={model}", f"--rig={rig}", f"--run={run}", "--tour", "--nohud"]
                            + (["--close"] if view == "near" else [f"--zoom={ZOOM:g}"]), check=True)
             subprocess.run([blender, "-b", "--factory-startup", "-P", os.path.join(HERE, "movie_to_mp4.py"), "--",

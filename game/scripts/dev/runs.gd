@@ -2,7 +2,8 @@ extends SceneTree
 ## Dev: the run portfolio in the game (assets/characters: make_runs.py exports each model and rig, with its fifty
 ## runs and a stand, to assets/characters/build/runs/<model>_<rig>.glb, and the runs' order and names to runs.json
 ## there). The hero is one of the figures, read straight from its .glb: it runs as it moves, the run sped up or slowed
-## to the hero's speed, leans into turns, and stands when it stops.
+## to the hero's speed, and stands when it stops. It stays upright through turns: the user didn't want it tilting into
+## them (3 November).
 ##   1-5  model    R / Shift+R  rig    Q / E  run    L  all five models in a slanting line    Z  slow motion
 ##   (and the demo's own keys)
 ## python3 game/tools/play.py --script res://scripts/dev/runs.gd -- [--scene=open_forest] [--model=2] [--rig=heat]
@@ -21,7 +22,6 @@ const RIGS := [["tripo", "Tripo weights"], ["smooth", "Smoothed"], ["heat", "Bon
 		["helpers", "Helper joints"], ["cloth", "Cloth bones"], ["corrective", "Corrective shapes"]]
 const SPEED := 5.5  ## m/s: the speed the runs are made for (assets/characters/runs.py)
 const ABREAST := Vector3(1.3, 0.0, 1.1)  ## with all five, each this far to the side of and behind the one before
-const LEAN := deg_to_rad(14.0)  ## the most a figure leans into a turn
 ## --tour: [the directions held, seconds], seen from the side, from behind and turning (after standing a moment)
 const TOUR := [[["right"], 1.6], [["right", "forward"], 0.7], [["forward"], 0.9], [["left"], 1.4], [["back"], 0.8]]
 
@@ -38,8 +38,6 @@ var stride := 0.0  ## how far through its cycle the run is, so another run or fi
 var label: Label
 var was := {}
 var material: Material
-var last_facing := 0.0
-var lean := 0.0  ## radians into the turn, smoothed
 
 
 func _initialize() -> void:
@@ -278,7 +276,7 @@ func _pressed(key: Key) -> bool:
 	return fresh
 
 
-func _process(delta: float) -> bool:
+func _process(_delta: float) -> bool:
 	if hero == null:
 		return false
 	var changed := false
@@ -305,11 +303,6 @@ func _process(delta: float) -> bool:
 	if changed:
 		_show()
 	var v := Vector2(hero.velocity.x, hero.velocity.z).length()
-	# leaning into turns as a runner does, as far as the turn's pull asks (tan lean = speed x turning rate / g)
-	var turning := wrapf(hero.facing - last_facing, -PI, PI) / maxf(delta, 0.001)
-	last_facing = hero.facing
-	var want_lean := clampf(atan(v * turning / 9.81), -LEAN, LEAN)
-	lean = lerpf(lean, want_lean, 1.0 - exp(-10.0 * delta))
 	for i in players.size():
 		var ap := players[i]
 		var want: String = runs[run][0] if v > 0.4 else "stand"
@@ -319,7 +312,6 @@ func _process(delta: float) -> bool:
 				ap.seek(stride * ap.current_animation_length, true)
 		ap.speed_scale = v / SPEED if want != "stand" else 1.0
 		var f := figures[i]
-		f.rotation.z = -lean
 		if all and demo.world:  # the ones beside the hero on the ground under them
 			var p := f.global_position
 			f.global_position.y = demo.world.height_at(p.x, p.z)

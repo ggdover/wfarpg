@@ -365,7 +365,8 @@ blender -b --factory-startup -P make_runs.py -- --gallery       # the gallery ag
 ```
 
 (`record_runs.py` runs the demo with Godot's `--write-movie` and `runs.gd --tour`, and `movie_to_mp4.py` turns each
-recording into an .mp4 in Blender; `--runs=heroic,lope` records only those, `--views=near` from nearer and lower.)
+recording into an .mp4 in Blender; `--runs=heroic,lope` records only those, `--views=near` from nearer and lower,
+`--screen=1` opens the demo's window on that screen.)
 
 `build/runs/gallery.html` (made from `run_gallery.html`) shows the runs family by family, numbered, each with what it's
 like and how it measures beside its side clip and its recording in the play demo, to mark it Want, Maybe or Avoid and
@@ -383,11 +384,12 @@ python3 game/tools/play.py --script res://scripts/dev/runs.gd -- --run=heroic
 ```
 
 The hero is the figure, read from its .glb as the game runs: it runs as it moves, the run sped up or slowed to the
-hero's speed, leans into turns, and stands when it stops. Q and E step through the fifty runs (going on from the same
-moment of the stride), 1-5 picks the model, R the rig (Shift+R back; it starts on bone heat, as the gallery does), L
-all five models in a slanting line beside the hero, Z slow motion, the whole game at a half or a quarter of its speed
-(`game/README.md` has its options for screenshots; `--zoom=10` sets the game's camera's distance; `--headless ...
--- --check` reads every .glb and checks its skeleton, skin and animations, and the corrective rig's shapes).
+hero's speed, and stands when it stops. It stays upright through turns: it used to lean into them, up to 14°, which the
+user didn't like (3 November). Q and E step through the fifty runs (going on from the same moment of the stride), 1-5
+picks the model, R the rig (Shift+R back; it starts on bone heat, as the gallery does), L all five models in a slanting
+line beside the hero, Z slow motion, the whole game at a half or a quarter of its speed (`game/README.md` has its
+options for screenshots; `--zoom=10` sets the game's camera's distance; `--headless ... -- --check` reads every .glb and
+checks its skeleton, skin and animations, and the corrective rig's shapes).
 
 ## Left for later
 

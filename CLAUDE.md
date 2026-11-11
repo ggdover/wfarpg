@@ -98,7 +98,8 @@ General knowledge, public documentation, and third-party libraries and engines a
   once in the play demo (the same day). So every run lands heel first and stays flat till after mid-stance; the fifty
   are in six families (`FAMILIES`; Natural keeps the rhythm measured in real runners at that speed, the others are
   styled), and the gallery shows each on Faceted 1500 with bone heat's rig, where the user marks them
-  (`assets/characters/README.md`). The user's marks there decide what comes next. A run editor (a Runs tab in
+  (`assets/characters/README.md`). The user's marks there decide what comes next. The hero stays upright as it turns:
+  the user didn't like it tilting into turns (3 November). A run editor (a Runs tab in
   `run_portfolio.blend`'s sidebar) tunes a run; the user's tuning goes in `run_settings.json`, which `runs.py` reads
   over its own numbers: build from it. After changing a run, run
   `blender -b --factory-startup -P assets/characters/check_runs.py` (planted feet, heel first and flat a good while,
