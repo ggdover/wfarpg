@@ -97,8 +97,11 @@ General knowledge, public documentation, and third-party libraries and engines a
   after; for forty more runs, fifty to narrow down; and for a simpler gallery, each run shown once from the side and
   once in the play demo (the same day). So every run lands heel first and stays flat till after mid-stance; the fifty
   are in six families (`FAMILIES`; Natural keeps the rhythm measured in real runners at that speed, the others are
-  styled), and the gallery shows each on Faceted 1500 with bone heat's rig, where the user marks them
-  (`assets/characters/README.md`). The user's marks there decide what comes next. The hero stays upright as it turns:
+  styled). Having marked runs 1-15 Want, Maybe or Avoid with notes, the user asked for a page showing one run at a time
+  to rate from 1 to 10 with an optional comment, from their phone too, stopping and picking up later, the ratings kept
+  for Claude to make each next attempt from until a run is right (11 November): the rating page, every run on Faceted
+  1500 with bone heat's rig, its ratings in its database round by round (`assets/characters/README.md`, The rating
+  page). The user's ratings there decide what comes next. The hero stays upright as it turns:
   the user didn't like it tilting into turns (3 November). A run editor (a Runs tab in
   `run_portfolio.blend`'s sidebar) tunes a run; the user's tuning goes in `run_settings.json`, which `runs.py` reads
   over its own numbers: build from it. After changing a run, run
@@ -175,7 +178,7 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   low-poly versions, in `hero_portfolio.blend`, built by `make_heroes.py` (which extracts the models from `ref_model/`
   into `build/`, not kept in git), with renders in `previews/`; and the run portfolio built from it by `make_runs.py`
   (the runs in `runs.py`, the rigs in `rigs.py`, a run editor in `run_editor.py`): `run_portfolio.blend`, the game's
-  .glb files, a side clip of each run and a gallery in `build/runs/`, with each run's recording in the play demo
+  .glb files, a side clip of each run and the rating page in `build/runs/`, with each run's recording in the play demo
   (`record_runs.py`). See its README.
 - `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, grass over
   the green ground in four styles (G, or F2's Grass; As before shows the mockups' tufts instead) and the bog's own, a

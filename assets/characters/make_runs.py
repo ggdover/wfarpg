@@ -1,15 +1,15 @@
 """Run portfolio: the five low-poly heroes the user kept (Faceted 3000, 1500 and 800, Painted 1500, Retopology), each
 rigged seven ways and running fifty ways (2 November). Builds run_portfolio.blend from hero_portfolio.blend's figures,
 exports each figure on each rig with its runs for the game (build/runs/*.glb), and films each run from the side on one
-of them (DEMO) for the portfolio's page, build/runs/gallery.html, which shows it beside a recording of the run in the
-play demo (record_runs.py).
+of them (DEMO) for the portfolio's page, build/runs/ratings.html, where the user rates the runs one at a time, each
+from the side and in a recording of it in the play demo (record_runs.py).
 
     blender -b --factory-startup -P make_runs.py                  all of it
     blender -b --factory-startup -P make_runs.py -- --no-render   all but the clips and sheets
     blender -b --factory-startup -P make_runs.py -- --export      only the game's files
-    blender -b --factory-startup -P make_runs.py -- --side        only the side clips (and the gallery)
+    blender -b --factory-startup -P make_runs.py -- --side        only the side clips (and the page)
     blender -b --factory-startup -P make_runs.py -- --sheets      only the contact sheets
-    blender -b --factory-startup -P make_runs.py -- --gallery     only the gallery page (after record_runs.py, say)
+    blender -b --factory-startup -P make_runs.py -- --page        only the rating page (after record_runs.py, say)
     ... -- --side --only=natural,heroic                           only those runs' side clips
     ... -- --export --models=Faceted1500 --rigs=heat              only those figures: quicker (the .blend isn't saved)
 """
@@ -37,6 +37,7 @@ ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 MODELS = [("Faceted3000", "Faceted 3000"), ("Faceted1500", "Faceted 1500"), ("Faceted800", "Faceted 800"),
           ("Painted1500", "Painted 1500"), ("Retopo", "Retopology")]
 DEMO = ("Faceted1500", "heat")  # the figure and rig the portfolio's page shows every run on
+ROUND = 1  # the round of runs the page asks the user to rate, which keeps each round's ratings apart: one more each time
 NUMBER = {k: i + 1 for i, k in enumerate(runs.STYLES)}  # each run's number on the page
 SPACING = 1.25  # m between the figures in a row
 ROW = 3.0  # m between the rows, one a rig
@@ -566,32 +567,36 @@ def render_sheets(scene, rows, rests, stage, model=DEMO[0], vkey=DEMO[1], phases
     scene.camera = stage["side"]
 
 
-def write_gallery(actions, kind=kind_of(DEMO[1])):
-    """build/runs/gallery.html: run_gallery.html with the runs filled in, in their families, each with its side clip
-    (side/<run>.mp4) and its recording in the play demo (game/<run>.mp4), where there are."""
+def write_page(actions, kind=kind_of(DEMO[1])):
+    """build/runs/ratings.html: run_ratings.html with this round's runs filled in, in their families, each with its
+    side clip (side/<run>.mp4) and its recording in the play demo (game/<run>.mp4), where there are. The user rates
+    them there, one at a time, and the page keeps the ratings in its database (README.md, The rating page)."""
     def bob(run):
         zs = [run.hip_height(i / 200) for i in range(200)]
         return round((max(zs) - min(zs)) * 100)
 
+    def clip(folder, k):
+        return f"{folder}/{k}.mp4" if os.path.exists(os.path.join(BUILD, folder, k + ".mp4")) else ""
+
     data = {
         "speed": runs.SPEED,
+        "round": ROUND,
         "model": dict(MODELS)[DEMO[0]],
         "rig": next(label for k, label, _ in rigs.VARIANTS if k == DEMO[1]),
         "families": [dict(title=t, text=x, runs=keys) for t, x, keys in runs.FAMILIES],
         "runs": [dict(key=k, n=NUMBER[k], label=s["label"], text=s["text"], spm=round(7200 / run.frames),
                       step=round(runs.SPEED * run.T / 2, 2), contact=round(run.D * run.T * 1000),
-                      flight=round((0.5 - run.D) * run.T * 1000), bob=bob(run),
-                      side=os.path.exists(os.path.join(BUILD, "side", k + ".mp4")),
-                      game=os.path.exists(os.path.join(BUILD, "game", k + ".mp4")))
+                      flight=round((0.5 - run.D) * run.T * 1000), bob=bob(run), side=clip("side", k),
+                      game=clip("game", k))
                  for k, s in runs.STYLES.items() for run in [actions[(k, kind)][1]]],
     }
-    with open(os.path.join(HERE, "run_gallery.html"), encoding="utf-8") as f:
+    with open(os.path.join(HERE, "run_ratings.html"), encoding="utf-8") as f:
         page = f.read().replace("/*DATA*/", json.dumps(data, ensure_ascii=False))
-    path = os.path.join(BUILD, "gallery.html")
+    path = os.path.join(BUILD, "ratings.html")
     os.makedirs(BUILD, exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(page)
-    print("gallery", path)
+    print("page", path)
 
 
 if __name__ == "__main__":
@@ -599,7 +604,7 @@ if __name__ == "__main__":
     only = set(opts["--only"].split(",")) if "--only" in opts else None
     models = opts["--models"].split(",") if "--models" in opts else None
     vkeys = opts["--rigs"].split(",") if "--rigs" in opts else None
-    parts = [p for p in ("--export", "--side", "--sheets", "--gallery") if p in ARGS]
+    parts = [p for p in ("--export", "--side", "--sheets", "--page") if p in ARGS]
     scene, rows, rests, actions, stage = build(models, vkeys)
     kind = "base" if "base" in rests else next(iter(rests))
     if not parts or "--export" in parts or "--side" in parts:
@@ -621,7 +626,7 @@ if __name__ == "__main__":
         if "--no-render" not in ARGS:
             render_side(scene, rows, actions, stage, only)
             render_sheets(scene, rows, rests, stage)
-        write_gallery(actions)
+        write_page(actions)
         if whole:
             bpy.ops.wm.save_as_mainfile(filepath=BLEND, relative_remap=True)
     else:
@@ -631,5 +636,5 @@ if __name__ == "__main__":
             render_side(scene, rows, actions, stage, only)
         if "--sheets" in parts:
             render_sheets(scene, rows, rests, stage)
-        if "--side" in parts or "--gallery" in parts:
-            write_gallery(actions)
+        if "--side" in parts or "--page" in parts:
+            write_page(actions)

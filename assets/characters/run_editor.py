@@ -5,7 +5,7 @@ Pick a run and move its sliders: the run is keyed again as you go (Update live),
 and every figure in the file runs it; "Key on every rig" keys the helper joints', the cloth bones' and the corrective
 shapes' too. The panel says how the run measures (steps a minute, bounce, time on the ground) and, after "Check", what
 check_runs.py finds wrong with it. "Save settings" writes run_settings.json next to this file, which runs.py reads over
-its own numbers: make_runs.py's next build (the clips, the game's files, the gallery) and the play demo then run the
+its own numbers: make_runs.py's next build (the clips, the game's files, the rating page) and the play demo then run the
 tuned runs. "Reset" goes back to the run as made. Press play in the timeline (Space) to see it move.
 
 run_portfolio.blend loads this file by itself once you allow its script to run (Blender asks when you open it). Or start
@@ -240,7 +240,7 @@ def show_run(key, scene):
 
 
 def measures(spec):
-    """How a run measures, as the gallery says: steps a minute, m a step, ms on the ground and in the air, cm bounce."""
+    """How a run measures, as the page says: steps a minute, m a step, ms on the ground and in the air, cm bounce."""
     rest = rest_of("base")
     run = runs.Run(rest, spec)
     zs = [run.hip_height(i / 200) for i in range(200)]

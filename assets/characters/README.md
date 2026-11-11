@@ -101,10 +101,13 @@ Of the hero portfolio the user kept five models, Faceted 3000, 1500 and 800, Pai
 for rigging and a running animation for them, about fifty combinations to look through and narrow down (2 November):
 ten runs on seven rigs, each on all five models. Looking through them, the user found that all ten seemed to run on
 their toes, the front of the foot, where they wanted each foot planted heel first, the forefoot coming down only a
-moment after; asked for forty more runs, fifty in all, to narrow down; and found the gallery too complicated, wanting
-each run shown clearly once from the side and once in the play demo (the same day). So there are now fifty runs, every
-one landing heel first, in six families, on the same seven rigs and five models, and a gallery that shows each run on
-one of them.
+moment after; asked for forty more runs, fifty in all, to narrow down; and found the page for them too complicated,
+wanting each run shown clearly once from the side and once in the play demo (the same day). So there are now fifty
+runs, every one landing heel first, in six families, on the same seven rigs and five models. Having marked fifteen of
+them Want, Maybe or Avoid in a gallery of them all, the user asked for a page that shows one run at a time to rate
+from 1 (I don't like it) to 10 (I really like it), with a comment if they like, the ratings kept for Claude to make the
+next attempt from, round after round, until a run is right; and easy to use from a phone, stopping and picking up
+later (11 November): the rating page.
 
 Open `run_portfolio.blend` to look at them: a row for each rig, the five models in each, all running Athletic; pick
 another run in the Action editor (each skeleton has an action per run, named after it; the helper joints' and the cloth
@@ -114,21 +117,22 @@ loop of a slow breath, a little sway and a look to either side.
 
 In short:
 
-- To look through the runs and mark them: the gallery, https://claude.ai/artifact/Y7LgDQNjNfHqi4Dy1CHBcF (below).
+- To rate the runs: the rating page, https://claude.ai/artifact/Y7LgDQNjNfHqi4Dy1CHBcF, where the ratings are kept
+  (The rating page, below).
 - To run as them in the play demo: `python3 game/tools/play.py --script res://scripts/dev/runs.gd` (from the
-  repository's root; Clips, the gallery and the game, below). It reads the game's files from `build/runs/`, which isn't
+  repository's root; Clips and the game, below). It reads the game's files from `build/runs/`, which isn't
   kept in git: on a fresh checkout, `make_heroes.py -- --no-render` and then `make_runs.py -- --no-render` make them,
   rendering nothing.
 - To tune a run: `run_portfolio.blend`'s Runs tab (below); after changing a run, `check_runs.py`.
 - To build it all again: `blender -b --factory-startup -P make_runs.py`, then `python3 record_runs.py` for the
-  recordings in the game and `make_runs.py -- --gallery` to put them on the page.
+  recordings in the game and `make_runs.py -- --page` to put them on the page.
 
 ### The runs
 
 All run at the hero's speed in the demo, 5.5 m/s, in place, for the game to carry the hero along: each foot on the
 ground moves back under it at that speed, so it stays put on the ground as the hero moves. They differ in rhythm,
 posture and character, and come in six families (`runs.py`, `STYLES`, in the order of `FAMILIES`), numbered as the
-gallery numbers them:
+rating page numbers them:
 
 **The first ten**: the runs from before, now planting the heel first.
 
@@ -332,22 +336,22 @@ and stretch, a few small facets at the back of the hem at the deepest bends (whe
 4.3×); easing the cloth bones' share toward the skirt's edge doesn't help, since that's the fold, not a seam in the
 weights.
 
-### Clips, the gallery and the game
+### Clips and the game
 
 ```sh
-blender -b --factory-startup -P make_runs.py                  # the .blend, game files, side clips, sheets, gallery
+blender -b --factory-startup -P make_runs.py                  # the .blend, game files, side clips, sheets, page
 blender -b --factory-startup -P make_runs.py -- --no-render   # without the clips and sheets
 blender -b --factory-startup -P make_runs.py -- --export      # only the game's files
-blender -b --factory-startup -P make_runs.py -- --side        # only the side clips (and the gallery)
+blender -b --factory-startup -P make_runs.py -- --side        # only the side clips (and the page)
 blender -b --factory-startup -P make_runs.py -- --sheets      # only the contact sheets
-blender -b --factory-startup -P make_runs.py -- --gallery     # only the gallery page
+blender -b --factory-startup -P make_runs.py -- --page        # only the rating page
 blender -b --factory-startup -P make_runs.py -- --side --only=heroic,lope              # only those runs' side clips
 blender -b --factory-startup -P make_runs.py -- --export --side --models=Faceted1500 --rigs=heat   # one figure
 ```
 
 It needs `hero_portfolio.blend` (and its textures in `build/`, so `make_heroes.py` first on a fresh checkout). With
 `--models` or `--rigs` it builds only those figures, which is much quicker, and leaves `run_portfolio.blend` as it was.
-Each run is filmed from the side on the gallery's figure, Faceted 1500 on bone heat's rig, alone and large, on a ground
+Each run is filmed from the side on the page's figure, Faceted 1500 on bone heat's rig, alone and large, on a ground
 that moves back under it at its speed (`build/runs/side/<run>.mp4`, not kept in git): its cycle rendered once and
 repeated to about three seconds, so the moment a browser loses each time it loops a clip back to its start comes
 seldom. `previews/runs_<family>.png` show each family's runs at eight moments of their cycles (from the left foot
@@ -361,21 +365,12 @@ the game's camera zoomed in to 10 m, as the player can with the mouse wheel:
 
 ```sh
 python3 record_runs.py                                          # build/runs/game/<run>.mp4
-blender -b --factory-startup -P make_runs.py -- --gallery       # the gallery again, with them
+blender -b --factory-startup -P make_runs.py -- --page          # the page again, with them
 ```
 
 (`record_runs.py` runs the demo with Godot's `--write-movie` and `runs.gd --tour`, and `movie_to_mp4.py` turns each
 recording into an .mp4 in Blender; `--runs=heroic,lope` records only those, `--views=near` from nearer and lower,
 `--screen=1` opens the demo's window on that screen.)
-
-`build/runs/gallery.html` (made from `run_gallery.html`) shows the runs family by family, numbered, each with what it's
-like and how it measures beside its side clip and its recording in the play demo, to mark it Want, Maybe or Avoid and
-add a note. It's published, privately to the user, at https://claude.ai/artifact/Y7LgDQNjNfHqi4Dy1CHBcF, where the
-marks are kept, in the page's database: `runs` has a document for each run marked (named after it: its number, stance
-and note). Show narrows the page to the runs wanted or maybe, those not avoided, or those not marked yet; Speed slows
-every clip to a half or a quarter; a click pauses a clip and a double click fills the screen with it; Go to jumps to a
-family or a run. The clips are fetched whole and played from memory, as the page's files are served without the byte
-ranges a looping video asks for, and only while on screen.
 
 To run as them in the play demo yourself:
 
@@ -386,18 +381,46 @@ python3 game/tools/play.py --script res://scripts/dev/runs.gd -- --run=heroic
 The hero is the figure, read from its .glb as the game runs: it runs as it moves, the run sped up or slowed to the
 hero's speed, and stands when it stops. It stays upright through turns: it used to lean into them, up to 14°, which the
 user didn't like (3 November). Q and E step through the fifty runs (going on from the same moment of the stride), 1-5
-picks the model, R the rig (Shift+R back; it starts on bone heat, as the gallery does), L all five models in a slanting
-line beside the hero, Z slow motion, the whole game at a half or a quarter of its speed (`game/README.md` has its
-options for screenshots; `--zoom=10` sets the game's camera's distance; `--headless ... -- --check` reads every .glb and
-checks its skeleton, skin and animations, and the corrective rig's shapes).
+picks the model, R the rig (Shift+R back; it starts on bone heat, as the rating page does), L all five models in a
+slanting line beside the hero, Z slow motion, the whole game at a half or a quarter of its speed (`game/README.md` has
+its options for screenshots; `--zoom=10` sets the game's camera's distance; `--headless ... -- --check` reads every .glb
+and checks its skeleton, skin and animations, and the corrective rig's shapes).
+
+### The rating page
+
+`build/runs/ratings.html` (made from `run_ratings.html` by `make_runs.py -- --page`) is published, privately to the
+user, at https://claude.ai/artifact/Y7LgDQNjNfHqi4Dy1CHBcF, with the clips (`side/` and `game/`). It shows one run at a
+time, from the side or in the game (a tap switches; a wide screen shows both), with its name and what it's like, to
+rate from 1 (I don't like it) to 10 (I really like it), with a comment if the user likes. Previous and Next stay at the
+bottom of the screen (a swipe across the clip does the same; on a keyboard 1-9 and 0 rate and the arrow keys move), All
+runs lists every run with its rating to jump to, and the speed buttons slow the clips to a half or a quarter. A rating
+is written the moment it's given, a comment once the user pauses typing, leaves the box, changes runs or puts the phone
+away, so they can stop anywhere: the page opens again at the first run not rated yet (or the one a link names,
+`#heroic`). One that can't be written yet is kept in the browser and sent on the next visit. The clips are fetched
+whole and played from memory, as the page's files are served without the byte ranges a video asks for (phones won't
+play one without them), the next run's while this one plays.
+
+The ratings are kept in the page's database, collection `ratings`, a document for each run and round named
+`r<round>-<run>` (`r1-heroic`): `round`, `run` (its key), `n`, `label`, `rating` (1-10, or null for a comment alone),
+`comment` and `at` (when it was given). Read them with the ArtifactData tool (`query` on `ratings`, `round` equal to
+the round). Round 1 is the fifty runs as committed in 6e81ace (2 November). The marks from the first gallery are in
+`runs`, a document for each run marked (`stance`: want, maybe or avoid, and `note`): the user marked runs 1-15 there
+on 11 November, and in round 1 the page shows each mark and offers its note as the run's comment.
+
+For the next round: read the round's ratings and keep a copy here in `ratings/round<N>.json`, make the new runs from
+what they say, raise `ROUND` in `make_runs.py` (keeping the new ratings apart from the old), film and record the runs
+and rebuild and publish the page. A version of the page holds at most 256 MB, and round 1's clips take about 215 MB
+(the game's about 4 MB each), so the next round's game clips must be smaller (cropped round the hero, say) or round
+1's let go.
 
 ## Left for later
 
 - The run the user picks, with what it needs in the game: a walk for moving while attacking (forward, back and to the
   sides, as the board says), starting and stopping (the viewer only blends between the run and the stand), and the
   feet kept on the ground through sharp turns (the figure turns about its middle, so a planted foot slides a little).
-- The model and rig to go with it: the gallery shows every run on Faceted 1500 with bone heat's weights, the rig that
-  stretches the skin least; the other models and rigs run them all in the game's files and the run viewer (1-5, R).
+- The model and rig to go with it: the rating page shows every run on Faceted 1500 with bone heat's weights, the rig
+  that stretches the skin least; the other models and rigs run them all in the game's files and the run viewer (1-5,
+  R).
 - The hero portfolio's low-poly figures have more than four bones on some vertices (their weights carried over from
   the 20k model), which the glTF export cuts to the four strongest, as games take them; the run portfolio's rigs
   have four at most.

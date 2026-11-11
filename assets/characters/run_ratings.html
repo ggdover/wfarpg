@@ -1,0 +1,577 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hero Run Portfolio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Cinzel:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* A rating bench in the game's own world: forged iron ground, parchment text, brass for what you act on, each score
+   coloured from rust (1) through amber to moss (10). One run at a time, phone first: the run on top, then its name,
+   your score and a comment, with Previous and Next held at the bottom of the screen. */
+:root {
+  --bg: #13120f; --panel: #1c1a15; --raise: #25221b; --line: #39342a; --fg: #ece3cc; --muted: #a89d84;
+  --brass: #c99b4f; --brass-ink: #1a140a; --lo: #c8624f; --mid: #d4a443; --hi: #7fb26a; --on-score: #13120f;
+  --display: "Cinzel", "Trajan Pro", Georgia, serif;
+  --body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --cut: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #e9e7e1; --panel: #f6f5f1; --raise: #ffffff; --line: #cfcabd; --fg: #1d1b16; --muted: #625b4c;
+    --brass: #8f6522; --brass-ink: #fff8ea; --lo: #a63a29; --mid: #9a6d0e; --hi: #3f7a33; --on-score: #fff8ea;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #e9e7e1; --panel: #f6f5f1; --raise: #ffffff; --line: #cfcabd; --fg: #1d1b16; --muted: #625b4c;
+  --brass: #8f6522; --brass-ink: #fff8ea; --lo: #a63a29; --mid: #9a6d0e; --hi: #3f7a33; --on-score: #fff8ea;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.45 var(--body); -webkit-text-size-adjust: 100%; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+button { font: inherit; color: inherit; }
+button:focus-visible, textarea:focus-visible, figure:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+/* the bar on top: what this is, how far along you are, and every run */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; align-items: center; gap: 14px; padding-block: 9px; }
+.brand { min-width: 0; }
+.eyebrow { margin: 0; font: 500 10.5px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--brass); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+h1 { margin: 2px 0 0; font: 600 19px/1.15 var(--display); letter-spacing: .03em; white-space: nowrap; }
+.progress { margin-left: auto; display: grid; gap: 6px; justify-items: end; }
+.count { font: 500 13px/1 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.count b { color: var(--fg); font-weight: 600; }
+.meter { display: block; width: 104px; height: 4px; background: var(--raise); }
+.meter i { display: block; height: 100%; width: 0; background: var(--brass); transition: width .3s; }
+.allbtn { flex: none; font: 600 13px/1 var(--body); letter-spacing: .03em; color: var(--brass); background: transparent; border: 1px solid var(--brass); padding: 10px 12px; cursor: pointer; }
+
+main { display: grid; gap: 12px; padding-block: 12px 18px; }
+.banner { margin: 0; padding: 10px 12px; font-size: 14.5px; line-height: 1.4; background: var(--raise); border-left: 3px solid var(--mid); }
+.banner.done { border-left-color: var(--hi); }
+.loading { margin: 0; padding-block: 48px; color: var(--muted); text-align: center; }
+
+/* the run: from the side or in the game, one at a time on a phone, both side by side on a wide screen */
+.views { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.seg { display: inline-flex; border: 1px solid var(--line); background: var(--panel); }
+.seg button { font: 500 14px/1 var(--body); color: var(--muted); background: transparent; border: 0; padding: 9px 12px; cursor: pointer; touch-action: manipulation; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--brass); color: var(--brass-ink); }
+.clips { display: grid; gap: 10px; justify-items: center; }
+.clip { position: relative; margin: 0; width: min(100%, calc(58vh * 4 / 3)); width: min(100%, calc(58svh * 4 / 3)); max-width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background: var(--raise); border: 1px solid var(--line); cursor: pointer; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+.clip video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.clip.game video { transform: scale(1.3); }  /* the game's camera keeps the hero in the middle: a little nearer on a phone */
+.clip figcaption { position: absolute; left: 0; top: 0; padding: 5px 8px; font: 500 10.5px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--fg); background: color-mix(in srgb, var(--bg) 72%, transparent); pointer-events: none; }
+.clip .wait { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 14px; pointer-events: none; }
+.clip .hold { position: absolute; left: 0; right: 0; bottom: 0; padding: 6px 10px; font-size: 13px; text-align: center; color: var(--fg); background: color-mix(in srgb, var(--bg) 72%, transparent); pointer-events: none; }
+.clips[data-show="side"] .clip.game, .clips[data-show="game"] .clip.side { display: none; }
+
+/* its name, your score and comment */
+.card { display: grid; gap: 14px; }
+.info, .rate { display: grid; gap: 8px; min-width: 0; align-content: start; }
+.title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.num { flex: none; min-width: 2.3em; text-align: center; font: 600 14px/1 var(--mono); color: var(--brass-ink); background: var(--brass); padding: 6px 5px; clip-path: var(--cut); font-variant-numeric: tabular-nums; }
+.title h2 { margin: 0; font: 600 24px/1.15 var(--display); letter-spacing: .02em; }
+.fam { font: 500 11px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.text { margin: 0; max-width: 62ch; }
+.facts { margin: 0; font: 400 12.5px/1.5 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.score { margin: 0; padding: 0; border: 0; display: grid; gap: 8px; min-width: 0; }
+.score legend, .comment label { padding: 0; margin: 0 0 2px; font: 500 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.was, .from { font: 400 13px/1.3 var(--body); letter-spacing: 0; text-transform: none; margin-left: 4px; }
+.was { color: var(--fg); }
+.from { font-style: italic; color: var(--brass); }
+.scale { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; }
+.scale button { min-height: 46px; font: 600 18px/1 var(--mono); color: var(--fg); background: var(--raise); border: 1px solid var(--line); cursor: pointer; font-variant-numeric: tabular-nums; touch-action: manipulation; }
+.scale button:hover { border-color: var(--c); }
+.scale button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: var(--on-score); clip-path: var(--cut); }
+.ends { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); }
+.comment { display: grid; gap: 6px; }
+textarea { width: 100%; min-height: 64px; resize: vertical; font: 15px/1.4 var(--body); color: var(--fg); background: var(--panel); border: 1px solid var(--line); padding: 9px 10px; }
+textarea::placeholder { color: var(--muted); }
+.state { margin: 0; min-height: 1.4em; font-size: 13.5px; color: var(--muted); }
+.state.ok { color: var(--hi); }
+.state.warn { color: var(--mid); }
+.about { margin: 0; max-width: 64ch; font-size: 14px; color: var(--muted); }
+
+/* Previous and Next, always at hand at the bottom of the screen */
+nav.steps { position: sticky; bottom: 0; z-index: 5; background: var(--panel); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+nav.steps .wrap { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 10px; padding-block: 10px; }
+.prev, .next { min-height: 48px; font: 600 15px/1 var(--body); letter-spacing: .02em; cursor: pointer; touch-action: manipulation; }
+.prev { color: var(--fg); background: transparent; border: 1px solid var(--line); }
+.prev:disabled { opacity: .4; cursor: default; }
+.next { color: var(--brass-ink); background: var(--brass); border: 0; clip-path: var(--cut); }
+
+/* every run, to jump to one */
+dialog.all { width: min(760px, calc(100vw - 20px)); max-height: calc(100vh - 40px); max-height: calc(100svh - 40px); margin: auto; padding: 0; color: var(--fg); background: var(--panel); border: 1px solid var(--line); }
+dialog.all::backdrop { background: rgb(0 0 0 / .62); }
+.all .head { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.all h2 { margin: 0; font: 600 19px/1.2 var(--display); letter-spacing: .02em; }
+.all .close { font: 600 14px/1 var(--body); color: var(--fg); background: transparent; border: 1px solid var(--line); padding: 9px 12px; cursor: pointer; }
+.all .body { display: grid; gap: 16px; padding: 12px 16px 18px; }
+.all h3 { margin: 0 0 8px; font: 600 15px/1.2 var(--display); letter-spacing: .03em; }
+.all .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(134px, 1fr)); gap: 6px; }
+.all .grid button { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 7px 8px; text-align: left; color: var(--fg); background: var(--raise); border: 1px solid var(--line); cursor: pointer; }
+.all .grid button[aria-current="true"] { border-color: var(--brass); }
+.sc { flex: none; display: grid; place-items: center; width: 30px; height: 30px; font: 600 14px/1 var(--mono); color: var(--muted); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.sc.on { color: var(--on-score); background: var(--c); border-color: var(--c); }
+.nm { min-width: 0; overflow: hidden; font-size: 14px; line-height: 1.25; white-space: nowrap; text-overflow: ellipsis; }
+.nm b { margin-right: 3px; font: 500 12px/1 var(--mono); color: var(--muted); }
+
+@media (max-width: 520px) {
+  h1 { font-size: 17px; }
+  .meter { width: 84px; }
+  .scale { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .facts { display: none; }
+}
+@media (min-width: 900px) {
+  .views .which { visibility: hidden; }
+  .clips { grid-template-columns: minmax(0, 3fr) minmax(0, 4fr); align-items: start; }
+  .clips[data-show] .clip.side, .clips[data-show] .clip.game { display: block; width: 100%; }
+  .clip.game { aspect-ratio: 16 / 9; }
+  .clip.game video { transform: none; }
+  .card { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <p class="eyebrow" id="eyebrow">The hero's run</p>
+      <h1>Hero Runs</h1>
+    </div>
+    <div class="progress" aria-live="polite">
+      <span class="count"><b id="nrated">0</b> of <span id="ntotal">50</span> rated</span>
+      <span class="meter" aria-hidden="true"><i id="meter"></i></span>
+    </div>
+    <button type="button" class="allbtn" id="allbtn" aria-haspopup="dialog">All runs</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="banner" id="warn" role="status" hidden></p>
+  <p class="banner done" id="done" role="status" hidden></p>
+  <p class="loading" id="loading">Finding where you left off…</p>
+  <div class="views" id="views" hidden>
+    <div class="seg which" id="which" role="group" aria-label="Which view of the run">
+      <button type="button" data-v="side" aria-pressed="true">From the side</button><button type="button" data-v="game" aria-pressed="false">In the game</button></div>
+    <div class="seg" id="speed" role="group" aria-label="Playback speed">
+      <button type="button" data-v="1" aria-pressed="true">1×</button><button type="button" data-v="0.5" aria-pressed="false">½</button><button type="button" data-v="0.25" aria-pressed="false">¼</button></div>
+  </div>
+  <div class="clips" id="clips" data-show="side" hidden>
+    <figure class="clip side" tabindex="0" aria-label="The run from the side: tap to pause or play">
+      <video id="vside" muted loop playsinline disablepictureinpicture></video>
+      <figcaption>From the side</figcaption><span class="wait">Loading…</span><span class="hold" hidden>Paused · tap to play</span>
+    </figure>
+    <figure class="clip game" tabindex="0" aria-label="The run in the play demo: tap to pause or play">
+      <video id="vgame" muted loop playsinline disablepictureinpicture></video>
+      <figcaption>In the game</figcaption><span class="wait">Loading…</span><span class="hold" hidden>Paused · tap to play</span>
+    </figure>
+  </div>
+  <section class="card" id="card" aria-labelledby="name" hidden>
+    <div class="info">
+      <div class="title"><span class="num" id="num">1</span><h2 id="name">Run</h2><span class="fam" id="fam"></span></div>
+      <p class="text" id="text"></p>
+      <p class="facts" id="facts"></p>
+    </div>
+    <div class="rate">
+      <fieldset class="score">
+        <legend>Your rating<span class="was" id="was" hidden></span></legend>
+        <div class="scale" id="scale"></div>
+        <div class="ends"><span>1 · I don't like it</span><span>10 · I really like it</span></div>
+      </fieldset>
+      <div class="comment">
+        <label for="comment">Comment (optional)<span class="from" id="from" hidden>your earlier note</span></label>
+        <textarea id="comment" rows="2" maxlength="1500" placeholder="What you like about it, what's off…"></textarea>
+      </div>
+      <p class="state" id="state" role="status"></p>
+    </div>
+  </section>
+  <p class="about" id="about">Each rating is saved with this page the moment you give it, so you can stop whenever you
+    like: the page opens again at the first run you haven't rated. Claude reads your ratings and comments to make the
+    next round of runs.</p>
+</main>
+
+<nav class="steps" aria-label="Runs">
+  <div class="wrap">
+    <button type="button" class="prev" id="prev">‹ Previous</button>
+    <button type="button" class="next" id="next">Next run ›</button>
+  </div>
+</nav>
+
+<dialog class="all" id="all" aria-labelledby="allh">
+  <div class="head"><h2 id="allh">All the runs</h2><button type="button" class="close" id="allclose">Close</button></div>
+  <div class="body" id="allbody"></div>
+</dialog>
+
+<script>
+const DATA = /*DATA*/;
+const ROUND = DATA.round;
+const RUNS = DATA.runs;  // in the page's order, family by family
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const byKey = {};
+RUNS.forEach((r, i) => { byKey[r.key] = { ...r, i }; });
+const famOf = {};
+DATA.families.forEach(f => f.runs.forEach(k => { famOf[k] = f.title; }));
+const STANCE = { want: "Want", maybe: "Maybe", avoid: "Avoid" };
+const PENDING = "runratings-pending-r" + ROUND;  // ratings given on this device that the store hasn't confirmed yet
+const PREFS = "runratings-view";
+const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+const wide = matchMedia("(min-width: 900px)");
+const recall = (k, fallback) => { try { return JSON.parse(localStorage.getItem(k) || "null") || fallback; } catch (e) { return fallback; } };
+const keep = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+let stored = {};   // run -> {rating, comment, at}: what the page's store holds for this round
+let earlier = {};  // run -> {stance, note}: the marks given in the first gallery (round 1)
+let pending = recall(PENDING, {});  // run -> the last rating written from here, until the store has it
+const prefs = { show: "side", speed: "1", ...recall(PREFS, {}) };
+if (!["side", "game"].includes(prefs.show)) prefs.show = "side";
+if (!["1", "0.5", "0.25"].includes(prefs.speed)) prefs.speed = "1";
+let db = null, canWrite = true, started = false, idx = 0, typing = null;
+
+// a score's colour, from rust (1) through amber (5-6) to moss (10)
+function scoreColor(v) {
+  const t = (v - 1) / 9;
+  return t <= 0.5 ? `color-mix(in oklab, var(--mid) ${Math.round(t * 200)}%, var(--lo))`
+    : `color-mix(in oklab, var(--hi) ${Math.round((t - 0.5) * 200)}%, var(--mid))`;
+}
+
+// A run's rating and comment as they stand: given here and not yet confirmed, else as stored, else none yet, with the
+// note from the first gallery offered as the comment
+function entry(key) {
+  const p = pending[key], s = stored[key];
+  if (p && (!s || (p.at || "") >= (s.at || ""))) return { rating: p.rating ?? null, comment: p.comment || "", saved: false };
+  if (s) return { rating: s.rating, comment: s.comment, saved: true };
+  const note = (earlier[key] || {}).note || "";
+  return { rating: null, comment: note, saved: false, fromEarlier: !!note };
+}
+const rated = key => entry(key).rating != null;
+
+// ---- what the page shows ----
+function say(text, kind = "") { const el = $("#state"); el.textContent = text; el.className = "state" + (kind ? " " + kind : ""); }
+function warn(text) { $("#warn").textContent = text; $("#warn").hidden = !text; }
+function statusOf(key) {
+  const e = entry(key);
+  if (pending[key]) return db && canWrite ? ["Saving…", ""] : ["Kept on this device: it's saved once the page can reach your ratings.", "warn"];
+  if (e.saved) return [e.rating != null ? "Saved" : "Comment saved", "ok"];
+  return ["Tap a number to rate it. It's saved straight away.", ""];
+}
+function showRun() {  // the run at idx, as you arrive at it
+  const r = RUNS[idx], e = entry(r.key);
+  $("#num").textContent = r.n;
+  $("#name").textContent = r.label;
+  $("#fam").textContent = famOf[r.key] || "";
+  $("#text").textContent = r.text;
+  $("#facts").textContent = `${r.spm} steps a minute · ${r.contact} ms on the ground · ${r.bob} cm bounce`;
+  $("#comment").value = e.comment;
+  $("#prev").disabled = idx === 0;
+  refresh();
+  say(...statusOf(r.key));
+}
+function refresh() {  // what the store, this device or the earlier marks changed: the score, the notes, the progress
+  paintProgress();
+  if (!started) return;
+  const r = RUNS[idx], e = entry(r.key);
+  document.querySelectorAll("#scale button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.v === e.rating)));
+  const was = earlier[r.key];
+  $("#was").hidden = !(was && was.stance);
+  $("#was").textContent = was && was.stance ? `· in the first gallery you marked it ${STANCE[was.stance] || was.stance}` : "";
+  const box = $("#comment");
+  if (!typing && document.activeElement !== box && box.value !== e.comment) box.value = e.comment;
+  $("#from").hidden = !(e.fromEarlier && box.value === e.comment);
+  $("#next").textContent = idx < RUNS.length - 1 ? "Next run ›" : RUNS.some(x => !rated(x.key)) ? "First unrated ›" : "Back to run 1 ›";
+}
+function paintProgress() {
+  const n = RUNS.filter(r => rated(r.key)).length;
+  $("#nrated").textContent = n;
+  $("#ntotal").textContent = RUNS.length;
+  $("#meter").style.width = `${(100 * n) / RUNS.length}%`;
+  $("#done").hidden = n < RUNS.length;
+  $("#done").textContent = `All ${RUNS.length} runs rated. Tell Claude in your session that you're done: it reads your ` +
+    `ratings from this page. You can still change any of them.`;
+}
+
+// ---- rating and comments, saved one write at a time for each run ----
+const chains = {};
+function save(key, rating, comment) {
+  const r = byKey[key];
+  const body = { round: ROUND, run: key, n: r.n, label: r.label, rating, comment, at: new Date().toISOString() };
+  pending[key] = body;
+  keep(PENDING, pending);
+  refresh();
+  if (key === RUNS[idx].key) say(...statusOf(key));
+  if (db && canWrite) chains[key] = (chains[key] || Promise.resolve()).then(() => send(key, body));
+}
+async function send(key, body, again = true) {
+  try {
+    await db.doc(`ratings/r${ROUND}-${key}`).set(body);
+    if (!stored[key] || (stored[key].at || "") <= body.at) stored[key] = { rating: body.rating, comment: body.comment, at: body.at };
+    if (pending[key] && pending[key].at === body.at) { delete pending[key]; keep(PENDING, pending); }
+    if (key === RUNS[idx].key && !pending[key]) say(...statusOf(key));
+    refresh();
+  } catch (err) {
+    const code = (err && err.code) || "error";
+    if (again && (code === "unavailable" || code === "resource_exhausted")) {
+      await new Promise(res => setTimeout(res, 900 + Math.random() * 900));
+      return send(key, body, false);
+    }
+    if (code === "invalid_argument" || code === "revoked" || code === "not_granted") {
+      canWrite = false;
+      warn("Your ratings can't be saved from this view. They're kept on this device; open the page signed in as its owner to send them.");
+    }
+    if (key === RUNS[idx].key) say(`Not saved yet (${code}). It's kept on this device and sent again when the page can reach your ratings.`, "warn");
+  }
+}
+function resend() {  // what this device gave before and the store doesn't have yet
+  if (!db || !canWrite) return;
+  for (const key of Object.keys(pending)) {
+    const body = pending[key], s = stored[key];
+    if (!byKey[key] || (s && (s.at || "") >= (body.at || ""))) { delete pending[key]; continue; }
+    chains[key] = (chains[key] || Promise.resolve()).then(() => send(key, body));
+  }
+  keep(PENDING, pending);
+}
+function rate(v) {
+  if (!started) return;
+  const key = RUNS[idx].key, e = entry(key), comment = $("#comment").value;
+  if (typing) { clearTimeout(typing.timer); typing = null; }
+  if (e.rating === v && e.comment === comment && !e.fromEarlier) return;
+  save(key, v, comment);
+}
+function flushComment() {  // a comment is saved once you pause typing, leave the box, change runs or put the page away
+  if (!typing) return;
+  const key = typing.key;
+  clearTimeout(typing.timer);
+  typing = null;
+  if (key !== RUNS[idx].key) return;
+  const value = $("#comment").value, e = entry(key);
+  if (value !== e.comment) save(key, e.rating, value);
+}
+
+// ---- moving between runs ----
+function go(i, scroll = true) {
+  flushComment();
+  idx = Math.max(0, Math.min(RUNS.length - 1, i));
+  showRun();
+  loadClips(true);
+  if (scroll) window.scrollTo({ top: 0, behavior: reduced.matches ? "auto" : "smooth" });
+}
+function nextRun() {
+  if (idx < RUNS.length - 1) return go(idx + 1);
+  const open = RUNS.findIndex(r => !rated(r.key));
+  go(open >= 0 ? open : 0);
+}
+function prevRun() { if (idx > 0) go(idx - 1); }
+
+// ---- the clips: fetched whole and played from memory (a page's files may not answer the byte ranges a video asks
+// for, and phones won't play a clip without them), asking each time whether a clip has changed, so one recorded again
+// shows at once; the next run's are fetched while this one plays ----
+const memory = new Map(), recent = [];
+let direct = false;  // once a clip won't play from memory, the rest play straight from the files
+function fetchClip(path) {
+  if (direct) return Promise.resolve(path);
+  if (!memory.has(path)) memory.set(path, fetch(path, { cache: "no-cache" })
+    .then(r => (r.ok ? r.blob() : Promise.reject(r.status))).then(b => URL.createObjectURL(b)).catch(() => path));
+  const at = recent.indexOf(path);
+  if (at >= 0) recent.splice(at, 1);
+  recent.push(path);
+  while (recent.length > 8) {  // let go of the clips seen longest ago
+    const old = recent.shift(), held = memory.get(old);
+    memory.delete(old);
+    held.then(src => {
+      if (src.startsWith("blob:") && ![...document.querySelectorAll("video")].some(v => v.getAttribute("src") === src)) URL.revokeObjectURL(src);
+    });
+  }
+  return memory.get(path);
+}
+const shown = kind => wide.matches || prefs.show === kind;
+let ticket = 0;
+function loadClips(arriving) {
+  const r = RUNS[idx], t = ++ticket;
+  for (const kind of ["side", "game"]) {
+    const v = $("#v" + kind), fig = v.closest("figure"), wait = fig.querySelector(".wait"), path = r[kind] || "";
+    if (arriving) { delete fig.dataset.held; fig.querySelector(".hold").hidden = true; }
+    if (!shown(kind)) { v.pause(); continue; }
+    if (v.dataset.path === path && v.getAttribute("src")) { if (!fig.dataset.held) v.play().catch(() => {}); continue; }
+    v.dataset.path = path;
+    v.removeAttribute("src");
+    v.load();
+    wait.hidden = false;
+    wait.textContent = path ? "Loading…" : kind === "side" ? "Not filmed yet" : "Not recorded in the game yet";
+    if (!path) continue;
+    fetchClip(path).then(src => {
+      if (t !== ticket || v.dataset.path !== path) return;
+      if (src !== path) v.addEventListener("error", () => { if (v.getAttribute("src") === src) { direct = true; v.src = path; } }, { once: true });
+      v.src = src;
+      v.play().catch(() => {});
+    });
+  }
+  const after = RUNS[idx + 1];
+  if (after) Promise.all(["side", "game"].filter(k => shown(k) && r[k]).map(k => fetchClip(r[k]))).then(() => {
+    if (t === ticket) ["side", "game"].filter(k => shown(k) && after[k]).forEach(k => fetchClip(after[k]));
+  });
+}
+for (const kind of ["side", "game"]) {
+  const v = $("#v" + kind), fig = v.closest("figure");
+  v.addEventListener("loadedmetadata", () => { v.defaultPlaybackRate = v.playbackRate = +prefs.speed; });
+  v.addEventListener("loadeddata", () => { fig.querySelector(".wait").hidden = true; });
+  const toggle = () => {
+    if (!v.getAttribute("src")) return;
+    const hold = fig.querySelector(".hold");
+    if (v.paused) { delete fig.dataset.held; hold.hidden = true; v.play().catch(() => {}); }
+    else { fig.dataset.held = "1"; hold.hidden = false; v.pause(); }
+  };
+  fig.addEventListener("click", () => { if (!swiped) toggle(); });
+  fig.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle(); } });
+}
+
+// a swipe across the clip goes to the next run (to the left) or the one before (to the right)
+let touch = null, swiped = false;
+$("#clips").addEventListener("touchstart", e => {
+  const p = e.changedTouches[0];
+  touch = { x: p.clientX, y: p.clientY, at: Date.now() };
+}, { passive: true });
+$("#clips").addEventListener("touchend", e => {
+  if (!touch) return;
+  const p = e.changedTouches[0], dx = p.clientX - touch.x, dy = p.clientY - touch.y, quick = Date.now() - touch.at < 700;
+  touch = null;
+  if (quick && Math.abs(dx) > 50 && Math.abs(dx) > 1.6 * Math.abs(dy)) {
+    swiped = true;
+    setTimeout(() => { swiped = false; }, 450);
+    if (dx < 0) nextRun(); else prevRun();
+  }
+}, { passive: true });
+
+// ---- controls ----
+$("#scale").innerHTML = Array.from({ length: 10 }, (_, i) =>
+  `<button type="button" data-v="${i + 1}" aria-pressed="false" style="--c:${scoreColor(i + 1)}" ` +
+  `aria-label="${i + 1} of 10${i === 0 ? ", I don't like it" : i === 9 ? ", I really like it" : ""}">${i + 1}</button>`).join("");
+$("#scale").addEventListener("click", e => { const b = e.target.closest("button"); if (b) rate(+b.dataset.v); });
+$("#comment").addEventListener("input", () => {
+  if (typing) clearTimeout(typing.timer);
+  typing = { key: RUNS[idx].key, timer: setTimeout(flushComment, 800) };
+  $("#from").hidden = true;
+});
+$("#comment").addEventListener("blur", flushComment);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushComment(); });
+addEventListener("pagehide", flushComment);
+addEventListener("online", resend);
+$("#next").addEventListener("click", nextRun);
+$("#prev").addEventListener("click", prevRun);
+function seg(id, key, then) {
+  const el = $("#" + id);
+  const paint = () => el.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === prefs[key])));
+  paint();
+  el.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if (!b || prefs[key] === b.dataset.v) return;
+    prefs[key] = b.dataset.v;
+    keep(PREFS, prefs);
+    paint();
+    then();
+  });
+}
+seg("which", "show", () => { $("#clips").dataset.show = prefs.show; if (started) loadClips(false); });
+seg("speed", "speed", () => document.querySelectorAll("video").forEach(v => { v.defaultPlaybackRate = v.playbackRate = +prefs.speed; }));
+$("#clips").dataset.show = prefs.show;
+wide.addEventListener("change", () => { if (started) loadClips(false); });
+document.addEventListener("keydown", e => {
+  if (!started || $("#all").open || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.closest && e.target.closest("textarea, input, select")) return;
+  if (/^[0-9]$/.test(e.key)) { e.preventDefault(); rate(e.key === "0" ? 10 : +e.key); }
+  else if (e.key === "ArrowRight") { e.preventDefault(); nextRun(); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); prevRun(); }
+});
+
+// every run in its family, with its score, to jump to one
+$("#allbtn").addEventListener("click", () => {
+  const n = RUNS.filter(r => rated(r.key)).length;
+  $("#allbody").innerHTML = `<p class="about">${n} of ${RUNS.length} rated, from 1 (I don't like it) to 10 (I really ` +
+    `like it). Ratings and comments are saved with this page as you give them, and Claude reads them to make the next ` +
+    `round of runs. Every run is shown on ${esc(DATA.model)}, rigged with ${esc(DATA.rig.toLowerCase())}.</p>` +
+    DATA.families.map(f => `<section><h3>${esc(f.title)}</h3><div class="grid">${f.runs.map(k => {
+      const r = byKey[k], e = entry(k), on = e.rating != null;
+      return `<button type="button" data-i="${r.i}"${r.i === idx ? ' aria-current="true"' : ""}>` +
+        `<span class="sc${on ? " on" : ""}"${on ? ` style="--c:${scoreColor(e.rating)}"` : ""}>${on ? e.rating : "–"}</span>` +
+        `<span class="nm"><b>${r.n}</b>${esc(r.label)}</span></button>`;
+    }).join("")}</div></section>`).join("");
+  $("#all").showModal();
+  const here = $("#allbody [aria-current]");
+  if (here) here.focus();
+});
+$("#allbody").addEventListener("click", e => {
+  const b = e.target.closest("button[data-i]");
+  if (!b) return;
+  $("#all").close();
+  go(+b.dataset.i);
+});
+$("#allclose").addEventListener("click", () => $("#all").close());
+$("#all").addEventListener("click", e => { if (e.target === $("#all")) $("#all").close(); });
+
+// ---- start: at the run the link names (#heroic), or the first one not rated yet, once the store has answered ----
+function start() {
+  if (started) return;
+  started = true;
+  clearTimeout(waiting);
+  const asked = decodeURIComponent(location.hash.slice(1));
+  let i = byKey[asked] ? byKey[asked].i : RUNS.findIndex(r => !rated(r.key));
+  if (i < 0) i = 0;
+  $("#loading").hidden = true;
+  for (const id of ["views", "clips", "card"]) $("#" + id).hidden = false;
+  go(i, false);
+}
+const waiting = setTimeout(start, 4000);
+$("#eyebrow").textContent = `Round ${ROUND} · ${RUNS.length} runs`;
+paintProgress();
+(async () => {
+  db = (await window.claude?.use?.("db")) ?? null;
+  if (!db) {
+    warn("Your ratings can't be saved from here: open this page signed in to claude.ai. Until then they're kept on this device.");
+    start();
+    return;
+  }
+  let confirmed = false;
+  const late = setTimeout(() => {
+    if (!confirmed) warn("Your saved ratings can't be reached yet. New ones are kept on this device and sent once they can be.");
+    start();
+  }, 10000);
+  db.collection("ratings").where("round", "==", ROUND).onSnapshot(snap => {
+    const next = {};
+    snap.docs.forEach(d => {
+      const x = d.data() || {};
+      if (byKey[x.run]) next[x.run] = { rating: typeof x.rating === "number" ? x.rating : null,
+        comment: typeof x.comment === "string" ? x.comment : "", at: String(x.at || "") };
+    });
+    stored = next;
+    for (const k of Object.keys(pending)) if (stored[k] && stored[k].at >= (pending[k].at || "")) delete pending[k];
+    keep(PENDING, pending);
+    if (!snap.metadata.fromCache && !confirmed) { confirmed = true; clearTimeout(late); if (canWrite) warn(""); resend(); }
+    start();
+    refresh();
+    if (started && !typing) say(...statusOf(RUNS[idx].key));
+  }, err => {
+    clearTimeout(late);
+    warn(`Your saved ratings can't be loaded (${err.code}). New ones are kept on this device.`);
+    start();
+  });
+  if (ROUND === 1) db.collection("runs").onSnapshot(snap => {  // the marks and notes from the first gallery
+    const next = {};
+    snap.docs.forEach(d => { const x = d.data() || {}; if (byKey[d.id]) next[d.id] = { stance: String(x.stance || ""), note: String(x.note || "") }; });
+    earlier = next;
+    refresh();
+  }, () => {});
+  try {
+    const user = await window.claude.use("user");
+    if (user && (await user.can("data.write")) === false) {
+      canWrite = false;
+      warn("You can look through the runs, but only the page's editors can rate them.");
+    }
+  } catch (e) {}
+})();
+</script>

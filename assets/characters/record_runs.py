@@ -1,7 +1,7 @@
 """Records each run in the play demo itself (game/scripts/dev/runs.gd --tour, with Godot's --write-movie): one model on
 one rig running about the open field, starting, turning and stopping, in the game's own light, from the game's camera
 zoomed in to ZOOM m, as the player can with the mouse wheel (or, with --views=near, from nearer and lower: runs.gd
---close). Each becomes build/runs/game/<run>.mp4 (<run>_near.mp4) by movie_to_mp4.py in Blender, which the gallery
+--close). Each becomes build/runs/game/<run>.mp4 (<run>_near.mp4) by movie_to_mp4.py in Blender, which the rating page
 shows beside the run's side clip. The runs are the build's (build/runs/runs.json, from make_runs.py), on Faceted 1500
 with bone heat's rig unless asked otherwise.
 

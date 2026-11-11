@@ -58,7 +58,7 @@ Windows; elsewhere, or with no Claude window, on the primary screen), and say fi
 
 - The game's models, textures and layouts: `game/README.md`, Rebuilding the assets.
 - The trees and plants: `assets/trees/README.md` and `assets/plants/README.md`.
-- The player character's portfolio and its runs, rigs and run gallery: `assets/characters/README.md` (it needs the
+- The player character's portfolio and its runs, rigs and rating page: `assets/characters/README.md` (it needs the
   Tripo3D models in `ref_model/`).
 - The mockups and the design history: `mockups/README.md`.
 - `python3 game/tools/export_windows.py` builds `dist/wfarpg.exe`, the whole demo for Windows in one file, on Linux
