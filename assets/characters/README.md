@@ -97,17 +97,18 @@ near and low; a relative `--out` is from `game/`). It reads the .glb as the game
 
 ## Run portfolio
 
-Of the hero portfolio the user kept five models, Faceted 3000, 1500 and 800, Painted 1500 and Retopology, and asked
-for rigging and a running animation for them, about fifty combinations to look through and narrow down (2 November):
-ten runs on seven rigs, each on all five models. Looking through them, the user found that all ten seemed to run on
-their toes, the front of the foot, where they wanted each foot planted heel first, the forefoot coming down only a
-moment after; asked for forty more runs, fifty in all, to narrow down; and found the page for them too complicated,
-wanting each run shown clearly once from the side and once in the play demo (the same day). So there are now fifty
-runs, every one landing heel first, in six families, on the same seven rigs and five models. Having marked fifteen of
-them Want, Maybe or Avoid in a gallery of them all, the user asked for a page that shows one run at a time to rate
-from 1 (I don't like it) to 10 (I really like it), with a comment if they like, the ratings kept for Claude to make the
-next attempt from, round after round, until a run is right; and easy to use from a phone, stopping and picking up
-later (11 November): the rating page.
+Of the hero portfolio the user kept five models, Faceted 3000, 1500 and 800, Painted 1500 and Retopology, and asked for
+rigging and a running animation for them, about fifty combinations to look through and narrow down (2 November): ten
+runs on seven rigs, each on all five models. Looking through them, the user found that all ten seemed to run on their
+toes, the front of the foot, where they wanted each foot planted heel first, the forefoot coming down only a moment
+after; asked for forty more runs, fifty in all, to narrow down; and found the page for them too complicated, wanting
+each run shown clearly once from the side and once in the play demo (the same day). So there are now fifty runs, every
+one landing heel first, in six families, on the same seven rigs and five models. Having marked fifteen of them Want,
+Maybe or Avoid in a gallery of them all, the user asked for a page that shows one run at a time to rate from 1 (I don't
+like it) to 10 (I really like it), with a comment if they like, the ratings kept for Claude to make the next attempt
+from, round after round, until a run is right; and easy to use from a phone, stopping and picking up later (11
+November): the rating page. Having rated all fifty there, they asked for ten new runs made from the ones they rated
+best, to narrow down on a run they're satisfied with (16 November): round 2 (Round 2, below).
 
 Open `run_portfolio.blend` to look at them: a row for each rig, the five models in each, all running Athletic; pick
 another run in the Action editor (each skeleton has an action per run, named after it; the helper joints' and the cloth
@@ -220,6 +221,57 @@ hero's legs, shorter than theirs, reach; the Marathoner and the Miler keep close
 of them longer in the air than a runner is at this speed, so they float more. The Sprinter runs tall and drives off a
 nearly straight leg, as sprinters do, its knees no higher than its hips and its hands rising beside the chin without
 crossing the body.
+
+### Round 2
+
+The user rated all fifty on the rating page (16 November; their ratings and comments are in `ratings/round1.json`).
+Athletic came out on top with 7 of 10; Trail runner, Long strider, Ducking, Ranger and Hunter had 5; the rest 4 or
+less, 2.8 on average. The comments came back to the same few things, and the numbers behind the runs bear them out:
+
+- The feet: "flaring outwards" in eleven of the comments, Athletic's among them ("mostly noticeable when running
+  forward relative to the camera"). Every round-1 run turned its feet out 6° or more (`toe_out`); measured on Faceted
+  1500's boots, Athletic's pointed 3-5° out as they stood on the ground, and the knees pointed out 4° too.
+- The chest: "too upright" at a lean of about 9° and less (Natural, Marathoner, Scout, Knight, Monk), "good" at Trail
+  runner's 12° and "decent" at Ducking's; too far forward from about 24° (Bull, Charge, Prowler, and Weary's rounded
+  back), and leaning back worst of all (Swagger, Fleeing). Across the ratings, more lean went with better ones.
+- The knees: "not enough knee lifting" at Trail runner's and less (Easy stride, Heavy, Knight, Veteran, Glide),
+  "decent" at Courier's, too much in the Sprinter and Springy. Athletic's knee drive drew no comment.
+- The bounce: "too bouncy" from about 7-8 cm up and down (Lope, Ranger) and more (Bounding, Springy, Stomper,
+  Snappy); less bounce went with better ratings.
+- The arms: bent near a right angle and swinging freely. The elbows' bend went with the ratings as much as anything
+  (with a steady head): straight or long arms rated lowest (Straight arms, Heroic, Long strider's "too widely and
+  low"), and so did arms held up and tucked (Brawler, Roadwork, Ducking: "should be more relaxed"), kept close to the
+  chest (Quick feet, Monk, Nimble), flung wide (Wide arms, Barbarian, Farmhand) or swept far back (Prowler, Rogue).
+- The rhythm and the mood: not too quick (Nimble's and Quick feet's 230-240 steps a minute were "too rapid"), and
+  nothing aggressive (Sprinter, Berserker, Eager squire) or goofy (Snappy, Swagger, Farmhand).
+
+So round 2 (`runs.py`, from `STRAIGHT` on) is ten runs, every one with its feet and knees pointing straight ahead
+(the boots now within 2° of it), the feet landing a little nearer the line (13 cm apart) and the head steadier. Five
+are Athletic, first as it was but for that and then with one thing more changed each, so that their ratings say what
+each change is worth; five are the other best-rated runs, changed as their comments asked. In round 2 the checks let
+two runs lie nearer each other (`check_runs.py`, `ALIKE_NEARER`), as they narrow down on one kind of run.
+
+**Athletic, refined**: Athletic, the best of round 1, its feet straight, and four more each changing one thing.
+
+| # | Run | Steps a minute | Step | On the ground | In the air | Bounce | What changed |
+|---|---|---|---|---|---|---|---|
+| 1 | Athletic, feet straight | 180 | 1.83 m | 147 ms | 187 ms | 7 cm | Only the feet, the knees and the head: the others change one more thing from this one. |
+| 2 | Athletic, settled | 180 | 1.83 m | 147 ms | 187 ms | 3 cm | Less bounce: a lower float between steps and less of a dip after each landing. |
+| 3 | Athletic, leaning in | 180 | 1.83 m | 147 ms | 187 ms | 7 cm | The chest further forward, 18° instead of 14°, and the head with it. |
+| 4 | Athletic, high knees | 180 | 1.83 m | 147 ms | 187 ms | 7 cm | The knees lifting higher and further forward, the heels kicking up a little more. |
+| 5 | Athletic, loose arms | 180 | 1.83 m | 147 ms | 187 ms | 7 cm | The shoulders dropped, the elbows a little more open, the hands half open, swinging lower and less far. |
+
+**Favourites, fixed**: round 1's other best runs, changed as the user's comments asked, their feet straight too.
+
+| # | Run | Steps a minute | Step | On the ground | In the air | Bounce | What changed |
+|---|---|---|---|---|---|---|---|
+| 6 | Trail runner, higher knees | 212 | 1.56 m | 159 ms | 125 ms | 3 cm | Trail runner's chest and quick steps, the knees lifting higher ("not enough knee lifting"). |
+| 7 | Ducking, arms relaxed | 189 | 1.74 m | 177 ms | 139 ms | 3 cm | Ducking's low run, the shoulders dropped and the arms swinging loose ("arms held up too much"). |
+| 8 | Ranger, less bounce | 157 | 2.11 m | 157 ms | 226 ms | 5 cm | Ranger's long easy strides, 5 cm up and down instead of 8 ("too bouncy in steps"). |
+| 9 | Glide, higher knees | 164 | 2.02 m | 154 ms | 213 ms | 3 cm | Glide's smooth, level run, the knees lifting higher ("could use a bit more knee lifting"). |
+| 10 | Long strider, arms bent | 144 | 2.29 m | 142 ms | 275 ms | 8 cm | Long strider's reaching steps, the arms bent and swinging a shorter, higher arc ("too widely and low"), the chest leaning in a little. |
+
+`previews/runs_athletic_refined.png` and `previews/runs_favourites_fixed.png` show them from the side.
 
 ### Heel first
 
@@ -380,38 +432,41 @@ python3 game/tools/play.py --script res://scripts/dev/runs.gd -- --run=heroic
 
 The hero is the figure, read from its .glb as the game runs: it runs as it moves, the run sped up or slowed to the
 hero's speed, and stands when it stops. It stays upright through turns: it used to lean into them, up to 14°, which the
-user didn't like (3 November). Q and E step through the fifty runs (going on from the same moment of the stride), 1-5
-picks the model, R the rig (Shift+R back; it starts on bone heat, as the rating page does), L all five models in a
-slanting line beside the hero, Z slow motion, the whole game at a half or a quarter of its speed (`game/README.md` has
-its options for screenshots; `--zoom=10` sets the game's camera's distance; `--headless ... -- --check` reads every .glb
-and checks its skeleton, skin and animations, and the corrective rig's shapes).
+user didn't like (3 November). Q and E step through the runs, every round's (going on from the same moment of the
+stride), 1-5 picks the model, R the rig (Shift+R back; it starts on bone heat, as the rating page does), L all five
+models in a slanting line beside the hero, Z slow motion, the whole game at a half or a quarter of its speed
+(`game/README.md` has its options for screenshots; `--zoom=10` sets the game's camera's distance; `--headless ... --
+--check` reads every .glb and checks its skeleton, skin and animations, and the corrective rig's shapes).
 
 ### The rating page
 
 `build/runs/ratings.html` (made from `run_ratings.html` by `make_runs.py -- --page`) is published, privately to the
-user, at https://claude.ai/artifact/Y7LgDQNjNfHqi4Dy1CHBcF, with the clips (`side/` and `game/`). It shows one run at a
-time, from the side or in the game (a tap switches; a wide screen shows both), with its name and what it's like, to
-rate from 1 (I don't like it) to 10 (I really like it), with a comment if the user likes. Previous and Next stay at the
-bottom of the screen (a swipe across the clip does the same; on a keyboard 1-9 and 0 rate and the arrow keys move), All
-runs lists every run with its rating to jump to, and the speed buttons slow the clips to a half or a quarter. A rating
-is written the moment it's given, a comment once the user pauses typing, leaves the box, changes runs or puts the phone
-away, so they can stop anywhere: the page opens again at the first run not rated yet (or the one a link names,
-`#heroic`). One that can't be written yet is kept in the browser and sent on the next visit. The clips are fetched
-whole and played from memory, as the page's files are served without the byte ranges a video asks for (phones won't
-play one without them), the next run's while this one plays.
+user, at https://claude.ai/artifact/Y7LgDQNjNfHqi4Dy1CHBcF, with the clips (`side/` and `game/`). It shows the runs of
+one round (`ROUND` in `make_runs.py`, `runs.ROUNDS`; round 2 since 16 November), one run at a time, from the side or in
+the game (a tap switches; a wide screen shows both), with its name and what it's like, to rate from 1 (I don't like it)
+to 10 (I really like it), with a comment if the user likes. Previous and Next stay at the bottom of the screen (a swipe
+across the clip does the same; on a keyboard 1-9 and 0 rate and the arrow keys move), All runs lists every run with its
+rating to jump to, and the speed buttons slow the clips to a half or a quarter. A rating is written the moment it's
+given, a comment once the user pauses typing, leaves the box, changes runs or puts the phone away, so they can stop
+anywhere: the page opens again at the first run not rated yet (or the one a link names, `#heroic`). One that can't be
+written yet is kept in the browser and sent on the next visit. The clips are fetched whole and played from memory, as
+the page's files are served without the byte ranges a video asks for (phones won't play one without them), the next
+run's while this one plays.
 
 The ratings are kept in the page's database, collection `ratings`, a document for each run and round named
 `r<round>-<run>` (`r1-heroic`): `round`, `run` (its key), `n`, `label`, `rating` (1-10, or null for a comment alone),
-`comment` and `at` (when it was given). Read them with the ArtifactData tool (`query` on `ratings`, `round` equal to
-the round). Round 1 is the fifty runs as committed in 6e81ace (2 November). The marks from the first gallery are in
-`runs`, a document for each run marked (`stance`: want, maybe or avoid, and `note`): the user marked runs 1-15 there
-on 11 November, and in round 1 the page shows each mark and offers its note as the run's comment.
+`comment` and `at` (when it was given). Read them with the ArtifactData tool (`query` on `ratings`, `round` equal to the
+round). Round 1 is the fifty runs as committed in 6e81ace (2 November), its ratings copied into `ratings/round1.json`;
+round 2 the ten of Round 2 (above). The marks from the first gallery are in `runs`, a document for each run marked
+(`stance`: want, maybe or avoid, and `note`): the user marked runs 1-15 there on 11 November, and in round 1 the page
+shows each mark and offers its note as the run's comment.
 
 For the next round: read the round's ratings and keep a copy here in `ratings/round<N>.json`, make the new runs from
-what they say, raise `ROUND` in `make_runs.py` (keeping the new ratings apart from the old), film and record the runs
-and rebuild and publish the page. A version of the page holds at most 256 MB, and round 1's clips take about 215 MB
-(the game's about 4 MB each), so the next round's game clips must be smaller (cropped round the hero, say) or round
-1's let go.
+what they say (a family of them in `runs.FAMILIES` and the round in `runs.ROUNDS`), raise `ROUND` in `make_runs.py`
+(keeping the new ratings apart from the old), film them (`make_runs.py -- --side --only=...`), record them
+(`record_runs.py --runs=...`) and rebuild and publish the page. A version of the page holds at most 256 MB and a
+round's clips about 4.3 MB a run (the game's 4 MB of it), so each round's clips take the place of the round before's
+on the published page; round 1's were let go for round 2's. They're all still in `build/runs/`.
 
 ## Left for later
 

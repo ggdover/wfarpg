@@ -1,0 +1,481 @@
+{
+ "round": 1,
+ "about": "The user's ratings of round 1's fifty runs (runs.py as committed in 6e81ace), from 1 (I don't like it) to 10 (I really like it), with their comments, from the rating page's database (collection ratings); and, for runs 1-15, the Want/Maybe/Avoid mark and note they gave in the gallery before it (collection runs). Read 16 November 2026.",
+ "runs": [
+  {
+   "n": 1,
+   "run": "athletic",
+   "label": "Athletic",
+   "rating": 7,
+   "comment": "Looks good except the feet are flaired outwards a bit much, mostly noticable when running forward relative to the camera",
+   "at": "2026-11-16T18:54:18.704Z",
+   "gallery_mark": {
+    "stance": "maybe",
+    "note": "Looks good except the feet are flaired outwards a bit much, mostly noticable when running forward relative to the camera",
+    "at": "2026-11-11T16:35:40.284Z"
+   }
+  },
+  {
+   "n": 2,
+   "run": "sprint",
+   "label": "Sprinter",
+   "rating": 2,
+   "comment": "Too aggressive, too much knee and arm pumping/swinging",
+   "at": "2026-11-16T18:54:23.114Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Too aggressive, too much knee and arm pumping/swinging",
+    "at": "2026-11-11T16:36:43.084Z"
+   }
+  },
+  {
+   "n": 3,
+   "run": "easy",
+   "label": "Easy stride",
+   "rating": 2,
+   "comment": "Not enough knee lifting",
+   "at": "2026-11-16T18:54:26.872Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Not enough knee lifting",
+    "at": "2026-11-11T16:36:19.239Z"
+   }
+  },
+  {
+   "n": 4,
+   "run": "heroic",
+   "label": "Heroic",
+   "rating": 2,
+   "comment": "Too much arm swing",
+   "at": "2026-11-16T18:54:37.040Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Too much arm swing",
+    "at": "2026-11-11T16:36:10.066Z"
+   }
+  },
+  {
+   "n": 5,
+   "run": "heavy",
+   "label": "Heavy",
+   "rating": 2,
+   "comment": "Same as \"Easy stride\"",
+   "at": "2026-11-16T18:54:41.348Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Same as \"Easy stride\"",
+    "at": "2026-11-11T16:37:08.125Z"
+   }
+  },
+  {
+   "n": 6,
+   "run": "nimble",
+   "label": "Nimble",
+   "rating": 4,
+   "comment": "Foot steps too rapid, arms kept too close to body and swinging too little",
+   "at": "2026-11-16T18:54:45.149Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Foot steps too rapid, arms kept too close to body and swinging too little",
+    "at": "2026-11-11T16:37:53.048Z"
+   }
+  },
+  {
+   "n": 7,
+   "run": "guarded",
+   "label": "Guarded",
+   "rating": 4,
+   "comment": "Dont like arm position. Also feet flairing outwards",
+   "at": "2026-11-16T18:54:49.769Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Dont like arm position. Also feet flairing outwards",
+    "at": "2026-11-11T16:38:09.325Z"
+   }
+  },
+  {
+   "n": 8,
+   "run": "bounding",
+   "label": "Bounding",
+   "rating": 3,
+   "comment": "Too bouncy in steps",
+   "at": "2026-11-16T18:54:56.772Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Too bouncy in steps",
+    "at": "2026-11-11T16:38:16.827Z"
+   }
+  },
+  {
+   "n": 9,
+   "run": "snappy",
+   "label": "Snappy",
+   "rating": 1,
+   "comment": "Too goofy and bouncy",
+   "at": "2026-11-16T18:54:59.967Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Too goofy and bouncy",
+    "at": "2026-11-11T16:38:59.445Z"
+   }
+  },
+  {
+   "n": 10,
+   "run": "natural",
+   "label": "Natural",
+   "rating": 4,
+   "comment": "Chest a bit too upright and feet flairing outwards too much",
+   "at": "2026-11-16T18:55:04.105Z",
+   "gallery_mark": {
+    "stance": "maybe",
+    "note": "Chest a bit too upright and feet flairing outwards too much",
+    "at": "2026-11-11T16:39:40.886Z"
+   }
+  },
+  {
+   "n": 11,
+   "run": "marathon",
+   "label": "Marathoner",
+   "rating": 3,
+   "comment": "Chest a bit too upright and feet flairing outwards too ",
+   "at": "2026-11-16T18:55:07.649Z",
+   "gallery_mark": {
+    "stance": "maybe",
+    "note": "Chest a bit too upright and feet flairing outwards too ",
+    "at": "2026-11-11T16:39:50.202Z"
+   }
+  },
+  {
+   "n": 12,
+   "run": "miler",
+   "label": "Miler",
+   "rating": 4,
+   "comment": "",
+   "at": "2026-11-16T18:55:31.786Z",
+   "gallery_mark": {
+    "stance": "maybe",
+    "note": "",
+    "at": "2026-11-11T16:39:59.238Z"
+   }
+  },
+  {
+   "n": 13,
+   "run": "trail",
+   "label": "Trail runner",
+   "rating": 5,
+   "comment": "Good chest position, but not enough knee lifting (just not enough) also feet flairing outwards too much",
+   "at": "2026-11-16T18:55:43.362Z",
+   "gallery_mark": {
+    "stance": "maybe",
+    "note": "Good chest position, but not enough knee lifting (just not enough) also feet flairing outwards too much",
+    "at": "2026-11-11T16:40:37.960Z"
+   }
+  },
+  {
+   "n": 14,
+   "run": "strider",
+   "label": "Long strider",
+   "rating": 5,
+   "comment": "Arms swinging too widely and low. Feet flairing outwards.",
+   "at": "2026-11-16T18:55:49.207Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Arms swinging too widely and low. Feet flairing outwards.",
+    "at": "2026-11-11T20:57:32.995Z"
+   }
+  },
+  {
+   "n": 15,
+   "run": "quickstep",
+   "label": "Quick feet",
+   "rating": 3,
+   "comment": "Feet too quick, arm swiging to tight and close to chest",
+   "at": "2026-11-16T18:55:56.910Z",
+   "gallery_mark": {
+    "stance": "avoid",
+    "note": "Feet too quick, arm swiging to tight and close to chest",
+    "at": "2026-11-11T20:57:56.411Z"
+   }
+  },
+  {
+   "n": 16,
+   "run": "glide",
+   "label": "Glide",
+   "rating": 4,
+   "comment": "decent arm swing and leg movement, feet flare out too much and could use a bit more knee lifting",
+   "at": "2026-11-16T18:56:25.416Z"
+  },
+  {
+   "n": 17,
+   "run": "springy",
+   "label": "Springy",
+   "rating": 3,
+   "comment": "too springy and knee lifting too agressive",
+   "at": "2026-11-16T18:56:46.418Z"
+  },
+  {
+   "n": 18,
+   "run": "courier",
+   "label": "Courier",
+   "rating": 4,
+   "comment": "legs too agressive but lifting height of legs seems decent",
+   "at": "2026-11-16T18:57:18.382Z"
+  },
+  {
+   "n": 19,
+   "run": "charge",
+   "label": "Charge",
+   "rating": 3,
+   "comment": "leaning too much forward",
+   "at": "2026-11-16T18:57:36.658Z"
+  },
+  {
+   "n": 20,
+   "run": "barbarian",
+   "label": "Barbarian",
+   "rating": 3,
+   "comment": "arms and legs too much flared out, looks clumsy",
+   "at": "2026-11-16T18:58:00.317Z"
+  },
+  {
+   "n": 21,
+   "run": "brawler",
+   "label": "Brawler",
+   "rating": 4,
+   "comment": "good leg movement, feet still flare out too much, arms too much in a tucked up position, should be more relaxed",
+   "at": "2026-11-16T18:58:25.762Z"
+  },
+  {
+   "n": 22,
+   "run": "berserker",
+   "label": "Berserker",
+   "rating": 2,
+   "comment": "way too agressive and arm swinging too agressive and far.",
+   "at": "2026-11-16T18:58:39.862Z"
+  },
+  {
+   "n": 23,
+   "run": "soldier",
+   "label": "Double time",
+   "rating": 2,
+   "comment": "chest too upright and stiff",
+   "at": "2026-11-16T18:58:52.069Z"
+  },
+  {
+   "n": 24,
+   "run": "knight",
+   "label": "Knight",
+   "rating": 2,
+   "comment": "chest too upright and stiff not enough knee lifting",
+   "at": "2026-11-16T18:59:04.229Z"
+  },
+  {
+   "n": 25,
+   "run": "bull",
+   "label": "Bull",
+   "rating": 3,
+   "comment": "too much leaning forward, arm  swining not enough forward",
+   "at": "2026-11-16T18:59:27.816Z"
+  },
+  {
+   "n": 26,
+   "run": "stomper",
+   "label": "Stomper",
+   "rating": 2,
+   "comment": "too bouncy in steps",
+   "at": "2026-11-16T18:59:40.231Z"
+  },
+  {
+   "n": 27,
+   "run": "boxer",
+   "label": "Roadwork",
+   "rating": 4,
+   "comment": "decent leg movement, feet too flared out still and arms are abit too tucked and too much held up",
+   "at": "2026-11-16T19:00:15.996Z"
+  },
+  {
+   "n": 28,
+   "run": "veteran",
+   "label": "Veteran",
+   "rating": 2,
+   "comment": "arm swigning too small and legs not lifting enough",
+   "at": "2026-11-16T19:00:30.234Z"
+  },
+  {
+   "n": 29,
+   "run": "ducking",
+   "label": "Ducking",
+   "rating": 5,
+   "comment": "decent chest position and leg movement arms held up too much could relax more. Feet also still falring outward",
+   "at": "2026-11-16T19:01:05.660Z"
+  },
+  {
+   "n": 30,
+   "run": "prowler",
+   "label": "Prowler",
+   "rating": 2,
+   "comment": "arms too far baack, neck sticking forward too much",
+   "at": "2026-11-16T19:01:18.313Z"
+  },
+  {
+   "n": 31,
+   "run": "rogue",
+   "label": "Rogue",
+   "rating": 2,
+   "comment": "arms too far back, looks weird, same as previous one",
+   "at": "2026-11-16T19:01:35.827Z"
+  },
+  {
+   "n": 32,
+   "run": "scout",
+   "label": "Scout",
+   "rating": 4,
+   "comment": "chest a bit too upright, decent leg movement, arms a bit stiff and tights",
+   "at": "2026-11-16T19:01:54.181Z"
+  },
+  {
+   "n": 33,
+   "run": "ranger",
+   "label": "Ranger",
+   "rating": 5,
+   "comment": "too bouncy in steps, arms swings decent but not the best so far and feet flaring out too much",
+   "at": "2026-11-16T19:02:22.101Z"
+  },
+  {
+   "n": 34,
+   "run": "hunter",
+   "label": "Hunter",
+   "rating": 5,
+   "comment": "",
+   "at": "2026-11-16T19:02:27.852Z"
+  },
+  {
+   "n": 35,
+   "run": "lope",
+   "label": "Lope",
+   "rating": 2,
+   "comment": "legs and arms too relaxed and too bouncy in steps",
+   "at": "2026-11-16T19:02:47.610Z"
+  },
+  {
+   "n": 36,
+   "run": "swagger",
+   "label": "Swagger",
+   "rating": 1,
+   "comment": "too much chest leaning baack looks really goofy and strange",
+   "at": "2026-11-16T19:03:00.112Z"
+  },
+  {
+   "n": 37,
+   "run": "weary",
+   "label": "Weary",
+   "rating": 1,
+   "comment": "too much leaning forward and not enough leg lifting just weird",
+   "at": "2026-11-16T19:03:14.671Z"
+  },
+  {
+   "n": 38,
+   "run": "fleeing",
+   "label": "Fleeing",
+   "rating": 1,
+   "comment": "chest too much leaning back",
+   "at": "2026-11-16T19:03:21.244Z"
+  },
+  {
+   "n": 39,
+   "run": "eager",
+   "label": "Eager squire",
+   "rating": 1,
+   "comment": "too eager and agressive running",
+   "at": "2026-11-16T19:03:29.299Z"
+  },
+  {
+   "n": 40,
+   "run": "farmhand",
+   "label": "Farmhand",
+   "rating": 1,
+   "comment": "arms and legs and too much flared out, looks goofy and clumsy",
+   "at": "2026-11-16T19:03:46.461Z"
+  },
+  {
+   "n": 41,
+   "run": "monk",
+   "label": "Monk",
+   "rating": 2,
+   "comment": "chest too upright, arms too tucked together, leg movement might be decent",
+   "at": "2026-11-16T19:04:03.889Z"
+  },
+  {
+   "n": 42,
+   "run": "dancer",
+   "label": "Dancer",
+   "rating": 2,
+   "comment": "",
+   "at": "2026-11-16T19:04:07.735Z"
+  },
+  {
+   "n": 43,
+   "run": "straight",
+   "label": "Straight arms",
+   "rating": 1,
+   "comment": "",
+   "at": "2026-11-16T19:04:12.024Z"
+  },
+  {
+   "n": 44,
+   "run": "wings",
+   "label": "Wide arms",
+   "rating": 1,
+   "comment": "",
+   "at": "2026-11-16T19:04:14.541Z"
+  },
+  {
+   "n": 45,
+   "run": "twister",
+   "label": "Cross-body",
+   "rating": 2,
+   "comment": "",
+   "at": "2026-11-16T19:04:18.254Z"
+  },
+  {
+   "n": 46,
+   "run": "piston",
+   "label": "Piston arms",
+   "rating": 3,
+   "comment": "",
+   "at": "2026-11-16T19:04:22.145Z"
+  },
+  {
+   "n": 47,
+   "run": "stepper",
+   "label": "High stepper",
+   "rating": 2,
+   "comment": "",
+   "at": "2026-11-16T19:04:24.700Z"
+  },
+  {
+   "n": 48,
+   "run": "gazelle",
+   "label": "Gazelle",
+   "rating": 2,
+   "comment": "",
+   "at": "2026-11-16T19:04:29.319Z"
+  },
+  {
+   "n": 49,
+   "run": "drummer",
+   "label": "Drumbeat",
+   "rating": 3,
+   "comment": "",
+   "at": "2026-11-16T19:04:32.812Z"
+  },
+  {
+   "n": 50,
+   "run": "silk",
+   "label": "Fluid",
+   "rating": 4,
+   "comment": "",
+   "at": "2026-11-16T19:04:37.277Z"
+  }
+ ]
+}

@@ -1,8 +1,9 @@
 """Run portfolio: the five low-poly heroes the user kept (Faceted 3000, 1500 and 800, Painted 1500, Retopology), each
-rigged seven ways and running fifty ways (2 November). Builds run_portfolio.blend from hero_portfolio.blend's figures,
-exports each figure on each rig with its runs for the game (build/runs/*.glb), and films each run from the side on one
-of them (DEMO) for the portfolio's page, build/runs/ratings.html, where the user rates the runs one at a time, each
-from the side and in a recording of it in the play demo (record_runs.py).
+rigged seven ways and running fifty ways (2 November), and ten more in a second round from the user's ratings of those
+(16 November). Builds run_portfolio.blend from hero_portfolio.blend's figures, exports each figure on each rig with its
+runs for the game (build/runs/*.glb), and films each run from the side on one of them (DEMO) for the portfolio's page,
+build/runs/ratings.html, where the user rates the runs one at a time, each from the side and in a recording of it in the
+play demo (record_runs.py).
 
     blender -b --factory-startup -P make_runs.py                  all of it
     blender -b --factory-startup -P make_runs.py -- --no-render   all but the clips and sheets
@@ -37,8 +38,8 @@ ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 MODELS = [("Faceted3000", "Faceted 3000"), ("Faceted1500", "Faceted 1500"), ("Faceted800", "Faceted 800"),
           ("Painted1500", "Painted 1500"), ("Retopo", "Retopology")]
 DEMO = ("Faceted1500", "heat")  # the figure and rig the portfolio's page shows every run on
-ROUND = 1  # the round of runs the page asks the user to rate, which keeps each round's ratings apart: one more each time
-NUMBER = {k: i + 1 for i, k in enumerate(runs.STYLES)}  # each run's number on the page
+ROUND = 2  # the round of runs the page asks the user to rate (runs.ROUNDS), which keeps each round's ratings apart
+NUMBER = {k: i + 1 for n in runs.ROUNDS for i, k in enumerate(runs.round_runs(n))}  # each run's number in its round
 SPACING = 1.25  # m between the figures in a row
 ROW = 3.0  # m between the rows, one a rig
 GAME_PITCH, GAME_DISTANCE, GAME_YAW = 55.0, 14.0, 225.0  # the game's camera angle (game/scripts/camera_rig.gd), nearer
@@ -493,7 +494,7 @@ def render_side(scene, rows, actions, stage, only=None, model=DEMO[0], vkey=DEMO
 
 
 def slug(title):
-    return "".join(c if c.isalnum() else "_" for c in title.lower()).strip("_")
+    return "_".join("".join(c if c.isalnum() else " " for c in title.lower()).split())
 
 
 def render_sheets(scene, rows, rests, stage, model=DEMO[0], vkey=DEMO[1], phases=8):
@@ -568,9 +569,9 @@ def render_sheets(scene, rows, rests, stage, model=DEMO[0], vkey=DEMO[1], phases
 
 
 def write_page(actions, kind=kind_of(DEMO[1])):
-    """build/runs/ratings.html: run_ratings.html with this round's runs filled in, in their families, each with its
-    side clip (side/<run>.mp4) and its recording in the play demo (game/<run>.mp4), where there are. The user rates
-    them there, one at a time, and the page keeps the ratings in its database (README.md, The rating page)."""
+    """build/runs/ratings.html: run_ratings.html with this round's runs (ROUND) filled in, in their families, each
+    with its side clip (side/<run>.mp4) and its recording in the play demo (game/<run>.mp4), where there are. The user
+    rates them there, one at a time, and the page keeps the ratings in its database (README.md, The rating page)."""
     def bob(run):
         zs = [run.hip_height(i / 200) for i in range(200)]
         return round((max(zs) - min(zs)) * 100)
@@ -583,12 +584,12 @@ def write_page(actions, kind=kind_of(DEMO[1])):
         "round": ROUND,
         "model": dict(MODELS)[DEMO[0]],
         "rig": next(label for k, label, _ in rigs.VARIANTS if k == DEMO[1]),
-        "families": [dict(title=t, text=x, runs=keys) for t, x, keys in runs.FAMILIES],
+        "families": [dict(title=t, text=x, runs=keys) for t, x, keys in runs.FAMILIES if t in runs.ROUNDS[ROUND]],
         "runs": [dict(key=k, n=NUMBER[k], label=s["label"], text=s["text"], spm=round(7200 / run.frames),
                       step=round(runs.SPEED * run.T / 2, 2), contact=round(run.D * run.T * 1000),
                       flight=round((0.5 - run.D) * run.T * 1000), bob=bob(run), side=clip("side", k),
                       game=clip("game", k))
-                 for k, s in runs.STYLES.items() for run in [actions[(k, kind)][1]]],
+                 for k in runs.round_runs(ROUND) for s, run in [(runs.STYLES[k], actions[(k, kind)][1])]],
     }
     with open(os.path.join(HERE, "run_ratings.html"), encoding="utf-8") as f:
         page = f.read().replace("/*DATA*/", json.dumps(data, ensure_ascii=False))

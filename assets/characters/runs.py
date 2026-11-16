@@ -98,7 +98,8 @@ DEFAULTS = dict(
     snap=0.0,           # 0 smooth swings; above 0 sharper, held longer at the ends
 )
 
-# The fifty runs, all at the hero's speed, landing heel first. label: a name; text: what it's like, for the portfolio.
+# The fifty runs of round 1, all at the hero's speed, landing heel first. label: a name; text: what it's like, for the
+# portfolio.
 STYLES = {
     "athletic": dict(
         label="Athletic", text="A strong, even run: a firm lean, the knees driving, the arms pumping at the elbow.",
@@ -438,6 +439,59 @@ STYLES = {
         arm_out=16.0, arm_across=3.0, back_out=12.0),
 }
 
+# Round 2 (16 November), from the user's ratings of the fifty (ratings/round1.json): Athletic was their favourite, 7 of
+# 10, and their comments came back to the same few things. The feet flared out in nearly every run (all fifty turned
+# them out 6° or more); the chest wanted a firm forward lean, neither upright nor bent over; the knees wanted to come
+# up about as far as Athletic's; less bounce; the arms bent near a right angle and swinging freely, not tucked up or
+# held high, nor flung wide; nothing aggressive or goofy. So every round-2 run points its feet and knees straight
+# ahead, lands them a little nearer the line and holds the head steadier (STRAIGHT); five are Athletic with one more
+# thing changed each, five the user's other favourites changed as their comments asked.
+STRAIGHT = dict(toe_out=1.0, knee_out=1.0, track=0.13, head_steady=0.92, head_nod=1.0)
+
+
+def _from(parent, label, text, **change):
+    """A round-2 run: the parent run's numbers, with STRAIGHT's and then change over them."""
+    return {**{n: v for n, v in STYLES[parent].items() if n not in ("label", "text")}, **STRAIGHT, "label": label,
+            "text": text, **change}
+
+
+STYLES.update({
+    "athletic_straight": _from(
+        "athletic", "Athletic, feet straight", "Athletic as it was, but with the feet and knees pointing straight "
+        "ahead, landing a little nearer the line, and the head steadier. The other Athletics each change one more "
+        "thing from this one."),
+    "athletic_settled": _from(
+        "athletic", "Athletic, settled", "Less bounce: a lower float between steps and less of a dip after each "
+        "landing, so the head and body ride more level.", float=0.35, bounce_lean=0.8),
+    "athletic_lean": _from(
+        "athletic", "Athletic, leaning in", "The chest a little further forward, and the head with it.", lean=18.0,
+        head_pitch=8.0),
+    "athletic_knees": _from(
+        "athletic", "Athletic, high knees", "The knees lifting higher and further forward, the heels kicking up a "
+        "little more.", z3=0.47, fwd3=0.19, z2=0.54),
+    "athletic_arms": _from(
+        "athletic", "Athletic, loose arms", "The arms more relaxed: the shoulders dropped, the elbows opened a little, "
+        "the hands half open, swinging a little lower and less far.", arm_swing=36.0, elbow=84.0, elbow_swing=14.0,
+        shoulders=-2.0, fist=0.4, wrist_swing=8.0, arm_out=17.0, back_out=15.0),
+    "trail_knees": _from(
+        "trail", "Trail runner, higher knees", "Trail runner's chest and quick steps, the knees now lifting higher.",
+        z3=0.41, fwd3=0.15, z2=0.45, track=0.15),
+    "ducking_arms": _from(
+        "ducking", "Ducking, arms relaxed", "Ducking's low, steady run, the shoulders now dropped and the arms "
+        "swinging loose instead of held up tight.", shoulders=2.0, elbow=96.0, arm_mean=0.0, arm_swing=28.0,
+        arm_out=16.0, back_out=14.0, arm_across=5.0, elbow_swing=12.0, fist=0.5),
+    "ranger_calm": _from(
+        "ranger", "Ranger, less bounce", "Ranger's long easy strides and loose arms, with much less bounce.",
+        float=0.4),
+    "glide_knees": _from(
+        "glide", "Glide, higher knees", "Glide's smooth, level run and easy arms, the knees now lifting higher.",
+        z3=0.39, fwd3=0.17, z2=0.42),
+    "strider_arms": _from(
+        "strider", "Long strider, arms bent", "Long strider's reaching steps, the arms now bent, swinging a shorter "
+        "and higher arc, the chest leaning in a little.", elbow=80.0, arm_mean=-4.0, arm_swing=32.0, arm_out=15.0,
+        back_out=15.0, lean=8.0, knee_out=2.0, track=0.15),
+})
+
 # the runs in families, for the portfolio's page and in STYLES's order: (title, what its runs have in common, runs)
 FAMILIES = [
     ("The first ten", "The runs from before, now planting the heel first.",
@@ -453,8 +507,22 @@ FAMILIES = [
      ["swagger", "weary", "fleeing", "eager", "farmhand", "monk", "dancer"]),
     ("Arms and rhythm", "Ways with the arms, and with the beat.",
      ["straight", "wings", "twister", "piston", "stepper", "gazelle", "drummer", "silk"]),
+    ("Athletic, refined", "Athletic, the best of round 1, its feet straight, and four more each changing one thing.",
+     ["athletic_straight", "athletic_settled", "athletic_lean", "athletic_knees", "athletic_arms"]),
+    ("Favourites, fixed", "Round 1's other best runs, changed as the user's comments asked, their feet straight too.",
+     ["trail_knees", "ducking_arms", "ranger_calm", "glide_knees", "strider_arms"]),
 ]
 assert [k for _t, _x, keys in FAMILIES for k in keys] == list(STYLES), "FAMILIES: every run once, in STYLES's order"
+# the rounds the user rates the runs in, on the portfolio's page (make_runs.py's ROUND): each round's families
+ROUNDS = {1: [t for t, _x, _k in FAMILIES[:6]], 2: ["Athletic, refined", "Favourites, fixed"]}
+
+
+def round_runs(n):
+    """Round n's runs, in its families' order."""
+    return [k for t, _x, keys in FAMILIES if t in ROUNDS[n] for k in keys]
+
+
+assert sorted(k for n in ROUNDS for k in round_runs(n)) == sorted(STYLES), "ROUNDS: every run in one round"
 
 
 # each run's numbers as made here, every setting of DEFAULTS (the run editor's Reset goes back to them)

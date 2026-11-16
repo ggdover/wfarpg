@@ -1,9 +1,9 @@
 extends SceneTree
-## Dev: the run portfolio in the game (assets/characters: make_runs.py exports each model and rig, with its fifty
-## runs and a stand, to assets/characters/build/runs/<model>_<rig>.glb, and the runs' order and names to runs.json
-## there). The hero is one of the figures, read straight from its .glb: it runs as it moves, the run sped up or slowed
-## to the hero's speed, and stands when it stops. It stays upright through turns: the user didn't want it tilting into
-## them (3 November).
+## Dev: the run portfolio in the game (assets/characters: make_runs.py exports each model and rig, with all its runs,
+## every round's, and a stand, to assets/characters/build/runs/<model>_<rig>.glb, and the runs' order and names to
+## runs.json there). The hero is one of the figures, read straight from its .glb: it runs as it moves, the run sped up
+## or slowed to the hero's speed, and stands when it stops. It stays upright through turns: the user didn't want it
+## tilting into them (3 November).
 ##   1-5  model    R / Shift+R  rig    Q / E  run    L  all five models in a slanting line    Z  slow motion
 ##   (and the demo's own keys)
 ## python3 game/tools/play.py --script res://scripts/dev/runs.gd -- [--scene=open_forest] [--model=2] [--rig=heat]

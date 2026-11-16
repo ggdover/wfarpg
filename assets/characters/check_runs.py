@@ -10,8 +10,9 @@
   first, the forefoot coming down just after;
 - the hands don't cross the body's middle, nor rise much above the shoulders, nor go through the hips or thighs (or
   the tunic's skirt over them) as they swing past, nor the forearms into the chest, on Faceted 1500's mesh;
-- no two runs look nearly the same: over a cycle (from the left foot landing) the knees, feet, elbows, hands, hips,
-  chest and head of every two lie on average at least ALIKE apart, or their rhythms differ by a tenth or more;
+- no two runs of a round (runs.ROUNDS) look nearly the same: over a cycle (from the left foot landing) the knees,
+  feet, elbows, hands, hips, chest and head of every two lie on average at least ALIKE apart, or their rhythms differ
+  by a tenth or more; in the later rounds, which narrow down on what the user liked, at least ALIKE_NEARER apart;
 - every run's numbers lie within the run editor's sliders (run_editor.py), so it shows each as made.
 
     blender -b --factory-startup -P check_runs.py [-- style,style]
@@ -129,6 +130,7 @@ def check(name, run, rest, still=False):
 
 
 ALIKE = 0.04  # m: runs whose joints lie nearer than this on average, at the same moments, look alike
+ALIKE_NEARER = 0.01  # m: the same in the rounds after the first, whose runs each change a thing or two from another
 
 
 def alike(rest, styles, n=24):
@@ -217,16 +219,18 @@ def main():
                          "FAILED: a hand goes through the hips or thighs, or a forearm into the chest, in "
                          + ", ".join(f"{n} ({k} of 48)" for n, k in through.items())))
     good.append(not through)
-    if not args:  # the runs against each other
-        pairs = alike(rest, {n: runs.Run(rest, runs.STYLES[n]) for n in styles})
-        bad = [(d, a, b) for d, a, b in pairs if d < ALIKE and same_rhythm(a, b)]
-        d, a, b = bad[0] if bad else pairs[0]
-        fine = not bad
-        print(f"alike    {'ok' if fine else 'FAILED'}: the closest two" + (" at one rhythm" if bad else "")
-              + f", {a} and {b}, {d * 100:.1f} cm apart on average"
-              + ("" if d >= ALIKE or bad else ", but at another rhythm")
-              + (f" ({len(bad)} pairs under {ALIKE * 100:.0f} cm)" if len(bad) > 1 else ""))
-        good.append(fine)
+    if not args:  # the runs of each round against each other
+        for rnd in runs.ROUNDS:
+            least = ALIKE if rnd == 1 else ALIKE_NEARER
+            pairs = alike(rest, {n: runs.Run(rest, runs.STYLES[n]) for n in runs.round_runs(rnd)})
+            bad = [(d, a, b) for d, a, b in pairs if d < least and same_rhythm(a, b)]
+            d, a, b = bad[0] if bad else pairs[0]
+            fine = not bad
+            print(f"alike    round {rnd} {'ok' if fine else 'FAILED'}: the closest two"
+                  + (" at one rhythm" if bad else "") + f", {a} and {b}, {d * 100:.1f} cm apart on average"
+                  + ("" if d >= least or bad else ", but at another rhythm")
+                  + (f" ({len(bad)} pairs under {least * 100:.0f} cm)" if len(bad) > 1 else ""))
+            good.append(fine)
         from run_editor import SETTING  # noqa: E402  (it imports this file, so not at the top)
         out = [f"{n} {name} {spec[name]:g} (the editor's {lo:g}-{hi:g})" for n in styles for spec in [runs.STYLES[n]]
                for name, (_label, lo, hi, _text) in SETTING.items() if not lo - 1e-9 <= spec[name] <= hi + 1e-9]

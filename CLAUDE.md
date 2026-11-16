@@ -101,7 +101,13 @@ General knowledge, public documentation, and third-party libraries and engines a
   to rate from 1 to 10 with an optional comment, from their phone too, stopping and picking up later, the ratings kept
   for Claude to make each next attempt from until a run is right (11 November): the rating page, every run on Faceted
   1500 with bone heat's rig, its ratings in its database round by round (`assets/characters/README.md`, The rating
-  page). The user's ratings there decide what comes next. The hero stays upright as it turns:
+  page). The user's ratings there decide what comes next. Of round 1 they liked Athletic best (7 of 10; the rest 5 or
+  less) and asked for ten more from it (16 November). Their ratings and comments (`assets/characters/ratings/`) want
+  the feet pointing straight ahead, not out (every round-1 run turned them out 6° or more, and they saw it); a firm
+  forward lean, about 12-18°, neither upright nor bent over; the knees lifting about as Athletic's do; little bounce;
+  the arms bent near a right angle and swinging freely, not held up, tucked in, straight or wide; a steady head; not
+  too quick a rhythm; nothing aggressive or goofy. Round 2 is those ten (`runs.py`, `STRAIGHT`; the portfolio's
+  README, Round 2). The hero stays upright as it turns:
   the user didn't like it tilting into turns (3 November). A run editor (a Runs tab in
   `run_portfolio.blend`'s sidebar) tunes a run; the user's tuning goes in `run_settings.json`, which `runs.py` reads
   over its own numbers: build from it. After changing a run, run
@@ -179,7 +185,7 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   into `build/`, not kept in git), with renders in `previews/`; and the run portfolio built from it by `make_runs.py`
   (the runs in `runs.py`, the rigs in `rigs.py`, a run editor in `run_editor.py`): `run_portfolio.blend`, the game's
   .glb files, a side clip of each run and the rating page in `build/runs/`, with each run's recording in the play demo
-  (`record_runs.py`). See its README.
+  (`record_runs.py`), and the user's ratings of each round in `ratings/`. See its README.
 - `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, grass over
   the green ground in four styles (G, or F2's Grass; As before shows the mockups' tufts instead) and the bog's own, a
   grey-box hero, the camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes
