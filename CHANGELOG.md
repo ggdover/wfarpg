@@ -4,6 +4,32 @@ The project's milestones, newest first: the bigger points where a stage of it is
 and so on). The smaller steps between them are in the git history. A new milestone gets a section at the top: its
 date and tag, what it brings since the one before, and what's left for later.
 
+## 1.1: the hero's models and runs (24 November 2026, tag `v1.1`)
+
+The player character's models and running animations, made in Blender, with a page to rate the runs on. It took 5
+commits, from 2 to 24 November 2026.
+
+### The hero
+
+- **Models:** the hero portfolio, from the user's Tripo3D models of a starting hero: seven low-poly versions on one
+  skeleton, five of them kept to rig and animate.
+- **Runs:** made by script, every foot landing heel first, on seven ways of rigging the models. Fifty to choose from,
+  then ten more made from the best rated.
+- **The rating page** shows one run at a time, from the side and in the play demo, to rate from 1 to 10 on a phone or a
+  computer. The ratings are kept, and the next round of runs is made from them.
+- **The run viewer** in the play demo: the hero as any of the models, on any rig, running any of the runs.
+
+### Tools
+
+- Scripts check the runs and export the hero, its rig and the runs packed as the Tripo3D models are, and an editor in
+  Blender tunes a run.
+
+### Left for later
+
+- Choosing the run, the model and the rig, and putting them in the game, where the hero is still a grey box.
+- What the run needs there: a walk for attacking, and starting and stopping.
+- What 1.0 left for later.
+
 ## 1.0: the forest demo (1 November 2026, tag `v1.0`)
 
 The first milestone: a play demo of Act 1's Swedish pine forest in Godot 4.7, with its trees and plants made in
