@@ -185,7 +185,8 @@ https://claude.ai/artifact/Q7Crs9hY9EhaN47YRE2YrP
   into `build/`, not kept in git), with renders in `previews/`; and the run portfolio built from it by `make_runs.py`
   (the runs in `runs.py`, the rigs in `rigs.py`, a run editor in `run_editor.py`): `run_portfolio.blend`, the game's
   .glb files, a side clip of each run and the rating page in `build/runs/`, with each run's recording in the play demo
-  (`record_runs.py`), and the user's ratings of each round in `ratings/`. See its README.
+  (`record_runs.py`), and the user's ratings of each round in `ratings/`; `export_hero.py` exports the hero, rig and
+  runs packed as the Tripo3D exports in `ref_model/` are, into `build/export/`. See its README.
 - `game/`: the Godot project. For now a play demo with the old mockup trees or the new portfolio trees, grass over
   the green ground in four styles (G, or F2's Grass; As before shows the mockups' tufts instead) and the bog's own, a
   grey-box hero, the camera and controls, in twelve scenes the user asked for (`game/scripts/scenes.gd`; Tab or the Scenes

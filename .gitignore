@@ -21,5 +21,5 @@ Thumbs.db
 dist/
 
 # the hero and run portfolios' builds (assets/characters/README.md): the Tripo3D models extracted from ref_model/,
-# the game's .glb files, the run clips and the rating page
+# the game's .glb files, the run clips, the rating page and the hero exported as Tripo's are (export_hero.py)
 assets/characters/build/

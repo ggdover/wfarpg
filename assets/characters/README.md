@@ -468,6 +468,38 @@ what they say (a family of them in `runs.FAMILIES` and the round in `runs.ROUNDS
 round's clips about 4.3 MB a run (the game's 4 MB of it), so each round's clips take the place of the round before's
 on the published page; round 1's were let go for round 2's. They're all still in `build/runs/`.
 
+### Exporting the hero
+
+```sh
+blender -b --factory-startup -P export_hero.py                 # the hero as the rating page shows it
+blender -b --factory-startup -P export_hero.py -- --runs=2      # with only round 2's runs as animations
+blender -b --factory-startup -P export_hero.py -- --model=Faceted800 --rig=helpers --runs=none
+```
+
+The user asked for the hero, its rig and the rest in the form of their Tripo3D exports in `ref_model/` (19 November).
+So `export_hero.py` writes `build/export/<model>_<rig>/` (not kept in git), for Faceted 1500 on bone heat's rig:
+
+- `1.5k_triangle_with_rig.zip`, as Tripo's `20k_triangle_with_rig.zip` is: a rigged .fbx with the base colour,
+  metallic, roughness and normal maps in it, and beside it a .fbm folder with those and the packed `_rm` map as PNGs,
+  2048 pixels square, named as Tripo's (`_basecolor`, `_metallic`, `_roughness`, `_rm`, `_normal`). The model stands in
+  its rest pose on Tripo's skeleton, an armature called Armature with the same 61 bones, names and parents, at most four
+  bones on a vertex, in metres (Tripo's are in centimetres). Its faces' flat colours are baked into the base colour
+  texture on an unwrap of its own (the decimated model's UVs are the 20k model's, overlapping here and there) and kept
+  as vertex colours too; it's matte, as in the game: the metallic black, the roughness even, the normal map flat.
+- `1.5k_triangle_with_rig_and_runs.zip`: the same with every run and the stand as animations, a take each named after
+  the run, at 60 frames a second (`--runs=2` for one round's, `--runs=athletic,glide_knees` for some, `--runs=none`
+  for no second .zip). It takes about half a minute. Each .zip is written whole before it replaces the one from before,
+  so stopping the export keeps the old ones.
+
+Blender's FBX importer joins a bone to its one child when it points straight at it, as Tripo's root does at the pelvis,
+and a joined pelvis can't move on its own: the runs would lose their bounce and sway there. So the export turns the
+root's tip 1 cm (0.6°) aside; the root never moves, so nothing else changes. Checked on Windows on Faceted 1500 with
+bone heat's rig, importing the .fbx files back: in Blender, every bone deforms as the portfolio's does, within 0.01 mm
+at each of the 2,726 frames of the 61 takes, and so does the skinned mesh at eight moments of each; the bones' rest
+places and the skin weights are the same, but for the root's tip. Godot 4.7 reads both, at 1.80 m, with the textures and
+the 61 animations, the hips rising and falling in them. Unity and Unreal haven't been tried, nor Linux. The corrective
+rig's shapes aren't carried, only its bones.
+
 ## Left for later
 
 - The run the user picks, with what it needs in the game: a walk for moving while attacking (forward, back and to the
